@@ -91,6 +91,48 @@ class UserController {
                 header('Location: ../Views/login.php?error=invalid_credentials');
                 exit();
             }
+        
+        }
+    }
+
+    public function profile() {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ../Views/login.php');
+            exit();
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Handle profile update
+            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $password = $_POST['password'];
+
+            // Update user details
+            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
+
+            if ($result) {
+                // Update the session variables
+                $_SESSION['username'] = $username;
+            }
+
+            // Update password if provided
+            if (!empty($password)) {
+                $this->userModel->updatePassword($userId, $password);
+            }
+            
+            header('Location: ?action=profile&status=updated');
+            exit();
+
+        } else {
+            // Display profile form
+            $user = $this->userModel->findById($userId);
+            include __DIR__ . '/../Views/profile.php';
         }
     }
 
@@ -108,14 +150,4 @@ class UserController {
     }
 }
 
-// Basic router to handle actions
-if (isset($_GET['action'])) {
-    $controller = new UserController();
-    $action = $_GET['action'];
-
-    if (method_exists($controller, $action)) {
-        $controller->$action();
-    } else {
-        die("Action not found.");
-    }
-}
+// This router is now handled by public/index.php

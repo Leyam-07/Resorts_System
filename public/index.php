@@ -26,6 +26,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
    } else {
        die('Action not found.');
    }
+} elseif ($controllerName === 'user') {
+    require_once __DIR__ . '/../app/Controllers/UserController.php';
+    $userController = new UserController();
+    if (method_exists($userController, $actionName)) {
+        $userController->$actionName();
+        exit();
+    } else {
+        die('Action not found.');
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -44,6 +53,9 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         <a class="navbar-brand" href="#">Resort Management</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="?controller=user&action=profile">My Profile</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="../app/Controllers/UserController.php?action=logout">Logout</a>
                 </li>

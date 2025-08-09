@@ -59,6 +59,7 @@
             <input type="text" class="form-control" id="phoneNumber" name="phoneNumber">
         </div>
         <button type="submit" class="btn btn-primary">Add User</button>
+        <a href="?controller=admin&action=users" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 </body>

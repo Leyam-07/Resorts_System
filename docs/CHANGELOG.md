@@ -21,17 +21,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created a database initialization script (`scripts/init_db.php`).
   - Added a central database configuration file (`config/database.php`).
 - **Dashboard and RBAC:**
+
   - Created a main entry point (`public/index.php`) for the application.
   - Implemented basic Role-Based Access Control (RBAC) to display different content for `Admin`, `Staff`, and `Customer` roles.
   - Added a separate registration page for creating the initial `Admin` user.
   - Built an admin-only user management interface to view and add new users.
 
+  - Added user profile management, allowing users to update their details and password.
+  - Implemented admin functionality to edit and delete user accounts from the dashboard.
+
 ### Improved
 
+- Refactored application routing to be handled consistently by a central router (`public/index.php`), improving maintainability and fixing navigation bugs.
 - Enhanced user registration and login forms with visual feedback for various scenarios (e.g., duplicate username/email, invalid credentials, successful registration/logout).
 
 ### Fixed
 
+- Fixed a bug where session data (e.g., username) was not updated after a profile change, requiring a re-login to see changes.
+- Corrected navigation links that were causing "Not Found" errors by aligning them with the new centralized routing system.
 - Resolved fatal PDOException on attempting to register duplicate usernames by implementing pre-insertion checks in `User` model.
 - Corrected `AdminController` user creation logic to handle and propagate specific error messages for user registration.
 - Resolved an issue where user sessions were not properly cleared on logout, causing role permissions to persist incorrectly across different user logins.

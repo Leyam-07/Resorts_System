@@ -49,4 +49,55 @@ class AdminController {
             include __DIR__ . '/../Views/admin/add_user.php';
         }
     }
+
+    public function editUser() {
+        if (!isset($_GET['id'])) {
+            die('User ID not specified.');
+        }
+        $userId = $_GET['id'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Handle the form submission
+            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+
+            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
+
+            if ($result === true) {
+                // If admin edits their own profile, update session
+                if ($userId == $_SESSION['user_id']) {
+                    $_SESSION['username'] = $username;
+                }
+                header('Location: ?controller=admin&action=users&status=user_updated');
+                exit();
+            } else {
+                header('Location: ?controller=admin&action=editUser&id=' . $userId . '&error=' . $result);
+                exit();
+            }
+        } else {
+            // Display the edit form
+            $user = $this->userModel->findById($userId);
+            if (!$user) {
+                die('User not found.');
+            }
+            include __DIR__ . '/../Views/admin/edit_user.php';
+        }
+    }
+
+    public function deleteUser() {
+        if (!isset($_GET['id'])) {
+            die('User ID not specified.');
+        }
+        $userId = $_GET['id'];
+
+        if ($this->userModel->delete($userId)) {
+            header('Location: ?controller=admin&action=users&status=user_deleted');
+            exit();
+        } else {
+            die('Failed to delete user.');
+        }
+    }
 }

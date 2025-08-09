@@ -9,6 +9,7 @@
 <div class="container mt-5">
     <h2>User Management</h2>
     <a href="?controller=admin&action=addUser" class="btn btn-primary mb-3">Add New User</a>
+    <a href="index.php" class="btn btn-secondary mb-3">Back to Dashboard</a>
     <table class="table">
         <thead>
             <tr>
@@ -33,7 +34,8 @@
                 <td><?= htmlspecialchars($user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
                 <td>
-                    <!-- Actions like edit/delete can be added here -->
+                    <a href="?controller=admin&action=editUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="?controller=admin&action=deleteUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
                 </td>
             </tr>
             <?php endforeach; ?>
