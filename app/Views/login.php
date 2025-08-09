@@ -28,7 +28,7 @@
                         }
                     ?>
                     <!-- Login Form -->
-                    <form action="../Controllers/UserController.php?action=login" method="POST">
+                    <form action="index.php?action=login" method="POST">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>

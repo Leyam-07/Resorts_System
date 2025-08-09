@@ -32,7 +32,7 @@ class UserController {
 
             if ($result === true) {
                 // Redirect to login page on success
-                header('Location: ../Views/login.php?registration=success');
+                header('Location: ../../public/index.php?action=login&registration=success');
                 exit();
             } else {
                 // Handle registration failure
@@ -57,7 +57,7 @@ class UserController {
 
             if ($result === true) {
                 // Redirect to login page on success
-                header('Location: ../Views/login.php?registration=success');
+                header('Location: ../../public/index.php?action=login&registration=success');
                 exit();
             } else {
                 // Handle registration failure
@@ -67,14 +67,14 @@ class UserController {
         }
     }
  
-     public function login() {
-         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            session_start();
-             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
+            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
             $password = $_POST['password'];
- 
+
             $user = $this->userModel->findByUsername($username);
- 
+
             if ($user && password_verify($password, $user['Password'])) {
                 // Password is correct, destroy old session and start new one
                 session_destroy();
@@ -83,22 +83,23 @@ class UserController {
                 $_SESSION['username'] = $user['Username'];
                 $_SESSION['role'] = $user['Role'];
 
-                // Redirect to a new dashboard page (to be created)
-                header('Location: ../../public/index.php'); // Redirect to a main dashboard
+                header('Location: index.php'); // Redirect to the main dashboard
                 exit();
             } else {
-                // Invalid credentials
-                header('Location: ../Views/login.php?error=invalid_credentials');
+                // Invalid credentials, reload the login page with an error
+                header('Location: index.php?action=login&error=invalid_credentials');
                 exit();
             }
-        
+        } else {
+            // Display the login form
+            include __DIR__ . '/../Views/login.php';
         }
     }
 
     public function profile() {
-        session_start();
+        
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ../Views/login.php');
+            header('Location: index.php?action=login');
             exit();
         }
 
@@ -126,7 +127,7 @@ class UserController {
                 $this->userModel->updatePassword($userId, $password);
             }
             
-            header('Location: ?action=profile&status=updated');
+            header('Location: ?controller=user&action=profile&status=updated');
             exit();
 
         } else {
@@ -137,7 +138,7 @@ class UserController {
     }
 
     public function logout() {
-       session_start();
+       
         // Unset all session variables
         $_SESSION = array();
 
@@ -145,7 +146,7 @@ class UserController {
         session_destroy();
 
         // Redirect to the login page
-        header('Location: ../Views/login.php?logout=success');
+        header('Location: index.php?action=login&logout=success');
         exit();
     }
 }

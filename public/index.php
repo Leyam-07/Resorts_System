@@ -1,21 +1,38 @@
 <?php
 session_start();
 
-// Check if the user is logged in, otherwise redirect to login page
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../app/Views/login.php');
+// If not logged in and no specific action, show login page
+if (!isset($_SESSION['user_id']) && !isset($_GET['action'])) {
+    require_once __DIR__ . '/../app/Controllers/UserController.php';
+    $userController = new UserController();
+    $userController->login();
     exit();
 }
 
-// Get user data from session
-$username = $_SESSION['username'];
-$role = $_SESSION['role'];
+// If logged in, get user data from session
+if (isset($_SESSION['user_id'])) {
+    $username = $_SESSION['username'];
+    $role = $_SESSION['role'];
+}
 
 // Basic router to handle different pages based on role
 $controllerName = isset($_GET['controller']) ? $_GET['controller'] : 'dashboard';
 $actionName = isset($_GET['action']) ? $_GET['action'] : 'index';
 
+// Allow login action even if not logged in
+if ($actionName === 'login' && !isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/../app/Controllers/UserController.php';
+    $userController = new UserController();
+    $userController->login();
+    exit();
+}
+
+
 if ($controllerName === 'dashboard' && $actionName === 'index') {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: index.php?action=login');
+        exit();
+    }
    // The rest of the file will act as the default dashboard view
 } elseif ($controllerName === 'admin') {
    require_once __DIR__ . '/../app/Controllers/AdminController.php';
@@ -57,7 +74,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
                     <a class="nav-link" href="?controller=user&action=profile">My Profile</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../app/Controllers/UserController.php?action=logout">Logout</a>
+                    <a class="nav-link" href="?controller=user&action=logout">Logout</a>
                 </li>
             </ul>
         </div>
