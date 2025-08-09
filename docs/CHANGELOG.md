@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dashboard and RBAC:**
   - Created a main entry point (`public/index.php`) for the application.
   - Implemented basic Role-Based Access Control (RBAC) to display different content for `Admin`, `Staff`, and `Customer` roles.
+  - Added a separate registration page for creating the initial `Admin` user.
+  - Built an admin-only user management interface to view and add new users.
+
+### Fixed
+
+- Resolved an issue where user sessions were not properly cleared on logout, causing role permissions to persist incorrectly across different user logins.
+- Removed redundant `session_start()` calls from controllers to prevent PHP notices.
 
 ## [1.0.0] - 2025-08-09
 

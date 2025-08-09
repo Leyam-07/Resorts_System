@@ -1,7 +1,5 @@
 <?php
 
-session_start();
-
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 
@@ -42,15 +40,41 @@ class UserController {
         }
     }
 
-    public function login() {
+    public function registerAdmin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Sanitize POST data
             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+            $password = $_POST['password']; // No sanitization needed before hashing
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+
+            // Attempt to create the user with Admin role
+            if ($this->userModel->create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber)) {
+                // Redirect to login page on success
+                header('Location: ../Views/login.php?registration=success');
+                exit();
+            } else {
+                // Handle registration failure
+                header('Location: ../Views/register-admin.php?error=registration_failed');
+                exit();
+            }
+        }
+    }
+ 
+     public function login() {
+         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            session_start();
+             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
             $password = $_POST['password'];
-
+ 
             $user = $this->userModel->findByUsername($username);
-
+ 
             if ($user && password_verify($password, $user['Password'])) {
-                // Password is correct, start a new session
+                // Password is correct, destroy old session and start new one
+                session_destroy();
+                session_start();
                 $_SESSION['user_id'] = $user['UserID'];
                 $_SESSION['username'] = $user['Username'];
                 $_SESSION['role'] = $user['Role'];
@@ -67,6 +91,7 @@ class UserController {
     }
 
     public function logout() {
+       session_start();
         // Unset all session variables
         $_SESSION = array();
 

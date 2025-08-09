@@ -63,4 +63,10 @@ class User {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function findAll() {
+        $stmt = $this->db->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, CreatedAt FROM " . $this->table . " ORDER BY CreatedAt DESC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

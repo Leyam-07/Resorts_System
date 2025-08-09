@@ -79,7 +79,8 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 - **Access the Application:**
 
   - Ensure your project folder (`ResortsSystem`) is located inside your XAMPP document root (e.g., `C:/xampp/htdocs`).
-  - Open your web browser and navigate to the registration page to create the first user account:
-  - **URL:** `http://localhost/ResortsSystem/app/Views/register.php` (or `http://localhost:8080/...` if you use a custom port).
+  - Open your web browser and navigate to the special admin registration page to create the first **Admin** account:
+  - **URL:** `http://localhost/ResortsSystem/app/Views/register-admin.php` (or `http://localhost:8080/...` if you use a custom port).
+  - After creating the Admin, you can log in and use the admin dashboard to create `Staff` and `Customer` users.
 
-- **Testing:** After registering, log in and verify that the correct dashboard appears based on the user's role.
+- **Testing:** After registering the Admin, log in and verify that the Admin Dashboard appears. Use it to create other users and test their roles.

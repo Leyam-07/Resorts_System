@@ -11,6 +11,22 @@ if (!isset($_SESSION['user_id'])) {
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
+// Basic router to handle different pages based on role
+$controllerName = isset($_GET['controller']) ? $_GET['controller'] : 'dashboard';
+$actionName = isset($_GET['action']) ? $_GET['action'] : 'index';
+
+if ($controllerName === 'dashboard' && $actionName === 'index') {
+   // The rest of the file will act as the default dashboard view
+} elseif ($controllerName === 'admin') {
+   require_once __DIR__ . '/../app/Controllers/AdminController.php';
+   $adminController = new AdminController();
+   if (method_exists($adminController, $actionName)) {
+       $adminController->$actionName();
+       exit(); // Stop further execution
+   } else {
+       die('Action not found.');
+   }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +63,7 @@ $role = $_SESSION['role'];
                     <?php if ($role === 'Admin'): ?>
                         <h5 class="card-title">Admin Dashboard</h5>
                         <p class="card-text">You have full access to the system.</p>
-                        <!-- Admin-specific content goes here -->
+                        <a href="?controller=admin&action=users" class="btn btn-primary">Manage Users</a>
                     <?php elseif ($role === 'Staff'): ?>
                         <h5 class="card-title">Staff Dashboard</h5>
                         <p class="card-text">You can view daily tasks and schedules.</p>
