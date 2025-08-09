@@ -8,6 +8,23 @@
 <body>
 <div class="container mt-5">
     <h2>Add New User</h2>
+    <?php
+        if (isset($_GET['error'])) {
+            $errorMsg = '';
+            switch ($_GET['error']) {
+                case 'username_exists':
+                    $errorMsg = 'Username already taken. Please choose another.';
+                    break;
+                case 'email_exists':
+                    $errorMsg = 'An account with this email already exists.';
+                    break;
+                default:
+                    $errorMsg = 'Failed to add user. Please try again.';
+                    break;
+            }
+            echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
+        }
+    ?>
     <form action="?controller=admin&action=addUser" method="POST">
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>

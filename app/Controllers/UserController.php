@@ -28,13 +28,15 @@ class UserController {
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
 
             // Attempt to create the user
-            if ($this->userModel->create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber)) {
+            $result = $this->userModel->create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
+
+            if ($result === true) {
                 // Redirect to login page on success
                 header('Location: ../Views/login.php?registration=success');
                 exit();
             } else {
                 // Handle registration failure
-                header('Location: ../Views/register.php?error=registration_failed');
+                header('Location: ../Views/register.php?error=' . $result);
                 exit();
             }
         }
@@ -51,13 +53,15 @@ class UserController {
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
 
             // Attempt to create the user with Admin role
-            if ($this->userModel->create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber)) {
+            $result = $this->userModel->create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber);
+
+            if ($result === true) {
                 // Redirect to login page on success
                 header('Location: ../Views/login.php?registration=success');
                 exit();
             } else {
                 // Handle registration failure
-                header('Location: ../Views/register-admin.php?error=registration_failed');
+                header('Location: ../Views/register-admin.php?error=' . $result);
                 exit();
             }
         }

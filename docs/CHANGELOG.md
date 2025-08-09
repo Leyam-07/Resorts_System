@@ -26,8 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added a separate registration page for creating the initial `Admin` user.
   - Built an admin-only user management interface to view and add new users.
 
+### Improved
+
+- Enhanced user registration and login forms with visual feedback for various scenarios (e.g., duplicate username/email, invalid credentials, successful registration/logout).
+
 ### Fixed
 
+- Resolved fatal PDOException on attempting to register duplicate usernames by implementing pre-insertion checks in `User` model.
+- Corrected `AdminController` user creation logic to handle and propagate specific error messages for user registration.
 - Resolved an issue where user sessions were not properly cleared on logout, causing role permissions to persist incorrectly across different user logins.
 - Removed redundant `session_start()` calls from controllers to prevent PHP notices.
 

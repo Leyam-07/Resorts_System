@@ -16,6 +16,17 @@
                 <div class="card-body">
                     <h3 class="card-title text-center">Login</h3>
                     <hr>
+                    <?php
+                        if (isset($_GET['error']) && $_GET['error'] == 'invalid_credentials') {
+                            echo '<div class="alert alert-danger" role="alert">Invalid username or password.</div>';
+                        }
+                        if (isset($_GET['registration']) && $_GET['registration'] == 'success') {
+                            echo '<div class="alert alert-success" role="alert">Registration successful! You can now log in.</div>';
+                        }
+                        if (isset($_GET['logout']) && $_GET['logout'] == 'success') {
+                            echo '<div class="alert alert-success" role="alert">You have been logged out successfully.</div>';
+                        }
+                    ?>
                     <!-- Login Form -->
                     <form action="../Controllers/UserController.php?action=login" method="POST">
                         <div class="mb-3">

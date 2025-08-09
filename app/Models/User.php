@@ -21,6 +21,14 @@ class User {
      * @return bool
      */
     public function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null) {
+        // Check for existing user
+        if ($this->findByUsername($username)) {
+            return 'username_exists';
+        }
+        if ($this->findByEmail($email)) {
+            return 'email_exists';
+        }
+
         // Hash the password for security
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -39,12 +47,15 @@ class User {
         $stmt->bindParam(':phoneNumber', $phoneNumber);
 
         // Execute the query
-        if ($stmt->execute()) {
-            return true;
+        try {
+            if ($stmt->execute()) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            // Return a generic error to avoid leaking implementation details
+            return 'registration_failed';
         }
 
-        // Print error if something goes wrong
-        printf("Error: %s.\n", $stmt->error);
         return false;
     }
 
@@ -59,6 +70,16 @@ class User {
         
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':username', $username);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function findByEmail($email) {
+        $query = "SELECT * FROM " . $this->table . " WHERE Email = :email LIMIT 1";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);

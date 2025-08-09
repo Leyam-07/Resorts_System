@@ -16,6 +16,23 @@
                 <div class="card-body">
                     <h3 class="card-title text-center">Create an Account</h3>
                     <hr>
+                    <?php
+                        if (isset($_GET['error'])) {
+                            $errorMsg = '';
+                            switch ($_GET['error']) {
+                                case 'username_exists':
+                                    $errorMsg = 'Username already taken. Please choose another.';
+                                    break;
+                                case 'email_exists':
+                                    $errorMsg = 'An account with this email already exists.';
+                                    break;
+                                default:
+                                    $errorMsg = 'Registration failed. Please try again.';
+                                    break;
+                            }
+                            echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
+                        }
+                    ?>
                     <!-- Registration Form -->
                     <form action="../Controllers/UserController.php?action=register" method="POST">
                         <div class="mb-3">

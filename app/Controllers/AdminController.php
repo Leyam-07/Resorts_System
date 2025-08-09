@@ -37,11 +37,12 @@ class AdminController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
 
-            if ($this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber)) {
-                header('Location: ?controller=admin&action=users');
+            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber);
+            if ($result === true) {
+                header('Location: ?controller=admin&action=users&status=user_added');
                 exit();
             } else {
-                header('Location: ?controller=admin&action=addUser&error=failed');
+                header('Location: ?controller=admin&action=addUser&error=' . $result);
                 exit();
             }
         } else {
