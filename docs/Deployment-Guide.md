@@ -41,15 +41,8 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 
 ## 3. Database Setup
 
-1.  **Create a Database:**
-    Log in to your MySQL server and create a new database.
-
-    ```sql
-    CREATE DATABASE resorts_system;
-    ```
-
-2.  **Create a Database User:**
-    Create a user and grant it privileges to the new database.
+1.  **Create a Database User (If Needed):**
+    Before running the script, ensure you have a MySQL user that matches the credentials in `config/database.php`. If you haven't created one, you can do so via phpMyAdmin or the command line:
 
     ```sql
     CREATE USER 'resorts_user'@'localhost' IDENTIFIED BY 'your-strong-password';
@@ -57,8 +50,13 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     FLUSH PRIVILEGES;
     ```
 
-3.  **Import the Schema:**
-    Import the table structures from the `Database-Schema.md` file or a dedicated `.sql` dump file if available.
+    _Note: The `resorts_system._` privileges will apply correctly after the database is created in the next step.\*
+
+2.  **Run the Initialization Script:**
+    Navigate to the project's root directory in your terminal and run the following command. This single step will create the database and all the necessary tables.
+    ```bash
+    php scripts/init_db.php
+    ```
 
 ## 4. Application Configuration
 
@@ -78,5 +76,10 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 
 ## 5. Final Steps
 
-- **Access the Application:** Open your web browser and navigate to your server's domain or IP address.
-- **Testing:** Perform end-to-end testing to ensure all features, including registration, booking, and payments, are working correctly.
+- **Access the Application:**
+
+  - Ensure your project folder (`ResortsSystem`) is located inside your XAMPP document root (e.g., `C:/xampp/htdocs`).
+  - Open your web browser and navigate to the registration page to create the first user account:
+  - **URL:** `http://localhost/ResortsSystem/app/Views/register.php` (or `http://localhost:8080/...` if you use a custom port).
+
+- **Testing:** After registering, log in and verify that the correct dashboard appears based on the user's role.

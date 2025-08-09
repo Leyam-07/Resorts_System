@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-08-09
+
+### Added
+
+- **User Management System:**
+  - Implemented a full user registration, login, and logout flow.
+  - Created `User` model for database interactions with password hashing.
+  - Developed `UserController` to manage user-related requests.
+  - Built `register.php` and `login.php` views with Bootstrap.
+- **Core Application Structure:**
+  - Established a full MVC directory structure (`app/Models`, `app/Views`, `app/Controllers`).
+  - Created a database initialization script (`scripts/init_db.php`).
+  - Added a central database configuration file (`config/database.php`).
+- **Dashboard and RBAC:**
+  - Created a main entry point (`public/index.php`) for the application.
+  - Implemented basic Role-Based Access Control (RBAC) to display different content for `Admin`, `Staff`, and `Customer` roles.
+
 ## [1.0.0] - 2025-08-09
 
 ### Added
