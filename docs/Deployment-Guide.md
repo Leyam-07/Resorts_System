@@ -2,6 +2,20 @@
 
 This guide provides instructions for deploying the Integrated Digital Management System on a web server.
 
+## Prerequisites for Local Development
+
+Before you begin, you will need a local environment that can run PHP and MySQL. We recommend installing a pre-packaged software stack, as it's the simplest way to get started.
+
+- **Local Server Stack:** Install **XAMPP** ([Download here](https://www.apachefriends.org/index.html)). It includes:
+  - **Apache:** The web server.
+  - **MySQL:** The database.
+  - **PHP:** The programming language.
+  - **phpMyAdmin:** A tool to manage the database.
+- **Code Editor:** **Visual Studio Code** ([Download here](https://code.visualstudio.com/)) is recommended.
+- **Version Control:** **Git** ([Download here](https://git-scm.com/downloads)) is required to clone the repository and manage code versions.
+
+---
+
 ## 1. Server Requirements
 
 - **Web Server:** Apache 2.4+ or Nginx 1.18+

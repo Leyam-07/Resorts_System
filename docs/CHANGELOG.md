@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-08-09
+
 ### Added
 
-- Initial project structure created.
-- `.roo/rules` defined for AI guidance.
-- `docs` directory created with `ROADMAP.md`, `CHANGELOG.md`, `Database-Schema.md`, and `Deployment-Guide.md`.
+- Created foundational project structure and documentation.
+- Established core AI guidance with `.roo/rules/`:
+  - `1.Context.md`
+  - `2.Architecture.md`
+  - `3.Coding-Standards.md`
+  - `4.User-Interface.md`
+  - `5.Project-Artifacts.md`
+- Created `docs/` directory with key project artifacts:
+  - `ROADMAP.md`
+  - `CHANGELOG.md`
+  - `Database-Schema.md`
+  - `Deployment-Guide.md`
