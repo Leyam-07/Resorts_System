@@ -42,7 +42,7 @@
                         </div>
                     </form>
                     <div class="mt-3 text-center">
-                        <p>Don't have an account? <a href="register.php">Register here</a></p>
+                        <p>Don't have an account? <a href="?action=showRegisterForm">Register here</a></p>
                     </div>
                 </div>
             </div>

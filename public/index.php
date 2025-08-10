@@ -20,10 +20,28 @@ $controllerName = isset($_GET['controller']) ? $_GET['controller'] : 'dashboard'
 $actionName = isset($_GET['action']) ? $_GET['action'] : 'index';
 
 // Allow login action even if not logged in
-if ($actionName === 'login' && !isset($_SESSION['user_id'])) {
+if (in_array($actionName, ['login', 'showRegisterForm', 'register', 'showAdminRegisterForm', 'registerAdmin']) && !isset($_SESSION['user_id'])) {
     require_once __DIR__ . '/../app/Controllers/UserController.php';
     $userController = new UserController();
-    $userController->login();
+
+    // Specific actions for logged-out users
+    switch ($actionName) {
+        case 'login':
+            $userController->login();
+            break;
+        case 'showRegisterForm':
+            $userController->showRegisterForm();
+            break;
+        case 'register':
+            $userController->register();
+            break;
+        case 'showAdminRegisterForm':
+            $userController->showAdminRegisterForm();
+            break;
+        case 'registerAdmin':
+            $userController->registerAdmin();
+            break;
+    }
     exit();
 }
 

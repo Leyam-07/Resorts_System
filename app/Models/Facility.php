@@ -4,17 +4,15 @@ class Facility {
     public $facilityId;
     public $resortId;
     public $name;
-    public $description;
     public $capacity;
-    public $pricePerHour;
+    public $rate;
     public $createdAt;
 
-    public function __construct($resortId, $name, $description, $capacity, $pricePerHour) {
+    public function __construct($resortId, $name, $capacity, $rate) {
         $this->resortId = $resortId;
         $this->name = $name;
-        $this->description = $description;
         $this->capacity = $capacity;
-        $this->pricePerHour = $pricePerHour;
+        $this->rate = $rate;
     }
 
     // Methods for managing facilities will go here.

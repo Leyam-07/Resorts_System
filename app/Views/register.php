@@ -34,7 +34,7 @@
                         }
                     ?>
                     <!-- Registration Form -->
-                    <form action="../Controllers/UserController.php?action=register" method="POST">
+                    <form action="?action=register" method="POST">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -67,7 +67,7 @@
                         </div>
                     </form>
                     <div class="mt-3 text-center">
-                        <p>Already have an account? <a href="login.php">Login here</a></p>
+                        <p>Already have an account? <a href="?action=login">Login here</a></p>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2025-08-10
+
+### Added
+
+- **Database Seeding:** Created a new script (`scripts/seed_db.php`) to populate the database with sample resorts and facilities for easier testing and development.
+
+### Fixed
+
+- **User Registration Flow:** Corrected multiple "404 Not Found" errors that occurred during the user registration process.
+  - The main router (`public/index.php`) now correctly handles requests to display and process registration forms.
+  - Fixed incorrect form `action` attributes in the registration views.
+  - Corrected `header()` redirect paths in the `UserController` to use router-friendly URLs instead of direct file paths.
+- **Database Script Idempotency:** Updated the `Database-Schema.md` to include `IF NOT EXISTS` in all `CREATE TABLE` statements, allowing the `init_db.php` script to be run multiple times without causing fatal errors.
+
+### Changed
+
+- Aligned the `Facility.php` model with the database schema by renaming `$pricePerHour` to `$rate` and removing an unused `$description` property.
+
 ## [1.2.0] - 2025-08-10
 
 ### Added

@@ -32,14 +32,18 @@ class UserController {
 
             if ($result === true) {
                 // Redirect to login page on success
-                header('Location: ../../public/index.php?action=login&registration=success');
+                header('Location: index.php?action=login&registration=success');
                 exit();
             } else {
                 // Handle registration failure
-                header('Location: ../Views/register.php?error=' . $result);
+                header('Location: index.php?action=showRegisterForm&error=' . $result);
                 exit();
             }
         }
+    }
+
+    public function showRegisterForm() {
+        include __DIR__ . '/../Views/register.php';
     }
 
     public function registerAdmin() {
@@ -57,14 +61,18 @@ class UserController {
 
             if ($result === true) {
                 // Redirect to login page on success
-                header('Location: ../../public/index.php?action=login&registration=success');
+                header('Location: index.php?action=login&registration=success');
                 exit();
             } else {
                 // Handle registration failure
-                header('Location: ../Views/register-admin.php?error=' . $result);
+                header('Location: index.php?action=showAdminRegisterForm&error=' . $result);
                 exit();
             }
         }
+    }
+
+    public function showAdminRegisterForm() {
+        include __DIR__ . '/../Views/register-admin.php';
     }
  
     public function login() {

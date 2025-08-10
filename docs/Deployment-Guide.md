@@ -53,9 +53,16 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     _Note: The `resorts_system._` privileges will apply correctly after the database is created in the next step.\*
 
 2.  **Run the Initialization Script:**
-    Navigate to the project's root directory in your terminal and run the following command. This single step will create the database and all the necessary tables.
+    Navigate to the project's root directory in your terminal and run the following command. This will create the database structure.
+
     ```bash
     php scripts/init_db.php
+    ```
+
+3.  **Seed the Database (Optional but Recommended):**
+    To populate the database with sample data for testing, run the seeding script:
+    ```bash
+    php scripts/seed_db.php
     ```
 
 ## 4. Application Configuration
@@ -80,7 +87,7 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 
   - Ensure your project folder (`ResortsSystem`) is located inside your XAMPP document root (e.g., `C:/xampp/htdocs`).
   - Open your web browser and navigate to the special admin registration page to create the first **Admin** account:
-  - **URL:** `http://localhost/ResortsSystem/app/Views/register-admin.php` (or `http://localhost:8080/...` if you use a custom port).
-  - After creating the Admin, you can log in and use the admin dashboard to create `Staff` and `Customer` users.
+  - **URL:** `http://localhost/ResortsSystem/public/?action=showAdminRegisterForm` (or `http://localhost:8080/...` if you use a custom port).
+  - After creating the Admin, you can log in and go to `http://localhost/ResortsSystem/public/?action=showRegisterForm` to create Customer accounts.
 
 - **Testing:** After registering the Admin, log in and verify that the Admin Dashboard appears. Use it to create other users and test their roles.

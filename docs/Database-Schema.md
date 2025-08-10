@@ -9,7 +9,7 @@ This document provides the detailed `MySQL` database schema for the Integrated D
 Stores user accounts for Admins, Staff, and Customers.
 
 ```sql
-CREATE TABLE `Users` (
+CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` INT PRIMARY KEY AUTO_INCREMENT,
   `Username` VARCHAR(255) NOT NULL UNIQUE,
   `Password` VARCHAR(255) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE `Users` (
 Stores information about the resort properties.
 
 ```sql
-CREATE TABLE `Resorts` (
+CREATE TABLE IF NOT EXISTS `Resorts` (
   `ResortID` INT PRIMARY KEY AUTO_INCREMENT,
   `Name` VARCHAR(255) NOT NULL,
   `Address` TEXT,
@@ -44,7 +44,7 @@ CREATE TABLE `Resorts` (
 Stores details about the individual facilities within a resort (e.g., pools, cottages).
 
 ```sql
-CREATE TABLE `Facilities` (
+CREATE TABLE IF NOT EXISTS `Facilities` (
   `FacilityID` INT PRIMARY KEY AUTO_INCREMENT,
   `ResortID` INT,
   `Name` VARCHAR(255) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE `Facilities` (
 The central table for managing all reservations.
 
 ```sql
-CREATE TABLE `Bookings` (
+CREATE TABLE IF NOT EXISTS `Bookings` (
   `BookingID` INT PRIMARY KEY AUTO_INCREMENT,
   `CustomerID` INT,
   `FacilityID` INT,
@@ -83,7 +83,7 @@ CREATE TABLE `Bookings` (
 Tracks all payment transactions related to bookings.
 
 ```sql
-CREATE TABLE `Payments` (
+CREATE TABLE IF NOT EXISTS `Payments` (
   `PaymentID` INT PRIMARY KEY AUTO_INCREMENT,
   `BookingID` INT,
   `Amount` DECIMAL(10, 2) NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE `Payments` (
 Stores customer feedback and reviews.
 
 ```sql
-CREATE TABLE `Feedback` (
+CREATE TABLE IF NOT EXISTS `Feedback` (
   `FeedbackID` INT PRIMARY KEY AUTO_INCREMENT,
   `BookingID` INT,
   `Rating` INT CHECK (`Rating` >= 1 AND `Rating` <= 5),
