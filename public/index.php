@@ -75,7 +75,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     $bookingController = new BookingController();
 
     // Define allowed actions for the booking controller
-    $allowedActions = ['showBookingForm', 'createBooking', 'bookingSuccess'];
+    $allowedActions = ['showBookingForm', 'createBooking', 'bookingSuccess', 'showMyBookings', 'cancelBooking'];
 
     if (in_array($actionName, $allowedActions) && method_exists($bookingController, $actionName)) {
         $bookingController->$actionName();
@@ -101,6 +101,14 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         <a class="navbar-brand" href="#">Resort Management</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Customer'): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="?controller=booking&action=showBookingForm">Book a Facility</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="?controller=booking&action=showMyBookings">My Bookings</a>
+                </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="?controller=user&action=profile">My Profile</a>
                 </li>
@@ -131,7 +139,6 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
                     <?php else: ?>
                         <h5 class="card-title">Customer Dashboard</h5>
                         <p class="card-text">Welcome to your personal dashboard.</p>
-                        <a href="?controller=booking&action=showBookingForm" class="btn btn-primary">Book a Facility</a>
                         <!-- Customer-specific content goes here -->
                     <?php endif; ?>
                 </div>

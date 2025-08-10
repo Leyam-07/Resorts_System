@@ -73,6 +73,20 @@ class Booking {
         return null;
     }
 
+    public static function findByCustomerId($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT b.*, f.Name as FacilityName
+             FROM Bookings b
+             JOIN Facilities f ON b.FacilityID = f.FacilityID
+             WHERE b.CustomerID = :customerId
+             ORDER BY b.BookingDate DESC, b.StartTime DESC"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public static function update(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(

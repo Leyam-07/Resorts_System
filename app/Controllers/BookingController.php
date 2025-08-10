@@ -22,6 +22,13 @@ class BookingController {
             exit;
         }
 
+        // Role-based access control: Only Customers can create bookings
+        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'Customer') {
+            $_SESSION['error_message'] = "You do not have permission to create a booking.";
+            header('Location: index.php'); // Redirect to a safe page like the dashboard
+            exit;
+        }
+
         // 1. Sanitize and retrieve form data
         $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
         $bookingDate = filter_input(INPUT_POST, 'bookingDate', FILTER_SANITIZE_STRING);
@@ -96,6 +103,13 @@ class BookingController {
             exit;
         }
 
+        // Role-based access control: Only allow Customers to see this form
+        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'Customer') {
+            $_SESSION['error_message'] = "You do not have permission to access this page.";
+            header('Location: index.php'); // Redirect non-customers away
+            exit;
+        }
+
         // Fetch all available facilities to pass to the view
         $facilities = Facility::findAll();
 
@@ -118,7 +132,53 @@ class BookingController {
         // Logic to get available time slots for a facility
     }
 
+    public function showMyBookings() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookings = Booking::findByCustomerId($_SESSION['user_id']);
+
+        require_once __DIR__ . '/../Views/booking/my_bookings.php';
+    }
+
     public function cancelBooking() {
-        // Handle booking cancellation
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+        if (!$bookingId) {
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        $booking = Booking::findById($bookingId);
+
+        // First, check if the booking exists at all
+        if (!$booking) {
+            $_SESSION['error_message'] = "Booking not found.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        // Second, check if the booking belongs to the logged-in user
+        if ($booking->customerId != $_SESSION['user_id']) {
+            $_SESSION['error_message'] = "You are not authorized to cancel this booking.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        if (Booking::delete($bookingId)) {
+            $_SESSION['success_message'] = "Booking successfully cancelled.";
+        } else {
+            $_SESSION['error_message'] = "Failed to cancel the booking. Please try again.";
+        }
+
+        header('Location: ?controller=booking&action=showMyBookings');
+        exit;
     }
 }
