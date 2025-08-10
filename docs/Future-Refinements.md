@@ -66,7 +66,7 @@ This section contains suggestions for more in-depth testing to improve robustnes
 
 ### 2. Deeper Authorization Tests
 
-- [ ] **Staff &#34;View-Only&#34; Enforcement:**
+- [ ] **Staff "View-Only" Enforcement:**
   - [ ] Log in as Staff and confirm that UI elements for editing/deleting data are not visible (e.g., "Save" or "Delete" buttons on a user profile).
   - [ ] Attempt to bypass the UI by sending a direct `POST` request to an endpoint that modifies data. The server should return a `403 Forbidden` error.
 - [ ] **Admin User Creation:**
@@ -86,3 +86,59 @@ This section contains suggestions for more in-depth testing to improve robustnes
   - [ ] Test the system's behavior when a single user account logs in from multiple devices/browsers simultaneously. (Define expected behavior: allow, or invalidate older session).
 
 ---
+
+## Phase 1: Booking Engine (Version 1.3.0)
+
+This section covers testing for the booking engine and related features.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Booking Creation (Happy Path):**
+  - [x] Logged-in Customer can access the booking form.
+  - [x] Form successfully loads available facilities.
+  - [x] Submitting valid data creates a booking record in the database.
+  - [x] User is redirected to a styled success page.
+- [x] **Validation & Error Handling:**
+  - [x] Submitting an empty form displays validation errors.
+  - [x] Form fields are repopulated with previous input on validation failure.
+  - [x] Attempting to book a past date is rejected.
+  - [x] Attempting to book an already reserved slot is rejected with an error message.
+- [x] **Security & Access Control:**
+  - [x] Logged-out users are redirected to login when trying to access the booking page.
+  - [x] Staff users are redirected and cannot access the booking creation page.
+  - [x] A user can only cancel their own bookings.
+- [x] **Booking Cancellation:**
+  - [x] A "My Bookings" page exists for customers to see their reservations.
+  - [x] A "Cancel" button is present for upcoming bookings.
+  - [x] Clicking "Cancel" successfully deletes the booking and updates the view.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Notification System (Phase 3 Alignment)
+
+- [ ] **Event-Driven Notifications:**
+  - [ ] Create a `notifications` table in the database to log notification events.
+  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **created**.
+  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **canceled**.
+- [ ] **Automated Communication:**
+  - [ ] Implement a mechanism (e.g., a cron job or an email service integration) to process the `notifications` table and send emails/SMS to users.
+  - [ ] Develop email templates for booking confirmation, cancellation, and reminders.
+  - [ ] Add logic to send automated reminders (e.g., 24 hours before the booking).
+
+#### 2. Admin & Facility Management
+
+- [ ] **Admin Booking Dashboard:**
+  - [ ] Create a centralized view for Admins to see all bookings across all users.
+  - [ ] Admins should be able to filter bookings by date, user, or facility.
+  - [ ] Admins should have the ability to **create, edit, or cancel** any booking on behalf of a customer.
+- [ ] **Blackout Dates:**
+  - [ ] Implement a feature for Admins to block specific dates or date ranges for maintenance, holidays, or private events.
+  - [ ] The booking form should not allow users to select blackout dates.
+
+#### 3. UX & Financial Enhancements
+
+- [ ] **Display Pricing on Booking Form:**
+  - [ ] When a user selects a facility and date, dynamically display the price for that booking.
+  - [ ] Clearly indicate the required downpayment amount, if applicable.
+- [ ] **Improved Error Handling:**
+  - [ ] Provide more specific error messages for booking conflicts (e.g., "Sorry, that slot was just taken. Please select another.").
