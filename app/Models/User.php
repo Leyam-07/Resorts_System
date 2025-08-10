@@ -1,11 +1,24 @@
 <?php
 
 class User {
-    private $db;
-    private $table = 'Users';
+    private static $db;
+    private static $table = 'Users';
 
-    public function __construct($db_connection) {
-        $this->db = $db_connection;
+    public function __construct() {
+        // Constructor can be used for setting default values.
+    }
+
+    private static function getDB() {
+        if (!self::$db) {
+            require_once __DIR__ . '/../../config/database.php';
+            try {
+                self::$db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+                self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                die("Database connection failed: " . $e->getMessage());
+            }
+        }
+        return self::$db;
     }
 
     /**
@@ -20,22 +33,22 @@ class User {
      * @param string $phoneNumber
      * @return bool
      */
-    public function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null) {
+    public static function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null) {
         // Check for existing user
-        if ($this->findByUsername($username)) {
+        if (self::findByUsername($username)) {
             return 'username_exists';
         }
-        if ($this->findByEmail($email)) {
+        if (self::findByEmail($email)) {
             return 'email_exists';
         }
 
         // Hash the password for security
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $query = "INSERT INTO " . $this->table . " (Username, Password, Email, Role, FirstName, LastName, PhoneNumber)
+        $query = "INSERT INTO " . self::$table . " (Username, Password, Email, Role, FirstName, LastName, PhoneNumber)
                   VALUES (:username, :password, :email, :role, :firstName, :lastName, :phoneNumber)";
 
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
 
         // Bind parameters
         $stmt->bindParam(':username', $username);
@@ -65,46 +78,46 @@ class User {
      * @param string $username
      * @return mixed Returns the user data as an associative array or false if not found.
      */
-    public function findByUsername($username) {
-        $query = "SELECT * FROM " . $this->table . " WHERE Username = :username LIMIT 1";
+    public static function findByUsername($username) {
+        $query = "SELECT * FROM " . self::$table . " WHERE Username = :username LIMIT 1";
         
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':username', $username);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function findByEmail($email) {
-        $query = "SELECT * FROM " . $this->table . " WHERE Email = :email LIMIT 1";
+    public static function findByEmail($email) {
+        $query = "SELECT * FROM " . self::$table . " WHERE Email = :email LIMIT 1";
         
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function findAll() {
-        $stmt = $this->db->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, CreatedAt FROM " . $this->table . " ORDER BY CreatedAt DESC");
+    public static function findAll() {
+        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findById($id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE UserID = :id LIMIT 1";
+    public static function findById($id) {
+        $query = "SELECT * FROM " . self::$table . " WHERE UserID = :id LIMIT 1";
         
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, $username, $email, $firstName, $lastName, $phoneNumber) {
+    public static function update($id, $username, $email, $firstName, $lastName, $phoneNumber) {
         // Check if the new username or email already exists for another user
-        $query = "SELECT UserID FROM " . $this->table . " WHERE (Username = :username OR Email = :email) AND UserID != :id";
-        $stmt = $this->db->prepare($query);
+        $query = "SELECT UserID FROM " . self::$table . " WHERE (Username = :username OR Email = :email) AND UserID != :id";
+        $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':id', $id);
@@ -113,7 +126,7 @@ class User {
             return 'username_or_email_exists';
         }
 
-        $query = "UPDATE " . $this->table . " SET
+        $query = "UPDATE " . self::$table . " SET
                     Username = :username,
                     Email = :email,
                     FirstName = :firstName,
@@ -121,7 +134,7 @@ class User {
                     PhoneNumber = :phoneNumber
                   WHERE UserID = :id";
         
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
 
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':username', $username);
@@ -137,20 +150,20 @@ class User {
         }
     }
 
-    public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE UserID = :id";
-        $stmt = $this->db->prepare($query);
+    public static function delete($id) {
+        $query = "DELETE FROM " . self::$table . " WHERE UserID = :id";
+        $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':id', $id);
         
         return $stmt->execute();
     }
 
-    public function updatePassword($id, $newPassword) {
+    public static function updatePassword($id, $newPassword) {
         $hashed_password = password_hash($newPassword, PASSWORD_DEFAULT);
 
-        $query = "UPDATE " . $this->table . " SET Password = :password WHERE UserID = :id";
+        $query = "UPDATE " . self::$table . " SET Password = :password WHERE UserID = :id";
         
-        $stmt = $this->db->prepare($query);
+        $stmt = self::getDB()->prepare($query);
 
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':password', $hashed_password);

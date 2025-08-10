@@ -9,13 +9,20 @@
 <body>
     <div class="container mt-5">
         <h1>Book a Facility</h1>
-        <form action="/booking/create" method="POST">
+        <form action="?action=createBooking" method="POST">
             <div class="mb-3">
                 <label for="facility" class="form-label">Facility</label>
                 <select class="form-select" id="facility" name="facilityId" required>
-                    <!-- Options will be populated dynamically -->
-                    <option value="1">Pool</option>
-                    <option value="2">Cottage</option>
+                    <option value="" disabled selected>Select a facility</option>
+                    <?php if (!empty($facilities)): ?>
+                        <?php foreach ($facilities as $facility): ?>
+                            <option value="<?= htmlspecialchars($facility->facilityId) ?>">
+                                <?= htmlspecialchars($facility->name) ?> (Capacity: <?= htmlspecialchars($facility->capacity) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="" disabled>No facilities available</option>
+                    <?php endif; ?>
                 </select>
             </div>
             <div class="mb-3">

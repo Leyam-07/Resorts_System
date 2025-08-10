@@ -65,6 +65,14 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     php scripts/seed_db.php
     ```
 
+### Development Scripts
+
+The `scripts/dev/` directory contains temporary scripts used for testing and diagnostics during the development process. These are not required for the production application to run but can be useful for debugging. You can run them from the command line, for example:
+
+```bash
+php scripts/dev/test_booking_model.php
+```
+
 ## 4. Application Configuration
 
 1.  **Create Configuration File:**

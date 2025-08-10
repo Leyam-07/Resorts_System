@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2025-08-10
+
+### Added
+
+- **Model & Controller Testing:** Implemented comprehensive backend tests for the booking engine.
+  - Added full CRUD (Create, Read, Update, Delete) methods to the `Booking` and `Facility` models.
+  - Added robust data validation to the `BookingController` to prevent invalid data submissions (e.g., non-existent facilities, past dates).
+- **Development Scripts:** Created a suite of temporary test scripts (`test_facility_model.php`, `test_booking_model.php`, etc.) to programmatically verify model and controller logic. These have been moved to `scripts/dev/` for future reference.
+
+### Changed
+
+- **Model Refactoring:** Refactored the `User` model to use a static `getDB()` connection method, aligning its architecture with the `Booking` and `Facility` models for improved consistency and easier testing.
+
+### Fixed
+
+- **Model-Schema Mismatch:** Corrected the `Facility` model by removing a non-existent `createdAt` property that was causing PHP warnings.
+- **Test Script Resilience:** Updated test scripts to dynamically look up user and facility IDs instead of relying on hardcoded values, making the tests more reliable.
+
 ## [1.2.1] - 2025-08-10
 
 ### Added

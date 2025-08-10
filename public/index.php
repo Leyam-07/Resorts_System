@@ -73,11 +73,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
 } elseif ($controllerName === 'booking') {
     require_once __DIR__ . '/../app/Controllers/BookingController.php';
     $bookingController = new BookingController();
-    if (method_exists($bookingController, $actionName)) {
+
+    // Define allowed actions for the booking controller
+    $allowedActions = ['showBookingForm', 'createBooking'];
+
+    if (in_array($actionName, $allowedActions) && method_exists($bookingController, $actionName)) {
         $bookingController->$actionName();
         exit();
     } else {
-        die('Action not found.');
+        die('Action not found or not allowed.');
     }
 }
 ?>
