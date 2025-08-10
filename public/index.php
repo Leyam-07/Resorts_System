@@ -52,6 +52,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     } else {
         die('Action not found.');
     }
+} elseif ($controllerName === 'booking') {
+    require_once __DIR__ . '/../app/Controllers/BookingController.php';
+    $bookingController = new BookingController();
+    if (method_exists($bookingController, $actionName)) {
+        $bookingController->$actionName();
+        exit();
+    } else {
+        die('Action not found.');
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -100,6 +109,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
                     <?php else: ?>
                         <h5 class="card-title">Customer Dashboard</h5>
                         <p class="card-text">Welcome to your personal dashboard.</p>
+                        <a href="?controller=booking&action=showBookingForm" class="btn btn-primary">Book a Facility</a>
                         <!-- Customer-specific content goes here -->
                     <?php endif; ?>
                 </div>
