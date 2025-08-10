@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2025-08-10
+
+### Added
+
+- **User Feedback & Navigation:** Implemented significant improvements to the user experience for the booking engine.
+  - Created a unified page layout (`partials/header.php`, `partials/footer.php`) to ensure a consistent look and feel across all pages.
+  - Added a styled success page (`booking/success.php`) to provide clear confirmation after a booking is made.
+  - Implemented a session-based flash message system to display user-friendly error messages directly on the form.
+  - Added a "Back to Dashboard" button on the booking form for easier navigation.
+
+### Fixed
+
+- **Security:** Fixed a critical vulnerability that allowed logged-out users to access the booking creation page.
+- **PHP Warnings:** Removed a redundant `session_start()` call in the `BookingController` that was causing PHP warnings.
+
 ## [1.2.2] - 2025-08-10
 
 ### Added

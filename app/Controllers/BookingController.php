@@ -16,7 +16,6 @@ class BookingController {
             exit;
         }
 
-        session_start();
         if (!isset($_SESSION['user_id'])) {
             // Redirect to login if not logged in
             header('Location: ?controller=user&action=login');
@@ -33,16 +32,18 @@ class BookingController {
 
         // 2. Basic Validation
         if (!$facilityId || !$bookingDate || !$startTime || !$endTime || !$numberOfGuests) {
-            // Handle validation error, e.g., redirect back with an error message
-            echo "Error: All fields are required.";
-            // In a real app, you'd use a more robust notification system
+            $_SESSION['error_message'] = "All fields are required.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
             exit;
         }
 
         // 3. Advanced Validation
         // Check if the facility exists
         if (!Facility::findById($facilityId)) {
-            echo "Error: The selected facility does not exist.";
+            $_SESSION['error_message'] = "The selected facility does not exist.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
             exit;
         }
 
@@ -50,14 +51,17 @@ class BookingController {
         $today = new DateTime();
         $bookingDateTime = new DateTime($bookingDate);
         if ($bookingDateTime < $today) {
-            echo "Error: You cannot book a date in the past.";
+            $_SESSION['error_message'] = "You cannot book a date in the past.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
             exit;
         }
 
         // 4. Check for booking conflicts
         if (!Booking::isTimeSlotAvailable($facilityId, $bookingDate, $startTime, $endTime)) {
-            echo "Error: The selected time slot is no longer available. Please choose a different time.";
-            // Redirect back with an error
+            $_SESSION['error_message'] = "The selected time slot is no longer available. Please choose a different time.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
             exit;
         }
 
@@ -76,18 +80,38 @@ class BookingController {
 
         if ($bookingId) {
             // Success: Redirect to a confirmation page
-            echo "Booking successful! Your booking ID is " . $bookingId;
-            // header('Location: ?action=bookingSuccess&id=' . $bookingId);
+            header('Location: ?controller=booking&action=bookingSuccess&id=' . $bookingId);
         } else {
             // Failure: Redirect back with an error
-            echo "Error: Could not save the booking. Please try again.";
+            $_SESSION['error_message'] = "Could not save the booking. Please try again.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
+            exit;
         }
     }
 
     public function showBookingForm() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
         // Fetch all available facilities to pass to the view
         $facilities = Facility::findAll();
+
+        // Check for error messages and old input from session
+        $errorMessage = $_SESSION['error_message'] ?? null;
+        $oldInput = $_SESSION['old_input'] ?? [];
+
+        // Unset them so they don't persist on refresh
+        unset($_SESSION['error_message']);
+        unset($_SESSION['old_input']);
+
         require_once __DIR__ . '/../Views/booking/create.php';
+    }
+
+    public function bookingSuccess() {
+        require_once __DIR__ . '/../Views/booking/success.php';
     }
 
     public function getAvailableSlots() {

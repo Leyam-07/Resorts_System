@@ -65,6 +65,10 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     php scripts/seed_db.php
     ```
 
+### Application Structure
+
+- **`app/Views/partials/`**: This directory contains reusable view components, such as the site-wide header and footer. This allows for a consistent layout across different pages.
+
 ### Development Scripts
 
 The `scripts/dev/` directory contains temporary scripts used for testing and diagnostics during the development process. These are not required for the production application to run but can be useful for debugging. You can run them from the command line, for example:
