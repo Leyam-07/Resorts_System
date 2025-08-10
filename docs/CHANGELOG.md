@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-08-10
+
+### Added
+
+- **Booking Management:** Implemented a "My Bookings" page for customers to view their reservation history.
+- **Booking Cancellation:** Added functionality for customers to cancel their own bookings.
+- **Password Confirmation:** Added a "Confirm Password" field to both customer and admin registration forms to reduce user error.
+
+### Changed
+
+- **UI Unification:** Refactored the entire application to use a single, consistent navigation header (`partials/header.php`). This unified the look and feel of the main dashboard, booking pages, profile page, and admin user management page.
+- **Admin Navigation:** Moved the "Manage Users" link from a button on the dashboard to a permanent link in the navigation bar for easier access.
+
+### Fixed
+
+- **Security:** Fixed a critical access control vulnerability where `Staff` users could view and submit the booking creation form. The system now correctly restricts this functionality to `Customer` roles only.
+- **Routing:** Corrected a routing error that caused an "Action not found" message when trying to access the new "My Bookings" and "Cancel Booking" pages.
+- **Error Handling:** Improved the cancellation error message to distinguish between a "Booking not found" error and an authorization failure.
+
 ## [1.2.3] - 2025-08-10
 
 ### Added
