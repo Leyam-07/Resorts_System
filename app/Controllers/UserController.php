@@ -23,9 +23,16 @@ class UserController {
             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password']; // No sanitization needed before hashing
+            $confirmPassword = $_POST['confirm_password'];
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+
+            // Validate that passwords match
+            if ($password !== $confirmPassword) {
+                header('Location: index.php?action=showRegisterForm&error=password_mismatch');
+                exit();
+            }
 
             // Attempt to create the user
             $result = $this->userModel->create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
@@ -52,9 +59,16 @@ class UserController {
             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password']; // No sanitization needed before hashing
+            $confirmPassword = $_POST['confirm_password'];
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+
+            // Validate that passwords match
+            if ($password !== $confirmPassword) {
+                header('Location: index.php?action=showAdminRegisterForm&error=password_mismatch');
+                exit();
+            }
 
             // Attempt to create the user with Admin role
             $result = $this->userModel->create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber);

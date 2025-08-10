@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>My Profile</h2>
+<?php
+$pageTitle = "My Profile";
+require_once __DIR__ . '/partials/header.php';
+?>
+
+<h2><?= htmlspecialchars($pageTitle) ?></h2>
         <?php if (isset($_GET['status']) && $_GET['status'] === 'updated'): ?>
             <div class="alert alert-success">Profile updated successfully!</div>
         <?php endif; ?>
@@ -43,6 +38,5 @@
             <button type="submit" class="btn btn-primary">Update Profile</button>
             <a href="index.php" class="btn btn-secondary">Back to Dashboard</a>
         </form>
-    </div>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/partials/footer.php'; ?>

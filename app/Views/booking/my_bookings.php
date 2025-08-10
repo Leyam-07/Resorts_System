@@ -50,6 +50,7 @@ require_once __DIR__ . '/../partials/header.php';
             <?php endforeach; ?>
         </tbody>
     </table>
+    <a href="?" class="btn btn-secondary mt-3">Back to Dashboard</a>
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>

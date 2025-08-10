@@ -26,6 +26,9 @@
                                 case 'email_exists':
                                     $errorMsg = 'An account with this email already exists.';
                                     break;
+                                case 'password_mismatch':
+                                    $errorMsg = 'Passwords do not match. Please try again.';
+                                    break;
                                 default:
                                     $errorMsg = 'Registration failed. Please try again.';
                                     break;
@@ -46,6 +49,10 @@
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                         </div>
                         <hr>
                         <div class="row">

@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Users</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-    <h2>User Management</h2>
-    <a href="?controller=admin&action=addUser" class="btn btn-primary mb-3">Add New User</a>
-    <a href="index.php" class="btn btn-secondary mb-3">Back to Dashboard</a>
+<?php
+$pageTitle = "Manage Users";
+require_once __DIR__ . '/../partials/header.php';
+?>
+
+<h2><?= htmlspecialchars($pageTitle) ?></h2>
     <table class="table">
         <thead>
             <tr>
@@ -41,6 +35,8 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-</div>
-</body>
-</html>
+    <a href="?controller=admin&action=addUser" class="btn btn-primary">Add New User</a>
+    <a href="index.php" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    
+    <?php require_once __DIR__ . '/../partials/footer.php'; ?>

@@ -96,29 +96,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Resort Management</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Customer'): ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="?controller=booking&action=showBookingForm">Book a Facility</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="?controller=booking&action=showMyBookings">My Bookings</a>
-                </li>
-                <?php endif; ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="?controller=user&action=profile">My Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="?controller=user&action=logout">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<?php require_once __DIR__ . '/../app/Views/partials/header.php'; ?>
 
 <div class="container mt-4">
     <div class="row">
@@ -131,7 +109,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
                     <?php if ($role === 'Admin'): ?>
                         <h5 class="card-title">Admin Dashboard</h5>
                         <p class="card-text">You have full access to the system.</p>
-                        <a href="?controller=admin&action=users" class="btn btn-primary">Manage Users</a>
+                        <!-- Admin-specific content goes here -->
                     <?php elseif ($role === 'Staff'): ?>
                         <h5 class="card-title">Staff Dashboard</h5>
                         <p class="card-text">You can view daily tasks and schedules.</p>
