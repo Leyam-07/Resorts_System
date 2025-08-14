@@ -48,45 +48,6 @@ This section covers testing for the core user management functionalities: login,
 
 ---
 
-## 🎯 Future Suggestions & Refinements Checklist
-
-This section contains suggestions for more in-depth testing to improve robustness and user experience.
-
-### 1. Password Management Lifecycle
-
-- [ ] **Forgot Password Flow:**
-  - [ ] Verify a "Forgot Password" link exists on the login page.
-  - [ ] Verify a user can request a password reset.
-  - [ ] Verify the system sends a password reset email to the registered address.
-  - [ ] Verify the password reset link works correctly.
-  - [ ] Verify the reset link can only be used once and/or expires.
-  - [ ] Verify the user can successfully set a new password.
-- [ ] **Password Change Security:**
-  - [ ] Verify the "Change Password" form in the user profile requires the user to enter their _current_ password.
-
-### 2. Deeper Authorization Tests
-
-- [ ] **Staff "View-Only" Enforcement:**
-  - [ ] Log in as Staff and confirm that UI elements for editing/deleting data are not visible (e.g., "Save" or "Delete" buttons on a user profile).
-  - [ ] Attempt to bypass the UI by sending a direct `POST` request to an endpoint that modifies data. The server should return a `403 Forbidden` error.
-- [ ] **Admin User Creation:**
-  - [ ] Verify an Admin can create a new user of any role (Customer, Staff, Admin) via the admin panel.
-
-### 3. Account Deletion Workflow
-
-- [ ] **Deletion Pending State:**
-  - [ ] After a Customer requests deletion, log in as an Admin to check for a pending approval queue or notification.
-  - [ ] Determine the account status of a user who has requested deletion but has not been approved yet. Can they still log in?
-
-### 4. Session Management Edge Cases
-
-- [ ] **Session Timeout:**
-  - [ ] Verify that a user's session automatically expires and requires re-login after a defined period of inactivity.
-- [ ] **Concurrent Logins:**
-  - [ ] Test the system's behavior when a single user account logs in from multiple devices/browsers simultaneously. (Define expected behavior: allow, or invalidate older session).
-
----
-
 ## Phase 1: Booking Engine (Version 1.3.0)
 
 This section covers testing for the booking engine and related features.
@@ -112,20 +73,95 @@ This section covers testing for the booking engine and related features.
   - [x] A "Cancel" button is present for upcoming bookings.
   - [x] Clicking "Cancel" successfully deletes the booking and updates the view.
 
+---
+
+## Phase 1: Customer Information Management (Version 1.4.1)
+
+This section covers testing for features related to viewing customer history and managing administrative notes.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Customer Booking History:**
+  - [x] Customer can view their own booking history from their profile.
+  - [x] A message is shown if the customer has no bookings.
+- [x] **Admin Booking History View:**
+  - [x] Admin can view the booking history for any specific user.
+  - [x] Page correctly displays which user's history is being viewed.
+  - [x] A message is shown if the selected user has no bookings.
+- [x] **Admin Notes:**
+  - [x] Admin can add notes when creating a new user.
+  - [x] Admin can add, update, and remove notes from an existing user.
+  - [x] Notes correctly handle and display special characters.
+- [x] **Security & Access Control:**
+  - [x] Only Admins can view other users' booking history.
+  - [x] Only Admins can view or edit notes.
+  - [x] Customers/Staff cannot access admin-specific user pages.
+  - [x] Admin cannot delete their own account.
+  - [x] Direct file access to sensitive views is blocked.
+
 ### 🎯 Future Suggestions & Refinements Checklist
 
-#### 1. Notification System (Phase 3 Alignment)
+#### 1. Booking History Enhancements
 
-- [ ] **Event-Driven Notifications:**
-  - [ ] Create a `notifications` table in the database to log notification events.
-  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **created**.
-  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **canceled**.
-- [ ] **Automated Communication:**
-  - [ ] Implement a mechanism (e.g., a cron job or an email service integration) to process the `notifications` table and send emails/SMS to users.
-  - [ ] Develop email templates for booking confirmation, cancellation, and reminders.
-  - [ ] Add logic to send automated reminders (e.g., 24 hours before the booking).
+- [ ] **Pagination:**
+  - [ ] Implement pagination on the "My Bookings" page for customers to handle long booking histories.
+  - [ ] Implement pagination on the admin's "View User Bookings" page.
+- [ ] **Filtering and Sorting:**
+  - [ ] Add controls for both customers and admins to filter booking history by a date range.
+  - [ ] Add controls to sort the history (e.g., newest first, oldest first).
+- [ ] **Data Export:**
+  - [ ] Add a feature for customers to export their own booking history (e.g., to CSV or PDF).
+  - [ ] Add a feature for admins to export a specific user's booking history.
 
-#### 2. Admin & Facility Management
+#### 2. Admin Notes Improvements
+
+- [ ] **Notes Audit Trail:**
+  - [ ] Create a `NoteHistory` table to log changes to the `Notes` field.
+  - [ ] Record which admin made the change and when it occurred.
+  - [ ] Provide a way for admins to view the history of changes to a user's notes.
+- [ ] **Search and Filtering:**
+  - [ ] On the admin's user list, add a search filter to find users based on keywords within their notes.
+
+#### 3. Deeper Authorization Tests
+
+- [ ] **Staff "View-Only" Enforcement:**
+  - [ ] Log in as Staff and confirm that UI elements for viewing user bookings are not visible.
+  - [ ] Attempt to bypass the UI by sending a direct `GET` request to an endpoint that views user bookings (e.g., `view_user_bookings.php?user_id=X`). The server should return a `403 Forbidden` error.
+- [ ] **Admin Self-Management Safeguards:**
+  - [ ] Verify an Admin cannot change their own role when editing their own profile.
+
+---
+
+## 🎯 General Future Suggestions & Refinements Checklist
+
+This section contains suggestions for more in-depth testing to improve robustness and user experience across the application.
+
+### 1. Password Management Lifecycle
+
+- [ ] **Forgot Password Flow:**
+  - [ ] Verify a "Forgot Password" link exists on the login page.
+  - [ ] Verify a user can request a password reset.
+  - [ ] Verify the system sends a password reset email to the registered address.
+  - [ ] Verify the password reset link works correctly.
+  - [ ] Verify the reset link can only be used once and/or expires.
+  - [ ] Verify the user can successfully set a new password.
+- [ ] **Password Change Security:**
+  - [ ] Verify the "Change Password" form in the user profile requires the user to enter their _current_ password.
+
+### 2. Account Deletion Workflow
+
+- [ ] **Deletion Pending State:**
+  - [ ] After a Customer requests deletion, log in as an Admin to check for a pending approval queue or notification.
+  - [ ] Determine the account status of a user who has requested deletion but has not been approved yet. Can they still log in?
+
+### 3. Session Management Edge Cases
+
+- [ ] **Session Timeout:**
+  - [ ] Verify that a user's session automatically expires and requires re-login after a defined period of inactivity.
+- [ ] **Concurrent Logins:**
+  - [ ] Test the system's behavior when a single user account logs in from multiple devices/browsers simultaneously. (Define expected behavior: allow, or invalidate older session).
+
+### 4. General Admin & Facility Management
 
 - [ ] **Admin Booking Dashboard:**
   - [ ] Create a centralized view for Admins to see all bookings across all users.
@@ -135,10 +171,21 @@ This section covers testing for the booking engine and related features.
   - [ ] Implement a feature for Admins to block specific dates or date ranges for maintenance, holidays, or private events.
   - [ ] The booking form should not allow users to select blackout dates.
 
-#### 3. UX & Financial Enhancements
+### 5. UX & Financial Enhancements
 
 - [ ] **Display Pricing on Booking Form:**
   - [ ] When a user selects a facility and date, dynamically display the price for that booking.
   - [ ] Clearly indicate the required downpayment amount, if applicable.
 - [ ] **Improved Error Handling:**
   - [ ] Provide more specific error messages for booking conflicts (e.g., "Sorry, that slot was just taken. Please select another.").
+
+### 6. Notification System (Phase 3 Alignment)
+
+- [ ] **Event-Driven Notifications:**
+  - [ ] Create a `notifications` table in the database to log notification events.
+  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **created**.
+  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **canceled**.
+- [ ] **Automated Communication:**
+  - [ ] Implement a mechanism (e.g., a cron job or an email service integration) to process the `notifications` table and send emails/SMS to users.
+  - [ ] Develop email templates for booking confirmation, cancellation, and reminders.
+  - [ ] Add logic to send automated reminders (e.g., 24 hours before the booking).
