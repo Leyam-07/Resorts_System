@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2025-08-14
+
+### Fixed
+
+- **Security:** Fixed a critical vulnerability that allowed users to bypass controller logic and access sensitive view files directly via their URL. All admin views are now protected.
+- **Security:** Corrected a flaw where non-admin and logged-out users could still access admin pages, resulting in errors and potential data exposure. The `AdminController` now robustly redirects all unauthorized users.
+- **Bug:** Fixed a data-handling bug where special characters in user notes were being double-encoded, causing them to display incorrectly (e.g., `"` as `&quot;`).
+
+### Changed
+
+- **UI/UX:** Improved the admin user list by disabling the "Delete" button for the currently logged-in admin, preventing accidental self-deletion.
+- **UI/UX:** Enhanced the user profile page by hiding the "My Bookings" button for non-customer roles (`Admin`, `Staff`).
+- **UI/UX:** For UI consistency, the "View Bookings" button is now disabled (dimmed) for non-customer roles instead of being hidden.
+- **UI/UX:** Replaced the plain-text "Forbidden" error with a professional, user-friendly 403 error page.
+
 ## [1.4.0] - 2025-08-14
 
 ### Added
