@@ -10,8 +10,10 @@ class AdminController {
 
     public function __construct() {
         // Ensure user is an admin
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-            die('Access Denied');
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+            // Redirect to login page if not an admin
+            header('Location: /?controller=user&action=login&error=unauthorized');
+            exit();
         }
 
         try {
@@ -37,7 +39,7 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
-            $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_STRING);
+            $notes = $_POST['notes'];
 
             $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes);
             if ($result === true) {
@@ -65,7 +67,7 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
-            $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_STRING);
+            $notes = $_POST['notes'];
 
             $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes);
 

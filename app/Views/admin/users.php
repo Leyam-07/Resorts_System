@@ -1,4 +1,11 @@
 <?php
+// Prevent direct access
+if (!defined('APP_LOADED')) {
+    http_response_code(403);
+    include __DIR__ . '/../errors/403.php';
+    exit();
+}
+
 $pageTitle = "Manage Users";
 require_once __DIR__ . '/../partials/header.php';
 ?>
@@ -30,9 +37,17 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
                 <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td>
-                    <a href="?controller=admin&action=viewUserBookings&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-info">View Bookings</a>
+                    <?php if ($user['Role'] === 'Customer'): ?>
+                        <a href="?controller=admin&action=viewUserBookings&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-info">View Bookings</a>
+                    <?php else: ?>
+                        <a href="#" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</a>
+                    <?php endif; ?>
                     <a href="?controller=admin&action=editUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="?controller=admin&action=deleteUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                    <?php if (isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']): ?>
+                        <a href="#" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</a>
+                    <?php else: ?>
+                        <a href="?controller=admin&action=deleteUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>

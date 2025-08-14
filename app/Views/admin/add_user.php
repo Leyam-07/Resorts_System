@@ -1,3 +1,11 @@
+<?php
+// Prevent direct access
+if (!defined('APP_LOADED')) {
+    http_response_code(403);
+    include __DIR__ . '/../errors/403.php';
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

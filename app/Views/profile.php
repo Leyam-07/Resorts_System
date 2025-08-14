@@ -45,7 +45,9 @@ require_once __DIR__ . '/partials/header.php';
             <div class="form-text mb-3">Leave blank if you don't want to change your password.</div>
             </div>
             <button type="submit" class="btn btn-primary">Update Profile</button>
-            <a href="?controller=booking&action=showMyBookings" class="btn btn-info">My Bookings</a>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Customer'): ?>
+                <a href="?controller=booking&action=showMyBookings" class="btn btn-info">My Bookings</a>
+            <?php endif; ?>
             <a href="index.php" class="btn btn-secondary">Back to Dashboard</a>
         </form>
 

@@ -1,4 +1,7 @@
 <?php
+// Define a constant to be used as a security check in other files
+define('APP_LOADED', true);
+
 session_start();
 
 // If not logged in and no specific action, show login page
