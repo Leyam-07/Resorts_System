@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-08-14
+
+### Added
+
+- **Customer Information Management:**
+  - Admins can now view a list of all user bookings from the user management page.
+  - Customers can now view their own booking history via a new "My Bookings" button on their profile page.
+- **Admin User Notes:**
+  - Admins can now add, edit, and view notes for each user.
+  - The `Users` table has been updated with a `Notes` column.
+
+### Changed
+
+- The `User` model was updated to support the new `Notes` field.
+- The `AdminController` was updated to handle CRUD operations for user notes.
+
 ## [1.3.0] - 2025-08-10
 
 ### Added

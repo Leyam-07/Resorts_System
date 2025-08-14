@@ -61,8 +61,15 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 
 3.  **Seed the Database (Optional but Recommended):**
     To populate the database with sample data for testing, run the seeding script:
+
     ```bash
     php scripts/seed_db.php
+    ```
+
+4.  **Run Database Migrations:**
+    If there are any pending database migrations (e.g., for schema updates), run them from the `scripts/migrations` directory.
+    ```bash
+    php scripts/migrations/add_notes_to_users.php
     ```
 
 ### Application Structure
