@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **UI/UX:** Enhanced the user profile page by hiding the "My Bookings" button for non-customer roles (`Admin`, `Staff`).
 - **UI/UX:** For UI consistency, the "View Bookings" button is now disabled (dimmed) for non-customer roles instead of being hidden.
 - **UI/UX:** Replaced the plain-text "Forbidden" error with a professional, user-friendly 403 error page.
+- **UI/UX:** Added a "Confirm Password" field and made the form scrollable on the admin "Add User" page for better usability on smaller screens.
 
 ## [1.4.0] - 2025-08-14
 

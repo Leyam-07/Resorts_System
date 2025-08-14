@@ -35,11 +35,17 @@ class AdminController {
             $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password'];
+            $confirmPassword = $_POST['confirm_password'];
             $role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_STRING);
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
             $notes = $_POST['notes'];
+
+            if ($password !== $confirmPassword) {
+                header('Location: ?controller=admin&action=addUser&error=password_mismatch');
+                exit();
+            }
 
             $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes);
             if ($result === true) {
