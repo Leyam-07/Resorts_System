@@ -14,11 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Booking Management:** Implemented a "My Bookings" page for customers to view their reservation history.
 - **Booking Cancellation:** Added functionality for customers to cancel their own bookings.
 - **Password Confirmation:** Added a "Confirm Password" field to both customer and admin registration forms to reduce user error.
+- **Profile Security:** Added a "Confirm New Password" field to the user profile page to prevent password update errors.
 
 ### Changed
 
 - **UI Unification:** Refactored the entire application to use a single, consistent navigation header (`partials/header.php`). This unified the look and feel of the main dashboard, booking pages, profile page, and admin user management page.
 - **Admin Navigation:** Moved the "Manage Users" link from a button on the dashboard to a permanent link in the navigation bar for easier access.
+- **Profile UI:** Made the profile form fields scrollable to ensure action buttons are always visible on smaller screens.
 
 ### Fixed
 

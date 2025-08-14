@@ -135,6 +135,7 @@ class UserController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
             $password = $_POST['password'];
+            $confirmPassword = $_POST['confirm_password'];
 
             // Update user details
             $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
@@ -146,6 +147,10 @@ class UserController {
 
             // Update password if provided
             if (!empty($password)) {
+                if ($password !== $confirmPassword) {
+                    header('Location: ?controller=user&action=profile&error=password_mismatch');
+                    exit();
+                }
                 $this->userModel->updatePassword($userId, $password);
             }
             
