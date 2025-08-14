@@ -58,6 +58,10 @@
             <label for="phoneNumber" class="form-label">Phone Number</label>
             <input type="text" class="form-control" id="phoneNumber" name="phoneNumber">
         </div>
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
         <button type="submit" class="btn btn-primary">Add User</button>
         <a href="?controller=admin&action=users" class="btn btn-secondary">Cancel</a>
     </form>

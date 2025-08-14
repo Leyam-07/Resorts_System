@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
+require_once __DIR__ . '/../Models/Booking.php';
 
 class AdminController {
     private $db;
@@ -36,8 +37,9 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_STRING);
 
-            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber);
+            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes);
             if ($result === true) {
                 header('Location: ?controller=admin&action=users&status=user_added');
                 exit();
@@ -63,8 +65,9 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_STRING);
 
-            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
+            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes);
 
             if ($result === true) {
                 // If admin edits their own profile, update session
@@ -99,5 +102,20 @@ class AdminController {
         } else {
             die('Failed to delete user.');
         }
+    }
+    public function viewUserBookings() {
+        if (!isset($_GET['id'])) {
+            die('User ID not specified.');
+        }
+        $userId = $_GET['id'];
+
+        $user = $this->userModel->findById($userId);
+        if (!$user) {
+            die('User not found.');
+        }
+
+        $bookings = Booking::findByCustomerId($userId);
+
+        include __DIR__ . '/../Views/admin/view_user_bookings.php';
     }
 }

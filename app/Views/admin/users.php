@@ -14,6 +14,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Phone</th>
+                <th>Notes</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -27,7 +28,9 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['FirstName']) ?></td>
                 <td><?= htmlspecialchars($user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
+                <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td>
+                    <a href="?controller=admin&action=viewUserBookings&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-info">View Bookings</a>
                     <a href="?controller=admin&action=editUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-primary">Edit</a>
                     <a href="?controller=admin&action=deleteUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
                 </td>

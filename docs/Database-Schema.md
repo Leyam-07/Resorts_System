@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `LastName` VARCHAR(255),
   `Email` VARCHAR(255) NOT NULL UNIQUE,
   `PhoneNumber` VARCHAR(20),
+  `Notes` TEXT,
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
