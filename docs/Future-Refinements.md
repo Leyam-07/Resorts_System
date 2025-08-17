@@ -153,6 +153,53 @@ This section covers testing for the admin dashboard.
 
 ---
 
+## Phase 2: Financial and Facility Management (Version 1.6.1)
+
+This section covers testing and future refinements for payment tracking, status updates, and financial oversight.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Database Integrity:** Verified the `Payments` table structure and relationships.
+- [x] **Backend Logic:** Tested the `Payment` model and `PaymentController` for creating, reading, and updating payment records.
+- [x] **Frontend UI:** Verified the admin payment management view, including the display of existing payments and the functionality of the "Add New Payment" form.
+- [x] **End-to-End Workflow:** Successfully simulated a full payment cycle from booking creation to payment reconciliation.
+- [x] **Feature Enhancements:**
+  - [x] Automated booking status updates to "Confirmed" when a payment is marked "Paid".
+  - [x] Added a color-coded "Payment Status" to the admin dashboard for clarity.
+  - [x] Implemented a manual override for admins to change booking status directly from the payments page.
+  - [x] Localized currency symbol from `$` to `₱`.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Payment Calculation & Validation
+
+- [ ] **Auto-Calculate Balance:**
+  - [ ] On the payment management page, automatically calculate and display the booking's total cost and the remaining balance based on payments already made.
+- [ ] **Overpayment Warnings:**
+  - [ ] Add validation to warn the admin if the sum of all payments for a booking exceeds the total booking cost.
+
+#### 2. Refund Tracking
+
+- [ ] **Add Refund Status:**
+  - [ ] Add a `Refunded` status to the `Payments` table's `Status` ENUM.
+  - [ ] Implement a UI for admins to log refunds against a specific payment, especially for canceled bookings.
+
+#### 3. Financial Reporting
+
+- [ ] **Date Range Filtering:**
+  - [ ] Enhance the "Monthly Income Summary" to allow admins to generate reports for custom date ranges.
+- [ ] **Export Reports:**
+  - [ ] Add a feature to export financial summaries to a CSV or PDF file.
+
+#### 4. Enhanced Invoice Generation
+
+- [ ] **Printable Invoices:**
+  - [ ] Implement a feature to generate a detailed, printable HTML invoice for any booking, including a breakdown of payments.
+- [ ] **Invoice History:**
+  - [ ] Allow admins to view all past invoices or receipts generated for a specific booking.
+
+---
+
 ## 🎯 General Future Suggestions & Refinements Checklist
 
 This section contains suggestions for more in-depth testing to improve robustness and user experience across the application.
