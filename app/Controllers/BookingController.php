@@ -54,9 +54,13 @@ class BookingController {
             exit;
         }
 
-        // Check if the booking date is in the past
+        // Check if the booking date is in the past. Compare date part only.
         $today = new DateTime();
+        $today->setTime(0, 0, 0); // Reset time to midnight for accurate date comparison
+
         $bookingDateTime = new DateTime($bookingDate);
+        $bookingDateTime->setTime(0, 0, 0); // Also reset time for the booking date just in case
+
         if ($bookingDateTime < $today) {
             $_SESSION['error_message'] = "You cannot book a date in the past.";
             $_SESSION['old_input'] = $_POST;

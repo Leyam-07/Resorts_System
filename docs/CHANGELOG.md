@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - It features a "Today's Bookings" view, providing a real-time summary of daily reservations.
   - A direct "Dashboard" link has been added to the main navigation bar for easy access.
 
+### Fixed
+
+- **Booking Validation:** Fixed a bug in the date validation logic that incorrectly prevented users from making bookings on the current day. The system now correctly compares only the date part, ignoring the time, allowing for same-day reservations.
+
 ## [1.4.1] - 2025-08-14
 
 ### Fixed
