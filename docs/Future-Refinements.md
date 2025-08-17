@@ -132,6 +132,27 @@ This section covers testing for features related to viewing customer history and
 
 ---
 
+## Phase 1: Admin Dashboard (Version 1.5.1)
+
+This section covers testing for the admin dashboard.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Access Control:** Verified that only authorized users (Admins) can access the dashboard.
+- [x] **Data Verification:** Ensured the dashboard displays the correct data for the current day.
+- [x] **UI & Navigation:** Confirmed the user interface is correct and navigation links work as expected.
+- [x] **Security Patch:** Blocked direct file access to the dashboard view for non-admin and unauthenticated users.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Architectural Security Hardening
+
+- [ ] **Implement a Front Controller:**
+  - [ ] Configure the web server (e.g., via `.htaccess`) to route all requests through a single entry point (`public/index.php`).
+  - [ ] Move all authentication and authorization checks from individual View files into the `AdminController`. This centralizes security logic and prevents direct URL access to sensitive views, adhering more strictly to the MVC pattern.
+
+---
+
 ## 🎯 General Future Suggestions & Refinements Checklist
 
 This section contains suggestions for more in-depth testing to improve robustness and user experience across the application.
