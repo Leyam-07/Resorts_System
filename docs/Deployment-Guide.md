@@ -70,6 +70,7 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     If there are any pending database migrations (e.g., for schema updates), run them from the `scripts/migrations` directory.
     ```bash
     php scripts/migrations/add_notes_to_users.php
+    php scripts/migrations/create_payments_table.php
     ```
 
 ### Application Structure

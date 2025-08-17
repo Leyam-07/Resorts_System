@@ -34,6 +34,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Facility</th>
                                         <th>Guests</th>
                                         <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,7 +47,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
                                                 <span class="badge
-                                                    <?php 
+                                                    <?php
                                                         switch ($booking->Status) {
                                                             case 'Confirmed': echo 'bg-success'; break;
                                                             case 'Pending': echo 'bg-warning text-dark'; break;
@@ -56,6 +57,9 @@ require_once __DIR__ . '/../partials/header.php';
                                                     ?>">
                                                     <?= htmlspecialchars($booking->Status) ?>
                                                 </span>
+                                            </td>
+                                            <td>
+                                                <a href="/?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

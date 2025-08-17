@@ -93,6 +93,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     } else {
         die('Action not found or not allowed.');
     }
+} elseif ($controllerName === 'payment') {
+   require_once __DIR__ . '/../app/Controllers/PaymentController.php';
+   $paymentController = new PaymentController();
+   if (method_exists($paymentController, $actionName)) {
+       $paymentController->$actionName();
+       exit();
+   } else {
+       die('Action not found.');
+   }
 }
 ?>
 <!DOCTYPE html>

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2025-08-17
+
+### Added
+
+- **Payment Management:** Implemented a comprehensive payment tracking system for administrators.
+  - Created the `Payments` table, `Payment` model, and `PaymentController`.
+  - Added a "Manage Payments" view in the admin dashboard, allowing admins to add payment records, view payment history for a booking, and update payment statuses (e.g., Paid, Unpaid, Partial).
+  - Integrated payment management routes into the main application router.
+
 ## [1.5.1] - 2025-08-17
 
 ### Fixed
