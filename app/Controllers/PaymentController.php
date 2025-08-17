@@ -8,7 +8,7 @@ class PaymentController {
 
     public function __construct() {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-            header('Location: /?controller=user&action=login&error=unauthorized');
+            header('Location: index.php?controller=user&action=login&error=unauthorized');
             exit();
         }
     }
@@ -16,7 +16,7 @@ class PaymentController {
     public function index() {
         // This will be used to list all bookings with payment info
         // For now, let's redirect to the admin dashboard
-        header('Location: /?controller=admin&action=dashboard');
+        header('Location: index.php?controller=admin&action=dashboard');
     }
 
     public function manage() {
@@ -37,7 +37,7 @@ class PaymentController {
 
     public function add() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /?controller=admin&action=dashboard');
+            header('Location: index.php?controller=admin&action=dashboard');
             exit();
         }
 
@@ -47,7 +47,7 @@ class PaymentController {
         $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
 
         if (!$bookingId || !$amount || !$paymentMethod || !$status) {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
             exit();
         }
 
@@ -61,16 +61,20 @@ class PaymentController {
         $payment->proofOfPaymentURL = null;
 
         if (Payment::create($payment)) {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&status=payment_added');
+            // If payment was successful and status is 'Paid', auto-confirm the booking
+            if ($status === 'Paid') {
+                Booking::updateStatus($bookingId, 'Confirmed');
+            }
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=payment_added');
         } else {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&error=add_failed');
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=add_failed');
         }
         exit();
     }
 
     public function updateStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /?controller=admin&action=dashboard');
+            header('Location: index.php?controller=admin&action=dashboard');
             exit();
         }
 
@@ -79,14 +83,40 @@ class PaymentController {
         $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
 
         if (!$paymentId || !$bookingId || !$status) {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
             exit();
         }
 
         if (Payment::updateStatus($paymentId, $status)) {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&status=status_updated');
+            // If status is updated to 'Paid', auto-confirm the booking
+            if ($status === 'Paid') {
+                Booking::updateStatus($bookingId, 'Confirmed');
+            }
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=status_updated');
         } else {
-            header('Location: /?controller=payment&action=manage&booking_id=' . $bookingId . '&error=update_failed');
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=update_failed');
+        }
+        exit();
+    }
+
+    public function updateBookingStatus() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?controller=admin&action=dashboard');
+            exit();
+        }
+
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+        $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
+
+        if (!$bookingId || !$status) {
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            exit();
+        }
+
+        if (Booking::updateStatus($bookingId, $status)) {
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=booking_status_updated');
+        } else {
+            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=booking_update_failed');
         }
         exit();
     }

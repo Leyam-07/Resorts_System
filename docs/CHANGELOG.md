@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2025-08-17
+
+### Added
+
+- **Automatic Booking Confirmation:** The system now automatically updates a booking's status to "Confirmed" when a payment is marked as "Paid".
+- **Manual Booking Status Update:** Added a form to the payment management page, allowing administrators to manually override and set a booking's status (e.g., to 'Pending', 'Confirmed', 'Cancelled').
+- **Enhanced Dashboard View:** The admin dashboard now displays a separate, color-coded "Payment Status" column ('Unpaid', 'Partial', 'Paid') for each booking, providing better at-a-glance financial clarity.
+
+### Changed
+
+- **UI:** Changed the currency symbol on the payment management page from `$` to `₱` to reflect the local currency.
+
+### Fixed
+
+- **Routing:** Fixed a critical bug where multiple links and form submissions on the admin dashboard and payment management page were redirecting to the XAMPP homepage instead of the correct application route.
+- **Data Display:** Corrected multiple PHP warnings on the payment management page caused by a mismatch between the data structure provided by the controller and the properties being accessed by the view.
+
 ## [1.6.0] - 2025-08-17
 
 ### Added

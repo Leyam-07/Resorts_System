@@ -33,7 +33,8 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Customer</th>
                                         <th>Facility</th>
                                         <th>Guests</th>
-                                        <th>Status</th>
+                                        <th>Booking Status</th>
+                                        <th>Payment Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -59,7 +60,20 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="/?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
+                                                <span class="badge
+                                                    <?php
+                                                        switch ($booking->PaymentStatus) {
+                                                            case 'Paid': echo 'bg-success'; break;
+                                                            case 'Partial': echo 'bg-warning text-dark'; break;
+                                                            case 'Unpaid': echo 'bg-danger'; break;
+                                                            default: echo 'bg-secondary';
+                                                        }
+                                                    ?>">
+                                                    <?= htmlspecialchars($booking->PaymentStatus) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="index.php?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Models/Booking.php';
+require_once __DIR__ . '/../Models/Payment.php';
 
 class AdminController {
     private $db;
@@ -27,6 +28,18 @@ class AdminController {
 
     public function dashboard() {
         $todaysBookings = Booking::findTodaysBookings();
+
+        // Augment bookings with payment status
+        foreach ($todaysBookings as $booking) {
+            $payments = Payment::findByBookingId($booking->BookingID);
+            if (empty($payments)) {
+                $booking->PaymentStatus = 'Unpaid';
+            } else {
+                // Use the status of the most recent payment
+                $booking->PaymentStatus = $payments[0]->Status;
+            }
+        }
+
         include __DIR__ . '/../Views/admin/dashboard.php';
     }
 

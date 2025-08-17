@@ -123,6 +123,14 @@ class Booking {
         return $stmt->execute();
     }
 
+    public static function updateStatus($bookingId, $status) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Bookings SET Status = :status WHERE BookingID = :bookingId");
+        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
     public static function delete($bookingId) {
         $db = self::getDB();
         $stmt = $db->prepare("DELETE FROM Bookings WHERE BookingID = :bookingId");

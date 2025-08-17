@@ -6,13 +6,34 @@ require_once __DIR__ . '/../../partials/header.php';
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h3>Manage Payments for Booking #<?= htmlspecialchars($booking->BookingID) ?></h3>
+            <h3>Manage Payments for Booking #<?= htmlspecialchars($booking->bookingId) ?></h3>
         </div>
         <div class="card-body">
-            <p><strong>Customer:</strong> <?= htmlspecialchars($customer->Username) ?></p>
-            <p><strong>Date:</strong> <?= htmlspecialchars($booking->BookingDate) ?></p>
-            <p><strong>Status:</strong> <?= htmlspecialchars($booking->Status) ?></p>
+            <p><strong>Customer:</strong> <?= htmlspecialchars($customer['Username']) ?></p>
+            <p><strong>Date:</strong> <?= htmlspecialchars($booking->bookingDate) ?></p>
+            <p><strong>Status:</strong> <?= htmlspecialchars($booking->status) ?></p>
             
+            <hr>
+            
+            <h4>Update Booking Status</h4>
+            <form action="index.php?controller=payment&action=updateBookingStatus" method="POST" class="mb-4">
+                <input type="hidden" name="booking_id" value="<?= $booking->bookingId ?>">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="booking_status" class="form-label">Booking Status</label>
+                        <select name="status" id="booking_status" class="form-select">
+                            <option value="Pending" <?= $booking->status == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                            <option value="Confirmed" <?= $booking->status == 'Confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                            <option value="Cancelled" <?= $booking->status == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                            <option value="Completed" <?= $booking->status == 'Completed' ? 'selected' : '' ?>>Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </div>
+            </form>
+
             <hr>
 
             <h4>Existing Payments</h4>
@@ -34,14 +55,14 @@ require_once __DIR__ . '/../../partials/header.php';
                         <?php foreach ($payments as $payment): ?>
                             <tr>
                                 <td><?= htmlspecialchars($payment->PaymentID) ?></td>
-                                <td>$<?= htmlspecialchars(number_format($payment->Amount, 2)) ?></td>
+                                <td>₱<?= htmlspecialchars(number_format($payment->Amount, 2)) ?></td>
                                 <td><?= htmlspecialchars($payment->PaymentMethod) ?></td>
                                 <td><?= htmlspecialchars(date('Y-m-d H:i', strtotime($payment->PaymentDate))) ?></td>
                                 <td><?= htmlspecialchars($payment->Status) ?></td>
                                 <td>
-                                    <form action="/?controller=payment&action=updateStatus" method="POST" class="d-inline">
+                                    <form action="index.php?controller=payment&action=updateStatus" method="POST" class="d-inline">
                                         <input type="hidden" name="payment_id" value="<?= $payment->PaymentID ?>">
-                                        <input type="hidden" name="booking_id" value="<?= $booking->BookingID ?>">
+                                        <input type="hidden" name="booking_id" value="<?= $booking->bookingId ?>">
                                         <select name="status" class="form-select form-select-sm d-inline w-auto">
                                             <option value="Paid" <?= $payment->Status == 'Paid' ? 'selected' : '' ?>>Paid</option>
                                             <option value="Unpaid" <?= $payment->Status == 'Unpaid' ? 'selected' : '' ?>>Unpaid</option>
@@ -59,8 +80,8 @@ require_once __DIR__ . '/../../partials/header.php';
             <hr>
 
             <h4>Add New Payment</h4>
-            <form action="/?controller=payment&action=add" method="POST">
-                <input type="hidden" name="booking_id" value="<?= $booking->BookingID ?>">
+            <form action="index.php?controller=payment&action=add" method="POST">
+                <input type="hidden" name="booking_id" value="<?= $booking->bookingId ?>">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="mb-3">
@@ -97,7 +118,7 @@ require_once __DIR__ . '/../../partials/header.php';
             </form>
         </div>
         <div class="card-footer">
-             <a href="/?controller=admin&action=dashboard" class="btn btn-secondary">Back to Dashboard</a>
+             <a href="index.php?controller=admin&action=dashboard" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     </div>
 </div>
