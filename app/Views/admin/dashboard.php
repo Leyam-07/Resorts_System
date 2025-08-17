@@ -1,4 +1,12 @@
 <?php
+// Enforce admin-only access
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+    // Redirect to a 403 Forbidden page or the login page
+    header('HTTP/1.0 403 Forbidden');
+    include __DIR__ . '/../errors/403.php';
+    exit();
+}
+
 $pageTitle = "Admin Dashboard";
 require_once __DIR__ . '/../partials/header.php';
 ?>
@@ -20,6 +28,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <table class="table table-striped table-hover">
                                 <thead class="table-primary">
                                     <tr>
+                                        <th>Booking ID</th>
                                         <th>Time</th>
                                         <th>Customer</th>
                                         <th>Facility</th>
@@ -30,12 +39,13 @@ require_once __DIR__ . '/../partials/header.php';
                                 <tbody>
                                     <?php foreach ($todaysBookings as $booking): ?>
                                         <tr>
+                                            <td><?= htmlspecialchars($booking->BookingID) ?></td>
                                             <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
                                             <td><?= htmlspecialchars($booking->CustomerName) ?></td>
                                             <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                                             <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
-                                                <span class="badge 
+                                                <span class="badge
                                                     <?php 
                                                         switch ($booking->Status) {
                                                             case 'Confirmed': echo 'bg-success'; break;

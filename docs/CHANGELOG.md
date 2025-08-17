@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2025-08-17
+
+### Fixed
+
+- **Security:** Fixed a critical security vulnerability where non-administrator roles and logged-out users could directly access the `admin/dashboard.php` view via its URL. The view now contains a check to ensure only authenticated admins can access it.
+- **UI:** Corrected the Admin Dashboard's "Today's Bookings" table to include the "Booking ID" column, which was previously missing.
+
 ## [1.5.0] - 2025-08-17
 
 ### Added
