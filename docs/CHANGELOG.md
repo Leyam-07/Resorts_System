@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-08-17
+
+### Added
+
+- **Admin Dashboard:** Implemented the initial version of the Admin Dashboard.
+  - The dashboard now serves as the default landing page for administrators upon login.
+  - It features a "Today's Bookings" view, providing a real-time summary of daily reservations.
+  - A direct "Dashboard" link has been added to the main navigation bar for easy access.
+
 ## [1.4.1] - 2025-08-14
 
 ### Fixed

@@ -26,6 +26,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php if (isset($_SESSION['role'])): ?>
                     <?php if ($_SESSION['role'] === 'Admin'): ?>
                         <li class="nav-item">
+                            <a class="nav-link" href="?controller=admin&action=dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="?controller=admin&action=users">Manage Users</a>
                         </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>

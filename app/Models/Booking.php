@@ -87,6 +87,22 @@ class Booking {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public static function findTodaysBookings() {
+        $db = self::getDB();
+        $today = date('Y-m-d');
+        $stmt = $db->prepare(
+            "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+             FROM Bookings b
+             JOIN Facilities f ON b.FacilityID = f.FacilityID
+             JOIN Users u ON b.CustomerID = u.UserID
+             WHERE b.BookingDate = :today
+             ORDER BY b.StartTime ASC"
+        );
+        $stmt->bindValue(':today', $today, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public static function update(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(

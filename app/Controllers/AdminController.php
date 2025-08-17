@@ -25,6 +25,11 @@ class AdminController {
         $this->userModel = new User($this->db);
     }
 
+    public function dashboard() {
+        $todaysBookings = Booking::findTodaysBookings();
+        include __DIR__ . '/../Views/admin/dashboard.php';
+    }
+
     public function users() {
         $users = $this->userModel->findAll();
         include __DIR__ . '/../Views/admin/users.php';

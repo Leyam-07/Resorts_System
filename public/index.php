@@ -54,7 +54,14 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         header('Location: index.php?action=login');
         exit();
     }
-   // The rest of the file will act as the default dashboard view
+    // If user is Admin and no specific controller is called, default to admin dashboard
+    if ($_SESSION['role'] === 'Admin') {
+        require_once __DIR__ . '/../app/Controllers/AdminController.php';
+        $adminController = new AdminController();
+        $adminController->dashboard();
+        exit();
+    }
+   // The rest of the file will act as the default dashboard view for other roles
 } elseif ($controllerName === 'admin') {
    require_once __DIR__ . '/../app/Controllers/AdminController.php';
    $adminController = new AdminController();

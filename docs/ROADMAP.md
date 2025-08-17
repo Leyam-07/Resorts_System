@@ -7,7 +7,7 @@ This document outlines the development phases for the Integrated Digital Managem
 - [x] **User Management:** Implement login, registration, and role-based access for Admin, Staff, and Customer.
 - [x] **Booking Engine:** Develop the core online booking and reservation system.
 - [x] **Customer Information Management:** Create the system for managing guest profiles.
-- [ ] **Admin Dashboard:** Build the initial dashboard with daily summary views.
+- [x] **Admin Dashboard:** Build the initial dashboard with daily summary views.
 
 ## Phase 2: Financial and Facility Management
 
