@@ -32,15 +32,15 @@ class AdminController {
 
     public function addUser() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
-            $role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_STRING);
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
-            $notes = $_POST['notes'];
+            $role = filter_input(INPUT_POST, 'role', FILTER_UNSAFE_RAW);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
+            $notes = htmlspecialchars_decode(filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '');
 
             if ($password !== $confirmPassword) {
                 header('Location: ?controller=admin&action=addUser&error=password_mismatch');
@@ -68,12 +68,12 @@ class AdminController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Handle the form submission
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
-            $notes = $_POST['notes'];
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
+            $notes = htmlspecialchars_decode(filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '');
 
             $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes);
 

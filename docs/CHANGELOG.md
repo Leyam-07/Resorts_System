@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Security:** Fixed a critical vulnerability that allowed users to bypass controller logic and access sensitive view files directly via their URL. All admin views are now protected.
 - **Security:** Corrected a flaw where non-admin and logged-out users could still access admin pages, resulting in errors and potential data exposure. The `AdminController` now robustly redirects all unauthorized users.
-- **Bug:** Fixed a data-handling bug where special characters in user notes were being double-encoded, causing them to display incorrectly (e.g., `"` as `&quot;`).
+- **Bug:** Fixed a critical data-handling bug where special characters in user notes were being double-encoded with each save, causing them to display incorrectly (e.g., `"` becoming `"`, then `&quot;`). The fix was applied universally by replacing the deprecated `FILTER_SANITIZE_STRING` with modern filters across all controllers (`User`, `Admin`, `Booking`) to ensure user input is stored raw and escaped only on output.
 
 ### Changed
 

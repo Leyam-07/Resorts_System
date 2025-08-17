@@ -20,13 +20,13 @@ class UserController {
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Sanitize POST data
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password']; // No sanitization needed before hashing
             $confirmPassword = $_POST['confirm_password'];
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
 
             // Validate that passwords match
             if ($password !== $confirmPassword) {
@@ -56,13 +56,13 @@ class UserController {
     public function registerAdmin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Sanitize POST data
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password']; // No sanitization needed before hashing
             $confirmPassword = $_POST['confirm_password'];
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
 
             // Validate that passwords match
             if ($password !== $confirmPassword) {
@@ -92,7 +92,7 @@ class UserController {
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $password = $_POST['password'];
 
             $user = $this->userModel->findByUsername($username);
@@ -129,11 +129,11 @@ class UserController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Handle profile update
-            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_STRING);
+            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
+            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
+            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
 

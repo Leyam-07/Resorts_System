@@ -31,9 +31,9 @@ class BookingController {
 
         // 1. Sanitize and retrieve form data
         $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
-        $bookingDate = filter_input(INPUT_POST, 'bookingDate', FILTER_SANITIZE_STRING);
-        $startTime = filter_input(INPUT_POST, 'startTime', FILTER_SANITIZE_STRING);
-        $endTime = filter_input(INPUT_POST, 'endTime', FILTER_SANITIZE_STRING);
+        $bookingDate = filter_input(INPUT_POST, 'bookingDate', FILTER_UNSAFE_RAW);
+        $startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
+        $endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
         $numberOfGuests = filter_input(INPUT_POST, 'numberOfGuests', FILTER_VALIDATE_INT);
         $customerId = $_SESSION['user_id'];
 
