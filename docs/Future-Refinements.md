@@ -169,9 +169,34 @@ This section covers testing and future refinements for payment tracking, status 
   - [x] Implemented a manual override for admins to change booking status directly from the payments page.
   - [x] Localized currency symbol from `$` to `₱`.
 
+### ✅ Core Test Plan (Completed)
+
+- [x] **Facility CRUD:** Verified creation, viewing, editing, and deletion of facilities.
+- [x] **Time Slot Blocking:** Confirmed ability to block single time slots and date ranges for maintenance.
+- [x] **Blocked Slot Enforcement:** Ensured blocked slots are unavailable for customer bookings.
+- [x] **Capacity Enforcement:** Validated that booking requests exceeding facility capacity are rejected.
+- [x] **Security Hardening:** Implemented access control to prevent non-admins from accessing facility management pages.
+- [x] **UI/UX Consistency:** Ensured consistent navigation buttons and styling across facility management views.
+- [x] **Double-Encoding Fix:** Confirmed resolution of special character double-encoding issues in facility notes/descriptions.
+
 ### 🎯 Future Suggestions & Refinements Checklist
 
-#### 1. Payment Calculation & Validation
+#### 1. Facility Scheduling & Availability
+
+- [ ] **Visual Scheduling Calendar:**
+  - [ ] Implement a full-page, interactive calendar for Admins to manage facility schedules.
+  - [ ] Allow Admins to easily view availability, existing bookings, and blocked times at a glance.
+  - [ ] Enable direct interaction with the calendar to block time slots.
+- [ ] **Recurring Blocked Schedules:**
+  - [ ] Add functionality for Admins to set up recurring blocked times (e.g., weekly maintenance, daily closures).
+  - [ ] Provide options for daily, weekly, or custom recurrence patterns.
+- [ ] **Public-Facing Availability View:**
+  - [ ] Create a read-only, user-friendly calendar view for Customers to check a facility's general availability before initiating the booking process.
+  - [ ] This view should clearly indicate available and unavailable (booked/blocked) slots without revealing sensitive details.
+- [ ] **Display Block Reason:**
+  - [ ] On the Admin's schedule view, display the specific reason provided when a time slot was blocked (e.g., "Maintenance," "Private Event").
+
+#### 2. Payment Calculation & Validation
 
 - [ ] **Auto-Calculate Balance:**
   - [ ] On the payment management page, automatically calculate and display the booking's total cost and the remaining balance based on payments already made.
