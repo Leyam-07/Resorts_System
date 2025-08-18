@@ -47,8 +47,17 @@ class BookingController {
 
         // 3. Advanced Validation
         // Check if the facility exists
-        if (!Facility::findById($facilityId)) {
+        $facility = Facility::findById($facilityId);
+        if (!$facility) {
             $_SESSION['error_message'] = "The selected facility does not exist.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
+            exit;
+        }
+
+        // Check if the number of guests exceeds the facility's capacity
+        if ($numberOfGuests > $facility->capacity) {
+            $_SESSION['error_message'] = "The number of guests (" . $numberOfGuests . ") exceeds the capacity (" . $facility->capacity . ") for this facility.";
             $_SESSION['old_input'] = $_POST;
             header('Location: ?controller=booking&action=showBookingForm');
             exit;

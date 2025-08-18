@@ -1,4 +1,11 @@
 <?php
+// Prevent direct access to this file
+if (!defined('APP_LOADED')) {
+    http_response_code(403);
+    require_once __DIR__ . '/../../errors/403.php';
+    exit;
+}
+
 $pageTitle = "Manage Facilities";
 require_once __DIR__ . '/../../partials/header.php';
 ?>

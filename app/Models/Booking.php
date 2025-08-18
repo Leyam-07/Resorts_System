@@ -140,29 +140,46 @@ class Booking {
 
     public static function isTimeSlotAvailable($facilityId, $bookingDate, $startTime, $endTime, $excludeBookingId = null) {
         $db = self::getDB();
-        // Check for any bookings that overlap with the requested time slot
-        $sql = "SELECT COUNT(*) FROM Bookings
-                WHERE FacilityID = :facilityId
-                AND BookingDate = :bookingDate
-                AND Status IN ('Pending', 'Confirmed')
-                AND :startTime < EndTime
-                AND :endTime > StartTime";
-        
+
+        // 1. Check for overlapping bookings
+        $sqlBookings = "SELECT COUNT(*) FROM Bookings
+                        WHERE FacilityID = :facilityId
+                        AND BookingDate = :bookingDate
+                        AND Status IN ('Pending', 'Confirmed')
+                        AND :startTime < EndTime
+                        AND :endTime > StartTime";
         if ($excludeBookingId) {
-            $sql .= " AND BookingID != :excludeBookingId";
+            $sqlBookings .= " AND BookingID != :excludeBookingId";
+        }
+        $stmtBookings = $db->prepare($sqlBookings);
+        $stmtBookings->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmtBookings->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
+        $stmtBookings->bindValue(':startTime', $startTime, PDO::PARAM_STR);
+        $stmtBookings->bindValue(':endTime', $endTime, PDO::PARAM_STR);
+        if ($excludeBookingId) {
+            $stmtBookings->bindValue(':excludeBookingId', $excludeBookingId, PDO::PARAM_INT);
+        }
+        $stmtBookings->execute();
+        if ($stmtBookings->fetchColumn() > 0) {
+            return false; // Conflict with an existing booking
         }
 
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
-        $stmt->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
-        $stmt->bindValue(':startTime', $startTime, PDO::PARAM_STR);
-        $stmt->bindValue(':endTime', $endTime, PDO::PARAM_STR);
-        
-        if ($excludeBookingId) {
-            $stmt->bindValue(':excludeBookingId', $excludeBookingId, PDO::PARAM_INT);
+        // 2. Check for overlapping blocked slots
+        $sqlBlocked = "SELECT COUNT(*) FROM BlockedAvailabilities
+                       WHERE FacilityID = :facilityId
+                       AND BlockDate = :bookingDate
+                       AND :startTime < EndTime
+                       AND :endTime > StartTime";
+        $stmtBlocked = $db->prepare($sqlBlocked);
+        $stmtBlocked->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmtBlocked->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
+        $stmtBlocked->bindValue(':startTime', $startTime, PDO::PARAM_STR);
+        $stmtBlocked->bindValue(':endTime', $endTime, PDO::PARAM_STR);
+        $stmtBlocked->execute();
+        if ($stmtBlocked->fetchColumn() > 0) {
+            return false; // Conflict with a blocked time slot
         }
 
-        $stmt->execute();
-        return $stmt->fetchColumn() == 0;
+        return true; // The time slot is available
     }
 }

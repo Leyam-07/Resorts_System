@@ -14,8 +14,9 @@ class AdminController {
     public function __construct() {
         // Ensure user is an admin
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-            // Redirect to login page if not an admin
-            header('Location: /?controller=user&action=login&error=unauthorized');
+            // If user is not an admin, deny access
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
             exit();
         }
 
@@ -60,7 +61,7 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
-            $notes = htmlspecialchars_decode(filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '');
+            $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
 
             if ($password !== $confirmPassword) {
                 header('Location: ?controller=admin&action=addUser&error=password_mismatch');
@@ -93,7 +94,7 @@ class AdminController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
-            $notes = htmlspecialchars_decode(filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '');
+            $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
 
             $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes);
 
@@ -235,17 +236,42 @@ class AdminController {
 
     public function blockTime() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $blocked = new BlockedAvailability();
-            $blocked->facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
-            $blocked->blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
-            $blocked->startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
-            $blocked->endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
-            $blocked->reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+            $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
+            $startDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
+            $endDate = filter_input(INPUT_POST, 'blockEndDate', FILTER_UNSAFE_RAW);
+            $startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
+            $endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
+            $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
 
-            if (BlockedAvailability::create($blocked)) {
-                header('Location: ?controller=admin&action=schedule&id=' . $blocked->facilityId . '&status=time_blocked');
+            // If no end date is provided, it's a single-day block
+            if (empty($endDate)) {
+                $endDate = $startDate;
+            }
+
+            $currentDate = new DateTime($startDate);
+            $lastDate = new DateTime($endDate);
+            $success = true;
+
+            while ($currentDate <= $lastDate) {
+                $blocked = new BlockedAvailability();
+                $blocked->facilityId = $facilityId;
+                $blocked->blockDate = $currentDate->format('Y-m-d');
+                $blocked->startTime = $startTime;
+                $blocked->endTime = $endTime;
+                $blocked->reason = $reason;
+
+                if (!BlockedAvailability::create($blocked)) {
+                    $success = false;
+                    // Stop on first failure
+                    break;
+                }
+                $currentDate->modify('+1 day');
+            }
+
+            if ($success) {
+                header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&status=time_blocked');
             } else {
-                header('Location: ?controller=admin&action=schedule&id=' . $blocked->facilityId . '&error=block_failed');
+                header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&error=block_failed');
             }
             exit();
         }

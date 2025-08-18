@@ -1,4 +1,11 @@
 <?php
+// Prevent direct access to this file
+if (!defined('APP_LOADED')) {
+    http_response_code(403);
+    require_once __DIR__ . '/../../errors/403.php';
+    exit;
+}
+
 $pageTitle = "Add New Facility";
 require_once __DIR__ . '/../../partials/header.php';
 ?>
@@ -15,7 +22,7 @@ require_once __DIR__ . '/../../partials/header.php';
                         <div class="alert alert-danger">Failed to add facility. Please try again.</div>
                     <?php endif; ?>
 
-                    <form action="?controller=admin&action=addFacility" method="POST">
+                    <form action="?controller=admin&action=addFacility" method="POST" id="addFacilityForm">
                         <div class="mb-3">
                             <label for="name" class="form-label">Facility Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
@@ -28,10 +35,13 @@ require_once __DIR__ . '/../../partials/header.php';
                             <label for="rate" class="form-label">Rate (per hour)</label>
                             <input type="number" step="0.01" class="form-control" id="rate" name="rate" required>
                         </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Add Facility</button>
-                            <a href="?controller=admin&action=facilities" class="btn btn-secondary">Cancel</a>
-                        </div>
+                        <!-- Buttons will be moved to the footer -->
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <a href="?controller=admin&action=facilities" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary" form="addFacilityForm">Save Facility</button>
+                </div>
                     </form>
                 </div>
             </div>
