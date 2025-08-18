@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-08-18
+
+### Added
+
+- **Facility Scheduling and Management:** Implemented a full CRUD (Create, Read, Update, Delete) interface for managing resort facilities.
+  - Administrators can now add, edit, and delete facilities from the admin dashboard.
+  - Added a "Manage Schedule" feature, allowing admins to block out specific time slots for a facility (e.g., for maintenance), preventing them from being booked.
+
+### Changed
+
+- **Admin Navigation:** Added a "Manage Facilities" link to the main navigation bar for administrators, providing quick access to the new management pages.
+
 ## [1.6.1] - 2025-08-17
 
 ### Added

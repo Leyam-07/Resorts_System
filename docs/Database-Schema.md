@@ -98,6 +98,25 @@ CREATE TABLE IF NOT EXISTS `Payments` (
 
 ---
 
+### Table: `BlockedAvailabilities`
+
+Stores records of time slots that are manually blocked by an administrator and are unavailable for booking.
+
+```sql
+CREATE TABLE IF NOT EXISTS `BlockedAvailabilities` (
+  `BlockedAvailabilityID` INT PRIMARY KEY AUTO_INCREMENT,
+  `FacilityID` INT,
+  `BlockDate` DATE NOT NULL,
+  `StartTime` TIME NOT NULL,
+  `EndTime` TIME NOT NULL,
+  `Reason` VARCHAR(255),
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`)
+);
+```
+
+---
+
 ### Table: `Feedback`
 
 Stores customer feedback and reviews.
