@@ -23,7 +23,58 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
   - Required extensions: `pdo_mysql`
 - **Database:** MySQL 8.0+ or MariaDB 10.4+
 
-## 2. Installation Steps
+## 2. Web Server Configuration (Security Best Practice)
+
+**This is the most important step for securing your application.**
+
+To prevent direct URL access to sensitive files (like database models and controllers), you **must** configure your web server's "Document Root" to point to the `/public` directory within your project folder. This ensures that only files inside `/public` (like `index.php` and your assets) are web-accessible.
+
+#### For Apache:
+
+1.  Find your Apache configuration file for virtual hosts (e.g., `httpd-vhosts.conf`).
+2.  Create or modify the virtual host entry for your site to set the `DocumentRoot` correctly:
+
+    ```apache
+    <VirtualHost *:80>
+        ServerName your-resort-system.local
+        DocumentRoot "C:/xampp/htdocs/ResortsSystem/public"
+        <Directory "C:/xampp/htdocs/ResortsSystem/public">
+            Options Indexes FollowSymLinks
+            AllowOverride All
+            Require all granted
+        </Directory>
+    </VirtualHost>
+    ```
+
+3.  Restart Apache for the changes to take effect.
+
+#### For Nginx:
+
+1.  Find your Nginx server block configuration file.
+2.  Set the `root` directive to point to the `public` directory:
+
+    ```nginx
+    server {
+        listen 80;
+        server_name your-resort-system.local;
+        root /var/www/html/ResortsSystem/public;
+
+        index index.php;
+
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
+        }
+    }
+    ```
+
+3.  Reload Nginx for the changes to take effect.
+
+## 3. Installation Steps
 
 1.  **Clone the Repository:**
     Clone the project from the source repository into your web server's root directory (e.g., `/var/www/html`).
@@ -39,7 +90,7 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
     chmod -R 755 /path/to/your/project
     ```
 
-## 3. Database Setup
+## 4. Database Setup
 
 1.  **Create a Database User (If Needed):**
     Before running the script, ensure you have a MySQL user that matches the credentials in `config/database.php`. If you haven't created one, you can do so via phpMyAdmin or the command line:
@@ -86,7 +137,7 @@ The `scripts/dev/` directory contains temporary scripts used for testing and dia
 php scripts/dev/test_booking_model.php
 ```
 
-## 4. Application Configuration
+## 5. Application Configuration
 
 1.  **Create Configuration File:**
     Create a `config.php` file in the project's root directory. This file should not be committed to version control.
@@ -102,7 +153,7 @@ php scripts/dev/test_booking_model.php
     ?>
     ```
 
-## 5. Final Steps
+## 6. Final Steps
 
 - **Access the Application:**
 

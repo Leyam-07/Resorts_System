@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2025-08-18
+
+### Security
+
+- **Critical Access Control:** Fixed a major vulnerability where admin-only views could be accessed directly via their URL, bypassing all controller logic. All views now check for a security constant (`APP_LOADED`) to ensure they are loaded through the central router.
+- **Role-Based Access Control:** Hardened the `AdminController` to ensure that any non-admin user attempting to access its methods is immediately met with a `403 Forbidden` error, preventing unauthorized actions.
+- **Data Handling:** Removed a remaining `htmlspecialchars_decode()` call from the `AdminController` to prevent potential double-encoding issues and ensure user-provided notes are stored raw in the database, aligning with security best practices.
+
+### Fixed
+
+- **Booking Logic:** Corrected a critical bug that allowed users to book facilities on dates and times that were explicitly blocked for maintenance. The booking system now correctly checks for conflicts with both existing bookings and blocked time slots.
+- **Capacity Validation:** Fixed a bug where the system did not enforce the guest capacity limit for a facility. Bookings are now validated to ensure the number of guests does not exceed the facility's maximum capacity.
+
+### Changed
+
+- **Facility Scheduling:** The "Block Time" feature for facilities now supports selecting a date range, allowing administrators to block multiple consecutive days in a single action.
+- **UI/UX:** For improved usability and consistency, the primary action buttons (e.g., "Save," "Cancel," "Back") on the facility management pages have been moved to the bottom-left corner of the card footer.
+
 ## [1.7.0] - 2025-08-18
 
 ### Added
