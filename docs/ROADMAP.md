@@ -12,7 +12,7 @@ This document outlines the development phases for the Integrated Digital Managem
 ## Phase 2: Financial and Facility Management
 
 - [x] **Payment Management:** Implement payment tracking, status updates, and invoice generation.
-- [ ] **Facility Scheduling:** Develop the module for scheduling and blocking facilities.
+- [x] **Facility Scheduling:** Develop the module for scheduling and blocking facilities.
 - [ ] **Reporting:** Enhance the Admin Dashboard with monthly income summaries and booking history.
 
 ## Phase 3: Guest Engagement and Finalization

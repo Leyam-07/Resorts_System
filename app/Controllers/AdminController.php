@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Payment.php';
+require_once __DIR__ . '/../Models/Facility.php';
+require_once __DIR__ . '/../Models/BlockedAvailability.php';
 
 class AdminController {
     private $db;
@@ -143,5 +145,124 @@ class AdminController {
         $bookings = Booking::findByCustomerId($userId);
 
         include __DIR__ . '/../Views/admin/view_user_bookings.php';
+    }
+
+    public function facilities() {
+        $facilities = Facility::findAll();
+        include __DIR__ . '/../Views/admin/facilities/index.php';
+    }
+
+    public function addFacility() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $facility = new Facility();
+            $facility->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
+            $facility->capacity = filter_input(INPUT_POST, 'capacity', FILTER_VALIDATE_INT);
+            $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
+            // Assuming a single resort for now
+            $facility->resortId = 1;
+
+            if (Facility::create($facility)) {
+                header('Location: ?controller=admin&action=facilities&status=facility_added');
+                exit();
+            } else {
+                header('Location: ?controller=admin&action=addFacility&error=add_failed');
+                exit();
+            }
+        } else {
+            include __DIR__ . '/../Views/admin/facilities/create.php';
+        }
+    }
+
+    public function editFacility() {
+        if (!isset($_GET['id'])) {
+            die('Facility ID not specified.');
+        }
+        $facilityId = $_GET['id'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $facility = new Facility();
+            $facility->facilityId = $facilityId;
+            $facility->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
+            $facility->capacity = filter_input(INPUT_POST, 'capacity', FILTER_VALIDATE_INT);
+            $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
+            $facility->resortId = 1; // Assuming a single resort
+
+            if (Facility::update($facility)) {
+                header('Location: ?controller=admin&action=facilities&status=facility_updated');
+                exit();
+            } else {
+                header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=update_failed');
+                exit();
+            }
+        } else {
+            $facility = Facility::findById($facilityId);
+            if (!$facility) {
+                die('Facility not found.');
+            }
+            include __DIR__ . '/../Views/admin/facilities/edit.php';
+        }
+    }
+
+    public function deleteFacility() {
+        if (!isset($_GET['id'])) {
+            die('Facility ID not specified.');
+        }
+        $facilityId = $_GET['id'];
+
+        if (Facility::delete($facilityId)) {
+            header('Location: ?controller=admin&action=facilities&status=facility_deleted');
+            exit();
+        } else {
+            die('Failed to delete facility.');
+        }
+    }
+
+    public function schedule() {
+        if (!isset($_GET['id'])) {
+            die('Facility ID not specified.');
+        }
+        $facilityId = $_GET['id'];
+
+        $facility = Facility::findById($facilityId);
+        if (!$facility) {
+            die('Facility not found.');
+        }
+
+        $blockedSlots = BlockedAvailability::findByFacilityId($facilityId);
+
+        include __DIR__ . '/../Views/admin/facilities/schedule.php';
+    }
+
+    public function blockTime() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $blocked = new BlockedAvailability();
+            $blocked->facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
+            $blocked->blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
+            $blocked->startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
+            $blocked->endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
+            $blocked->reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+
+            if (BlockedAvailability::create($blocked)) {
+                header('Location: ?controller=admin&action=schedule&id=' . $blocked->facilityId . '&status=time_blocked');
+            } else {
+                header('Location: ?controller=admin&action=schedule&id=' . $blocked->facilityId . '&error=block_failed');
+            }
+            exit();
+        }
+    }
+
+    public function unblockTime() {
+        if (!isset($_GET['id']) || !isset($_GET['facilityId'])) {
+            die('Required parameters not specified.');
+        }
+        $blockedId = $_GET['id'];
+        $facilityId = $_GET['facilityId'];
+
+        if (BlockedAvailability::delete($blockedId)) {
+            header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&status=time_unblocked');
+        } else {
+            header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&error=unblock_failed');
+        }
+        exit();
     }
 }
