@@ -209,19 +209,34 @@ This section covers testing and future refinements for payment tracking, status 
   - [ ] Add a `Refunded` status to the `Payments` table's `Status` ENUM.
   - [ ] Implement a UI for admins to log refunds against a specific payment, especially for canceled bookings.
 
-#### 3. Financial Reporting
-
-- [ ] **Date Range Filtering:**
-  - [ ] Enhance the "Monthly Income Summary" to allow admins to generate reports for custom date ranges.
-- [ ] **Export Reports:**
-  - [ ] Add a feature to export financial summaries to a CSV or PDF file.
-
 #### 4. Enhanced Invoice Generation
 
 - [ ] **Printable Invoices:**
   - [ ] Implement a feature to generate a detailed, printable HTML invoice for any booking, including a breakdown of payments.
 - [ ] **Invoice History:**
   - [ ] Allow admins to view all past invoices or receipts generated for a specific booking.
+
+---
+
+## Phase 2: Reporting (Version 1.8.1)
+
+This section covers testing for the financial reporting features on the Admin Dashboard.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Unit Testing:** Verified that the `Booking` model methods (`getMonthlyIncome`, `getBookingHistory`) return accurate data.
+- [x] **Integration Testing:** Confirmed that the `AdminController` correctly fetches data from the model and passes it to the dashboard view.
+- [x] **Functional Testing:** Logged in as an Admin and visually confirmed that the "Monthly Income" and "Booking History" sections display correct data.
+- [x] **UI/UX Testing:** Checked the dashboard's responsiveness and visual consistency for the new reporting components on multiple screen sizes.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Financial Reporting Enhancements
+
+- [ ] **Date Range Filtering:**
+  - [ ] Enhance the "Monthly Income Summary" to allow admins to generate reports for custom date ranges.
+- [ ] **Export Reports:**
+  - [ ] Add a feature to export financial summaries to a CSV or PDF file.
 
 ---
 
