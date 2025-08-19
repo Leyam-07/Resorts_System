@@ -43,6 +43,12 @@ class AdminController {
             }
         }
 
+        // Get financial and history data
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth);
+        $bookingHistory = Booking::getBookingHistory(10); // Get last 10 past bookings
+
         include __DIR__ . '/../Views/admin/dashboard.php';
     }
 

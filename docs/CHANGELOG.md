@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2025-08-19
+
+### Added
+
+- **Financial Reporting:** Enhanced the Admin Dashboard with a new card displaying the total income for the current month, providing a quick financial overview.
+- **Booking History:** Added a "Recent Booking History" table to the Admin Dashboard, showing a list of the 10 most recent past bookings and their status (`Completed`, `Cancelled`).
+
 ## [1.7.1] - 2025-08-18
 
 ### Security

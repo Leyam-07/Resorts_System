@@ -13,7 +13,16 @@ require_once __DIR__ . '/../partials/header.php';
 
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Monthly Income</div>
+                <div class="card-body">
+                    <h4 class="card-title">₱<?= number_format($monthlyIncome, 2) ?></h4>
+                    <p class="card-text">Income for <?= date('F Y') ?></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Admin Dashboard</h3>
@@ -74,6 +83,57 @@ require_once __DIR__ . '/../partials/header.php';
                                             </td>
                                             <td>
                                                 <a href="index.php?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Recent Booking History</h4>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($bookingHistory)): ?>
+                        <div class="alert alert-info">No past bookings found.</div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Booking ID</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Facility</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($bookingHistory as $booking): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($booking->BookingID) ?></td>
+                                            <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
+                                            <td><?= htmlspecialchars($booking->CustomerName) ?></td>
+                                            <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                                            <td>
+                                                 <span class="badge
+                                                    <?php
+                                                        switch ($booking->Status) {
+                                                            case 'Completed': echo 'bg-info'; break;
+                                                            case 'Cancelled': echo 'bg-danger'; break;
+                                                            default: echo 'bg-secondary';
+                                                        }
+                                                    ?>">
+                                                    <?= htmlspecialchars($booking->Status) ?>
+                                                </span>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
