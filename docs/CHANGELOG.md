@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.3] - 2025-08-19
+
+### Added
+
+- **Staff Dashboard:** Implemented a dedicated Staff Dashboard displaying "Today's Bookings" and "Upcoming Bookings" (including pending and confirmed bookings).
+- **Admin Dashboard Enhancements:** Added an "Upcoming Bookings" section to the Admin Dashboard with payment management links, providing comprehensive oversight of future reservations.
+
+### Changed
+
+- **Dashboard Routing:** Reworked the main application router (`public/index.php`) and `AdminController` to correctly route Admin and Staff users to their respective, feature-rich dashboards upon login.
+- **"Upcoming Bookings" Logic:** Refined the `Booking` model's `findUpcomingBookings()` method to accurately include both pending and confirmed bookings from today onwards for operational visibility, and later adjusted to strictly future bookings as per user feedback.
+
 ## [1.8.2] - 2025-08-19
 
 ### Changed

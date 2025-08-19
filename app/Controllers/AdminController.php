@@ -43,6 +43,7 @@ class AdminController {
         // Role-based dashboard logic
         if ($_SESSION['role'] === 'Admin') {
             $todaysBookings = Booking::findTodaysBookings();
+            $upcomingBookings = Booking::findUpcomingBookings(); // Fetch upcoming bookings for Admin
 
             // Augment bookings with payment status
             foreach ($todaysBookings as $booking) {
@@ -51,6 +52,15 @@ class AdminController {
                     $booking->PaymentStatus = 'Unpaid';
                 } else {
                     // Use the status of the most recent payment
+                    $booking->PaymentStatus = $payments[0]->Status;
+                }
+            }
+
+            foreach ($upcomingBookings as $booking) {
+                $payments = Payment::findByBookingId($booking->BookingID);
+                if (empty($payments)) {
+                    $booking->PaymentStatus = 'Unpaid';
+                } else {
                     $booking->PaymentStatus = $payments[0]->Status;
                 }
             }
@@ -73,8 +83,26 @@ class AdminController {
     }
 
     public function staffDashboard() {
-        // Fetch upcoming bookings for the staff view
+        $todaysBookings = Booking::findTodaysBookings();
         $upcomingBookings = Booking::findUpcomingBookings();
+
+        foreach ($todaysBookings as $booking) {
+            $payments = Payment::findByBookingId($booking->BookingID);
+            if (empty($payments)) {
+                $booking->PaymentStatus = 'Unpaid';
+            } else {
+                $booking->PaymentStatus = $payments[0]->Status;
+            }
+        }
+
+        foreach ($upcomingBookings as $booking) {
+            $payments = Payment::findByBookingId($booking->BookingID);
+            if (empty($payments)) {
+                $booking->PaymentStatus = 'Unpaid';
+            } else {
+                $booking->PaymentStatus = $payments[0]->Status;
+            }
+        }
         include __DIR__ . '/../Views/admin/staff_dashboard.php';
     }
 

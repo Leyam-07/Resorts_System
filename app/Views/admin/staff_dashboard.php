@@ -17,7 +17,42 @@ require_once __DIR__ . '/../partials/header.php';
             <h3 class="card-title">Staff Dashboard</h3>
         </div>
         <div class="card-body">
-            <h4 class="mb-4">Upcoming Confirmed Bookings</h4>
+            <h4 class="mb-4">Today's Bookings (<?= date('F j, Y') ?>)</h4>
+            
+            <?php if (empty($todaysBookings)): ?>
+                <div class="alert alert-info">No bookings scheduled for today.</div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-info">
+                            <tr>
+                                <th>Time</th>
+                                <th>Customer</th>
+                                <th>Facility</th>
+                                <th>Guests</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($todaysBookings as $booking): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
+                                    <td><?= htmlspecialchars($booking->CustomerName) ?></td>
+                                    <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                                    <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <?= htmlspecialchars($booking->Status) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+
+            <h4 class="mb-4 mt-5">Upcoming Bookings</h4>
             
             <?php if (empty($upcomingBookings)): ?>
                 <div class="alert alert-info">No upcoming bookings found.</div>

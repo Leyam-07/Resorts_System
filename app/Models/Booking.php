@@ -111,7 +111,7 @@ class Booking {
              FROM Bookings b
              JOIN Facilities f ON b.FacilityID = f.FacilityID
              JOIN Users u ON b.CustomerID = u.UserID
-             WHERE b.BookingDate >= :today AND b.Status = 'Confirmed'
+             WHERE b.BookingDate > :today AND b.Status IN ('Pending', 'Confirmed')
              ORDER BY b.BookingDate ASC, b.StartTime ASC"
         );
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
