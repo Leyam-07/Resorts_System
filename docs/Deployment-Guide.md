@@ -131,11 +131,12 @@ To prevent direct URL access to sensitive files (like database models and contro
 
 ### Development Scripts
 
-The `scripts/dev/` directory contains temporary scripts used for testing and diagnostics during the development process. These are not required for the production application to run but can be useful for debugging. You can run them from the command line, for example:
+The `scripts/dev/` directory contains temporary scripts used for testing and diagnostics during the development process. These are not required for the production application to run but can be useful for debugging.
 
-```bash
-php scripts/dev/test_booking_model.php
-```
+You can run them from the command line (e.g., `php scripts/dev/test_booking_model.php`) or, in some cases, directly in your browser.
+
+- **Financial Report Test:** To verify that the financial reporting features are calculating correctly, navigate to the following URL in your browser:
+  - `http://localhost/ResortsSystem/scripts/dev/test_financial_reports.php`
 
 ## 5. Application Configuration
 

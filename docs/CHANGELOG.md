@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2025-08-19
+
+### Added
+
+- **Developer Tools:** Created a new test script (`scripts/dev/test_financial_reports.php`) to unit test the `getMonthlyIncome()` and `getBookingHistory()` methods, ensuring the accuracy of financial and historical reporting.
+
 ## [1.8.0] - 2025-08-19
 
 ### Added
