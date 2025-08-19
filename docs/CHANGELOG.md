@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Facility Display:** The "Manage Facilities" list in the admin dashboard now sorts facilities by their `FacilityID` by default, instead of alphabetically by name.
+- **UI/UX:** Moved the "My Bookings" link from the customer's profile page to the main navigation bar for better accessibility and consistency.
 
 ## [1.8.1] - 2025-08-19
 
