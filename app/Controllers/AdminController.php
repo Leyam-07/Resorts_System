@@ -13,8 +13,18 @@ class AdminController {
 
     public function __construct() {
         // Ensure user is an admin
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-            // If user is not an admin, deny access
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+            // If user is not logged in, deny access
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Allow Staff to access their own dashboard, but ensure they are logged in
+        // The specific view logic will be handled in the dashboard method.
+        // For other admin functions, enforce Admin-only access later in specific methods if needed.
+        // This constructor's primary role is now general access control and DB setup.
+        if ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'Staff') {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();
@@ -30,26 +40,42 @@ class AdminController {
     }
 
     public function dashboard() {
-        $todaysBookings = Booking::findTodaysBookings();
+        // Role-based dashboard logic
+        if ($_SESSION['role'] === 'Admin') {
+            $todaysBookings = Booking::findTodaysBookings();
 
-        // Augment bookings with payment status
-        foreach ($todaysBookings as $booking) {
-            $payments = Payment::findByBookingId($booking->BookingID);
-            if (empty($payments)) {
-                $booking->PaymentStatus = 'Unpaid';
-            } else {
-                // Use the status of the most recent payment
-                $booking->PaymentStatus = $payments[0]->Status;
+            // Augment bookings with payment status
+            foreach ($todaysBookings as $booking) {
+                $payments = Payment::findByBookingId($booking->BookingID);
+                if (empty($payments)) {
+                    $booking->PaymentStatus = 'Unpaid';
+                } else {
+                    // Use the status of the most recent payment
+                    $booking->PaymentStatus = $payments[0]->Status;
+                }
             }
+
+            // Get financial and history data
+            $currentMonth = date('m');
+            $currentYear = date('Y');
+            $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth);
+            $bookingHistory = Booking::getBookingHistory(10); // Get last 10 past bookings
+
+            include __DIR__ . '/../Views/admin/dashboard.php';
+        } elseif ($_SESSION['role'] === 'Staff') {
+            $this->staffDashboard();
+        } else {
+            // Fallback for any other roles or errors
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
         }
+    }
 
-        // Get financial and history data
-        $currentMonth = date('m');
-        $currentYear = date('Y');
-        $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth);
-        $bookingHistory = Booking::getBookingHistory(10); // Get last 10 past bookings
-
-        include __DIR__ . '/../Views/admin/dashboard.php';
+    public function staffDashboard() {
+        // Fetch upcoming bookings for the staff view
+        $upcomingBookings = Booking::findUpcomingBookings();
+        include __DIR__ . '/../Views/admin/staff_dashboard.php';
     }
 
     public function users() {

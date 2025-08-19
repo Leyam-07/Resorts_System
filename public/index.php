@@ -54,14 +54,14 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         header('Location: index.php?action=login');
         exit();
     }
-    // If user is Admin and no specific controller is called, default to admin dashboard
-    if ($_SESSION['role'] === 'Admin') {
+    // If user is Admin or Staff and no specific controller is called, default to the appropriate dashboard
+    if (in_array($_SESSION['role'], ['Admin', 'Staff'])) {
         require_once __DIR__ . '/../app/Controllers/AdminController.php';
         $adminController = new AdminController();
-        $adminController->dashboard();
+        $adminController->dashboard(); // This method now handles routing to staffDashboard if role is Staff
         exit();
     }
-   // The rest of the file will act as the default dashboard view for other roles
+    // The rest of the file will act as the default dashboard view for other roles (e.g., Customer)
 } elseif ($controllerName === 'admin') {
    require_once __DIR__ . '/../app/Controllers/AdminController.php';
    $adminController = new AdminController();
@@ -103,6 +103,10 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
        die('Action not found.');
    }
 }
+
+// Default dashboard for Customer or other unhandled roles
+// This block will only be reached if no specific controller/action handled the request
+// and the user is not an Admin or Staff (which are handled above).
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -125,19 +129,8 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
                     <h3>Welcome, <?php echo htmlspecialchars($username); ?>!</h3>
                 </div>
                 <div class="card-body">
-                    <?php if ($role === 'Admin'): ?>
-                        <h5 class="card-title">Admin Dashboard</h5>
-                        <p class="card-text">You have full access to the system.</p>
-                        <!-- Admin-specific content goes here -->
-                    <?php elseif ($role === 'Staff'): ?>
-                        <h5 class="card-title">Staff Dashboard</h5>
-                        <p class="card-text">You can view daily tasks and schedules.</p>
-                        <!-- Staff-specific content goes here -->
-                    <?php else: ?>
-                        <h5 class="card-title">Customer Dashboard</h5>
-                        <p class="card-text">Welcome to your personal dashboard.</p>
-                        <!-- Customer-specific content goes here -->
-                    <?php endif; ?>
+                    <h5 class="card-title">Customer Dashboard</h5>
+                    <p class="card-text">Welcome to your personal dashboard.</p>
                 </div>
             </div>
         </div>
