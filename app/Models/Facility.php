@@ -64,7 +64,7 @@ class Facility {
 
     public static function findAll() {
         $db = self::getDB();
-        $stmt = $db->query("SELECT * FROM Facilities ORDER BY Name ASC");
+        $stmt = $db->query("SELECT * FROM Facilities ORDER BY FacilityID ASC");
         $facilities = [];
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $facility = new Facility();

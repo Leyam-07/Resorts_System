@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2025-08-19
+
+### Changed
+
+- **Facility Display:** The "Manage Facilities" list in the admin dashboard now sorts facilities by their `FacilityID` by default, instead of alphabetically by name.
+
 ## [1.8.1] - 2025-08-19
 
 ### Added
