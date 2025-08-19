@@ -48,6 +48,34 @@ This section covers testing for the core user management functionalities: login,
 
 ---
 
+## Phase 1: Staff Access (Version 1.8.3)
+
+This section covers the implementation and testing of the staff-specific dashboard.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Staff Dashboard Implementation:**
+  - [x] Dedicated Staff Dashboard view created (`app/Views/admin/staff_dashboard.php`).
+  - [x] Staff Dashboard displays "Today's Bookings" and "Upcoming Bookings" (including pending and confirmed statuses).
+  - [x] Staff Dashboard is read-only; no edit/delete actions are available.
+- [x] **Access Control & Routing:**
+  - [x] Staff users are correctly routed to their dedicated dashboard upon login.
+  - [x] Non-Staff users (Admin/Customer) are prevented from accessing the Staff Dashboard directly.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Enhanced Staff Task Management
+
+- [ ] **Task List Visibility:**
+  - [ ] Implement a more explicit "Task List" section on the Staff Dashboard beyond just bookings, showing assigned cleaning, preparation, or guest arrival tasks.
+  - [ ] Allow Admins to assign specific tasks to Staff members.
+- [ ] **Task Status Updates:**
+  - [ ] Provide a simple mechanism for Staff to mark tasks as "In Progress" or "Completed" (without modifying core booking data).
+- [ ] **Filtered Views:**
+  - [ ] Allow Staff to filter bookings/tasks by facility or time range.
+
+---
+
 ## Phase 1: Booking Engine (Version 1.3.0)
 
 This section covers testing for the booking engine and related features.
