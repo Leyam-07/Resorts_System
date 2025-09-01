@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Facility.php';
+require_once __DIR__ . '/../Helpers/Notification.php';
 
 class BookingController {
 
@@ -99,6 +100,9 @@ class BookingController {
         $bookingId = Booking::create($booking);
 
         if ($bookingId) {
+            // Send confirmation email
+            Notification::sendBookingConfirmation($bookingId);
+
             // Success: Redirect to a confirmation page
             header('Location: ?controller=booking&action=bookingSuccess&id=' . $bookingId);
         } else {
@@ -186,6 +190,9 @@ class BookingController {
         }
 
         if (Booking::delete($bookingId)) {
+            // Send cancellation email
+            Notification::sendBookingCancellation($booking);
+            
             $_SESSION['success_message'] = "Booking successfully cancelled.";
         } else {
             $_SESSION['error_message'] = "Failed to cancel the booking. Please try again.";

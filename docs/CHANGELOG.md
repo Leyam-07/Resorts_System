@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2025-09-01
+
+### Added
+
+- **Security:** Created a `.gitignore` file to prevent sensitive configuration files, such as `config/mail.php`, from being committed to version control.
+- **Configuration Template:** Added a `config/mail.sample.php` file to provide a clear template for administrators to copy and configure their email settings.
+
+## [1.9.0] - 2025-09-01
+
+### Added
+
+- **Email Notifications:** Implemented a robust email notification system using PHPMailer for reliable delivery.
+  - The system now sends automated emails for:
+    - New user registration ("Welcome" email).
+    - Booking confirmations.
+    - Booking cancellations.
+- **Mail Configuration:** Added a new `config/mail.php` file to securely store SMTP credentials, separating sensitive information from application logic.
+
+### Changed
+
+- **Upgraded Mailer:** Replaced the basic PHP `mail()` function with PHPMailer, configured to use SMTP authentication. This significantly improves email deliverability and reduces the likelihood of emails being marked as spam.
+
 ## [1.8.3] - 2025-08-19
 
 ### Added

@@ -23,6 +23,10 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
   - Required extensions: `pdo_mysql`
 - **Database:** MySQL 8.0+ or MariaDB 10.4+
 
+### Dependencies
+
+- **PHPMailer:** This system uses PHPMailer for sending emails. The necessary library files are already included in the `vendor/` directory, so no separate installation is required.
+
 ## 2. Web Server Configuration (Security Best Practice)
 
 **This is the most important step for securing your application.**
@@ -145,6 +149,7 @@ You can run them from the command line (e.g., `php scripts/dev/test_booking_mode
 
 2.  **Add Database Credentials:**
     Add the following content to `config.php`, replacing the placeholder values with your database credentials.
+
     ```php
     <?php
     define('DB_HOST', 'localhost');
@@ -153,6 +158,27 @@ You can run them from the command line (e.g., `php scripts/dev/test_booking_mode
     define('DB_NAME', 'resorts_system');
     ?>
     ```
+
+3.  **Configure Email Settings:**
+    Copy the `config/mail.sample.php` file to a new file named `config/mail.php`. Then, open the new `config/mail.php` file and replace the placeholder values with your actual SMTP credentials. This is **required** for sending email notifications (e.g., booking confirmations, welcome emails).
+
+    ```php
+    <?php
+
+    // Example for using a Gmail account
+    define('MAIL_HOST', 'smtp.gmail.com');
+    define('MAIL_PORT', 587);
+    define('MAIL_SMTPAUTH', true);
+    define('MAIL_SMTPSECURE', 'tls');
+
+    // IMPORTANT: Replace with your credentials
+    define('MAIL_USERNAME', 'your.resort.admin@gmail.com');
+    define('MAIL_PASSWORD', 'your-google-app-password'); // Use a Google App Password
+    define('MAIL_FROM', 'your.resort.admin@gmail.com');
+    define('MAIL_FROM_NAME', 'Resorts System Admin');
+    ```
+
+    > **Security Note:** For Gmail, it is strongly recommended to use a **Google App Password** instead of your regular account password. [Learn how to create one here](https://support.google.com/accounts/answer/185833).
 
 ## 6. Final Steps
 

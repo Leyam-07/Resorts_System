@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
+require_once __DIR__ . '/../Helpers/Notification.php';
 
 class UserController {
     private $db;
@@ -38,6 +39,12 @@ class UserController {
             $result = $this->userModel->create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
 
             if ($result === true) {
+                // Find the new user to get their details
+                $newUser = $this->userModel->findByUsername($username);
+                if ($newUser) {
+                    // Send welcome email
+                    Notification::sendWelcomeEmail($newUser['UserID']);
+                }
                 // Redirect to login page on success
                 header('Location: index.php?action=login&registration=success');
                 exit();

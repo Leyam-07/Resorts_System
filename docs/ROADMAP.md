@@ -17,7 +17,7 @@ This document outlines the development phases for the Integrated Digital Managem
 
 ## Phase 3: Guest Engagement and Finalization
 
-- [ ] **Notifications:** Implement automated email/SMS notifications.
+- [x] **Notifications:** Implement automated email notifications.
 - [ ] **Feedback System:** Create the feedback and review submission forms.
 - [ ] **Deployment:** Prepare the system for initial deployment and user testing.
 - [ ] **Documentation:** Finalize all project documentation.
