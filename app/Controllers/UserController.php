@@ -5,18 +5,6 @@ require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
 
 class UserController {
-    private $db;
-    private $userModel;
-
-    public function __construct() {
-        try {
-            $this->db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Connection failed: " . $e->getMessage());
-        }
-        $this->userModel = new User($this->db);
-    }
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,11 +24,11 @@ class UserController {
             }
 
             // Attempt to create the user
-            $result = $this->userModel->create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
+            $result = User::create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
 
             if ($result === true) {
                 // Find the new user to get their details
-                $newUser = $this->userModel->findByUsername($username);
+                $newUser = User::findByUsername($username);
                 if ($newUser) {
                     // Send welcome email
                     Notification::sendWelcomeEmail($newUser['UserID']);
@@ -78,7 +66,7 @@ class UserController {
             }
 
             // Attempt to create the user with Admin role
-            $result = $this->userModel->create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber);
+            $result = User::create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber);
 
             if ($result === true) {
                 // Redirect to login page on success
@@ -102,7 +90,7 @@ class UserController {
             $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $password = $_POST['password'];
 
-            $user = $this->userModel->findByUsername($username);
+            $user = User::findByUsername($username);
 
             if ($user && password_verify($password, $user['Password'])) {
                 // Password is correct, destroy old session and start new one
@@ -145,7 +133,7 @@ class UserController {
             $confirmPassword = $_POST['confirm_password'];
 
             // Update user details
-            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
+            $result = User::update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
 
             if ($result) {
                 // Update the session variables
@@ -158,7 +146,7 @@ class UserController {
                     header('Location: ?controller=user&action=profile&error=password_mismatch');
                     exit();
                 }
-                $this->userModel->updatePassword($userId, $password);
+                User::updatePassword($userId, $password);
             }
             
             header('Location: ?controller=user&action=profile&status=updated');
@@ -166,7 +154,7 @@ class UserController {
 
         } else {
             // Display profile form
-            $user = $this->userModel->findById($userId);
+            $user = User::findById($userId);
             include __DIR__ . '/../Views/profile.php';
         }
     }

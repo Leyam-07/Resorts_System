@@ -1,2 +1,10 @@
 # Sensitive configuration files
 config/mail.php
+# Composer dependencies
+/vendor/
+
+# Environment-specific configuration
+config/mail.php
+
+# Composer lock file
+composer.lock
