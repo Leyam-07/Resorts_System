@@ -25,7 +25,8 @@ Before you begin, you will need a local environment that can run PHP and MySQL. 
 
 ### Dependencies
 
-- **PHPMailer:** This system uses PHPMailer for sending emails. The necessary library files are already included in the `vendor/` directory, so no separate installation is required.
+- **Composer:** This project uses Composer to manage PHP dependencies.
+- **PHPMailer:** The email notification system relies on PHPMailer.
 
 ## 2. Web Server Configuration (Security Best Practice)
 
@@ -87,7 +88,14 @@ To prevent direct URL access to sensitive files (like database models and contro
     git clone <repository-url> .
     ```
 
-2.  **Set File Permissions:**
+2.  **Install Dependencies:**
+    Use Composer to install the required libraries (like PHPMailer).
+
+    ```bash
+    composer install
+    ```
+
+3.  **Set File Permissions:**
     Ensure the web server has the necessary permissions to write to specific directories (e.g., for uploads).
     ```bash
     chown -R www-data:www-data /path/to/your/project
@@ -179,6 +187,33 @@ You can run them from the command line (e.g., `php scripts/dev/test_booking_mode
     ```
 
     > **Security Note:** For Gmail, it is strongly recommended to use a **Google App Password** instead of your regular account password. [Learn how to create one here](https://support.google.com/accounts/answer/185833).
+
+4.  **Configure Server for Mail (XAMPP Example):**
+    For the email system to function in a local XAMPP environment, you must configure PHP to use an external SMTP server.
+
+    a. **Edit `php.ini`:**
+
+    - Open your `php.ini` file (via XAMPP Control Panel > Apache > Config).
+    - Find the `[mail function]` section and configure it as follows:
+      ```ini
+      SMTP = smtp.gmail.com
+      smtp_port = 587
+      sendmail_from = your.resort.admin@gmail.com
+      sendmail_path = "\"C:\xampp\sendmail\sendmail.exe\" -t"
+      ```
+
+    b. **Edit `sendmail.ini`:**
+
+    - Open `C:\xampp\sendmail\sendmail.ini`.
+    - Configure it with your credentials:
+      ```ini
+      [sendmail]
+      smtp_server=smtp.gmail.com
+      smtp_port=587
+      auth_username=your.resort.admin@gmail.com
+      auth_password=your-google-app-password
+      force_sender=your.resort.admin@gmail.com
+      ```
 
 ## 6. Final Steps
 

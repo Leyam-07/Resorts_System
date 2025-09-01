@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2025-09-01
+
+### Fixed
+
+- **Critical Email Failure:** Resolved a major bug where the email notification system was failing silently. The root cause was identified as a corrupted, manually installed PHPMailer library.
+
+### Changed
+
+- **Dependency Management:** Integrated **Composer** into the project for robust package management. Replaced the faulty manual PHPMailer installation with the official version installed via Composer. This improves the stability and maintainability of the project's dependencies.
+- **Code Consistency:** Refactored the `UserController` to exclusively use static method calls for the `User` model, improving architectural consistency.
+
 ## [1.10.0] - 2025-09-01
 
 ### Added
