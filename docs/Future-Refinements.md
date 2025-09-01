@@ -268,6 +268,53 @@ This section covers testing for the financial reporting features on the Admin Da
 
 ---
 
+## Phase 3: Guest Engagement and Finalization (Version 1.9.0)
+
+This section covers the implementation of the automated notification system and outlines future enhancements for guest communication and feedback.
+
+### ✅ Core Test Plan (Completed)
+
+- [x] **Dependency Management:** Successfully removed corrupted PHPMailer library and installed the official version via Composer.
+- [x] **Server Configuration:** Configured local environment (`php.ini`, `sendmail.ini`) to correctly relay emails through an external SMTP server.
+- [x] **Welcome Email:** Verified that a welcome email is sent successfully upon new customer registration.
+- [x] **Booking Confirmation Email:** Verified that a confirmation email is sent when a customer creates a new booking.
+- [x] **Booking Cancellation Email:** Verified that a cancellation notification is sent when a customer cancels a booking.
+
+### 🎯 Future Suggestions & Refinements Checklist
+
+#### 1. Notification Enhancements
+
+- [ ] **Automated Booking Reminders:**
+  - [ ] Implement a mechanism (e.g., a scheduled task or cron job) to automatically send a reminder email to customers 24 hours before their booking starts.
+- [ ] **Admin Notifications:**
+  - [ ] Send an email notification to the resort Admin whenever a new booking is created or an existing one is cancelled.
+- [ ] **Notification Logging:**
+  - [ ] Create a `Notifications` table in the database to log all outgoing emails, including their status (sent, failed) and timestamp. This provides an audit trail for communication.
+
+#### 2. Email Template Improvements
+
+- [ ] **External HTML Templates:**
+  - [ ] Move the email body content from `Notification.php` into separate, styled HTML template files (e.g., in an `app/Views/emails/` directory).
+  - [ ] This will separate presentation from logic and make the email designs easier to manage and brand.
+- [ ] **Add Branding:**
+  - [ ] Include the resort's logo and consistent branding in all outgoing email templates.
+
+#### 3. Feedback and Review System
+
+- [ ] **Post-Visit Feedback Form:**
+  - [ ] Create a simple, web-based form for customers to submit feedback and ratings after their stay.
+- [ ] **Automated Feedback Request:**
+  - [ ] Send an automated email to guests 24 hours after their booking has ended, inviting them to provide feedback.
+- [ ] **Admin Feedback Dashboard:**
+  - [ ] Create a view in the Admin dashboard to review, manage, and respond to customer feedback.
+
+#### 4. User Notification Preferences
+
+- [ ] **Profile Settings:**
+  - [ ] Add a section in the user's profile page where they can manage their notification preferences (e.g., opt in/out of promotional messages or reminders).
+
+---
+
 ## 🎯 General Future Suggestions & Refinements Checklist
 
 This section contains suggestions for more in-depth testing to improve robustness and user experience across the application.
@@ -314,14 +361,3 @@ This section contains suggestions for more in-depth testing to improve robustnes
   - [ ] Clearly indicate the required downpayment amount, if applicable.
 - [ ] **Improved Error Handling:**
   - [ ] Provide more specific error messages for booking conflicts (e.g., "Sorry, that slot was just taken. Please select another.").
-
-### 6. Notification System (Phase 3 Alignment)
-
-- [ ] **Event-Driven Notifications:**
-  - [ ] Create a `notifications` table in the database to log notification events.
-  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **created**.
-  - [ ] The `BookingController` should create a new record in `notifications` when a booking is successfully **canceled**.
-- [ ] **Automated Communication:**
-  - [ ] Implement a mechanism (e.g., a cron job or an email service integration) to process the `notifications` table and send emails/SMS to users.
-  - [ ] Develop email templates for booking confirmation, cancellation, and reminders.
-  - [ ] Add logic to send automated reminders (e.g., 24 hours before the booking).
