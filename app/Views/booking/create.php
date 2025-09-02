@@ -14,10 +14,15 @@ require_once __DIR__ . '/../partials/header.php';
             <div class="mb-3">
                 <label for="facility" class="form-label">Facility</label>
                 <select class="form-select" id="facility" name="facilityId" required>
-                    <option value="" disabled <?= empty($oldInput['facilityId']) ? 'selected' : '' ?>>Select a facility</option>
+                    <option value="" disabled <?= empty($oldInput['facilityId']) && empty($selectedFacilityId) ? 'selected' : '' ?>>Select a facility</option>
                     <?php if (!empty($facilities)): ?>
                         <?php foreach ($facilities as $facility): ?>
-                            <option value="<?= htmlspecialchars($facility->facilityId) ?>" <?= (isset($oldInput['facilityId']) && $oldInput['facilityId'] == $facility->facilityId) ? 'selected' : '' ?>>
+                            <?php
+                                // Determine if this option should be selected
+                                $isSelected = (isset($oldInput['facilityId']) && $oldInput['facilityId'] == $facility->facilityId) ||
+                                              (!isset($oldInput['facilityId']) && isset($selectedFacilityId) && $selectedFacilityId == $facility->facilityId);
+                            ?>
+                            <option value="<?= htmlspecialchars($facility->facilityId) ?>" <?= $isSelected ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($facility->name) ?> (Capacity: <?= htmlspecialchars($facility->capacity) ?>)
                             </option>
                         <?php endforeach; ?>

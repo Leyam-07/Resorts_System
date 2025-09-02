@@ -2,6 +2,9 @@
 // Define a constant to be used as a security check in other files
 define('APP_LOADED', true);
 
+// Load application configuration
+require_once __DIR__ . '/../config/app.php';
+
 session_start();
 
 // If not logged in and no specific action, show login page
@@ -54,14 +57,19 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         header('Location: index.php?action=login');
         exit();
     }
-    // If user is Admin or Staff and no specific controller is called, default to the appropriate dashboard
+
+    // Route based on role
     if (in_array($_SESSION['role'], ['Admin', 'Staff'])) {
         require_once __DIR__ . '/../app/Controllers/AdminController.php';
         $adminController = new AdminController();
-        $adminController->dashboard(); // This method now handles routing to staffDashboard if role is Staff
+        $adminController->dashboard();
+        exit();
+    } else { // Default to customer dashboard
+        require_once __DIR__ . '/../app/Controllers/UserController.php';
+        $userController = new UserController();
+        $userController->dashboard();
         exit();
     }
-    // The rest of the file will act as the default dashboard view for other roles (e.g., Customer)
 } elseif ($controllerName === 'admin') {
    require_once __DIR__ . '/../app/Controllers/AdminController.php';
    $adminController = new AdminController();
@@ -104,40 +112,6 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
    }
 }
 
-// Default dashboard for Customer or other unhandled roles
-// This block will only be reached if no specific controller/action handled the request
-// and the user is not an Admin or Staff (which are handled above).
+// All dashboard logic is now handled by controllers.
+// The default HTML block below is no longer needed.
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-
-<?php require_once __DIR__ . '/../app/Views/partials/header.php'; ?>
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Welcome, <?php echo htmlspecialchars($username); ?>!</h3>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Customer Dashboard</h5>
-                    <p class="card-text">Welcome to your personal dashboard.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

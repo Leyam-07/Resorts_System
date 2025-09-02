@@ -66,7 +66,7 @@ require_once __DIR__ . '/../../partials/header.php';
                            <?php if ($facility->mainPhotoURL): ?>
                                <div class="col-md-3 mb-3">
                                    <div class="card">
-                                       <img src="<?= htmlspecialchars($facility->mainPhotoURL) ?>" class="card-img-top" alt="Main Photo">
+                                       <img src="<?= BASE_URL . '/' . htmlspecialchars($facility->mainPhotoURL) ?>" class="card-img-top" alt="Main Photo">
                                        <div class="card-body text-center">
                                            <span class="badge bg-success">Main Photo</span>
                                        </div>
@@ -79,7 +79,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                <?php if ($photo['PhotoURL'] !== $facility->mainPhotoURL): ?>
                                <div class="col-md-3 mb-3">
                                    <div class="card">
-                                       <img src="<?= htmlspecialchars($photo['PhotoURL']) ?>" class="card-img-top" alt="Facility Photo">
+                                       <img src="<?= BASE_URL . '/' . htmlspecialchars($photo['PhotoURL']) ?>" class="card-img-top" alt="Facility Photo">
                                        <div class="card-body text-center">
                                            <a href="?controller=admin&action=setMainPhoto&id=<?= $facility->facilityId ?>&photoId=<?= $photo['PhotoID'] ?>" class="btn btn-sm btn-primary">Set as Main</a>
                                            <a href="?controller=admin&action=deletePhoto&id=<?= $facility->facilityId ?>&photoId=<?= $photo['PhotoID'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this photo?');">Delete</a>

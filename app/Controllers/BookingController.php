@@ -134,6 +134,9 @@ class BookingController {
         $errorMessage = $_SESSION['error_message'] ?? null;
         $oldInput = $_SESSION['old_input'] ?? [];
 
+        // Check for a pre-selected facility ID from the URL
+        $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT);
+
         // Unset them so they don't persist on refresh
         unset($_SESSION['error_message']);
         unset($_SESSION['old_input']);

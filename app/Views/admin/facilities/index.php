@@ -50,7 +50,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                             <td><?= htmlspecialchars($facility->facilityId) ?></td>
                                             <td>
                                                <?php if (!empty($facility->mainPhotoURL)): ?>
-                                                   <img src="<?= htmlspecialchars($facility->mainPhotoURL) ?>" alt="<?= htmlspecialchars($facility->name) ?>" style="width: 100px; height: auto;">
+                                                   <img src="<?= BASE_URL . '/' . htmlspecialchars($facility->mainPhotoURL) ?>" alt="<?= htmlspecialchars($facility->name) ?>" style="width: 100px; height: auto;">
                                                <?php else: ?>
                                                    No Photo
                                                <?php endif; ?>
