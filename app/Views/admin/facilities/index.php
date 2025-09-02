@@ -32,6 +32,7 @@ require_once __DIR__ . '/../../partials/header.php';
                             <thead class="table-primary">
                                 <tr>
                                     <th>ID</th>
+                                    <th>Photo</th>
                                     <th>Name</th>
                                     <th>Capacity</th>
                                     <th>Rate</th>
@@ -47,6 +48,13 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <?php foreach ($facilities as $facility): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($facility->facilityId) ?></td>
+                                            <td>
+                                               <?php if (!empty($facility->mainPhotoURL)): ?>
+                                                   <img src="<?= htmlspecialchars($facility->mainPhotoURL) ?>" alt="<?= htmlspecialchars($facility->name) ?>" style="width: 100px; height: auto;">
+                                               <?php else: ?>
+                                                   No Photo
+                                               <?php endif; ?>
+                                            </td>
                                             <td><?= htmlspecialchars($facility->name) ?></td>
                                             <td><?= htmlspecialchars($facility->capacity) ?></td>
                                             <td><?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>

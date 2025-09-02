@@ -219,6 +219,8 @@ class AdminController {
             $facility->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
             $facility->capacity = filter_input(INPUT_POST, 'capacity', FILTER_VALIDATE_INT);
             $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
+           $facility->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
+           $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
             // Assuming a single resort for now
             $facility->resortId = 1;
 
@@ -246,6 +248,9 @@ class AdminController {
             $facility->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
             $facility->capacity = filter_input(INPUT_POST, 'capacity', FILTER_VALIDATE_INT);
             $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
+           $facility->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
+           $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
+           $facility->mainPhotoURL = Facility::findById($facilityId)->mainPhotoURL; // Preserve existing main photo
             $facility->resortId = 1; // Assuming a single resort
 
             if (Facility::update($facility)) {
@@ -351,4 +356,71 @@ class AdminController {
         }
         exit();
     }
+   public function uploadPhoto() {
+       if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_GET['id'])) {
+           die('Invalid request.');
+       }
+       $facilityId = $_GET['id'];
+
+       if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+           $uploadDir = __DIR__ . '/../../public/uploads/facilities/';
+           if (!is_dir($uploadDir)) {
+               mkdir($uploadDir, 0777, true);
+           }
+           $fileName = uniqid() . '-' . basename($_FILES['photo']['name']);
+           $targetPath = $uploadDir . $fileName;
+
+           if (move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath)) {
+               $photoURL = '/public/uploads/facilities/' . $fileName;
+               Facility::addPhoto($facilityId, $photoURL);
+               header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&status=photo_uploaded');
+           } else {
+               header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=upload_failed');
+           }
+       } else {
+           header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=no_file');
+       }
+       exit();
+   }
+
+   public function deletePhoto() {
+       if (!isset($_GET['id']) || !isset($_GET['photoId'])) {
+           die('Required parameters not specified.');
+       }
+       $facilityId = $_GET['id'];
+       $photoId = $_GET['photoId'];
+
+       $photo = Facility::findPhotoById($photoId);
+       if ($photo) {
+           $filePath = __DIR__ . '/../../' . ltrim($photo['PhotoURL'], '/');
+           if (file_exists($filePath)) {
+               unlink($filePath);
+           }
+           Facility::deletePhoto($photoId);
+           header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&status=photo_deleted');
+       } else {
+           header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=photo_not_found');
+       }
+       exit();
+   }
+
+   public function setMainPhoto() {
+       if (!isset($_GET['id']) || !isset($_GET['photoId'])) {
+           die('Required parameters not specified.');
+       }
+       $facilityId = $_GET['id'];
+       $photoId = $_GET['photoId'];
+
+       $photo = Facility::findPhotoById($photoId);
+       $facility = Facility::findById($facilityId);
+
+       if ($photo && $facility) {
+           $facility->mainPhotoURL = $photo['PhotoURL'];
+           Facility::update($facility);
+           header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&status=main_photo_set');
+       } else {
+           header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=set_main_failed');
+       }
+       exit();
+   }
 }

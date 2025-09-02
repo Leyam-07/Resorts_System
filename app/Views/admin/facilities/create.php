@@ -35,14 +35,19 @@ require_once __DIR__ . '/../../partials/header.php';
                             <label for="rate" class="form-label">Rate (per hour)</label>
                             <input type="number" step="0.01" class="form-control" id="rate" name="rate" required>
                         </div>
-                        <!-- Buttons will be moved to the footer -->
+                       <div class="mb-3">
+                           <label for="shortDescription" class="form-label">Short Description</label>
+                           <textarea class="form-control" id="shortDescription" name="shortDescription" rows="2"></textarea>
+                       </div>
+                       <div class="mb-3">
+                           <label for="fullDescription" class="form-label">Full Description</label>
+                           <textarea class="form-control" id="fullDescription" name="fullDescription" rows="5"></textarea>
+                       </div>
                     </form>
                 </div>
                 <div class="card-footer">
                     <a href="?controller=admin&action=facilities" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary" form="addFacilityForm">Save Facility</button>
-                </div>
-                    </form>
+                    <button type="submit" class="btn btn-primary" form="addFacilityForm">Add Facility</button>
                 </div>
             </div>
         </div>

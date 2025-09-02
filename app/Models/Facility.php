@@ -6,6 +6,10 @@ class Facility {
     public $name;
     public $capacity;
     public $rate;
+   public $shortDescription;
+   public $fullDescription;
+   public $mainPhotoURL;
+   public $photos = [];
 
     private static $db;
 
@@ -29,13 +33,16 @@ class Facility {
     public static function create(Facility $facility) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Facilities (ResortID, Name, Capacity, Rate)
-             VALUES (:resortId, :name, :capacity, :rate)"
+            "INSERT INTO Facilities (ResortID, Name, Capacity, Rate, ShortDescription, FullDescription, MainPhotoURL)
+             VALUES (:resortId, :name, :capacity, :rate, :shortDescription, :fullDescription, :mainPhotoURL)"
         );
         $stmt->bindValue(':resortId', $facility->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':name', $facility->name, PDO::PARAM_STR);
         $stmt->bindValue(':capacity', $facility->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':rate', $facility->rate, PDO::PARAM_STR);
+       $stmt->bindValue(':shortDescription', $facility->shortDescription, PDO::PARAM_STR);
+       $stmt->bindValue(':fullDescription', $facility->fullDescription, PDO::PARAM_STR);
+       $stmt->bindValue(':mainPhotoURL', $facility->mainPhotoURL, PDO::PARAM_STR);
         
         if ($stmt->execute()) {
             return $db->lastInsertId();
@@ -57,6 +64,10 @@ class Facility {
             $facility->name = $data['Name'];
             $facility->capacity = $data['Capacity'];
             $facility->rate = $data['Rate'];
+           $facility->shortDescription = $data['ShortDescription'];
+           $facility->fullDescription = $data['FullDescription'];
+           $facility->mainPhotoURL = $data['MainPhotoURL'];
+           $facility->photos = self::getPhotos($facilityId);
             return $facility;
         }
         return null;
@@ -73,6 +84,9 @@ class Facility {
             $facility->name = $data['Name'];
             $facility->capacity = $data['Capacity'];
             $facility->rate = $data['Rate'];
+           $facility->shortDescription = $data['ShortDescription'];
+           $facility->fullDescription = $data['FullDescription'];
+           $facility->mainPhotoURL = $data['MainPhotoURL'];
             $facilities[] = $facility;
         }
         return $facilities;
@@ -82,13 +96,17 @@ class Facility {
         $db = self::getDB();
         $stmt = $db->prepare(
             "UPDATE Facilities
-             SET ResortID = :resortId, Name = :name, Capacity = :capacity, Rate = :rate
+             SET ResortID = :resortId, Name = :name, Capacity = :capacity, Rate = :rate,
+                 ShortDescription = :shortDescription, FullDescription = :fullDescription, MainPhotoURL = :mainPhotoURL
              WHERE FacilityID = :facilityId"
         );
         $stmt->bindValue(':resortId', $facility->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':name', $facility->name, PDO::PARAM_STR);
         $stmt->bindValue(':capacity', $facility->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':rate', $facility->rate, PDO::PARAM_STR);
+       $stmt->bindValue(':shortDescription', $facility->shortDescription, PDO::PARAM_STR);
+       $stmt->bindValue(':fullDescription', $facility->fullDescription, PDO::PARAM_STR);
+       $stmt->bindValue(':mainPhotoURL', $facility->mainPhotoURL, PDO::PARAM_STR);
         $stmt->bindValue(':facilityId', $facility->facilityId, PDO::PARAM_INT);
         
         return $stmt->execute();
@@ -99,5 +117,36 @@ class Facility {
         $stmt = $db->prepare("DELETE FROM Facilities WHERE FacilityID = :facilityId");
         $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+
+    public static function getPhotos($facilityId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT * FROM FacilityPhotos WHERE FacilityID = :facilityId ORDER BY CreatedAt DESC");
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function addPhoto($facilityId, $photoURL) {
+        $db = self::getDB();
+        $stmt = $db->prepare("INSERT INTO FacilityPhotos (FacilityID, PhotoURL) VALUES (:facilityId, :photoURL)");
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->bindValue(':photoURL', $photoURL, PDO::PARAM_STR);
+        return $stmt->execute();
+    }
+
+    public static function deletePhoto($photoId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("DELETE FROM FacilityPhotos WHERE PhotoID = :photoId");
+        $stmt->bindValue(':photoId', $photoId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    public static function findPhotoById($photoId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT * FROM FacilityPhotos WHERE PhotoID = :photoId");
+        $stmt->bindValue(':photoId', $photoId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

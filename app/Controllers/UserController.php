@@ -3,8 +3,33 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
+require_once __DIR__ . '/../Models/Facility.php';
 
 class UserController {
+
+   public function dashboard() {
+       $facilities = Facility::findAll();
+       include __DIR__ . '/../Views/dashboard.php';
+   }
+
+   public function getFacilityDetails() {
+       if (!isset($_GET['id'])) {
+           http_response_code(400);
+           echo json_encode(['error' => 'Facility ID not specified.']);
+           exit();
+       }
+       $facilityId = $_GET['id'];
+       $facility = Facility::findById($facilityId);
+
+       if ($facility) {
+           header('Content-Type: application/json');
+           echo json_encode($facility);
+       } else {
+           http_response_code(404);
+           echo json_encode(['error' => 'Facility not found.']);
+       }
+       exit();
+   }
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -100,7 +125,11 @@ class UserController {
                 $_SESSION['username'] = $user['Username'];
                 $_SESSION['role'] = $user['Role'];
 
-                header('Location: index.php'); // Redirect to the main dashboard
+                if ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'Staff') {
+                   header('Location: ?controller=admin&action=dashboard');
+                } else {
+                   header('Location: ?controller=user&action=dashboard');
+                }
                 exit();
             } else {
                 // Invalid credentials, reload the login page with an error

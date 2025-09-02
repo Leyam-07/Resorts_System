@@ -51,6 +51,9 @@ CREATE TABLE IF NOT EXISTS `Facilities` (
   `Name` VARCHAR(255) NOT NULL,
   `Capacity` INT,
   `Rate` DECIMAL(10, 2),
+  `ShortDescription` TEXT,
+  `FullDescription` TEXT,
+  `MainPhotoURL` VARCHAR(255),
   FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`)
 );
 ```
@@ -112,6 +115,22 @@ CREATE TABLE IF NOT EXISTS `BlockedAvailabilities` (
   `Reason` VARCHAR(255),
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`)
+);
+```
+
+---
+
+### Table: `FacilityPhotos`
+
+Stores multiple photos for each facility.
+
+```sql
+CREATE TABLE IF NOT EXISTS `FacilityPhotos` (
+  `PhotoID` INT PRIMARY KEY AUTO_INCREMENT,
+  `FacilityID` INT,
+  `PhotoURL` VARCHAR(255) NOT NULL,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`) ON DELETE CASCADE
 );
 ```
 

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-09-02
+
+### Added
+
+- **Facility Image and Description Management:** Implemented a major feature allowing administrators to manage facility details more comprehensively.
+- Admins can now add and edit a short and full description for each facility.
+- A complete photo gallery system was added, allowing admins to upload multiple photos, set a main photo, and delete images.
+- **Customer Dashboard:** Created a new, customer-facing dashboard that displays all available facilities in a user-friendly card format, showing the main photo and short description.
+- **Interactive Facility Modal:** Implemented a smooth, interactive modal on the customer dashboard. When a customer clicks "View Details" on a facility, a modal appears, displaying a full photo gallery carousel and the facility's full description.
+
+### Changed
+
+- **Database Schema:** Updated the `Facilities` table to include `ShortDescription`, `FullDescription`, and `MainPhotoURL` columns. Created a new `FacilityPhotos` table to support the photo gallery.
+- **Admin UI:** The "Manage Facilities" interface was completely overhauled to support the new description fields and photo gallery management.
+- **Customer Experience:** The initial landing page for logged-in customers is now the new facilities dashboard instead of the booking creation page.
+
 ## [1.11.0] - 2025-09-01
 
 ### Fixed

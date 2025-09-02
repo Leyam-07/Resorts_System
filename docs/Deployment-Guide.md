@@ -135,6 +135,7 @@ To prevent direct URL access to sensitive files (like database models and contro
     php scripts/migrations/add_notes_to_users.php
     php scripts/migrations/create_payments_table.php
     php scripts/migrations/create_blocked_availabilities_table.php
+    php scripts/migrations/add_photos_to_facilities.php
     ```
 
 ### Application Structure
