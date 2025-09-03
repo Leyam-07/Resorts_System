@@ -34,6 +34,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=admin&action=facilities">Manage Facilities</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=feedback&action=listAllFeedback">View Feedback</a>
+                        </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showBookingForm">Book a Facility</a>

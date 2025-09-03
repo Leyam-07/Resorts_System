@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2025-09-03
+
+### Added
+
+- **Customer Feedback System:** Implemented a full-featured feedback system to enhance guest engagement.
+  - Customers can now submit a rating (1-5 stars) and an optional comment for any booking that has been marked as "Completed".
+  - A "Leave Feedback" button now dynamically appears on the "My Bookings" page for eligible bookings.
+  - Administrators have access to a new "View Feedback" page, which displays a comprehensive list of all submitted feedback, including customer name, booking details, rating, and comments.
+
+### Changed
+
+- **Database Schema:** Added a new `Feedback` table to store ratings and comments, linked directly to the `Bookings` table.
+- **Admin Navigation:** Added a "View Feedback" link to the main navigation bar for administrators, providing easy access to the new feedback management page.
+
 ## [1.12.0] - 2025-09-02
 
 ### Added

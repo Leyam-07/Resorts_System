@@ -44,7 +44,11 @@ require_once __DIR__ . '/../partials/header.php';
                     <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                     <td><span class="badge bg-primary"><?= htmlspecialchars($booking->Status) ?></span></td>
                     <td>
-                        <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">Cancel</a>
+                        <?php if ($booking->Status === 'Completed'): ?>
+                            <a href="?controller=feedback&action=showFeedbackForm&booking_id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-success btn-sm">Leave Feedback</a>
+                        <?php elseif ($booking->Status !== 'Cancelled'): ?>
+                            <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">Cancel</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

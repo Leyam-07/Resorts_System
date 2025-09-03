@@ -110,6 +110,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
    } else {
        die('Action not found.');
    }
+} elseif ($controllerName === 'feedback') {
+    require_once __DIR__ . '/../app/Controllers/FeedbackController.php';
+    $feedbackController = new FeedbackController();
+    if (method_exists($feedbackController, $actionName)) {
+        $feedbackController->$actionName();
+        exit();
+    } else {
+        die('Action not found.');
+    }
 }
 
 // All dashboard logic is now handled by controllers.
