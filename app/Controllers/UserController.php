@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
 require_once __DIR__ . '/../Models/Facility.php';
+require_once __DIR__ . '/../Models/Feedback.php';
 
 class UserController {
 
@@ -27,6 +28,25 @@ class UserController {
        } else {
            http_response_code(404);
            echo json_encode(['error' => 'Facility not found.']);
+       }
+       exit();
+   }
+
+   public function getFacilityFeedback() {
+       if (!isset($_GET['id'])) {
+           http_response_code(400);
+           echo json_encode(['error' => 'Facility ID not specified.']);
+           exit();
+       }
+       $facilityId = $_GET['id'];
+       $feedback = Feedback::findByFacilityId($facilityId);
+
+       if ($feedback) {
+           header('Content-Type: application/json');
+           echo json_encode($feedback);
+       } else {
+           http_response_code(404);
+           echo json_encode([]); // Return empty array if no feedback
        }
        exit();
    }

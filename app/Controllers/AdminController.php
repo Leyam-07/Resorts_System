@@ -423,4 +423,11 @@ class AdminController {
        }
        exit();
    }
+
+   public function previewFacilities() {
+       // This action is for admins/staff to see the customer view
+       // We can reuse the logic from the UserController's dashboard
+       $facilities = Facility::findAll();
+       include __DIR__ . '/../Views/admin/facilities/preview.php';
+   }
 }

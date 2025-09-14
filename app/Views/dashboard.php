@@ -52,10 +52,25 @@ require_once __DIR__ . '/partials/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Content will be loaded here via JavaScript -->
+               <ul class="nav nav-tabs" id="facilityTab" role="tablist">
+                   <li class="nav-item" role="presentation">
+                       <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-content" type="button" role="tab" aria-controls="details-content" aria-selected="true">Details</button>
+                   </li>
+                   <li class="nav-item" role="presentation">
+                       <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback-content" type="button" role="tab" aria-controls="feedback-content" aria-selected="false">Feedback</button>
+                   </li>
+               </ul>
+               <div class="tab-content pt-3" id="facilityTabContent">
+                   <div class="tab-pane fade show active" id="details-content" role="tabpanel" aria-labelledby="details-tab">
+                       <!-- Details content will be loaded here by JavaScript -->
+                   </div>
+                   <div class="tab-pane fade" id="feedback-content" role="tabpanel" aria-labelledby="feedback-tab">
+                       <!-- Feedback content will be loaded here by JavaScript -->
+                   </div>
+               </div>
             </div>
             <div class="modal-footer">
-                <!-- Button will be loaded here via JavaScript -->
+                <!-- Buttons will be loaded here by JavaScript -->
             </div>
         </div>
     </div>

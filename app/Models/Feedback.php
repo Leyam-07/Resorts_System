@@ -59,4 +59,19 @@ class Feedback {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+   public static function findByFacilityId($facilityId) {
+       $db = self::getDB();
+       $stmt = $db->prepare(
+           "SELECT f.Rating, f.Comment, f.CreatedAt, u.Username as CustomerName
+            FROM Feedback f
+            JOIN Bookings b ON f.BookingID = b.BookingID
+            JOIN Users u ON b.CustomerID = u.UserID
+            WHERE b.FacilityID = :facilityId
+            ORDER BY f.CreatedAt DESC"
+       );
+       $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+       $stmt->execute();
+       return $stmt->fetchAll(PDO::FETCH_OBJ);
+   }
 }

@@ -37,6 +37,16 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=feedback&action=listAllFeedback">View Feedback</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Facilities</a>
+                        </li>
+                   <?php elseif ($_SESSION['role'] === 'Staff'): ?>
+                       <li class="nav-item">
+                           <a class="nav-link" href="?controller=admin&action=dashboard">Dashboard</a>
+                       </li>
+                       <li class="nav-item">
+                           <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Facilities</a>
+                       </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showBookingForm">Book a Facility</a>

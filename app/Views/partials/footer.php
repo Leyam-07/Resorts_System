@@ -46,20 +46,34 @@ document.addEventListener('DOMContentLoaded', function () {
         facilityModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget;
             var facilityId = button.getAttribute('data-facility-id');
-            var modalBody = facilityModal.querySelector('.modal-body');
+
+            // Reset to the details tab every time the modal is opened
+            var detailsTabTrigger = facilityModal.querySelector('#details-tab');
+            if (detailsTabTrigger) {
+                var tab = new bootstrap.Tab(detailsTabTrigger);
+                tab.show();
+            }
+
             var modalTitle = facilityModal.querySelector('.modal-title');
+            var detailsTab = facilityModal.querySelector('#details-content');
+            var feedbackTab = facilityModal.querySelector('#feedback-content');
+            var modalFooter = facilityModal.querySelector('.modal-footer');
 
-            modalBody.innerHTML = '<p class="text-center">Loading...</p>';
-            modalTitle.textContent = 'Facility Details';
+            // Clear previous content
+            modalTitle.textContent = 'Loading...';
+            detailsTab.innerHTML = '<p class="text-center">Loading facility details...</p>';
+            feedbackTab.innerHTML = '<p class="text-center">Loading feedback...</p>';
+            modalFooter.innerHTML = '';
 
+            // Fetch Facility Details
             fetch('?controller=user&action=getFacilityDetails&id=' + facilityId)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        modalBody.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                        modalTitle.textContent = 'Error';
+                        detailsTab.innerHTML = `<p class="text-danger">${data.error}</p>`;
                         return;
                     }
-
                     modalTitle.textContent = data.name;
 
                     let allPhotos = [];
@@ -68,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     if (data.photos) {
                         data.photos.forEach(p => {
+                            // Add photo only if it's not the main photo, to avoid duplicates
                             if (p.PhotoURL !== data.mainPhotoURL) {
                                 allPhotos.push(p.PhotoURL);
                             }
@@ -84,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         thumbnailsHTML += `<img src="${BASE_URL}/${photoURL}" class="thumbnail-item ${index === 0 ? 'active' : ''}" alt="Thumbnail ${index + 1}">`;
                     });
 
-                    modalBody.innerHTML = `
+                    detailsTab.innerHTML = `
                         <div id="main-photo-container" class="mb-3">
                             ${mainPhotoHTML}
                         </div>
@@ -96,31 +111,58 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p>${data.fullDescription || 'No description available.'}</p>
                         <hr>
                         <p><strong>Capacity:</strong> ${data.capacity} people</p>
-                        <p><strong>Rate:</strong> ₱${parseFloat(data.rate).toFixed(2)} per hour</p>
+                        <p><strong>Rate:</strong> ₱${parseFloat(data.rate).toFixed(2)}</p>
                     `;
 
-                    // Add Book Now button
-                    const modalFooter = facilityModal.querySelector('.modal-footer');
-                    if(modalFooter) {
-                        modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&facility_id=${data.facilityId}" class="btn btn-success">Book Now</a>`;
+                    // Display "Book Now" for customers, "Close" for admin/staff
+                    const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
+                    if (userRole === 'Customer') {
+                        modalFooter.innerHTML = `<a href="?controller=booking&action=create&facility_id=${data.facilityId}" class="btn btn-success">Book Now</a>`;
+                    } else {
+                        modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
                     }
 
-                    // Add event listeners to thumbnails
-                    const mainPhoto = modalBody.querySelector('#main-facility-photo');
-                    const thumbnails = modalBody.querySelectorAll('.thumbnail-item');
+                    const mainPhoto = detailsTab.querySelector('#main-facility-photo');
+                    const thumbnails = detailsTab.querySelectorAll('.thumbnail-item');
                     thumbnails.forEach(thumb => {
                         thumb.addEventListener('click', function() {
-                            if (mainPhoto) {
-                                mainPhoto.src = this.src;
-                            }
+                            if (mainPhoto) mainPhoto.src = this.src;
                             thumbnails.forEach(t => t.classList.remove('active'));
                             this.classList.add('active');
                         });
                     });
                 })
                 .catch(error => {
-                    modalBody.innerHTML = '<p class="text-danger">Failed to load facility details.</p>';
+                    modalTitle.textContent = 'Error';
+                    detailsTab.innerHTML = '<p class="text-danger">Failed to load facility details.</p>';
                     console.error('Error:', error);
+                });
+
+            // Fetch Facility Feedback
+            fetch('?controller=user&action=getFacilityFeedback&id=' + facilityId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        feedbackTab.innerHTML = '<p class="text-center">No feedback available for this facility yet.</p>';
+                        return;
+                    }
+                    let feedbackHtml = '<h5>Customer Reviews</h5>';
+                    data.forEach(review => {
+                        feedbackHtml += `
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                    <p class="card-text">${review.Comment}</p>
+                                    <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    feedbackTab.innerHTML = feedbackHtml;
+                })
+                .catch(error => {
+                    feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
+                    console.error('Error fetching feedback:', error);
                 });
         });
     }
