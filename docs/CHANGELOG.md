@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.2] - 2025-09-14
+
+### Changed
+
+- **Profile Page UI/UX:** Reworked the user profile page to improve usability and clarity.
+  - The page is now read-only by default, preventing accidental edits.
+  - An "Edit Profile" button now toggles the form into an editable state.
+  - When editing, "Save Changes" and "Cancel" buttons are displayed, and the "Back to Dashboard" button is hidden to create a focused editing experience.
+
 ## [1.15.1] - 2025-09-14
 
 ### Fixed
