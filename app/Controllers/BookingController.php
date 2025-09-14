@@ -33,13 +33,12 @@ class BookingController {
         // 1. Sanitize and retrieve form data
         $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
         $bookingDate = filter_input(INPUT_POST, 'bookingDate', FILTER_UNSAFE_RAW);
-        $startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
-        $endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
+        $timeSlotType = filter_input(INPUT_POST, 'timeSlotType', FILTER_SANITIZE_STRING);
         $numberOfGuests = filter_input(INPUT_POST, 'numberOfGuests', FILTER_VALIDATE_INT);
         $customerId = $_SESSION['user_id'];
 
         // 2. Basic Validation
-        if (!$facilityId || !$bookingDate || !$startTime || !$endTime || !$numberOfGuests) {
+        if (!$facilityId || !$bookingDate || !$timeSlotType || !$numberOfGuests) {
             $_SESSION['error_message'] = "All fields are required.";
             $_SESSION['old_input'] = $_POST;
             header('Location: ?controller=booking&action=showBookingForm');
@@ -79,7 +78,7 @@ class BookingController {
         }
 
         // 4. Check for booking conflicts
-        if (!Booking::isTimeSlotAvailable($facilityId, $bookingDate, $startTime, $endTime)) {
+        if (!Booking::isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType)) {
             $_SESSION['error_message'] = "The selected time slot is no longer available. Please choose a different time.";
             $_SESSION['old_input'] = $_POST;
             header('Location: ?controller=booking&action=showBookingForm');
@@ -91,8 +90,7 @@ class BookingController {
         $booking->customerId = $customerId;
         $booking->facilityId = $facilityId;
         $booking->bookingDate = $bookingDate;
-        $booking->startTime = $startTime;
-        $booking->endTime = $endTime;
+        $booking->timeSlotType = $timeSlotType;
         $booking->numberOfGuests = $numberOfGuests;
         $booking->status = 'Pending'; // Default status
 

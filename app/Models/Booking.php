@@ -5,8 +5,7 @@ class Booking {
     public $customerId;
     public $facilityId;
     public $bookingDate;
-    public $startTime;
-    public $endTime;
+    public $timeSlotType;
     public $numberOfGuests;
     public $status; // e.g., 'Pending', 'Confirmed', 'Cancelled', 'Completed'
     public $createdAt;
@@ -33,14 +32,13 @@ class Booking {
     public static function create(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Bookings (CustomerID, FacilityID, BookingDate, StartTime, EndTime, NumberOfGuests, Status)
-             VALUES (:customerId, :facilityId, :bookingDate, :startTime, :endTime, :numberOfGuests, :status)"
+            "INSERT INTO Bookings (CustomerID, FacilityID, BookingDate, TimeSlotType, NumberOfGuests, Status)
+             VALUES (:customerId, :facilityId, :bookingDate, :timeSlotType, :numberOfGuests, :status)"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
-        $stmt->bindValue(':startTime', $booking->startTime, PDO::PARAM_STR);
-        $stmt->bindValue(':endTime', $booking->endTime, PDO::PARAM_STR);
+        $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
         $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
 
@@ -63,8 +61,7 @@ class Booking {
             $booking->customerId = $data['CustomerID'];
             $booking->facilityId = $data['FacilityID'];
             $booking->bookingDate = $data['BookingDate'];
-            $booking->startTime = $data['StartTime'];
-            $booking->endTime = $data['EndTime'];
+            $booking->timeSlotType = $data['TimeSlotType'];
             $booking->numberOfGuests = $data['NumberOfGuests'];
             $booking->status = $data['Status'];
             $booking->createdAt = $data['CreatedAt'];
@@ -80,7 +77,7 @@ class Booking {
              FROM Bookings b
              JOIN Facilities f ON b.FacilityID = f.FacilityID
              WHERE b.CustomerID = :customerId
-             ORDER BY b.BookingDate DESC, b.StartTime DESC"
+             ORDER BY b.BookingDate DESC"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();
@@ -96,7 +93,7 @@ class Booking {
              JOIN Facilities f ON b.FacilityID = f.FacilityID
              JOIN Users u ON b.CustomerID = u.UserID
              WHERE b.BookingDate = :today
-             ORDER BY b.StartTime ASC"
+             ORDER BY b.BookingDate ASC"
         );
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
         $stmt->execute();
@@ -112,7 +109,7 @@ class Booking {
              JOIN Facilities f ON b.FacilityID = f.FacilityID
              JOIN Users u ON b.CustomerID = u.UserID
              WHERE b.BookingDate > :today AND b.Status IN ('Pending', 'Confirmed')
-             ORDER BY b.BookingDate ASC, b.StartTime ASC"
+             ORDER BY b.BookingDate ASC"
         );
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
         $stmt->execute();
@@ -143,7 +140,7 @@ class Booking {
              JOIN Facilities f ON b.FacilityID = f.FacilityID
              JOIN Users u ON b.CustomerID = u.UserID
              WHERE b.BookingDate < CURDATE()
-             ORDER BY b.BookingDate DESC, b.StartTime DESC
+             ORDER BY b.BookingDate DESC
              LIMIT :limit"
         );
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -156,14 +153,13 @@ class Booking {
         $stmt = $db->prepare(
             "UPDATE Bookings
              SET CustomerID = :customerId, FacilityID = :facilityId, BookingDate = :bookingDate,
-                 StartTime = :startTime, EndTime = :endTime, NumberOfGuests = :numberOfGuests, Status = :status
+                 TimeSlotType = :timeSlotType, NumberOfGuests = :numberOfGuests, Status = :status
              WHERE BookingID = :bookingId"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
-        $stmt->bindValue(':startTime', $booking->startTime, PDO::PARAM_STR);
-        $stmt->bindValue(':endTime', $booking->endTime, PDO::PARAM_STR);
+        $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
         $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
         $stmt->bindValue(':bookingId', $booking->bookingId, PDO::PARAM_INT);
@@ -186,48 +182,27 @@ class Booking {
         return $stmt->execute();
     }
 
-    public static function isTimeSlotAvailable($facilityId, $bookingDate, $startTime, $endTime, $excludeBookingId = null) {
+    public static function isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType, $excludeBookingId = null) {
         $db = self::getDB();
 
-        // 1. Check for overlapping bookings
-        $sqlBookings = "SELECT COUNT(*) FROM Bookings
-                        WHERE FacilityID = :facilityId
-                        AND BookingDate = :bookingDate
-                        AND Status IN ('Pending', 'Confirmed')
-                        AND :startTime < EndTime
-                        AND :endTime > StartTime";
+        // Check for overlapping bookings on the same day
+        $sql = "SELECT COUNT(*) FROM Bookings
+                WHERE FacilityID = :facilityId
+                AND BookingDate = :bookingDate
+                AND Status IN ('Pending', 'Confirmed')";
+
         if ($excludeBookingId) {
-            $sqlBookings .= " AND BookingID != :excludeBookingId";
-        }
-        $stmtBookings = $db->prepare($sqlBookings);
-        $stmtBookings->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
-        $stmtBookings->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
-        $stmtBookings->bindValue(':startTime', $startTime, PDO::PARAM_STR);
-        $stmtBookings->bindValue(':endTime', $endTime, PDO::PARAM_STR);
-        if ($excludeBookingId) {
-            $stmtBookings->bindValue(':excludeBookingId', $excludeBookingId, PDO::PARAM_INT);
-        }
-        $stmtBookings->execute();
-        if ($stmtBookings->fetchColumn() > 0) {
-            return false; // Conflict with an existing booking
+            $sql .= " AND BookingID != :excludeBookingId";
         }
 
-        // 2. Check for overlapping blocked slots
-        $sqlBlocked = "SELECT COUNT(*) FROM BlockedAvailabilities
-                       WHERE FacilityID = :facilityId
-                       AND BlockDate = :bookingDate
-                       AND :startTime < EndTime
-                       AND :endTime > StartTime";
-        $stmtBlocked = $db->prepare($sqlBlocked);
-        $stmtBlocked->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
-        $stmtBlocked->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
-        $stmtBlocked->bindValue(':startTime', $startTime, PDO::PARAM_STR);
-        $stmtBlocked->bindValue(':endTime', $endTime, PDO::PARAM_STR);
-        $stmtBlocked->execute();
-        if ($stmtBlocked->fetchColumn() > 0) {
-            return false; // Conflict with a blocked time slot
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->bindValue(':bookingDate', $bookingDate, PDO::PARAM_STR);
+        if ($excludeBookingId) {
+            $stmt->bindValue(':excludeBookingId', $excludeBookingId, PDO::PARAM_INT);
         }
-
-        return true; // The time slot is available
+        $stmt->execute();
+        
+        return $stmt->fetchColumn() == 0;
     }
 }

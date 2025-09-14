@@ -40,7 +40,16 @@ require_once __DIR__ . '/../partials/header.php';
                 <tr>
                     <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                     <td><?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?></td>
-                    <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) ?> - <?= htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
+                    <td>
+                        <?php
+                            $timeSlotDisplay = [
+                                '12_hours' => '12 Hours (7 AM to 5 PM)',
+                                '24_hours' => '24 Hours (7 AM to 5 AM)',
+                                'overnight' => 'Overnight (7 PM to 5 AM)'
+                            ];
+                            echo htmlspecialchars($timeSlotDisplay[$booking->TimeSlotType] ?? 'N/A');
+                        ?>
+                    </td>
                     <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                     <td><span class="badge bg-primary"><?= htmlspecialchars($booking->Status) ?></span></td>
                     <td>

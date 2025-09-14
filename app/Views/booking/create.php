@@ -36,12 +36,13 @@ require_once __DIR__ . '/../partials/header.php';
                 <input type="date" class="form-control" id="date" name="bookingDate" value="<?= htmlspecialchars($oldInput['bookingDate'] ?? '') ?>" required>
             </div>
             <div class="mb-3">
-                <label for="startTime" class="form-label">Start Time</label>
-                <input type="time" class="form-control" id="startTime" name="startTime" value="<?= htmlspecialchars($oldInput['startTime'] ?? '') ?>" required>
-            </div>
-            <div class="mb-3">
-                <label for="endTime" class="form-label">End Time</label>
-                <input type="time" class="form-control" id="endTime" name="endTime" value="<?= htmlspecialchars($oldInput['endTime'] ?? '') ?>" required>
+                <label for="timeSlotType" class="form-label">Time Slot</label>
+                <select class="form-select" id="timeSlotType" name="timeSlotType" required>
+                    <option value="" disabled selected>Select a time slot</option>
+                    <option value="12_hours" <?= (isset($oldInput['timeSlotType']) && $oldInput['timeSlotType'] == '12_hours') ? 'selected' : '' ?>>12 Hours (7 AM to 5 PM)</option>
+                    <option value="24_hours" <?= (isset($oldInput['timeSlotType']) && $oldInput['timeSlotType'] == '24_hours') ? 'selected' : '' ?>>24 Hours (7 AM to 5 AM)</option>
+                    <option value="overnight" <?= (isset($oldInput['timeSlotType']) && $oldInput['timeSlotType'] == 'overnight') ? 'selected' : '' ?>>Overnight (7 PM to 5 AM)</option>
+                </select>
             </div>
             <div class="mb-3">
                 <label for="guests" class="form-label">Number of Guests</label>

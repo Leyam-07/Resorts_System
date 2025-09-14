@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2025-09-14
+
+### Changed
+
+- **Booking System Overhaul:** Reworked the entire booking time selection process.
+  - Replaced the flexible `StartTime` and `EndTime` inputs with a predefined set of three time slots: `12 Hours (7 AM to 5 PM)`, `24 Hours (7 AM to 5 AM)`, and `Overnight (7 PM to 5 AM)`.
+  - Updated the `Bookings` database table to remove the `StartTime` and `EndTime` columns and added a new `TimeSlotType` ENUM column.
+  - Refactored the `Booking` model, `BookingController`, and associated views to handle the new time slot logic.
+
 ## [1.14.0] - 2025-09-14
 
 ### Added
