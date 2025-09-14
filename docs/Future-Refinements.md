@@ -280,6 +280,19 @@ This section covers the implementation of the automated notification system and 
 - [x] **Booking Confirmation Email:** Verified that a confirmation email is sent when a customer creates a new booking.
 - [x] **Booking Cancellation Email:** Verified that a cancellation notification is sent when a customer cancels a booking.
 
+### ✅ Feedback System Test Plan (Completed)
+
+- [x] **Database Schema:** Verified the `Feedback` table was created correctly.
+- [x] **Backend Model:** Unit tested the `Feedback` model's `create()`, `findByBookingId()`, and `getAll()` methods.
+- [x] **Backend Controller:** Unit tested the `FeedbackController` for form display (`showForm`), valid submission (`submit`), invalid submission, and the admin index view.
+- [x] **Frontend UI:**
+  - [x] Verified the "Leave Feedback" button appears correctly on the "My Bookings" page only for completed bookings.
+  - [x] Tested the 5-star rating interaction and form validation on the feedback form.
+  - [x] Verified the admin feedback table displays all data correctly.
+- [x] **End-to-End Flow:**
+  - [x] Successfully tested the full customer flow from leaving feedback to seeing the success message.
+  - [x] Successfully tested the full admin flow of verifying the newly submitted feedback in the dashboard.
+
 ### 🎯 Future Suggestions & Refinements Checklist
 
 #### 1. Notification Enhancements
@@ -299,14 +312,20 @@ This section covers the implementation of the automated notification system and 
 - [ ] **Add Branding:**
   - [ ] Include the resort's logo and consistent branding in all outgoing email templates.
 
-#### 3. Feedback and Review System
+#### 3. Feedback and Review System Enhancements
 
-- [ ] **Post-Visit Feedback Form:**
-  - [ ] Create a simple, web-based form for customers to submit feedback and ratings after their stay.
+- [x] **Core Functionality:**
+  - [x] Create a simple, web-based form for customers to submit feedback and ratings after their stay.
+  - [x] Create a view in the Admin dashboard to review customer feedback.
+  - [x] Allow customers to view feedback for a facility from the main dashboard.
 - [ ] **Automated Feedback Request:**
-  - [ ] Send an automated email to guests 24 hours after their booking has ended, inviting them to provide feedback.
-- [ ] **Admin Feedback Dashboard:**
-  - [ ] Create a view in the Admin dashboard to review, manage, and respond to customer feedback.
+  - [ ] Implement a mechanism (e.g., a scheduled task or cron job) to automatically send an email to guests 24 hours after their booking has ended, inviting them to provide feedback.
+- [ ] **Public Feedback Display:**
+  - [ ] Add an aggregated star rating (e.g., "4.5 stars out of 5") to the facility details view on the customer dashboard.
+  - [ ] Consider adding a moderation feature for admins to approve or hide feedback before it becomes publicly visible.
+- [ ] **Admin Response System:**
+  - [ ] Allow admins to write a public reply to a customer's feedback.
+  - [ ] Notify the customer via email when an admin has responded to their feedback.
 
 #### 4. User Notification Preferences
 

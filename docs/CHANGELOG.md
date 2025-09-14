@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 2025-09-14
+
+### Added
+
+- **Customer-Facing Feedback Display:** Customers can now view all historical feedback for a facility.
+  - A new "Feedback" tab has been added to the "View Details" modal on the customer dashboard.
+  - This tab displays a list of all reviews, including the customer's name, rating, and comments, making the feedback system more transparent and useful.
+- **Admin/Staff Facility Preview:** Implemented a read-only "Preview Facilities" mode for administrative users.
+  - A new navigation link allows Admins and Staff to view the facility listings exactly as a customer would.
+  - The "View Details" modal in this mode is strictly informational, with the "Book Now" button removed to prevent accidental bookings.
+
+### Fixed
+
+- **Modal Tab State:** Fixed a bug where the facility details modal would remember the last active tab. It now correctly defaults to the "Details" tab every time it is opened.
+- **Main Photo Display:** Corrected a regression that caused an incorrect image to be displayed as the main photo in the facility details modal. The system now correctly prioritizes and displays the designated main photo.
+
 ## [1.13.0] - 2025-09-03
 
 ### Added
