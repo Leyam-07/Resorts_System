@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Display "Book Now" for customers, "Close" for admin/staff
                     const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
                     if (userRole === 'Customer') {
-                        modalFooter.innerHTML = `<a href="?controller=booking&action=create&facility_id=${data.facilityId}" class="btn btn-success">Book Now</a>`;
+                        modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&facility_id=${data.facilityId}" class="btn btn-success">Book Now</a>`;
                     } else {
                         modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
                     }
