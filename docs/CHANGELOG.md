@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.1] - 2025-09-14
+
+### Fixed
+
+- **Booking Availability Logic:** Fixed a critical bug in the time-slot booking system where the availability check (`isTimeSlotAvailable`) only checked the booking date, not the specific time slot. This incorrectly prevented non-conflicting bookings (e.g., a '12_hours' and an 'overnight' booking) from being made on the same day. The logic is now corrected to handle all time slot conflict scenarios accurately.
+
+### Added
+
+- **Backend Test Script:** Created a new development script (`scripts/dev/test_timeslot_booking_logic.php`) to programmatically test and verify the correctness of the time-slot availability logic.
+
 ## [1.15.0] - 2025-09-14
 
 ### Changed
