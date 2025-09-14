@@ -181,6 +181,18 @@ class Booking {
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+    public static function getTimeSlotDisplay($timeSlotType) {
+        switch ($timeSlotType) {
+            case '12_hours':
+                return '7:00 AM - 5:00 PM (12 hrs)';
+            case 'overnight':
+                return '7:00 PM - 5:00 AM (Overnight)';
+            case '24_hours':
+                return '7:00 AM - 5:00 AM (24 hrs)';
+            default:
+                return 'N/A';
+        }
+    }
 
     public static function isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType, $excludeBookingId = null) {
         $db = self::getDB();

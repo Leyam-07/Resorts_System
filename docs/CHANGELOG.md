@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.3] - 2025-09-14
+
+### Fixed
+
+- **Admin Dashboard Display:** Corrected a critical error on the Admin Dashboard where the "Upcoming Bookings" and "Today's Bookings" tables would cause a fatal error (`Undefined property: stdClass::$StartTime`). This was a regression from the recent time-slot booking system overhaul. The view has been updated to use the new `TimeSlotType` and a helper function to display a human-readable time range.
+
+### Changed
+
+- **Time Slot Display:** Improved the display of booking time slots on the admin dashboard to include the duration for better clarity (e.g., "7:00 AM - 5:00 PM (12 hrs)").
+
 ## [1.15.2] - 2025-09-14
 
 ### Changed
