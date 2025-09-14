@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Admin Dashboard Display:** Corrected a critical error on the Admin Dashboard where the "Upcoming Bookings" and "Today's Bookings" tables would cause a fatal error (`Undefined property: stdClass::$StartTime`). This was a regression from the recent time-slot booking system overhaul. The view has been updated to use the new `TimeSlotType` and a helper function to display a human-readable time range.
+- **View User Bookings Display:** Fixed a similar `Undefined property` error in `app/Views/admin/view_user_bookings.php` (line 35) by updating it to use the `TimeSlotType` and the `getTimeSlotDisplay()` helper function for accurate time slot representation.
 
 ### Changed
 

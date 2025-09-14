@@ -32,7 +32,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <tr>
                     <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                     <td><?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?></td>
-                    <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) ?> - <?= htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
+                    <td><?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->TimeSlotType)) ?></td>
                     <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                     <td><span class="badge bg-primary"><?= htmlspecialchars($booking->Status) ?></span></td>
                 </tr>
