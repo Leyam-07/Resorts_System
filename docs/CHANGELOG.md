@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.0] - 2025-09-14
+
+### Changed
+
+- **Feedback System UI/UX:** Revamped the customer feedback process to improve user experience.
+  - Replaced the separate "Leave Feedback" page with a dynamic, on-page modal that opens directly from the "My Bookings" list.
+  - The "Leave Feedback" button is now disabled and replaced with a "Feedback Submitted" badge for bookings that already have feedback, preventing duplicate submissions.
+
 ## [1.15.3] - 2025-09-14
 
 ### Fixed

@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
+require_once __DIR__ . '/../Models/Feedback.php';
 
 class BookingController {
 
@@ -157,6 +158,17 @@ class BookingController {
         }
 
         $bookings = Booking::findByCustomerId($_SESSION['user_id']);
+
+        // Check if feedback has been submitted for each completed booking
+        if ($bookings) {
+            foreach ($bookings as $booking) {
+                if ($booking->Status === 'Completed') {
+                    $booking->hasFeedback = (Feedback::findByBookingId($booking->BookingID) !== false);
+                } else {
+                    $booking->hasFeedback = false;
+                }
+            }
+        }
 
         require_once __DIR__ . '/../Views/booking/my_bookings.php';
     }

@@ -5,42 +5,6 @@ require_once __DIR__ . '/../Models/Booking.php';
 
 class FeedbackController {
 
-    public function showFeedbackForm() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: ?controller=user&action=login');
-            exit;
-        }
-
-        $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
-        if (!$bookingId) {
-            header('Location: ?controller=booking&action=showMyBookings');
-            exit;
-        }
-
-        $booking = Booking::findById($bookingId);
-
-        // Security check: Ensure the booking belongs to the current user and is completed
-        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
-            $_SESSION['error_message'] = "You are not authorized to leave feedback for this booking.";
-            header('Location: ?controller=booking&action=showMyBookings');
-            exit;
-        }
-        
-        if ($booking->status !== 'Completed') {
-            $_SESSION['error_message'] = "You can only leave feedback for completed bookings.";
-            header('Location: ?controller=booking&action=showMyBookings');
-            exit;
-        }
-
-        // Check if feedback already exists
-        if (Feedback::findByBookingId($bookingId)) {
-            $_SESSION['error_message'] = "You have already submitted feedback for this booking.";
-            header('Location: ?controller=booking&action=showMyBookings');
-            exit;
-        }
-
-        require_once __DIR__ . '/../Views/feedback/create.php';
-    }
 
     public function submitFeedback() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
@@ -54,7 +18,9 @@ class FeedbackController {
 
         if (!$bookingId || !$rating) {
             $_SESSION['error_message'] = "Rating is required.";
-            header('Location: ?controller=feedback&action=showFeedbackForm&booking_id=' . $bookingId);
+            // Redirect back to the bookings page with an error
+            $_SESSION['error_message'] = "Rating is required.";
+            header('Location: ?controller=booking&action=showMyBookings');
             exit;
         }
 
@@ -75,7 +41,7 @@ class FeedbackController {
             header('Location: ?controller=booking&action=showMyBookings');
         } else {
             $_SESSION['error_message'] = "Failed to submit feedback. Please try again.";
-            header('Location: ?controller=feedback&action=showFeedbackForm&booking_id=' . $bookingId);
+            header('Location: ?controller=booking&action=showMyBookings');
         }
         exit;
     }
