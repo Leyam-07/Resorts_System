@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "Unified Management";
+$pageTitle = "Manage Resort";
 require_once __DIR__ . '/../../partials/header.php';
 ?>
 
@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../partials/header.php';
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Unified Resort & Facility Management</h3>
+                    <h3 class="card-title">Manage Resort</h3>
                     <button class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addResortModal">
                         <i class="fas fa-plus"></i> Add New Resort
                     </button>
