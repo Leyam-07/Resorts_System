@@ -4,6 +4,7 @@ require_once __DIR__ . '/../partials/header.php';
 
 // Get pre-selected resort ID from URL if available
 $selectedResortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+$selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT);
 ?>
 
         <h1><?= htmlspecialchars($pageTitle) ?></h1>
@@ -62,7 +63,7 @@ $selectedResortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
 document.addEventListener('DOMContentLoaded', function() {
     const resortSelect = document.getElementById('resort');
     const facilitySelect = document.getElementById('facility');
-    const selectedFacilityId = <?= json_encode($_SESSION['old_input']['facilityId'] ?? null) ?>;
+    const selectedFacilityId = <?= json_encode($selectedFacilityId ?? $_SESSION['old_input']['facilityId'] ?? null) ?>;
 
     function fetchFacilities(resortId) {
         if (!resortId) {

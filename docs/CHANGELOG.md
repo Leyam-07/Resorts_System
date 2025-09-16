@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.7] - 2025-09-16
+
+### Fixed
+
+- **Booking Form:** Resolved a bug on the "New Booking" page where the facility dropdown would fail to load after a resort was selected. The issue was traced to a missing action in the main router's whitelist, which has now been corrected.
+- **Booking Form Pre-selection:** Fixed an issue where clicking "Book Now" from a facility's detail modal would not pre-select the resort and facility on the booking form. The link generation and the booking form's parameter handling have been updated to ensure a seamless transition.
+- **Resort Details Modal:** Fixed a critical bug where the content (Details, Facilities, Feedback) of the "View Details" modal on the customer dashboard was not displaying. The issue was caused by a JavaScript conflict from two separate `DOMContentLoaded` listeners, which have now been consolidated into a single, unified script.
+
 ## [1.20.6] - 2025-09-16
 
 ### Fixed
