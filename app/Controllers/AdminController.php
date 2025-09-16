@@ -264,8 +264,6 @@ class AdminController {
                 header('Location: ?controller=admin&action=addFacility&error=add_failed');
                 exit();
             }
-        } else {
-            include __DIR__ . '/../Views/admin/facilities/create.php';
         }
     }
 
@@ -293,13 +291,43 @@ class AdminController {
                 header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=update_failed');
                 exit();
             }
-        } else {
-            $facility = Facility::findById($facilityId);
-            if (!$facility) {
-                die('Facility not found.');
-            }
-            include __DIR__ . '/../Views/admin/facilities/edit.php';
         }
+    }
+    
+    public function getFacilityEditForm() {
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo "Facility ID not specified.";
+            exit();
+        }
+        $facilityId = $_GET['id'];
+        $facility = Facility::findById($facilityId);
+        if (!$facility) {
+            http_response_code(404);
+            echo "Facility not found.";
+            exit();
+        }
+        // This view will be loaded into the modal
+        include __DIR__ . '/../Views/admin/facilities/edit.php';
+    }
+    
+    public function getScheduleView() {
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo "Facility ID not specified.";
+            exit();
+        }
+        $facilityId = $_GET['id'];
+        $facility = Facility::findById($facilityId);
+        if (!$facility) {
+            http_response_code(404);
+            echo "Facility not found.";
+            exit();
+        }
+        $blockedSlots = BlockedAvailability::findByFacilityId($facilityId);
+        
+        // This view will be loaded into the modal
+        include __DIR__ . '/../Views/admin/facilities/schedule.php';
     }
 
     public function deleteFacility() {

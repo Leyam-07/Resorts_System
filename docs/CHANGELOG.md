@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.0] - 2025-09-16
+
+### Changed
+
+- **Admin Facility Management UI/UX:** Overhauled the "Manage Facilities" page to use a modal-based interface. The separate pages for "Add," "Edit," and "Manage Schedule" were converted into a single-page, modal-driven workflow.
+- **Code Refactoring:** Converted the `edit.php` and `schedule.php` views into partials that are now loaded via AJAX into the modals. The `create.php` view was eliminated, with its form moved directly into the main modals file. This refactoring centralizes the UI components and improves the administrative workflow.
+
+### Fixed
+
+- **Modal Content Loading:** Resolved a critical bug where the "Edit" and "Manage Schedule" modals failed to load their content. The issue was caused by the premature deletion of the `edit.php` and `schedule.php` partial views, which have now been restored to correct the AJAX loading functionality.
+
 ## [1.17.0] - 2025-09-16
 
 ### Changed
