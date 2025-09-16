@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2025-09-16
+
+### Changed
+
+- **Admin User Management UI/UX:** Overhauled the "Manage Users" page to provide a more modern, single-page application experience.
+  - Replaced the separate pages for "Add User," "Edit User," and "View User Bookings" with a fully modal-based interface.
+  - All user management actions can now be performed without leaving the main user list, significantly improving administrative workflow and efficiency.
+- **Code Refactoring:** Decoupled the user management views from the controller by transitioning from server-side HTML rendering to a client-side JSON-based approach for populating edit forms. Removed the now-redundant `add_user.php` and `edit_user.php` view files, cleaning up the codebase.
+
 ## [1.16.0] - 2025-09-14
 
 ### Changed
