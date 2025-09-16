@@ -96,11 +96,14 @@ To prevent direct URL access to sensitive files (like database models and contro
     ```
 
 3.  **Set File Permissions:**
-    Ensure the web server has the necessary permissions to write to specific directories (e.g., for uploads).
+    Ensure the web server has the necessary permissions to write to the upload directories.
     ```bash
-    chown -R www-data:www-data /path/to/your/project
-    chmod -R 755 /path/to/your/project
+    # Grant write permissions to the general uploads folder
+    chmod -R 775 /path/to/your/project/public/uploads
+    # Set ownership to the web server user (e.g., www-data for Apache on Linux)
+    chown -R www-data:www-data /path/to/your/project/public/uploads
     ```
+    _Note: The specific user may vary depending on your server setup (`apache`, `nginx`, etc.)._
 
 ## 4. Database Setup
 

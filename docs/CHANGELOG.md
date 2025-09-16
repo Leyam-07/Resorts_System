@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.2] - 2025-09-16
+
+### Changed
+
+- **Resort Photo Management:** Replaced the text-based "Main Photo URL" input with a user-friendly file upload system in the "Add" and "Edit" resort modals, improving the admin workflow.
+- **Code Consolidation:** All resort management logic was moved from the deprecated `ResortController` into the `AdminController`. The old controller and its router entry have been removed, cleaning up the codebase.
+
+### Fixed
+
+- **Admin Management UI:** Resolved a critical bug where the unified "Management" page would appear blank on a fresh database install. The page now displays a helpful "empty state" prompt to guide the admin.
+- **Image Preview:** Fixed a bug in the "Edit Resort" modal where the current main photo was not displaying due to an incorrect image path.
+
 ## [1.20.1] - 2025-09-16
 
 ### Fixed

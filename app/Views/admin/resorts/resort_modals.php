@@ -16,7 +16,7 @@ if (!defined('APP_LOADED')) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="?controller=resort&action=store" method="POST" id="addResortForm">
+                <form action="?controller=admin&action=storeResort" method="POST" id="addResortForm" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="name" class="form-label">Resort Name</label>
                         <input type="text" class="form-control" id="name" name="name" required>
@@ -28,6 +28,18 @@ if (!defined('APP_LOADED')) {
                     <div class="mb-3">
                         <label for="contactPerson" class="form-label">Contact Person</label>
                         <input type="text" class="form-control" id="contactPerson" name="contactPerson" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shortDescription" class="form-label">Short Description</label>
+                        <textarea class="form-control" id="shortDescription" name="shortDescription" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fullDescription" class="form-label">Full Description</label>
+                        <textarea class="form-control" id="fullDescription" name="fullDescription" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mainPhoto" class="form-label">Main Photo</label>
+                        <input type="file" class="form-control" id="mainPhoto" name="mainPhoto">
                     </div>
                 </form>
             </div>
@@ -48,7 +60,7 @@ if (!defined('APP_LOADED')) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="?controller=resort&action=update" method="POST" id="editResortForm">
+                <form action="?controller=admin&action=updateResort" method="POST" id="editResortForm" enctype="multipart/form-data">
                     <input type="hidden" id="editResortId" name="resortId">
                     <div class="mb-3">
                         <label for="editName" class="form-label">Resort Name</label>
@@ -61,6 +73,22 @@ if (!defined('APP_LOADED')) {
                     <div class="mb-3">
                         <label for="editContactPerson" class="form-label">Contact Person</label>
                         <input type="text" class="form-control" id="editContactPerson" name="contactPerson" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editShortDescription" class="form-label">Short Description</label>
+                        <textarea class="form-control" id="editShortDescription" name="shortDescription" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFullDescription" class="form-label">Full Description</label>
+                        <textarea class="form-control" id="editFullDescription" name="fullDescription" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Main Photo</label>
+                        <div>
+                            <img id="currentMainPhoto" src="" alt="Current main photo" style="max-width: 100px; max-height: 100px; margin-bottom: 10px;">
+                        </div>
+                        <label for="editMainPhoto" class="form-label">Upload New Main Photo (Optional)</label>
+                        <input type="file" class="form-control" id="editMainPhoto" name="mainPhoto">
                     </div>
                 </form>
             </div>

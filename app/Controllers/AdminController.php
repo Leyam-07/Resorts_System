@@ -524,6 +524,124 @@ class AdminController {
         include __DIR__ . '/../Views/admin/management/index.php';
     }
 
+    // Resort Management Logic (Moved from ResortController)
+    public function storeResort() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $resort = new Resort();
+            $resort->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
+            $resort->address = filter_input(INPUT_POST, 'address', FILTER_UNSAFE_RAW);
+            $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_UNSAFE_RAW);
+
+            // Add new fields from the updated form
+            $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
+            $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
+            $resort->mainPhotoURL = $this->handlePhotoUpload('mainPhoto');
+
+
+            if (Resort::create($resort)) {
+                header('Location: ?controller=admin&action=management&status=resort_added');
+            } else {
+                header('Location: ?controller=admin&action=management&error=add_failed');
+            }
+            exit();
+        }
+    }
+
+    public function updateResort() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
+            if (!$resortId) {
+                die('Invalid Resort ID.');
+            }
+
+            $resort = Resort::findById($resortId);
+            if (!$resort) {
+                die('Resort not found.');
+            }
+
+            $resort->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
+            $resort->address = filter_input(INPUT_POST, 'address', FILTER_UNSAFE_RAW);
+            $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_UNSAFE_RAW);
+            $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
+            $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
+            // Handle photo upload
+            $newPhotoURL = $this->handlePhotoUpload('mainPhoto');
+            if ($newPhotoURL) {
+                // If a new photo was uploaded, delete the old one
+                if ($resort->mainPhotoURL && file_exists(__DIR__ . '/../../' . ltrim($resort->mainPhotoURL, '/'))) {
+                    unlink(__DIR__ . '/../../' . ltrim($resort->mainPhotoURL, '/'));
+                }
+                $resort->mainPhotoURL = $newPhotoURL;
+            }
+            // If no new photo is uploaded, the existing mainPhotoURL is preserved.
+
+
+            if (Resort::update($resort)) {
+                header('Location: ?controller=admin&action=management&status=resort_updated');
+            } else {
+                header('Location: ?controller=admin&action=management&error=update_failed');
+            }
+            exit();
+        }
+    }
+
+    public function destroyResort() {
+        $resortId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            die('Invalid Resort ID.');
+        }
+
+        // Check for dependent facilities before deleting
+        $facilities = Facility::findByResortId($resortId);
+        if (!empty($facilities)) {
+            header('Location: ?controller=admin&action=management&error=delete_has_facilities');
+            exit();
+        }
+
+        if (Resort::delete($resortId)) {
+            header('Location: ?controller=admin&action=management&status=resort_deleted');
+        } else {
+            header('Location: ?controller=admin&action=management&error=delete_failed');
+        }
+        exit();
+    }
+
+    public function getResortJson() {
+        header('Content-Type: application/json');
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Resort ID not specified.']);
+            exit();
+        }
+        $resortId = $_GET['id'];
+        $resort = Resort::findById($resortId);
+
+        if ($resort) {
+            echo json_encode($resort);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Resort not found.']);
+        }
+        exit();
+    }
+
+    private function handlePhotoUpload($fileInputName) {
+        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/uploads/resorts/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $fileName = uniqid() . '-' . basename($_FILES[$fileInputName]['name']);
+            $targetPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($_FILES[$fileInputName]['tmp_name'], $targetPath)) {
+                return '/public/uploads/resorts/' . $fileName;
+            }
+        }
+        return null; // Return null if no file or upload failed
+    }
+
+
     public function blockResortAvailability() {
         if ($_SESSION['role'] !== 'Admin') {
             http_response_code(403);
