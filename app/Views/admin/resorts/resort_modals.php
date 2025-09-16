@@ -9,7 +9,7 @@ if (!defined('APP_LOADED')) {
 
 <!-- Add Resort Modal -->
 <div class="modal fade" id="addResortModal" tabindex="-1" aria-labelledby="addResortModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addResortModalLabel">Add New Resort</h5>
@@ -38,8 +38,9 @@ if (!defined('APP_LOADED')) {
                         <textarea class="form-control" id="fullDescription" name="fullDescription" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="mainPhoto" class="form-label">Main Photo</label>
-                        <input type="file" class="form-control" id="mainPhoto" name="mainPhoto">
+                        <label for="photos" class="form-label">Upload Photos</label>
+                        <input type="file" class="form-control" id="photos" name="photos[]" multiple>
+                        <small class="form-text text-muted">You can select multiple files. The first photo uploaded will be set as the main photo.</small>
                     </div>
                 </form>
             </div>
@@ -53,7 +54,7 @@ if (!defined('APP_LOADED')) {
 
 <!-- Edit Resort Modal -->
 <div class="modal fade" id="editResortModal" tabindex="-1" aria-labelledby="editResortModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editResortModalLabel">Edit Resort</h5>
@@ -82,14 +83,19 @@ if (!defined('APP_LOADED')) {
                         <label for="editFullDescription" class="form-label">Full Description</label>
                         <textarea class="form-control" id="editFullDescription" name="fullDescription" rows="4"></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Current Main Photo</label>
-                        <div>
-                            <img id="currentMainPhoto" src="" alt="Current main photo" style="max-width: 100px; max-height: 100px; margin-bottom: 10px;">
-                        </div>
-                        <label for="editMainPhoto" class="form-label">Upload New Main Photo (Optional)</label>
-                        <input type="file" class="form-control" id="editMainPhoto" name="mainPhoto">
+                </form>
+                <hr>
+                <h5>Manage Photos</h5>
+                <div id="photoGallery" class="mb-3">
+                    <!-- Photo gallery will be populated by JavaScript -->
+                </div>
+                <form action="?controller=admin&action=uploadResortPhotos" method="POST" id="uploadPhotosForm" enctype="multipart/form-data">
+                     <input type="hidden" id="uploadResortId" name="resortId">
+                     <div class="mb-3">
+                        <label for="newPhotos" class="form-label">Upload New Photos</label>
+                        <input type="file" class="form-control" id="newPhotos" name="photos[]" multiple>
                     </div>
+                    <button type="submit" class="btn btn-success btn-sm">Upload</button>
                 </form>
             </div>
             <div class="modal-footer">

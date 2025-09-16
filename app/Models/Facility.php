@@ -181,4 +181,12 @@ class Facility {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function setMainPhoto($facilityId, $photoURL) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Facilities SET MainPhotoURL = :photoURL WHERE FacilityID = :facilityId");
+        $stmt->bindValue(':photoURL', $photoURL, PDO::PARAM_STR);
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }

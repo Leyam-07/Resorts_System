@@ -269,13 +269,21 @@ class AdminController {
            $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
             $facility->resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
 
-            if (Facility::create($facility)) {
-                header('Location: ?controller=admin&action=facilities&status=facility_added');
-                exit();
+            $facilityId = Facility::create($facility);
+
+            if ($facilityId) {
+                $photoURLs = $this->handlePhotoUpload('photos', 'facilities');
+                if (!empty($photoURLs)) {
+                    Facility::setMainPhoto($facilityId, $photoURLs[0]);
+                    foreach ($photoURLs as $url) {
+                        Facility::addPhoto($facilityId, $url);
+                    }
+                }
+                header('Location: ?controller=admin&action=management&status=facility_added');
             } else {
-                header('Location: ?controller=admin&action=addFacility&error=add_failed');
-                exit();
+                header('Location: ?controller=admin&action=management&error=add_failed');
             }
+            exit();
         }
     }
 
@@ -293,35 +301,35 @@ class AdminController {
             $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
            $facility->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
            $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
-           $facility->mainPhotoURL = Facility::findById($facilityId)->mainPhotoURL; // Preserve existing main photo
             $facility->resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
 
             if (Facility::update($facility)) {
-                header('Location: ?controller=admin&action=facilities&status=facility_updated');
+                header('Location: ?controller=admin&action=management&status=facility_updated');
                 exit();
             } else {
-                header('Location: ?controller=admin&action=editFacility&id=' . $facilityId . '&error=update_failed');
+                header('Location: ?controller=admin&action=management&error=update_failed');
                 exit();
             }
         }
     }
     
-    public function getFacilityEditForm() {
+    public function getFacilityJson() {
+        header('Content-Type: application/json');
         if (!isset($_GET['id'])) {
             http_response_code(400);
-            echo "Facility ID not specified.";
+            echo json_encode(['error' => 'Facility ID not specified.']);
             exit();
         }
         $facilityId = $_GET['id'];
         $facility = Facility::findById($facilityId);
-        if (!$facility) {
+
+        if ($facility) {
+            echo json_encode($facility);
+        } else {
             http_response_code(404);
-            echo "Facility not found.";
-            exit();
+            echo json_encode(['error' => 'Facility not found.']);
         }
-        $resorts = Resort::findAll(); // Fetch all resorts for the dropdown
-        // This view will be loaded into the modal
-        include __DIR__ . '/../Views/admin/facilities/edit.php';
+        exit();
     }
     
     public function getScheduleView() {
@@ -515,6 +523,7 @@ class AdminController {
         $resortsWithFacilities = [];
         foreach ($resorts as $resort) {
             $facilities = Facility::findByResortId($resort->resortId);
+            $resort->photos = Resort::getPhotos($resort->resortId); // Eager load photos
             $resortsWithFacilities[] = [
                 'resort' => $resort,
                 'facilities' => $facilities
@@ -531,14 +540,21 @@ class AdminController {
             $resort->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
             $resort->address = filter_input(INPUT_POST, 'address', FILTER_UNSAFE_RAW);
             $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_UNSAFE_RAW);
-
-            // Add new fields from the updated form
             $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
             $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
-            $resort->mainPhotoURL = $this->handlePhotoUpload('mainPhoto');
+            
+            $resortId = Resort::create($resort);
 
-
-            if (Resort::create($resort)) {
+            if ($resortId) {
+                $photoURLs = $this->handlePhotoUpload('photos');
+                if (!empty($photoURLs)) {
+                    // Set the first photo as the main photo
+                    Resort::setMainPhoto($resortId, $photoURLs[0]);
+                    // Add all photos to the gallery
+                    foreach ($photoURLs as $url) {
+                        Resort::addPhoto($resortId, $url);
+                    }
+                }
                 header('Location: ?controller=admin&action=management&status=resort_added');
             } else {
                 header('Location: ?controller=admin&action=management&error=add_failed');
@@ -550,32 +566,18 @@ class AdminController {
     public function updateResort() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
-            if (!$resortId) {
-                die('Invalid Resort ID.');
-            }
+            if (!$resortId) { die('Invalid Resort ID.'); }
 
             $resort = Resort::findById($resortId);
-            if (!$resort) {
-                die('Resort not found.');
-            }
+            if (!$resort) { die('Resort not found.'); }
 
             $resort->name = filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW);
             $resort->address = filter_input(INPUT_POST, 'address', FILTER_UNSAFE_RAW);
             $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_UNSAFE_RAW);
             $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
             $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
-            // Handle photo upload
-            $newPhotoURL = $this->handlePhotoUpload('mainPhoto');
-            if ($newPhotoURL) {
-                // If a new photo was uploaded, delete the old one
-                if ($resort->mainPhotoURL && file_exists(__DIR__ . '/../../' . ltrim($resort->mainPhotoURL, '/'))) {
-                    unlink(__DIR__ . '/../../' . ltrim($resort->mainPhotoURL, '/'));
-                }
-                $resort->mainPhotoURL = $newPhotoURL;
-            }
-            // If no new photo is uploaded, the existing mainPhotoURL is preserved.
-
-
+            
+            // Note: Main photo is no longer updated here. It's handled via the gallery management.
             if (Resort::update($resort)) {
                 header('Location: ?controller=admin&action=management&status=resort_updated');
             } else {
@@ -617,6 +619,7 @@ class AdminController {
         $resort = Resort::findById($resortId);
 
         if ($resort) {
+            // The findById method already populates the photos property
             echo json_encode($resort);
         } else {
             http_response_code(404);
@@ -625,20 +628,164 @@ class AdminController {
         exit();
     }
 
-    private function handlePhotoUpload($fileInputName) {
-        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../public/uploads/resorts/';
+    public function uploadResortPhotos() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
+            if (!$resortId) { die('Invalid Resort ID.'); }
+
+            $photoURLs = $this->handlePhotoUpload('photos');
+            if (!empty($photoURLs)) {
+                foreach ($photoURLs as $url) {
+                    Resort::addPhoto($resortId, $url);
+                }
+
+                // If this is the first photo being uploaded, set it as main
+                $existingPhotos = Resort::getPhotos($resortId);
+                if (count($existingPhotos) === count($photoURLs)) {
+                     Resort::setMainPhoto($resortId, $photoURLs[0]);
+                }
+
+                header('Location: ?controller=admin&action=management&status=photos_uploaded');
+            } else {
+                header('Location: ?controller=admin&action=management&error=upload_failed');
+            }
+            exit();
+        }
+    }
+
+    public function setResortMainPhoto() {
+        $resortId = filter_input(INPUT_GET, 'resortId', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_GET, 'photoId', FILTER_VALIDATE_INT);
+
+        if (!$resortId || !$photoId) { die('Invalid parameters.'); }
+        
+        $photo = Resort::findPhotoById($photoId);
+        if ($photo && $photo['ResortID'] == $resortId) {
+            Resort::setMainPhoto($resortId, $photo['PhotoURL']);
+            header('Location: ?controller=admin&action=management&status=main_photo_set');
+        } else {
+            header('Location: ?controller=admin&action=management&error=set_main_failed');
+        }
+        exit();
+    }
+
+    public function deleteResortPhoto() {
+        $resortId = filter_input(INPUT_GET, 'resortId', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_GET, 'photoId', FILTER_VALIDATE_INT);
+
+        if (!$resortId || !$photoId) { die('Invalid parameters.'); }
+
+        $photo = Resort::findPhotoById($photoId);
+        if ($photo && $photo['ResortID'] == $resortId) {
+            // Physical file deletion
+            $filePath = __DIR__ . '/../../' . ltrim($photo['PhotoURL'], '/');
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            // DB record deletion
+            Resort::deletePhoto($photoId);
+
+            // If the deleted photo was the main photo, pick a new main one
+            $resort = Resort::findById($resortId);
+            if ($resort->mainPhotoURL === $photo['PhotoURL']) {
+                $remainingPhotos = Resort::getPhotos($resortId);
+                $newMainPhoto = !empty($remainingPhotos) ? $remainingPhotos[0]['PhotoURL'] : null;
+                Resort::setMainPhoto($resortId, $newMainPhoto);
+            }
+
+            header('Location: ?controller=admin&action=management&status=photo_deleted');
+        } else {
+            header('Location: ?controller=admin&action=management&error=delete_failed');
+        }
+        exit();
+    }
+
+    public function uploadFacilityPhotos() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
+            if (!$facilityId) { die('Invalid Facility ID.'); }
+
+            $photoURLs = $this->handlePhotoUpload('photos', 'facilities');
+            if (!empty($photoURLs)) {
+                foreach ($photoURLs as $url) {
+                    Facility::addPhoto($facilityId, $url);
+                }
+
+                $existingPhotos = Facility::getPhotos($facilityId);
+                if (count($existingPhotos) === count($photoURLs)) {
+                     Facility::setMainPhoto($facilityId, $photoURLs[0]);
+                }
+                header('Location: ?controller=admin&action=management&status=photos_uploaded');
+            } else {
+                header('Location: ?controller=admin&action=management&error=upload_failed');
+            }
+            exit();
+        }
+    }
+
+    public function setFacilityMainPhoto() {
+        $facilityId = filter_input(INPUT_GET, 'facilityId', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_GET, 'photoId', FILTER_VALIDATE_INT);
+
+        if (!$facilityId || !$photoId) { die('Invalid parameters.'); }
+        
+        $photo = Facility::findPhotoById($photoId);
+        if ($photo && $photo['FacilityID'] == $facilityId) {
+            Facility::setMainPhoto($facilityId, $photo['PhotoURL']);
+            header('Location: ?controller=admin&action=management&status=main_photo_set');
+        } else {
+            header('Location: ?controller=admin&action=management&error=set_main_failed');
+        }
+        exit();
+    }
+
+    public function deleteFacilityPhoto() {
+        $facilityId = filter_input(INPUT_GET, 'facilityId', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_GET, 'photoId', FILTER_VALIDATE_INT);
+
+        if (!$facilityId || !$photoId) { die('Invalid parameters.'); }
+
+        $photo = Facility::findPhotoById($photoId);
+        if ($photo && $photo['FacilityID'] == $facilityId) {
+            $filePath = __DIR__ . '/../../' . ltrim($photo['PhotoURL'], '/');
+            if (file_exists($filePath)) { unlink($filePath); }
+            
+            Facility::deletePhoto($photoId);
+
+            $facility = Facility::findById($facilityId);
+            if ($facility->mainPhotoURL === $photo['PhotoURL']) {
+                $remainingPhotos = Facility::getPhotos($facilityId);
+                $newMainPhoto = !empty($remainingPhotos) ? $remainingPhotos[0]['PhotoURL'] : null;
+                Facility::setMainPhoto($facilityId, $newMainPhoto);
+            }
+            header('Location: ?controller=admin&action=management&status=photo_deleted');
+        } else {
+            header('Location: ?controller=admin&action=management&error=delete_failed');
+        }
+        exit();
+    }
+
+    private function handlePhotoUpload($fileInputName, $type = 'resorts') {
+        $uploadedPaths = [];
+        if (isset($_FILES[$fileInputName])) {
+            $files = $_FILES[$fileInputName];
+            $uploadDir = __DIR__ . '/../../public/uploads/' . $type . '/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-            $fileName = uniqid() . '-' . basename($_FILES[$fileInputName]['name']);
-            $targetPath = $uploadDir . $fileName;
 
-            if (move_uploaded_file($_FILES[$fileInputName]['tmp_name'], $targetPath)) {
-                return '/public/uploads/resorts/' . $fileName;
+            foreach ($files['tmp_name'] as $key => $tmpName) {
+                if ($files['error'][$key] === UPLOAD_ERR_OK) {
+                    $fileName = uniqid() . '-' . basename($files['name'][$key]);
+                    $targetPath = $uploadDir . $fileName;
+
+                    if (move_uploaded_file($tmpName, $targetPath)) {
+                        $uploadedPaths[] = '/public/uploads/' . $type . '/' . $fileName;
+                    }
+                }
             }
         }
-        return null; // Return null if no file or upload failed
+        return $uploadedPaths;
     }
 
 

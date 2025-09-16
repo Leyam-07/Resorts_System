@@ -40,7 +40,12 @@ require_once __DIR__ . '/../../partials/header.php';
                                             <button class="btn btn-warning btn-sm edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
                                             <button class="btn btn-danger btn-sm ms-2 delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Delete Resort</button>
                                         </div>
-                                        <h5>Facilities</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">Facilities</h5>
+                                            <button class="btn btn-success btn-sm add-facility-btn" data-bs-toggle="modal" data-bs-target="#addFacilityModal" data-resort-id="<?= $resortData['resort']->resortId ?>">
+                                                <i class="fas fa-plus"></i> Add Facility
+                                            </button>
+                                        </div>
                                         <table class="table table-sm table-bordered">
                                             <thead>
                                                 <tr>
@@ -58,13 +63,13 @@ require_once __DIR__ . '/../../partials/header.php';
                                                     </tr>
                                                 <?php else: ?>
                                                     <?php foreach ($resortData['facilities'] as $facility): ?>
-                                                        <tr>
+                                                        <tr data-facility-id="<?= $facility->facilityId ?>">
                                                             <td><?= htmlspecialchars($facility->facilityId) ?></td>
                                                             <td><?= htmlspecialchars($facility->name) ?></td>
                                                             <td><?= htmlspecialchars($facility->capacity) ?></td>
                                                             <td>$<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
-                                                                <button class="btn btn-outline-primary btn-sm">Edit</button>
+                                                                <button class="btn btn-outline-primary btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>
                                                                 <button class="btn btn-outline-danger btn-sm">Delete</button>
                                                             </td>
                                                         </tr>
@@ -89,6 +94,8 @@ require_once __DIR__ . '/../../partials/header.php';
 // The APP_LOADED constant is already defined in public/index.php
 // Including the resort modals, which now handle add, edit, and delete
 require_once __DIR__ . '/../resorts/resort_modals.php';
+require_once __DIR__ . '/facility_modals.php';
+require_once __DIR__ . '/edit_facility_modal.php';
 ?>
 
 
@@ -149,28 +156,54 @@ document.addEventListener('DOMContentLoaded', function () {
             var button = event.relatedTarget;
             var resortId = button.getAttribute('data-resort-id');
             
+            // Set the resortId for the photo upload form
+            document.getElementById('uploadResortId').value = resortId;
+
             fetch('?controller=admin&action=getResortJson&id=' + resortId)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
                         alert(data.error);
+                        return;
+                    }
+                    
+                    document.getElementById('editResortId').value = data.resortId;
+                    document.getElementById('editName').value = data.name;
+                    document.getElementById('editAddress').value = data.address;
+                    document.getElementById('editContactPerson').value = data.contactPerson;
+                    document.getElementById('editShortDescription').value = data.shortDescription || '';
+                    document.getElementById('editFullDescription').value = data.fullDescription || '';
+
+                    const photoGallery = document.getElementById('photoGallery');
+                    photoGallery.innerHTML = ''; // Clear previous gallery
+
+                    if (data.photos && data.photos.length > 0) {
+                        const galleryRow = document.createElement('div');
+                        galleryRow.className = 'row';
+
+                        data.photos.forEach(photo => {
+                            const col = document.createElement('div');
+                            col.className = 'col-md-3 text-center mb-3';
+                            
+                            const imagePath = photo.PhotoURL.replace('/public/', '');
+                            const isMain = data.mainPhotoURL === photo.PhotoURL;
+
+                            col.innerHTML = `
+                                <div class="img-thumbnail position-relative ${isMain ? 'border-primary border-3' : ''}">
+                                    <img src="${imagePath}" class="img-fluid" alt="Resort Photo">
+                                    <div class="caption mt-2">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="?controller=admin&action=setResortMainPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i></a>
+                                            <a href="?controller=admin&action=deleteResortPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            galleryRow.appendChild(col);
+                        });
+                        photoGallery.appendChild(galleryRow);
                     } else {
-                        document.getElementById('editResortId').value = data.resortId;
-                        document.getElementById('editName').value = data.name;
-                        document.getElementById('editAddress').value = data.address;
-                        document.getElementById('editContactPerson').value = data.contactPerson;
-                        document.getElementById('editShortDescription').value = data.shortDescription || '';
-                        document.getElementById('editFullDescription').value = data.fullDescription || '';
-                        
-                        var photoPreview = document.getElementById('currentMainPhoto');
-                        if (data.mainPhotoURL) {
-                            // The path from the DB is /public/uploads/..., we need uploads/... for the src attribute
-                            const imagePath = data.mainPhotoURL.replace('/public/', '');
-                            photoPreview.src = imagePath;
-                            photoPreview.style.display = 'block';
-                        } else {
-                            photoPreview.style.display = 'none';
-                        }
+                        photoGallery.innerHTML = '<p class="text-muted">No photos have been uploaded for this resort yet.</p>';
                     }
                 });
         });
@@ -184,6 +217,76 @@ document.addEventListener('DOMContentLoaded', function () {
             var resortId = button.getAttribute('data-resort-id');
             var confirmBtn = document.getElementById('confirmDeleteResortBtn');
             confirmBtn.href = '?controller=admin&action=destroyResort&id=' + resortId;
+        });
+    }
+
+    // Add Facility Modal Handler
+    var addFacilityModal = document.getElementById('addFacilityModal');
+    if(addFacilityModal) {
+        addFacilityModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var resortId = button.getAttribute('data-resort-id');
+            document.getElementById('addFacilityResortId').value = resortId;
+        });
+    }
+
+    // Edit Facility Modal Handler
+    var editFacilityModal = document.getElementById('editFacilityModal');
+    if(editFacilityModal) {
+        editFacilityModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var facilityId = button.getAttribute('data-facility-id');
+            
+            // Set the facilityId for the photo upload form
+            document.getElementById('uploadFacilityId').value = facilityId;
+
+            fetch('?controller=admin&action=getFacilityJson&id=' + facilityId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    document.getElementById('editFacilityId').value = data.facilityId;
+                    document.getElementById('editFacilityName').value = data.name;
+                    document.getElementById('editFacilityCapacity').value = data.capacity;
+                    document.getElementById('editFacilityRate').value = data.rate;
+                    document.getElementById('editFacilityShortDescription').value = data.shortDescription || '';
+                    document.getElementById('editFacilityFullDescription').value = data.fullDescription || '';
+
+                    const photoGallery = document.getElementById('facilityPhotoGallery');
+                    photoGallery.innerHTML = ''; // Clear previous gallery
+
+                    if (data.photos && data.photos.length > 0) {
+                        const galleryRow = document.createElement('div');
+                        galleryRow.className = 'row';
+
+                        data.photos.forEach(photo => {
+                            const col = document.createElement('div');
+                            col.className = 'col-md-3 text-center mb-3';
+                            
+                            const imagePath = photo.PhotoURL.replace('/public/', '');
+                            const isMain = data.mainPhotoURL === photo.PhotoURL;
+
+                            col.innerHTML = `
+                                <div class="img-thumbnail position-relative ${isMain ? 'border-primary border-3' : ''}">
+                                    <img src="${imagePath}" class="img-fluid" alt="Facility Photo">
+                                    <div class="caption mt-2">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="?controller=admin&action=setFacilityMainPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i></a>
+                                            <a href="?controller=admin&action=deleteFacilityPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            galleryRow.appendChild(col);
+                        });
+                        photoGallery.appendChild(galleryRow);
+                    } else {
+                        photoGallery.innerHTML = '<p class="text-muted">No photos have been uploaded for this facility yet.</p>';
+                    }
+                });
         });
     }
 });

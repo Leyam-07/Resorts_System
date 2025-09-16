@@ -140,4 +140,12 @@ class Resort {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function setMainPhoto($resortId, $photoURL) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Resorts SET MainPhotoURL = :photoURL WHERE ResortID = :resortId");
+        $stmt->bindValue(':photoURL', $photoURL, PDO::PARAM_STR);
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }

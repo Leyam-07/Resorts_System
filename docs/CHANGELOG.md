@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.3] - 2025-09-16
+
+### Added
+
+- **Multi-Photo Upload for Resorts:** Implemented the ability to upload multiple photos for resorts. The first uploaded photo is automatically set as the main photo.
+- **Resort Photo Gallery Management:** Added a photo gallery to the "Edit Resort" modal, allowing administrators to view all uploaded photos, set any photo as the main photo, and delete individual photos.
+- **Multi-Photo Upload for Facilities:** Implemented the ability to upload multiple photos for facilities. The first uploaded photo is automatically set as the main photo.
+- **Facility Photo Gallery Management:** Added a photo gallery to the "Edit Facility" modal, allowing administrators to view all uploaded photos, set any photo as the main photo, and delete individual photos.
+
+### Changed
+
+- **Resort Photo Management:** The "Add" and "Edit" resort modals were updated to support multiple file uploads for resort photos, replacing the single file input for the main photo.
+- **Facility Photo Management:** The "Add" and "Edit" facility modals were updated to support multiple file uploads for facility photos.
+- **AdminController Refactoring:** The `AdminController` was significantly refactored to handle the new multi-photo upload and management logic for both resorts and facilities, including dedicated methods for uploading, setting main photos, and deleting photos.
+- **Resort and Facility Models:** Both `Resort.php` and `Facility.php` models were updated with a `setMainPhoto` method to support setting a specific image as the primary display photo.
+- **Unified Management UI:** The `app/Views/admin/management/index.php` view was updated to integrate the new "Edit Facility" modal and its associated JavaScript for dynamic photo gallery loading and management.
+- **Modal Sizing:** Increased the size of the "Add Resort" and "Add Facility" modals to `modal-lg` to better accommodate the new photo gallery features.
+
 ## [1.20.2] - 2025-09-16
 
 ### Changed
