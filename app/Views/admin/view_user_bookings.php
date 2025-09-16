@@ -6,13 +6,7 @@ if (!defined('APP_LOADED')) {
     exit();
 }
 
-$pageTitle = "Bookings for " . htmlspecialchars($user['Username']);
-require_once __DIR__ . '/../partials/header.php';
-?>
-
-<h1><?= htmlspecialchars($pageTitle) ?></h1>
-
-<?php if (empty($bookings)): ?>
+if (empty($bookings)): ?>
     <div class="alert alert-info" role="alert">
         This user has no bookings.
     </div>
@@ -40,7 +34,3 @@ require_once __DIR__ . '/../partials/header.php';
         </tbody>
     </table>
 <?php endif; ?>
-
-<a href="?controller=admin&action=users" class="btn btn-secondary mt-3">Back to User List</a>
-
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>

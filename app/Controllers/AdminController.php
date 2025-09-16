@@ -133,13 +133,18 @@ class AdminController {
                 header('Location: ?controller=admin&action=users&status=user_added');
                 exit();
             } else {
-                header('Location: ?controller=admin&action=addUser&error=' . $result);
+                // To handle errors in modal, you might want to return a JSON response
+                // For now, redirecting back with an error. A more advanced implementation
+                // would handle this via AJAX on the client-side.
+                header('Location: ?controller=admin&action=users&error=' . $result);
                 exit();
             }
-        } else {
-            include __DIR__ . '/../Views/admin/add_user.php';
         }
+        // This part is now handled by getAddUserForm
     }
+
+    // The getAddUserForm() method is no longer needed as the form is now static in user_modals.php
+    // public function getAddUserForm() { ... }
 
     public function editUser() {
         if (!isset($_GET['id'])) {
@@ -166,17 +171,30 @@ class AdminController {
                 header('Location: ?controller=admin&action=users&status=user_updated');
                 exit();
             } else {
-                header('Location: ?controller=admin&action=editUser&id=' . $userId . '&error=' . $result);
+                header('Location: ?controller=admin&action=users&error=' . $result);
                 exit();
             }
-        } else {
-            // Display the edit form
-            $user = $this->userModel->findById($userId);
-            if (!$user) {
-                die('User not found.');
-            }
-            include __DIR__ . '/../Views/admin/edit_user.php';
         }
+        // This part is now handled by getEditUserForm
+    }
+
+    public function getUserJson() {
+        header('Content-Type: application/json');
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'User ID not specified.']);
+            exit();
+        }
+        $userId = $_GET['id'];
+        $user = $this->userModel->findById($userId);
+
+        if ($user) {
+            echo json_encode($user);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found.']);
+        }
+        exit();
     }
 
     public function deleteUser() {
@@ -204,7 +222,22 @@ class AdminController {
         }
 
         $bookings = Booking::findByCustomerId($userId);
+        // This part is now handled by getUserBookings
+        include __DIR__ . '/../Views/admin/view_user_bookings.php';
+    }
 
+    public function getUserBookings() {
+        if (!isset($_GET['id'])) {
+            die('User ID not specified.');
+        }
+        $userId = $_GET['id'];
+        $user = $this->userModel->findById($userId);
+        if (!$user) {
+            die('User not found.');
+        }
+        $bookings = Booking::findByCustomerId($userId);
+
+        // This view will be loaded into the modal
         include __DIR__ . '/../Views/admin/view_user_bookings.php';
     }
 

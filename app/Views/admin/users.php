@@ -38,23 +38,80 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td>
                     <?php if ($user['Role'] === 'Customer'): ?>
-                        <a href="?controller=admin&action=viewUserBookings&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-info">View Bookings</a>
+                        <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
                     <?php else: ?>
-                        <a href="#" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</a>
+                        <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
                     <?php endif; ?>
-                    <a href="?controller=admin&action=editUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                    <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
                     <?php if (isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']): ?>
-                        <a href="#" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</a>
+                        <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
                     <?php else: ?>
-                        <a href="?controller=admin&action=deleteUser&id=<?php echo $user['UserID']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                         <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
                     <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
-    <a href="?controller=admin&action=addUser" class="btn btn-primary">Add New User</a>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        Add New User
+    </button>
     <a href="index.php" class="btn btn-secondary">Back to Dashboard</a>
     </div>
+
+    <?php require_once __DIR__ . '/user_modals.php'; ?>
     
     <?php require_once __DIR__ . '/../partials/footer.php'; ?>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Edit User Modal - Data Population
+        var editUserModal = document.getElementById('editUserModal');
+        editUserModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var userId = button.getAttribute('data-user-id');
+            
+            var form = editUserModal.querySelector('#editUserForm');
+            form.action = '?controller=admin&action=editUser&id=' + userId;
+
+            // Fetch user data and populate the form
+            fetch('?controller=admin&action=getUserJson&id=' + userId)
+                .then(response => response.json())
+                .then(user => {
+                    if (user.error) {
+                        alert(user.error);
+                        return;
+                    }
+                    form.querySelector('#edit-username').value = user.Username;
+                    form.querySelector('#edit-email').value = user.Email;
+                    form.querySelector('#edit-firstName').value = user.FirstName;
+                    form.querySelector('#edit-lastName').value = user.LastName;
+                    form.querySelector('#edit-phoneNumber').value = user.PhoneNumber;
+                    form.querySelector('#edit-notes').value = user.Notes;
+                });
+        });
+
+        // Delete User Modal
+        var deleteUserModal = document.getElementById('deleteUserModal');
+        deleteUserModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var userId = button.getAttribute('data-user-id');
+            var deleteBtn = deleteUserModal.querySelector('#deleteUserConfirmBtn');
+            deleteBtn.href = '?controller=admin&action=deleteUser&id=' + userId;
+        });
+
+        // View User Bookings Modal
+        var viewUserBookingsModal = document.getElementById('viewUserBookingsModal');
+        viewUserBookingsModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var userId = button.getAttribute('data-user-id');
+            var modalBody = viewUserBookingsModal.querySelector('.modal-body');
+            modalBody.innerHTML = 'Loading...';
+            fetch('?controller=admin&action=getUserBookings&id=' + userId)
+                .then(response => response.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+                });
+        });
+    });
+    </script>
