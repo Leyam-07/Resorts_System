@@ -129,14 +129,6 @@ class BookingController {
 
         // Fetch all resorts and their facilities
         $resorts = Resort::findAll();
-        $resortsWithFacilities = [];
-        foreach ($resorts as $resort) {
-            $facilities = Facility::findByResortId($resort->resortId);
-            $resortsWithFacilities[] = [
-                'resort' => $resort,
-                'facilities' => $facilities
-            ];
-        }
 
         // Check for error messages and old input from session
         $errorMessage = $_SESSION['error_message'] ?? null;
@@ -158,6 +150,21 @@ class BookingController {
 
     public function getAvailableSlots() {
         // Logic to get available time slots for a facility
+    }
+
+    public function getFacilitiesByResort() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid Resort ID']);
+            exit;
+        }
+
+        $facilities = Facility::findByResortId($resortId);
+        echo json_encode($facilities);
+        exit;
     }
 
     public function showMyBookings() {

@@ -12,76 +12,36 @@ require_once __DIR__ . '/partials/header.php';
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">Customer Dashboard</h5>
-                    <p class="card-text">Welcome to your personal dashboard.</p>
+                    <p class="card-text">Browse our resorts and book your next getaway.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php if (empty($resortsWithFacilities)): ?>
-        <p class="text-center">No resorts or facilities available at the moment.</p>
+    <h2 class="text-center mb-4">Our Resorts</h2>
+
+    <?php if (empty($resorts)): ?>
+        <p class="text-center">No resorts available at the moment.</p>
     <?php else: ?>
-        <?php foreach ($resortsWithFacilities as $resortData): ?>
-            <div class="mb-5">
-                <h2 class="text-center mb-4"><?= htmlspecialchars($resortData['resort']->name) ?></h2>
-                <div class="row">
-                    <?php if (empty($resortData['facilities'])): ?>
-                        <p class="text-center">No facilities available at this resort.</p>
-                    <?php else: ?>
-                        <?php foreach ($resortData['facilities'] as $facility): ?>
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100">
-                                    <img src="<?= $facility->mainPhotoURL ? BASE_URL . '/' . htmlspecialchars($facility->mainPhotoURL) : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= htmlspecialchars($facility->name) ?>">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><?= htmlspecialchars($facility->name) ?></h5>
-                                        <p class="card-text"><?= htmlspecialchars($facility->shortDescription) ?></p>
-                                    </div>
-                                    <div class="card-footer">
-                                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#facilityModal" data-facility-id="<?= $facility->facilityId ?>">
-                                            View Details
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+        <div class="row">
+            <?php foreach ($resorts as $resort): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="<?= $resort->mainPhotoURL ? BASE_URL . '/' . htmlspecialchars($resort->mainPhotoURL) : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= htmlspecialchars($resort->name) ?>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= htmlspecialchars($resort->name) ?></h5>
+                            <p class="card-text"><?= htmlspecialchars($resort->shortDescription) ?></p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="?controller=booking&action=showBookingForm&resort_id=<?= $resort->resortId ?>" class="btn btn-primary w-100">
+                                View Resort & Book
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</div>
-
-<!-- Facility Modal -->
-<div class="modal fade" id="facilityModal" tabindex="-1" aria-labelledby="facilityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="facilityModalLabel">Facility Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-               <ul class="nav nav-tabs" id="facilityTab" role="tablist">
-                   <li class="nav-item" role="presentation">
-                       <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-content" type="button" role="tab" aria-controls="details-content" aria-selected="true">Details</button>
-                   </li>
-                   <li class="nav-item" role="presentation">
-                       <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback-content" type="button" role="tab" aria-controls="feedback-content" aria-selected="false">Feedback</button>
-                   </li>
-               </ul>
-               <div class="tab-content pt-3" id="facilityTabContent">
-                   <div class="tab-pane fade show active" id="details-content" role="tabpanel" aria-labelledby="details-tab">
-                       <!-- Details content will be loaded here by JavaScript -->
-                   </div>
-                   <div class="tab-pane fade" id="feedback-content" role="tabpanel" aria-labelledby="feedback-tab">
-                       <!-- Feedback content will be loaded here by JavaScript -->
-                   </div>
-               </div>
-            </div>
-            <div class="modal-footer">
-                <!-- Buttons will be loaded here by JavaScript -->
-            </div>
+            <?php endforeach; ?>
         </div>
-    </div>
+    <?php endif; ?>
 </div>
 
 <?php require_once __DIR__ . '/partials/footer.php'; ?>

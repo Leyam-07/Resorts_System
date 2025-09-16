@@ -73,9 +73,10 @@ class Booking {
     public static function findByCustomerId($customerId) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT b.*, f.Name as FacilityName
+            "SELECT b.*, f.Name as FacilityName, r.Name as ResortName
              FROM Bookings b
              JOIN Facilities f ON b.FacilityID = f.FacilityID
+             JOIN Resorts r ON f.ResortID = r.ResortID
              WHERE b.CustomerID = :customerId
              ORDER BY b.BookingDate DESC"
         );
@@ -84,34 +85,54 @@ class Booking {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public static function findTodaysBookings() {
+    public static function findTodaysBookings($resortId = null) {
         $db = self::getDB();
         $today = date('Y-m-d');
-        $stmt = $db->prepare(
-            "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
-             FROM Bookings b
-             JOIN Facilities f ON b.FacilityID = f.FacilityID
-             JOIN Users u ON b.CustomerID = u.UserID
-             WHERE b.BookingDate = :today
-             ORDER BY b.BookingDate ASC"
-        );
+        
+        $sql = "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+                FROM Bookings b
+                JOIN Facilities f ON b.FacilityID = f.FacilityID
+                JOIN Users u ON b.CustomerID = u.UserID
+                WHERE b.BookingDate = :today";
+
+        if ($resortId) {
+            $sql .= " AND f.ResortID = :resortId";
+        }
+
+        $sql .= " ORDER BY b.BookingDate ASC";
+
+        $stmt = $db->prepare($sql);
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
+        if ($resortId) {
+            $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        }
+        
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public static function findUpcomingBookings() {
+    public static function findUpcomingBookings($resortId = null) {
         $db = self::getDB();
         $today = date('Y-m-d');
-        $stmt = $db->prepare(
-            "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
-             FROM Bookings b
-             JOIN Facilities f ON b.FacilityID = f.FacilityID
-             JOIN Users u ON b.CustomerID = u.UserID
-             WHERE b.BookingDate > :today AND b.Status IN ('Pending', 'Confirmed')
-             ORDER BY b.BookingDate ASC"
-        );
+
+        $sql = "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+                FROM Bookings b
+                JOIN Facilities f ON b.FacilityID = f.FacilityID
+                JOIN Users u ON b.CustomerID = u.UserID
+                WHERE b.BookingDate > :today AND b.Status IN ('Pending', 'Confirmed')";
+
+        if ($resortId) {
+            $sql .= " AND f.ResortID = :resortId";
+        }
+
+        $sql .= " ORDER BY b.BookingDate ASC";
+        
+        $stmt = $db->prepare($sql);
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
+        if ($resortId) {
+            $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
@@ -243,6 +264,28 @@ class Booking {
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
         
-        return $stmt->fetchColumn() == 0;
+        $bookingConflict = $stmt->fetchColumn() > 0;
+        if ($bookingConflict) {
+            return false; // Found a conflicting booking
+        }
+
+        // Now, check for resort-level blocks for the entire day
+        $facilityStmt = $db->prepare("SELECT ResortID FROM Facilities WHERE FacilityID = ?");
+        $facilityStmt->execute([$facilityId]);
+        $resortId = $facilityStmt->fetchColumn();
+
+        if ($resortId) {
+            $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability
+                         WHERE ResortID = ?
+                         AND BlockDate = ?";
+            $blockStmt = $db->prepare($blockSql);
+            $blockStmt->execute([$resortId, $bookingDate]);
+            $isBlocked = $blockStmt->fetchColumn() > 0;
+            if ($isBlocked) {
+                return false; // The entire resort is blocked for this day
+            }
+        }
+
+        return true; // No conflicts found
     }
 }

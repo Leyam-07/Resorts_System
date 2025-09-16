@@ -32,27 +32,24 @@ if (session_status() === PHP_SESSION_NONE) {
                             <a class="nav-link" href="?controller=admin&action=users">Manage Users</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="?controller=admin&action=facilities">Manage Facilities</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="?controller=resort&action=index">Manage Resorts</a>
+                            <a class="nav-link" href="?controller=admin&action=management">Management</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=feedback&action=listAllFeedback">View Feedback</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Facilities</a>
+                            <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Customer View</a>
                         </li>
                    <?php elseif ($_SESSION['role'] === 'Staff'): ?>
                        <li class="nav-item">
                            <a class="nav-link" href="?controller=admin&action=dashboard">Dashboard</a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Facilities</a>
+                           <a class="nav-link" href="?controller=admin&action=previewFacilities">Preview Customer View</a>
                        </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="?controller=booking&action=showBookingForm">Book a Facility</a>
+                            <a class="nav-link" href="?controller=booking&action=showBookingForm">New Booking</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showMyBookings">My Bookings</a>

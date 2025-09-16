@@ -11,6 +11,22 @@ $pageTitle = "Staff Dashboard";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
+<div class="row mb-3">
+    <div class="col-md-4">
+        <form action="" method="GET" id="resortFilterForm">
+            <input type="hidden" name="controller" value="admin">
+            <input type="hidden" name="action" value="dashboard">
+            <select name="resort_id" class="form-select" onchange="this.form.submit()">
+                <option value="">All Resorts</option>
+                <?php foreach ($resorts as $resort): ?>
+                    <option value="<?= $resort->resortId ?>" <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == $resort->resortId) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($resort->name) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
+</div>
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">

@@ -27,6 +27,7 @@ require_once __DIR__ . '/../partials/header.php';
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Resort</th>
                 <th>Facility</th>
                 <th>Date</th>
                 <th>Time</th>
@@ -38,6 +39,7 @@ require_once __DIR__ . '/../partials/header.php';
         <tbody>
             <?php foreach ($bookings as $booking): ?>
                 <tr>
+                    <td><?= htmlspecialchars($booking->ResortName) ?></td>
                     <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                     <td><?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?></td>
                     <td>

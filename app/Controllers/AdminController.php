@@ -41,10 +41,13 @@ class AdminController {
     }
 
     public function dashboard() {
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $resorts = Resort::findAll(); // For the filter dropdown
+
         // Role-based dashboard logic
         if ($_SESSION['role'] === 'Admin') {
-            $todaysBookings = Booking::findTodaysBookings();
-            $upcomingBookings = Booking::findUpcomingBookings(); // Fetch upcoming bookings for Admin
+            $todaysBookings = Booking::findTodaysBookings($resortId);
+            $upcomingBookings = Booking::findUpcomingBookings($resortId);
 
             // Augment bookings with payment status
             foreach ($todaysBookings as $booking) {
@@ -69,12 +72,12 @@ class AdminController {
             // Get financial and history data
             $currentMonth = date('m');
             $currentYear = date('Y');
-            $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth);
-            $bookingHistory = Booking::getBookingHistory(10); // Get last 10 past bookings
+            $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth, $resortId);
+            $bookingHistory = Booking::getBookingHistory(10); // This could also be filtered if needed
 
             include __DIR__ . '/../Views/admin/dashboard.php';
         } elseif ($_SESSION['role'] === 'Staff') {
-            $this->staffDashboard();
+            $this->staffDashboard($resortId, $resorts);
         } else {
             // Fallback for any other roles or errors
             http_response_code(403);
@@ -83,9 +86,17 @@ class AdminController {
         }
     }
 
-    public function staffDashboard() {
-        $todaysBookings = Booking::findTodaysBookings();
-        $upcomingBookings = Booking::findUpcomingBookings();
+    public function staffDashboard($resortId = null, $resorts = null) {
+        // If called directly, fetch the necessary data
+        if ($resortId === null) {
+            $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        }
+        if ($resorts === null) {
+            $resorts = Resort::findAll();
+        }
+
+        $todaysBookings = Booking::findTodaysBookings($resortId);
+        $upcomingBookings = Booking::findUpcomingBookings($resortId);
 
         foreach ($todaysBookings as $booking) {
             $payments = Payment::findByBookingId($booking->BookingID);
@@ -490,7 +501,55 @@ class AdminController {
    public function previewFacilities() {
        // This action is for admins/staff to see the customer view
        // We can reuse the logic from the UserController's dashboard
-       $facilities = Facility::findAll();
+       $resorts = Resort::findAll();
        include __DIR__ . '/../Views/admin/facilities/preview.php';
    }
+    public function management() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $resorts = Resort::findAll();
+        $resortsWithFacilities = [];
+        foreach ($resorts as $resort) {
+            $facilities = Facility::findByResortId($resort->resortId);
+            $resortsWithFacilities[] = [
+                'resort' => $resort,
+                'facilities' => $facilities
+            ];
+        }
+
+        include __DIR__ . '/../Views/admin/management/index.php';
+    }
+
+    public function blockResortAvailability() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+        $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
+        $blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
+        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+
+        if ($resortId && $blockDate) {
+            BlockedResortAvailability::create($resortId, $blockDate, $reason);
+        }
+        header('Location: ?controller=admin&action=management');
+        exit;
+    }
+
+    public function deleteResortAvailabilityBlock() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+        $blockId = filter_input(INPUT_GET, 'block_id', FILTER_VALIDATE_INT);
+        if ($blockId) {
+            BlockedResortAvailability::delete($blockId);
+        }
+        header('Location: ?controller=admin&action=management');
+        exit;
+    }
 }

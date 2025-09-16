@@ -11,14 +11,6 @@ class UserController {
 
    public function dashboard() {
        $resorts = Resort::findAll();
-       $resortsWithFacilities = [];
-       foreach ($resorts as $resort) {
-           $facilities = Facility::findByResortId($resort->resortId);
-           $resortsWithFacilities[] = [
-               'resort' => $resort,
-               'facilities' => $facilities
-           ];
-       }
        include __DIR__ . '/../Views/dashboard.php';
    }
 
