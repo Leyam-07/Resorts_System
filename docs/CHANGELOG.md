@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.0] - 2025-09-16
+
+### Added
+
+- **Unified Management Dashboard:** Created a new, centralized "Management" page for administrators, featuring an accordion UI to manage all resorts and their nested facilities from a single location.
+- **Resort-Specific Dashboard Filtering:** Implemented a dropdown filter on both the Admin and Staff dashboards, allowing them to view bookings and summaries for all resorts or drill down to a specific one.
+- **Resort-Wide Scheduling:** Admins can now block out entire dates for a specific resort (e.g., for maintenance or private events) via a new "Manage Schedule" modal in the unified dashboard.
+- **Dynamic Booking Form:** The customer booking form now dynamically loads a resort's facilities using AJAX when a resort is selected, improving user experience.
+
+### Changed
+
+- **Customer Dashboard:** The main customer dashboard has been completely redesigned from a simple facility list into a modern, resort-centric view displaying a card for each resort with its main photo and description.
+- **Admin Navigation:** Deprecated the separate "Manage Facilities" and "Manage Resorts" links in the admin header and replaced them with a single "Management" link.
+- **Customer Preview:** The admin's "Preview Customer View" page was updated to be an exact mirror of the new resort-card-based customer dashboard.
+- **Database & Models:**
+  - The `Resorts` table was extended with `ShortDescription`, `FullDescription`, and `MainPhotoURL` columns.
+  - The `Booking` model was updated to be resort-aware, enabling filtering and checking for resort-wide availability blocks.
+  - Added new `ResortPhotos` and `BlockedResortAvailability` tables and their corresponding models to support the new features.
+
 ## [1.19.0] - 2025-09-16
 
 ### Added

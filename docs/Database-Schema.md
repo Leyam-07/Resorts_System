@@ -34,7 +34,26 @@ CREATE TABLE IF NOT EXISTS `Resorts` (
   `ResortID` INT PRIMARY KEY AUTO_INCREMENT,
   `Name` VARCHAR(255) NOT NULL,
   `Address` TEXT,
-  `ContactPerson` VARCHAR(255)
+  `ContactPerson` VARCHAR(255),
+  `ShortDescription` TEXT,
+  `FullDescription` TEXT,
+  `MainPhotoURL` VARCHAR(255)
+);
+```
+
+---
+
+### Table: `ResortPhotos`
+
+Stores multiple photos for each resort.
+
+```sql
+CREATE TABLE IF NOT EXISTS `ResortPhotos` (
+  `PhotoID` INT PRIMARY KEY AUTO_INCREMENT,
+  `ResortID` INT,
+  `PhotoURL` VARCHAR(255) NOT NULL,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`) ON DELETE CASCADE
 );
 ```
 
@@ -100,6 +119,23 @@ CREATE TABLE IF NOT EXISTS `Payments` (
 
 ---
 
+---
+
+### Table: `BlockedResortAvailability`
+
+Stores records of dates that are manually blocked by an administrator for an entire resort.
+
+```sql
+CREATE TABLE IF NOT EXISTS `BlockedResortAvailability` (
+  `BlockedAvailabilityID` INT PRIMARY KEY AUTO_INCREMENT,
+  `ResortID` INT,
+  `BlockDate` DATE NOT NULL,
+  `Reason` VARCHAR(255),
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`) ON DELETE CASCADE
+);
+```
+
 ### Table: `BlockedAvailabilities`
 
 Stores records of time slots that are manually blocked by an administrator and are unavailable for booking.
@@ -149,3 +185,5 @@ CREATE TABLE IF NOT EXISTS `Feedback` (
   FOREIGN KEY (`BookingID`) REFERENCES `Bookings`(`BookingID`)
 );
 ```
+
+---
