@@ -79,6 +79,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
    } else {
        die('Action not found.');
    }
+} elseif ($controllerName === 'resort') {
+   require_once __DIR__ . '/../app/Controllers/ResortController.php';
+   $resortController = new ResortController();
+   if (method_exists($resortController, $actionName)) {
+       $resortController->$actionName();
+       exit();
+   } else {
+       die('Action not found.');
+   }
 } elseif ($controllerName === 'user') {
     require_once __DIR__ . '/../app/Controllers/UserController.php';
     $userController = new UserController();

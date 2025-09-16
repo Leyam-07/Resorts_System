@@ -92,6 +92,38 @@ class Facility {
         return $facilities;
     }
 
+    public static function findAllWithResort() {
+        $db = self::getDB();
+        $stmt = $db->query(
+            "SELECT f.*, r.Name as ResortName
+             FROM Facilities f
+             JOIN Resorts r ON f.ResortID = r.ResortID
+             ORDER BY f.FacilityID ASC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function findByResortId($resortId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT * FROM Facilities WHERE ResortID = :resortId");
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->execute();
+        $facilities = [];
+        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $facility = new Facility();
+            $facility->facilityId = $data['FacilityID'];
+            $facility->resortId = $data['ResortID'];
+            $facility->name = $data['Name'];
+            $facility->capacity = $data['Capacity'];
+            $facility->rate = $data['Rate'];
+           $facility->shortDescription = $data['ShortDescription'];
+           $facility->fullDescription = $data['FullDescription'];
+           $facility->mainPhotoURL = $data['MainPhotoURL'];
+            $facilities[] = $facility;
+        }
+        return $facilities;
+    }
+
     public static function update(Facility $facility) {
         $db = self::getDB();
         $stmt = $db->prepare(

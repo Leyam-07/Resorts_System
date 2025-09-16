@@ -5,11 +5,20 @@ require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Models/Feedback.php';
+require_once __DIR__ . '/../Models/Resort.php';
 
 class UserController {
 
    public function dashboard() {
-       $facilities = Facility::findAll();
+       $resorts = Resort::findAll();
+       $resortsWithFacilities = [];
+       foreach ($resorts as $resort) {
+           $facilities = Facility::findByResortId($resort->resortId);
+           $resortsWithFacilities[] = [
+               'resort' => $resort,
+               'facilities' => $facilities
+           ];
+       }
        include __DIR__ . '/../Views/dashboard.php';
    }
 

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Models/BlockedAvailability.php';
+require_once __DIR__ . '/../Models/Resort.php';
 
 class AdminController {
     private $db;
@@ -242,7 +243,8 @@ class AdminController {
     }
 
     public function facilities() {
-        $facilities = Facility::findAll();
+        $facilities = Facility::findAllWithResort();
+        $resorts = Resort::findAll(); // Fetch all resorts for the dropdown
         include __DIR__ . '/../Views/admin/facilities/index.php';
     }
 
@@ -254,8 +256,7 @@ class AdminController {
             $facility->rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
            $facility->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
            $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
-            // Assuming a single resort for now
-            $facility->resortId = 1;
+            $facility->resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
 
             if (Facility::create($facility)) {
                 header('Location: ?controller=admin&action=facilities&status=facility_added');
@@ -282,7 +283,7 @@ class AdminController {
            $facility->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_UNSAFE_RAW);
            $facility->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_UNSAFE_RAW);
            $facility->mainPhotoURL = Facility::findById($facilityId)->mainPhotoURL; // Preserve existing main photo
-            $facility->resortId = 1; // Assuming a single resort
+            $facility->resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
 
             if (Facility::update($facility)) {
                 header('Location: ?controller=admin&action=facilities&status=facility_updated');
@@ -307,6 +308,7 @@ class AdminController {
             echo "Facility not found.";
             exit();
         }
+        $resorts = Resort::findAll(); // Fetch all resorts for the dropdown
         // This view will be loaded into the modal
         include __DIR__ . '/../Views/admin/facilities/edit.php';
     }

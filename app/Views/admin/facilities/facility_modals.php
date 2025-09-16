@@ -18,6 +18,15 @@ if (!defined('APP_LOADED')) {
             <div class="modal-body">
                 <form action="?controller=admin&action=addFacility" method="POST" id="addFacilityForm">
                     <div class="mb-3">
+                        <label for="resortId" class="form-label">Resort</label>
+                        <select class="form-select" id="resortId" name="resortId" required>
+                            <option value="">Select a Resort</option>
+                            <?php foreach ($resorts as $resort): ?>
+                                <option value="<?= htmlspecialchars($resort->resortId) ?>"><?= htmlspecialchars($resort->name) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="name" class="form-label">Facility Name</label>
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>

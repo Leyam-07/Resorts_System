@@ -13,6 +13,17 @@ if (!defined('APP_LOADED')) {
 
     <form action="?controller=admin&action=editFacility&id=<?= htmlspecialchars($facility->facilityId) ?>" method="POST" id="editFacilityForm">
         <div class="mb-3">
+            <label for="resortId" class="form-label">Resort</label>
+            <select class="form-select" id="resortId" name="resortId" required>
+                <option value="">Select a Resort</option>
+                <?php foreach ($resorts as $resort): ?>
+                    <option value="<?= htmlspecialchars($resort->resortId) ?>" <?= ($facility->resortId == $resort->resortId) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($resort->name) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="name" class="form-label">Facility Name</label>
             <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($facility->name) ?>" required>
         </div>

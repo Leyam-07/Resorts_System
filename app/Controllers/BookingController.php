@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
 require_once __DIR__ . '/../Models/Feedback.php';
+require_once __DIR__ . '/../Models/Resort.php';
 
 class BookingController {
 
@@ -126,8 +127,16 @@ class BookingController {
             exit;
         }
 
-        // Fetch all available facilities to pass to the view
-        $facilities = Facility::findAll();
+        // Fetch all resorts and their facilities
+        $resorts = Resort::findAll();
+        $resortsWithFacilities = [];
+        foreach ($resorts as $resort) {
+            $facilities = Facility::findByResortId($resort->resortId);
+            $resortsWithFacilities[] = [
+                'resort' => $resort,
+                'facilities' => $facilities
+            ];
+        }
 
         // Check for error messages and old input from session
         $errorMessage = $_SESSION['error_message'] ?? null;

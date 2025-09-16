@@ -36,6 +36,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <th>ID</th>
                                     <th>Photo</th>
                                     <th>Name</th>
+                                    <th>Resort</th>
                                     <th>Capacity</th>
                                     <th>Rate</th>
                                     <th>Actions</th>
@@ -44,30 +45,31 @@ require_once __DIR__ . '/../../partials/header.php';
                             <tbody>
                                 <?php if (empty($facilities)): ?>
                                     <tr>
-                                        <td colspan="5" class="text-center">No facilities found.</td>
+                                        <td colspan="6" class="text-center">No facilities found.</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($facilities as $facility): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($facility->facilityId) ?></td>
+                                            <td><?= htmlspecialchars($facility->FacilityID) ?></td>
                                             <td>
-                                               <?php if (!empty($facility->mainPhotoURL)): ?>
-                                                   <img src="<?= BASE_URL . '/' . htmlspecialchars($facility->mainPhotoURL) ?>" alt="<?= htmlspecialchars($facility->name) ?>" style="width: 100px; height: auto;">
+                                               <?php if (!empty($facility->MainPhotoURL)): ?>
+                                                   <img src="<?= BASE_URL . '/' . htmlspecialchars($facility->MainPhotoURL) ?>" alt="<?= htmlspecialchars($facility->Name) ?>" style="width: 100px; height: auto;">
                                                <?php else: ?>
                                                    No Photo
                                                <?php endif; ?>
                                             </td>
-                                            <td><?= htmlspecialchars($facility->name) ?></td>
-                                            <td><?= htmlspecialchars($facility->capacity) ?></td>
-                                            <td><?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
+                                            <td><?= htmlspecialchars($facility->Name) ?></td>
+                                            <td><?= htmlspecialchars($facility->ResortName) ?></td>
+                                            <td><?= htmlspecialchars($facility->Capacity) ?></td>
+                                            <td><?= htmlspecialchars(number_format($facility->Rate, 2)) ?></td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-info schedule-btn" data-bs-toggle="modal" data-bs-target="#scheduleModal" data-facility-id="<?= $facility->facilityId ?>">
+                                                <button type="button" class="btn btn-sm btn-info schedule-btn" data-bs-toggle="modal" data-bs-target="#scheduleModal" data-facility-id="<?= $facility->FacilityID ?>">
                                                     Manage Schedule
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-warning edit-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">
+                                                <button type="button" class="btn btn-sm btn-warning edit-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->FacilityID ?>">
                                                     Edit
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteFacilityModal" data-facility-id="<?= $facility->facilityId ?>" data-delete-url="?controller=admin&action=deleteFacility&id=<?= $facility->facilityId ?>">
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteFacilityModal" data-facility-id="<?= $facility->FacilityID ?>" data-delete-url="?controller=admin&action=deleteFacility&id=<?= $facility->FacilityID ?>">
                                                     Delete
                                                 </button>
                                             </td>

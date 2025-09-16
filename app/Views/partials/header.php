@@ -35,6 +35,9 @@ if (session_status() === PHP_SESSION_NONE) {
                             <a class="nav-link" href="?controller=admin&action=facilities">Manage Facilities</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="?controller=resort&action=index">Manage Resorts</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="?controller=feedback&action=listAllFeedback">View Feedback</a>
                         </li>
                         <li class="nav-item">
