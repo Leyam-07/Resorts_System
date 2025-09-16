@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.5] - 2025-09-16
+
+### Added
+
+- **Interactive Resort Details Modal:** Implemented a major UI enhancement for the customer dashboard. Resort cards now open a comprehensive modal with three tabs: "Resort" (showing a photo gallery and details), "Facilities" (listing all facilities at that resort), and "Feedback" (aggregating all reviews for the resort).
+- **Nested Facility Details:** To provide a seamless user experience, a "View Details" button was added to each facility within the resort modal, allowing users to open a second, nested modal to see specific details and feedback for that individual facility.
+
+### Changed
+
+- **Customer Dashboard Workflow:** The primary action on resort cards was changed from a direct link to the booking page to launching the new details modal, encouraging exploration before booking.
+- **Backend API:** Added new API endpoints to `UserController` (`getResortDetails`, `getResortFacilities`, `getResortFeedback`) to dynamically supply data to the new modals.
+- **Feedback Model:** The `Feedback` model was enhanced with a `findByResortId()` method to support the aggregated feedback view in the new modal.
+
 ## [1.20.4] - 2025-09-16
 
 ### Changed

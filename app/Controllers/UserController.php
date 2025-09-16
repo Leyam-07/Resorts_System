@@ -52,9 +52,66 @@ class UserController {
        exit();
    }
 
-    public function register() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Sanitize POST data
+   public function getResortDetails() {
+       if (!isset($_GET['id'])) {
+           http_response_code(400);
+           echo json_encode(['error' => 'Resort ID not specified.']);
+           exit();
+       }
+       $resortId = $_GET['id'];
+       $resort = Resort::findById($resortId);
+
+       if ($resort) {
+           header('Content-Type: application/json');
+           echo json_encode($resort);
+       } else {
+           http_response_code(404);
+           echo json_encode(['error' => 'Resort not found.']);
+       }
+       exit();
+   }
+
+   public function getResortFacilities() {
+       if (!isset($_GET['id'])) {
+           http_response_code(400);
+           echo json_encode(['error' => 'Resort ID not specified.']);
+           exit();
+       }
+       $resortId = $_GET['id'];
+       $facilities = Facility::findByResortId($resortId);
+
+       if ($facilities) {
+           header('Content-Type: application/json');
+           echo json_encode($facilities);
+       } else {
+           http_response_code(404);
+           echo json_encode([]); // Return empty array if no facilities
+       }
+       exit();
+   }
+
+   public function getResortFeedback() {
+       if (!isset($_GET['id'])) {
+           http_response_code(400);
+           echo json_encode(['error' => 'Resort ID not specified.']);
+           exit();
+       }
+       $resortId = $_GET['id'];
+       $feedback = Feedback::findByResortId($resortId);
+
+       if ($feedback) {
+           header('Content-Type: application/json');
+           echo json_encode($feedback);
+       } else {
+           http_response_code(404);
+           echo json_encode([]); // Return empty array if no feedback
+       }
+       exit();
+   }
+ 
+     public function register() {
+         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+             // Sanitize POST data
             $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
             $password = $_POST['password']; // No sanitization needed before hashing
