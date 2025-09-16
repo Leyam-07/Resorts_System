@@ -29,19 +29,15 @@
                         <label for="editFacilityFullDescription" class="form-label">Full Description</label>
                         <textarea class="form-control" id="editFacilityFullDescription" name="fullDescription" rows="4"></textarea>
                     </div>
-                </form>
-                <hr>
-                <h5>Manage Photos</h5>
-                <div id="facilityPhotoGallery" class="mb-3">
-                    <!-- Photo gallery will be populated by JavaScript -->
-                </div>
-                <form action="?controller=admin&action=uploadFacilityPhotos" method="POST" id="uploadFacilityPhotosForm" enctype="multipart/form-data">
-                     <input type="hidden" id="uploadFacilityId" name="facilityId">
-                     <div class="mb-3">
+                    <hr>
+                    <h5>Manage Photos</h5>
+                    <div id="facilityPhotoGallery" class="mb-3">
+                        <!-- Photo gallery will be populated by JavaScript -->
+                    </div>
+                    <div class="mb-3">
                         <label for="newFacilityPhotos" class="form-label">Upload New Photos</label>
                         <input type="file" class="form-control" id="newFacilityPhotos" name="photos[]" multiple>
                     </div>
-                    <button type="submit" class="btn btn-success btn-sm">Upload</button>
                 </form>
             </div>
             <div class="modal-footer">

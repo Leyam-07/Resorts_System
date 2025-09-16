@@ -83,19 +83,15 @@ if (!defined('APP_LOADED')) {
                         <label for="editFullDescription" class="form-label">Full Description</label>
                         <textarea class="form-control" id="editFullDescription" name="fullDescription" rows="4"></textarea>
                     </div>
-                </form>
-                <hr>
-                <h5>Manage Photos</h5>
-                <div id="photoGallery" class="mb-3">
-                    <!-- Photo gallery will be populated by JavaScript -->
-                </div>
-                <form action="?controller=admin&action=uploadResortPhotos" method="POST" id="uploadPhotosForm" enctype="multipart/form-data">
-                     <input type="hidden" id="uploadResortId" name="resortId">
+                    <hr>
+                    <h5>Manage Photos</h5>
+                    <div id="photoGallery" class="mb-3">
+                        <!-- Photo gallery will be populated by JavaScript -->
+                    </div>
                      <div class="mb-3">
                         <label for="newPhotos" class="form-label">Upload New Photos</label>
                         <input type="file" class="form-control" id="newPhotos" name="photos[]" multiple>
                     </div>
-                    <button type="submit" class="btn btn-success btn-sm">Upload</button>
                 </form>
             </div>
             <div class="modal-footer">

@@ -156,9 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
             var button = event.relatedTarget;
             var resortId = button.getAttribute('data-resort-id');
             
-            // Set the resortId for the photo upload form
-            document.getElementById('uploadResortId').value = resortId;
-
             fetch('?controller=admin&action=getResortJson&id=' + resortId)
                 .then(response => response.json())
                 .then(data => {
@@ -193,8 +190,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <img src="${imagePath}" class="img-fluid" alt="Resort Photo">
                                     <div class="caption mt-2">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="?controller=admin&action=setResortMainPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i></a>
-                                            <a href="?controller=admin&action=deleteResortPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i></a>
+                                            <a href="?controller=admin&action=setResortMainPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i> Set as Main</a>
+                                            <a href="?controller=admin&action=deleteResortPhoto&resortId=${data.resortId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i> Delete</a>
                                         </div>
                                     </div>
                                 </div>
@@ -237,9 +234,6 @@ document.addEventListener('DOMContentLoaded', function () {
             var button = event.relatedTarget;
             var facilityId = button.getAttribute('data-facility-id');
             
-            // Set the facilityId for the photo upload form
-            document.getElementById('uploadFacilityId').value = facilityId;
-
             fetch('?controller=admin&action=getFacilityJson&id=' + facilityId)
                 .then(response => response.json())
                 .then(data => {
@@ -274,8 +268,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <img src="${imagePath}" class="img-fluid" alt="Facility Photo">
                                     <div class="caption mt-2">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="?controller=admin&action=setFacilityMainPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i></a>
-                                            <a href="?controller=admin&action=deleteFacilityPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i></a>
+                                            <a href="?controller=admin&action=setFacilityMainPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-primary ${isMain ? 'disabled' : ''}" title="Set as Main Photo"><i class="fas fa-star"></i> Set as Main</a>
+                                            <a href="?controller=admin&action=deleteFacilityPhoto&facilityId=${data.facilityId}&photoId=${photo.PhotoID}" class="btn btn-danger" onclick="return confirm('Are you sure?')" title="Delete Photo"><i class="fas fa-trash"></i> Delete</a>
                                         </div>
                                     </div>
                                 </div>

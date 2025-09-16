@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.4] - 2025-09-16
+
+### Changed
+
+- **Admin UI/UX:** Streamlined the "Edit Resort" and "Edit Facility" modals by integrating the photo upload functionality directly into the main forms and removing the redundant "Upload" button. This simplifies the UI and improves the administrator's workflow.
+- **Admin UI/UX:** Improved clarity by adding text labels ("Set as Main", "Delete") to the icon-only buttons in the photo management galleries for both resorts and facilities.
+
+### Fixed
+
+- **Admin Management UI:** Resolved a critical regression bug where the "Edit Resort" and "Edit Facility" modals would appear blank. The issue was caused by leftover JavaScript attempting to reference elements from the removed upload forms, which has now been corrected.
+
 ## [1.20.3] - 2025-09-16
 
 ### Added

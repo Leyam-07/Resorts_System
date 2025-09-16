@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `BlockedAvailabilities` (
   `EndTime` TIME NOT NULL,
   `Reason` VARCHAR(255),
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`)
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`) ON DELETE CASCADE
 );
 ```
 
