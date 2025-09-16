@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0] - 2025-09-16
+
+### Added
+
+- **Multi-Resort Architecture:** Implemented a major architectural enhancement to allow a single admin to manage multiple resort properties. This fulfills a core requirement from the initial project scope.
+- **Resort Management Module:** Added a complete CRUD (Create, Read, Update, Delete) interface for administrators to manage resorts.
+- **Customer-Facing UI Updates:** The customer dashboard and booking forms were updated to group facilities by their parent resort, improving clarity and user experience.
+
+### Changed
+
+- **Admin & Facility Integration:** The "Manage Facilities" module was refactored to be fully dependent on the new resort system, removing all hard-coded assumptions of a single resort.
+- **Booking & Dashboard Logic:** The `UserController` and `BookingController` were updated to handle the new nested data structure (resorts containing facilities).
+
 ## [1.18.0] - 2025-09-16
 
 ### Changed
