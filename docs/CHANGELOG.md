@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+
+## [1.20.6] - 2025-09-16
+
+### Fixed
+
+- **Nested Modal Interaction:** Resolved a critical UI bug on the customer dashboard where closing the nested "Facility Details" modal would also incorrectly close the parent "Resort Details" modal. The interaction logic has been completely refactored to use a manual, programmatic approach that ensures a seamless "drill-down" and "return" user experience.
+
 ## [1.20.5] - 2025-09-16
 
 ### Added
