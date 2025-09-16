@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Database Truncation Script:** Added a new development script (`scripts/dev/truncate_db_tables.php`) to clear all data from database tables, facilitating a factory reset for development and testing.
 - **Unified Management Dashboard:** Created a new, centralized "Management" page for administrators, featuring an accordion UI to manage all resorts and their nested facilities from a single location.
 - **Resort-Specific Dashboard Filtering:** Implemented a dropdown filter on both the Admin and Staff dashboards, allowing them to view bookings and summaries for all resorts or drill down to a specific one.
 - **Resort-Wide Scheduling:** Admins can now block out entire dates for a specific resort (e.g., for maintenance or private events) via a new "Manage Schedule" modal in the unified dashboard.

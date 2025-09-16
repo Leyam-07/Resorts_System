@@ -118,28 +118,36 @@ To prevent direct URL access to sensitive files (like database models and contro
 2.  **Run the Initialization Script:**
     Navigate to the project's root directory in your terminal and run the following command. This will create the database structure.
 
-    ```bash
-    php scripts/init_db.php
-    ```
+```bash
+php scripts/init_db.php
+```
 
-3.  **Seed the Database (Optional but Recommended):**
+3.  **Truncate Database Tables (Optional):**
+    To clear all data from the database tables (e.g., for a factory reset during development or testing), run the truncation script:
+
+```bash
+php scripts/dev/truncate_db_tables.php
+```
+
+4.  **Seed the Database (Optional but Recommended):**
     To populate the database with sample data for testing, run the seeding script:
 
-    ```bash
-    php scripts/seed_db.php
-    ```
+```bash
+php scripts/seed_db.php
+```
 
-4.  **Run Database Migrations:**
+5.  **Run Database Migrations:**
     If there are any pending database migrations (e.g., for schema updates), run them from the `scripts/migrations` directory.
-    ```bash
-    php scripts/migrations/add_notes_to_users.php
-    php scripts/migrations/create_payments_table.php
-    php scripts/migrations/create_blocked_availabilities_table.php
-    php scripts/migrations/add_photos_to_facilities.php
-    php scripts/migrations/add_rich_data_to_resorts.php
-    php scripts/migrations/create_resort_photos_table.php
-    php scripts/migrations/create_blocked_resort_availability_table.php
-    ```
+
+```bash
+php scripts/migrations/add_notes_to_users.php
+php scripts/migrations/create_payments_table.php
+php scripts/migrations/create_blocked_availabilities_table.php
+php scripts/migrations/add_photos_to_facilities.php
+php scripts/migrations/add_rich_data_to_resorts.php
+php scripts/migrations/create_resort_photos_table.php
+php scripts/migrations/create_blocked_resort_availability_table.php
+```
 
 ### Application Structure
 
