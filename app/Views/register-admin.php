@@ -37,7 +37,7 @@
                         }
                     ?>
                     <!-- Registration Form -->
-                    <form action="?action=registerAdmin" method="POST">
+                    <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -74,7 +74,7 @@
                         </div>
                     </form>
                     <div class="mt-3 text-center">
-                        <p>Go to regular login? <a href="?action=login">Login here</a></p>
+                        <p>Go to regular login? <a href="/ResortsSystem/public/index.php?action=login">Login here</a></p>
                     </div>
                 </div>
             </div>

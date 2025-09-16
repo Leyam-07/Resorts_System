@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.1] - 2025-09-16
+
+### Fixed
+
+- **Admin Registration Form:** Corrected the form submission and login link URLs on the admin registration page (`register-admin.php`). The links were previously using relative paths, which prevented them from reaching the main controller. They now correctly point to `public/index.php` to ensure proper routing.
+
 ## [1.20.0] - 2025-09-16
 
 ### Added
