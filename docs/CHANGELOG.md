@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.9] - 2025-09-17
+
+### Fixed
+
+- **Admin Scheduling Modal:** Resolved a critical bug where the "Existing Blocks" section of the resort scheduling modal would get stuck on a "Loading..." message. The issue was traced to a fatal PHP error ("Class 'BlockedResortAvailability' not found") in the `AdminController`, which has been fixed by adding the required model file.
+- **JavaScript Error Handling:** Hardened the frontend JavaScript for the scheduling modals by adding `.catch()` blocks to `fetch()` requests. This ensures that any future backend errors will be gracefully handled and reported in the browser console instead of causing the UI to fail silently.
+
+### Changed
+
+- **Performance Optimization:** Significantly improved the load time of the main "Management" page by fixing a major "N+1 query problem." Replaced an inefficient loop that made individual database calls for each resort's facilities with a single, optimized query (`Resort::findAllWithFacilities()`) that fetches all necessary data at once.
+
 ## [1.20.8] - 2025-09-17
 
 ### Added

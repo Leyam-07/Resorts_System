@@ -176,35 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div id="resortBlocksList"><em>Loading...</em></div>
             `;
 
-            fetch('?controller=admin&action=getResortScheduleJson&id=' + resortId)
-                .then(response => response.json())
-                .then(data => {
-                    var blocksList = document.getElementById('resortBlocksList');
-                    if (data.error) {
-                        blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                        return;
-                    }
-                    if (data.length === 0) {
-                        blocksList.innerHTML = '<p>No dates have been blocked for this resort.</p>';
-                        return;
-                    }
-
-                    let listHtml = '<ul class="list-group">';
-                    data.forEach(block => {
-                        listHtml += `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>${block.BlockDate}</strong>
-                                    <small class="text-muted ms-2">${block.Reason || ''}</small>
-                                </div>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteResortBlock(${block.BlockedAvailabilityID}, ${resortId})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </li>`;
-                    });
-                    listHtml += '</ul>';
-                    blocksList.innerHTML = listHtml;
-                });
+            loadResortBlocks(resortId);
         });
     }
 
@@ -354,40 +326,105 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('scheduleFacilityModalLabel').textContent = 'Manage Schedule for ' + facilityName;
             document.getElementById('blockFacilityId').value = facilityId;
 
-            var blocksList = document.getElementById('facilityBlocksList');
-            blocksList.innerHTML = '<em>Loading...</em>';
-
-            fetch('?controller=admin&action=getFacilityScheduleJson&id=' + facilityId)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                        return;
-                    }
-                    if (data.length === 0) {
-                        blocksList.innerHTML = '<p>No dates have been blocked for this facility.</p>';
-                        return;
-                    }
-
-                    let listHtml = '<ul class="list-group">';
-                    data.forEach(block => {
-                        listHtml += `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>${block.BlockDate}</strong>
-                                    <small class="text-muted ms-2">${block.Reason || ''}</small>
-                                </div>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteFacilityBlock(${block.BlockedAvailabilityID}, ${facilityId})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </li>`;
-                    });
-                    listHtml += '</ul>';
-                    blocksList.innerHTML = listHtml;
-                });
+            loadFacilityBlocks(facilityId);
         });
     }
 });
+
+function loadResortBlocks(resortId) {
+    var blocksList = document.getElementById('resortBlocksList');
+    blocksList.innerHTML = '<em>Loading...</em>';
+    fetch('?controller=admin&action=getResortScheduleJson&id=' + resortId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                return;
+            }
+            if (data.length === 0) {
+                blocksList.innerHTML = '<p>No dates have been blocked for this resort.</p>';
+                return;
+            }
+
+            let listHtml = '<ul class="list-group">';
+            data.forEach(block => {
+                listHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${block.BlockDate}</strong>
+                            <small class="text-muted ms-2">${block.Reason || ''}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteResortBlock(${block.BlockedAvailabilityID}, ${resortId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+            });
+            listHtml += '</ul>';
+            blocksList.innerHTML = listHtml;
+        })
+        .catch(error => {
+            console.error('Error loading resort schedule:', error);
+            blocksList.innerHTML = '<p class="text-danger">Failed to load schedule. Check console for details.</p>';
+        });
+}
+
+function deleteResortBlock(blockId, resortId) {
+    if (!confirm('Are you sure you want to unblock this date?')) {
+        return;
+    }
+    fetch(`?controller=admin&action=deleteResortAvailabilityBlock&block_id=${blockId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadResortBlocks(resortId); // Refresh the list
+            } else {
+                alert('Failed to unblock date.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting resort block:', error);
+            alert('An error occurred. Check console for details.');
+        });
+}
+
+
+function loadFacilityBlocks(facilityId) {
+    var blocksList = document.getElementById('facilityBlocksList');
+    blocksList.innerHTML = '<em>Loading...</em>';
+
+    fetch('?controller=admin&action=getFacilityScheduleJson&id=' + facilityId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                return;
+            }
+            if (data.length === 0) {
+                blocksList.innerHTML = '<p>No dates have been blocked for this facility.</p>';
+                return;
+            }
+
+            let listHtml = '<ul class="list-group">';
+            data.forEach(block => {
+                listHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${block.BlockDate}</strong>
+                            <small class="text-muted ms-2">${block.Reason || ''}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteFacilityBlock(${block.BlockedAvailabilityID}, ${facilityId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+            });
+            listHtml += '</ul>';
+            blocksList.innerHTML = listHtml;
+        })
+        .catch(error => {
+            console.error('Error loading facility schedule:', error);
+            blocksList.innerHTML = '<p class="text-danger">Failed to load schedule. Check console for details.</p>';
+        });
+}
 
 function deleteFacilityBlock(blockId, facilityId) {
     if (!confirm('Are you sure you want to unblock this date?')) {
@@ -397,15 +434,14 @@ function deleteFacilityBlock(blockId, facilityId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Refresh the modal content
-                var modal = bootstrap.Modal.getInstance(document.getElementById('scheduleFacilityModal'));
-                var button = document.querySelector(`.schedule-facility-btn[data-facility-id='${facilityId}']`);
-                modal.hide();
-                var newModal = new bootstrap.Modal(document.getElementById('scheduleFacilityModal'));
-                newModal.show(button);
+                loadFacilityBlocks(facilityId); // Refresh the list
             } else {
                 alert('Failed to unblock date.');
             }
+        })
+        .catch(error => {
+            console.error('Error deleting facility block:', error);
+            alert('An error occurred. Check console for details.');
         });
 }
 </script>

@@ -84,6 +84,49 @@ class Resort {
         return $resorts;
     }
 
+    public static function findAllWithFacilities() {
+        $db = self::getDB();
+        $sql = "
+            SELECT
+                r.ResortID, r.Name as ResortName, r.Address, r.ContactPerson, r.ShortDescription, r.FullDescription, r.MainPhotoURL,
+                f.FacilityID, f.Name as FacilityName, f.Capacity, f.Rate
+            FROM Resorts r
+            LEFT JOIN Facilities f ON r.ResortID = f.ResortID
+            ORDER BY r.Name ASC, f.Name ASC
+        ";
+        $stmt = $db->query($sql);
+
+        $resortsWithFacilities = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $resortId = $row['ResortID'];
+            if (!isset($resortsWithFacilities[$resortId])) {
+                $resort = new Resort();
+                $resort->resortId = $resortId;
+                $resort->name = $row['ResortName'];
+                $resort->address = $row['Address'];
+                $resort->contactPerson = $row['ContactPerson'];
+                $resort->shortDescription = $row['ShortDescription'];
+                $resort->fullDescription = $row['FullDescription'];
+                $resort->mainPhotoURL = $row['MainPhotoURL'];
+                $resort->photos = self::getPhotos($resortId); // Still need this for the photo gallery
+                $resortsWithFacilities[$resortId] = [
+                    'resort' => $resort,
+                    'facilities' => []
+                ];
+            }
+
+            if ($row['FacilityID']) {
+                $facility = new Facility();
+                $facility->facilityId = $row['FacilityID'];
+                $facility->name = $row['FacilityName'];
+                $facility->capacity = $row['Capacity'];
+                $facility->rate = $row['Rate'];
+                $resortsWithFacilities[$resortId]['facilities'][] = $facility;
+            }
+        }
+        return array_values($resortsWithFacilities);
+    }
+
     public static function update(Resort $resort) {
         $db = self::getDB();
         $stmt = $db->prepare(

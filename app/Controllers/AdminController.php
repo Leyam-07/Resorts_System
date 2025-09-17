@@ -8,6 +8,7 @@ require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Models/BlockedAvailability.php';
 require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
+require_once __DIR__ . '/../Models/BlockedResortAvailability.php';
 
 class AdminController {
     private $db;
@@ -525,17 +526,7 @@ class AdminController {
             exit();
         }
 
-        $resorts = Resort::findAll();
-        $resortsWithFacilities = [];
-        foreach ($resorts as $resort) {
-            $facilities = Facility::findByResortId($resort->resortId);
-            $resort->photos = Resort::getPhotos($resort->resortId); // Eager load photos
-            $resortsWithFacilities[] = [
-                'resort' => $resort,
-                'facilities' => $facilities
-            ];
-        }
-
+        $resortsWithFacilities = Resort::findAllWithFacilities();
         include __DIR__ . '/../Views/admin/management/index.php';
     }
 
@@ -789,14 +780,22 @@ class AdminController {
 
     public function getResortScheduleJson() {
         header('Content-Type: application/json');
-        if (!isset($_GET['id'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Resort ID not specified.']);
-            exit();
+        try {
+            if (!isset($_GET['id'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Resort ID not specified.']);
+                exit();
+            }
+            $resortId = $_GET['id'];
+            $blocks = BlockedResortAvailability::findByResortId($resortId);
+            echo json_encode($blocks);
+        } catch (Exception $e) {
+            http_response_code(500); // Internal Server Error
+            // Log the actual error to the server's error log for debugging
+            error_log('Error in getResortScheduleJson: ' . $e->getMessage());
+            // Send a generic error message to the client
+            echo json_encode(['error' => 'A server error occurred while fetching the schedule.']);
         }
-        $resortId = $_GET['id'];
-        $blocks = BlockedResortAvailability::findByResortId($resortId);
-        echo json_encode($blocks);
         exit();
     }
 
