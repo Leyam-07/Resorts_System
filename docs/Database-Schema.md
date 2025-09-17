@@ -136,6 +136,21 @@ CREATE TABLE IF NOT EXISTS `BlockedResortAvailability` (
 );
 ```
 
+### Table: `BlockedFacilityAvailability`
+
+Stores records of dates that are manually blocked by an administrator for a specific facility.
+
+```sql
+CREATE TABLE IF NOT EXISTS `BlockedFacilityAvailability` (
+  `BlockedAvailabilityID` INT PRIMARY KEY AUTO_INCREMENT,
+  `FacilityID` INT,
+  `BlockDate` DATE NOT NULL,
+  `Reason` VARCHAR(255),
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`) ON DELETE CASCADE
+);
+```
+
 ### Table: `BlockedAvailabilities`
 
 Stores records of time slots that are manually blocked by an administrator and are unavailable for booking.

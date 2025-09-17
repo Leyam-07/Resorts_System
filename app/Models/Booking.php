@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/BlockedFacilityAvailability.php';
+
 class Booking {
     public $bookingId;
     public $customerId;
@@ -284,6 +286,17 @@ class Booking {
             if ($isBlocked) {
                 return false; // The entire resort is blocked for this day
             }
+        }
+
+        // Finally, check for facility-level blocks for the entire day
+        $facilityBlockSql = "SELECT COUNT(*) FROM BlockedFacilityAvailability
+                             WHERE FacilityID = ?
+                             AND BlockDate = ?";
+        $facilityBlockStmt = $db->prepare($facilityBlockSql);
+        $facilityBlockStmt->execute([$facilityId, $bookingDate]);
+        $isFacilityBlocked = $facilityBlockStmt->fetchColumn() > 0;
+        if ($isFacilityBlocked) {
+            return false; // The specific facility is blocked for this day
         }
 
         return true; // No conflicts found

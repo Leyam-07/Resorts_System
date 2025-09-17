@@ -7,6 +7,7 @@ require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Models/BlockedAvailability.php';
 require_once __DIR__ . '/../Models/Resort.php';
+require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
 
 class AdminController {
     private $db;
@@ -780,7 +781,66 @@ class AdminController {
         if ($blockId) {
             BlockedResortAvailability::delete($blockId);
         }
+        // Return a JSON response for AJAX request
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function getResortScheduleJson() {
+        header('Content-Type: application/json');
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Resort ID not specified.']);
+            exit();
+        }
+        $resortId = $_GET['id'];
+        $blocks = BlockedResortAvailability::findByResortId($resortId);
+        echo json_encode($blocks);
+        exit();
+    }
+
+    public function blockFacilityAvailability() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+        $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
+        $blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
+        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+
+        if ($facilityId && $blockDate) {
+            BlockedFacilityAvailability::create($facilityId, $blockDate, $reason);
+        }
         header('Location: ?controller=admin&action=management');
         exit;
+    }
+
+    public function deleteFacilityAvailabilityBlock() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+        $blockId = filter_input(INPUT_GET, 'block_id', FILTER_VALIDATE_INT);
+        if ($blockId) {
+            BlockedFacilityAvailability::delete($blockId);
+        }
+        // Return a JSON response for AJAX request
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function getFacilityScheduleJson() {
+        header('Content-Type: application/json');
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Facility ID not specified.']);
+            exit();
+        }
+        $facilityId = $_GET['id'];
+        $blocks = BlockedFacilityAvailability::findByFacilityId($facilityId);
+        echo json_encode($blocks);
+        exit();
     }
 }

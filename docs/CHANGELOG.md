@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [Unreleased]
+## [1.20.8] - 2025-09-17
+
+### Added
+
+- **Facility-Level Date Blocking:** Implemented the ability for administrators to block specific dates for individual facilities, preventing them from being booked. This includes a new database table (`BlockedFacilityAvailability`), a corresponding model, and controller methods for creating and deleting blocks.
+
+### Changed
+
+- **Unified Scheduling Interface:** Integrated facility-level date blocking into the unified admin management dashboard, providing a "Schedule" button for each facility.
+- **Resort-Level Scheduling Refinement:** Refactored the existing resort-level date blocking to ensure consistency with the new facility-level feature. The resort schedule modal now dynamically fetches and manages blocks via AJAX, mirroring the functionality of the facility scheduler.
+- **Booking Availability Logic:** Updated the `Booking` model's `isTimeSlotAvailable()` method to check against both `BlockedResortAvailability` and the new `BlockedFacilityAvailability` tables, ensuring comprehensive date conflict detection.
 
 ## [1.20.7] - 2025-09-16
 
