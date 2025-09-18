@@ -81,20 +81,86 @@ CREATE TABLE IF NOT EXISTS `Facilities` (
 
 ### Table: `Bookings`
 
-The central table for managing all reservations.
+The central table for managing all reservations. Updated to support resort-centric booking with integrated payment tracking.
 
 ```sql
 CREATE TABLE IF NOT EXISTS `Bookings` (
   `BookingID` INT PRIMARY KEY AUTO_INCREMENT,
   `CustomerID` INT,
   `FacilityID` INT,
+  `ResortID` INT,
   `BookingDate` DATE NOT NULL,
   `TimeSlotType` ENUM('12_hours', '24_hours', 'overnight') NOT NULL,
   `NumberOfGuests` INT,
+  `TotalAmount` DECIMAL(10, 2),
+  `PaymentProofURL` VARCHAR(255),
+  `PaymentReference` VARCHAR(100),
+  `RemainingBalance` DECIMAL(10, 2) DEFAULT 0.00,
   `Status` ENUM('Pending', 'Confirmed', 'Cancelled', 'Completed') NOT NULL,
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`CustomerID`) REFERENCES `Users`(`UserID`),
-  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`)
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`),
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`)
+);
+```
+
+---
+
+### Table: `ResortTimeframePricing`
+
+Stores pricing information for different timeframes at each resort, including weekend and holiday surcharges.
+
+```sql
+CREATE TABLE IF NOT EXISTS `ResortTimeframePricing` (
+  `PricingID` INT PRIMARY KEY AUTO_INCREMENT,
+  `ResortID` INT NOT NULL,
+  `TimeframeType` ENUM('12_hours', '24_hours', 'overnight') NOT NULL,
+  `BasePrice` DECIMAL(10, 2) NOT NULL,
+  `WeekendSurcharge` DECIMAL(10, 2) DEFAULT 0.00,
+  `HolidaySurcharge` DECIMAL(10, 2) DEFAULT 0.00,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_resort_timeframe` (`ResortID`, `TimeframeType`)
+);
+```
+
+---
+
+### Table: `BookingFacilities`
+
+Junction table that enables multiple facility selection per booking, supporting the new resort-centric booking model.
+
+```sql
+CREATE TABLE IF NOT EXISTS `BookingFacilities` (
+  `BookingFacilityID` INT PRIMARY KEY AUTO_INCREMENT,
+  `BookingID` INT NOT NULL,
+  `FacilityID` INT NOT NULL,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`BookingID`) REFERENCES `Bookings`(`BookingID`) ON DELETE CASCADE,
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_booking_facility` (`BookingID`, `FacilityID`)
+);
+```
+
+---
+
+### Table: `ResortPaymentMethods`
+
+Configuration table for resort-specific payment methods and settings.
+
+```sql
+CREATE TABLE IF NOT EXISTS `ResortPaymentMethods` (
+  `PaymentMethodID` INT PRIMARY KEY AUTO_INCREMENT,
+  `ResortID` INT NOT NULL,
+  `MethodType` ENUM('Gcash', 'Bank Transfer', 'Cash') NOT NULL,
+  `AccountDetails` TEXT,
+  `IsDefault` BOOLEAN DEFAULT FALSE,
+  `IsActive` BOOLEAN DEFAULT TRUE,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_resort_method` (`ResortID`, `MethodType`)
 );
 ```
 

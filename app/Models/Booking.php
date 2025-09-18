@@ -1,15 +1,22 @@
 <?php
 
 require_once __DIR__ . '/BlockedFacilityAvailability.php';
+require_once __DIR__ . '/ResortTimeframePricing.php';
+require_once __DIR__ . '/BookingFacilities.php';
 
 class Booking {
     public $bookingId;
     public $customerId;
-    public $facilityId;
+    public $resortId;
+    public $facilityId; // This will be deprecated in favor of multiple facilities
     public $bookingDate;
     public $timeSlotType;
     public $numberOfGuests;
     public $status; // e.g., 'Pending', 'Confirmed', 'Cancelled', 'Completed'
+    public $totalAmount;
+    public $paymentProofURL;
+    public $paymentReference;
+    public $remainingBalance;
     public $createdAt;
 
     private static $db;
@@ -34,20 +41,89 @@ class Booking {
     public static function create(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Bookings (CustomerID, FacilityID, BookingDate, TimeSlotType, NumberOfGuests, Status)
-             VALUES (:customerId, :facilityId, :bookingDate, :timeSlotType, :numberOfGuests, :status)"
+            "INSERT INTO Bookings (CustomerID, ResortID, FacilityID, BookingDate, TimeSlotType, NumberOfGuests, Status, TotalAmount, PaymentProofURL, PaymentReference, RemainingBalance)
+             VALUES (:customerId, :resortId, :facilityId, :bookingDate, :timeSlotType, :numberOfGuests, :status, :totalAmount, :paymentProofURL, :paymentReference, :remainingBalance)"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
+        $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
         $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
         $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
+        $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
+        $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
+        $stmt->bindValue(':paymentReference', $booking->paymentReference, PDO::PARAM_STR);
+        $stmt->bindValue(':remainingBalance', $booking->remainingBalance, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return $db->lastInsertId();
         }
         return false;
+    }
+
+    /**
+     * Create a new resort-centric booking with multiple facilities
+     */
+    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds = []) {
+        $db = self::getDB();
+        
+        // Start transaction
+        $db->beginTransaction();
+        
+        try {
+            // Calculate total price
+            $basePrice = ResortTimeframePricing::calculatePrice($resortId, $timeSlotType, $bookingDate);
+            $facilityPrice = 0;
+            
+            if (!empty($facilityIds)) {
+                require_once __DIR__ . '/Facility.php';
+                foreach ($facilityIds as $facilityId) {
+                    $facility = Facility::findById($facilityId);
+                    if ($facility) {
+                        $facilityPrice += $facility->rate;
+                    }
+                }
+            }
+            
+            $totalAmount = $basePrice + $facilityPrice;
+            
+            // Create booking record
+            $booking = new Booking();
+            $booking->customerId = $customerId;
+            $booking->resortId = $resortId;
+            $booking->facilityId = null; // Will be deprecated
+            $booking->bookingDate = $bookingDate;
+            $booking->timeSlotType = $timeSlotType;
+            $booking->numberOfGuests = $numberOfGuests;
+            $booking->status = 'Pending';
+            $booking->totalAmount = $totalAmount;
+            $booking->paymentProofURL = null;
+            $booking->paymentReference = null;
+            $booking->remainingBalance = $totalAmount;
+            
+            $bookingId = self::create($booking);
+            
+            if (!$bookingId) {
+                throw new Exception("Failed to create booking");
+            }
+            
+            // Add facilities to booking
+            if (!empty($facilityIds)) {
+                if (!BookingFacilities::addFacilitiesToBooking($bookingId, $facilityIds)) {
+                    throw new Exception("Failed to add facilities to booking");
+                }
+            }
+            
+            // Commit transaction
+            $db->commit();
+            return $bookingId;
+            
+        } catch (Exception $e) {
+            // Rollback transaction
+            $db->rollback();
+            return false;
+        }
     }
 
     public static function findById($bookingId) {
@@ -61,11 +137,16 @@ class Booking {
             $booking = new Booking();
             $booking->bookingId = $data['BookingID'];
             $booking->customerId = $data['CustomerID'];
+            $booking->resortId = $data['ResortID'];
             $booking->facilityId = $data['FacilityID'];
             $booking->bookingDate = $data['BookingDate'];
             $booking->timeSlotType = $data['TimeSlotType'];
             $booking->numberOfGuests = $data['NumberOfGuests'];
             $booking->status = $data['Status'];
+            $booking->totalAmount = $data['TotalAmount'];
+            $booking->paymentProofURL = $data['PaymentProofURL'];
+            $booking->paymentReference = $data['PaymentReference'];
+            $booking->remainingBalance = $data['RemainingBalance'];
             $booking->createdAt = $data['CreatedAt'];
             return $booking;
         }
@@ -190,16 +271,23 @@ class Booking {
         $db = self::getDB();
         $stmt = $db->prepare(
             "UPDATE Bookings
-             SET CustomerID = :customerId, FacilityID = :facilityId, BookingDate = :bookingDate,
-                 TimeSlotType = :timeSlotType, NumberOfGuests = :numberOfGuests, Status = :status
+             SET CustomerID = :customerId, ResortID = :resortId, FacilityID = :facilityId, BookingDate = :bookingDate,
+                 TimeSlotType = :timeSlotType, NumberOfGuests = :numberOfGuests, Status = :status,
+                 TotalAmount = :totalAmount, PaymentProofURL = :paymentProofURL, PaymentReference = :paymentReference,
+                 RemainingBalance = :remainingBalance
              WHERE BookingID = :bookingId"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
+        $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
         $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
         $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
+        $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
+        $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
+        $stmt->bindValue(':paymentReference', $booking->paymentReference, PDO::PARAM_STR);
+        $stmt->bindValue(':remainingBalance', $booking->remainingBalance, PDO::PARAM_STR);
         $stmt->bindValue(':bookingId', $booking->bookingId, PDO::PARAM_INT);
         
         return $stmt->execute();
@@ -300,5 +388,131 @@ class Booking {
         }
 
         return true; // No conflicts found
+    }
+
+    /**
+     * Check if a resort + timeframe combination is available (for resort-centric booking)
+     */
+    public static function isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds = [], $excludeBookingId = null) {
+        // Check resort-level blocks
+        $db = self::getDB();
+        $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = ? AND BlockDate = ?";
+        $blockStmt = $db->prepare($blockSql);
+        $blockStmt->execute([$resortId, $bookingDate]);
+        if ($blockStmt->fetchColumn() > 0) {
+            return false; // Resort is blocked for this date
+        }
+
+        // If facilities are selected, check their availability
+        if (!empty($facilityIds)) {
+            foreach ($facilityIds as $facilityId) {
+                if (!self::isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType, $excludeBookingId)) {
+                    return false;
+                }
+            }
+        }
+
+        return true; // Available
+    }
+
+    /**
+     * Update payment information for a booking
+     */
+    public static function updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid = null) {
+        $db = self::getDB();
+        
+        $booking = self::findById($bookingId);
+        if (!$booking) {
+            return false;
+        }
+
+        // Calculate remaining balance
+        $remainingBalance = $booking->remainingBalance;
+        if ($amountPaid !== null) {
+            $remainingBalance = max(0, $booking->remainingBalance - $amountPaid);
+        }
+
+        // Update status based on payment
+        $newStatus = $booking->status;
+        if ($remainingBalance <= 0) {
+            $newStatus = 'Confirmed'; // Fully paid
+        } elseif ($remainingBalance < $booking->totalAmount) {
+            $newStatus = 'Pending'; // Partially paid, but still pending confirmation
+        }
+
+        $stmt = $db->prepare(
+            "UPDATE Bookings
+             SET PaymentProofURL = :paymentProofURL, PaymentReference = :paymentReference,
+                 RemainingBalance = :remainingBalance, Status = :status
+             WHERE BookingID = :bookingId"
+        );
+        $stmt->bindValue(':paymentProofURL', $paymentProofURL, PDO::PARAM_STR);
+        $stmt->bindValue(':paymentReference', $paymentReference, PDO::PARAM_STR);
+        $stmt->bindValue(':remainingBalance', $remainingBalance, PDO::PARAM_STR);
+        $stmt->bindValue(':status', $newStatus, PDO::PARAM_STR);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
+    /**
+     * Get bookings with facilities and resort information
+     */
+    public static function getBookingsWithDetails($resortId = null, $status = null, $limit = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
+                       GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+                FROM Bookings b
+                LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+                LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+                WHERE 1=1";
+        
+        $params = [];
+        
+        if ($resortId) {
+            $sql .= " AND b.ResortID = ?";
+            $params[] = $resortId;
+        }
+        
+        if ($status) {
+            $sql .= " AND b.Status = ?";
+            $params[] = $status;
+        }
+        
+        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate DESC, b.CreatedAt DESC";
+        
+        if ($limit) {
+            $sql .= " LIMIT ?";
+            $params[] = $limit;
+        }
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Calculate total booking value with facilities
+     */
+    public static function calculateBookingTotal($resortId, $timeSlotType, $bookingDate, $facilityIds = []) {
+        // Get base price from resort timeframe pricing
+        $basePrice = ResortTimeframePricing::calculatePrice($resortId, $timeSlotType, $bookingDate);
+        
+        // Add facility costs
+        $facilityTotal = 0;
+        if (!empty($facilityIds)) {
+            require_once __DIR__ . '/Facility.php';
+            foreach ($facilityIds as $facilityId) {
+                $facility = Facility::findById($facilityId);
+                if ($facility) {
+                    $facilityTotal += $facility->rate;
+                }
+            }
+        }
+        
+        return $basePrice + $facilityTotal;
     }
 }

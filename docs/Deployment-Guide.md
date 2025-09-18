@@ -153,6 +153,10 @@ php scripts/migrations/add_rich_data_to_resorts.php
 php scripts/migrations/create_resort_photos_table.php
 php scripts/migrations/create_blocked_resort_availability_table.php
 php scripts/migrations/create_blocked_facility_availability_table.php
+php scripts/migrations/create_resort_timeframe_pricing_table.php
+php scripts/migrations/create_booking_facilities_table.php
+php scripts/migrations/create_resort_payment_methods_table.php
+php scripts/migrations/update_bookings_table_for_resort_centric.php
 ```
 
 ### Application Structure

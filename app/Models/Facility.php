@@ -189,4 +189,74 @@ class Facility {
         $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    /**
+     * Get the fixed price for a facility (used as add-on in resort-centric booking)
+     */
+    public static function getFixedPrice($facilityId) {
+        $facility = self::findById($facilityId);
+        return $facility ? $facility->rate : 0;
+    }
+
+    /**
+     * Update facility rate (fixed pricing)
+     */
+    public static function updateRate($facilityId, $rate) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Facilities SET Rate = :rate WHERE FacilityID = :facilityId");
+        $stmt->bindValue(':rate', $rate, PDO::PARAM_STR);
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    /**
+     * Get facilities formatted for booking selection (with pricing)
+     */
+    public static function getFacilitiesForBooking($resortId) {
+        $facilities = self::findByResortId($resortId);
+        $formatted = [];
+
+        foreach ($facilities as $facility) {
+            $formatted[] = [
+                'id' => $facility->facilityId,
+                'name' => $facility->name,
+                'price' => $facility->rate,
+                'capacity' => $facility->capacity,
+                'description' => $facility->shortDescription,
+                'display' => $facility->name . ' (₱' . number_format($facility->rate, 2) . ')'
+            ];
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * Calculate total cost for multiple facilities
+     */
+    public static function calculateFacilitiesTotalCost($facilityIds) {
+        if (empty($facilityIds)) {
+            return 0;
+        }
+
+        $total = 0;
+        foreach ($facilityIds as $facilityId) {
+            $total += self::getFixedPrice($facilityId);
+        }
+
+        return $total;
+    }
+
+    /**
+     * Get facilities with resort information for admin management
+     */
+    public static function getFacilitiesWithResortInfo() {
+        $db = self::getDB();
+        $stmt = $db->query(
+            "SELECT f.*, r.Name as ResortName
+             FROM Facilities f
+             LEFT JOIN Resorts r ON f.ResortID = r.ResortID
+             ORDER BY r.Name ASC, f.Name ASC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 }

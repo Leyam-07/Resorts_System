@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.0] - 2025-09-18
+
+### Added
+
+- **Phase 1: Database Schema Evolution:** Completed the first phase of transforming the system from facility-centric to resort-centric booking with integrated pricing and payment handling.
+  - **New Tables:**
+    - `ResortTimeframePricing`: Stores resort-specific pricing for different timeframes (12 hours, 24 hours, overnight) with weekend and holiday surcharge support.
+    - `BookingFacilities`: Junction table enabling multiple facility selection per booking, supporting the new booking model.
+    - `ResortPaymentMethods`: Configuration table for resort-specific payment methods (Gcash, Bank Transfer, Cash).
+  - **Enhanced Bookings Table:** Added `ResortID`, `TotalAmount`, `PaymentProofURL`, `PaymentReference`, and `RemainingBalance` columns for comprehensive payment tracking.
+  - **New Model Classes:**
+    - `ResortTimeframePricing.php`: Handles dynamic pricing calculations with weekend detection and surcharge application.
+    - `BookingFacilities.php`: Manages multiple facilities per booking with transaction support.
+    - `ResortPaymentMethods.php`: Payment method configuration with automatic default setup.
+  - **Enhanced Existing Models:**
+    - `Booking.php`: Added resort-centric booking methods (`createResortBooking()`, `isResortTimeframeAvailable()`, `updatePaymentInfo()`, `calculateBookingTotal()`).
+    - `Facility.php`: Added pricing calculation methods for facility add-ons (`getFixedPrice()`, `getFacilitiesForBooking()`).
+
+### Changed
+
+- **Database Architecture:** Transformed the core booking system to support resort-first booking flow with facilities as optional add-ons.
+- **Pricing Model:** Implemented timeframe-based pricing with conditional surcharges replacing the previous hourly rate system.
+- **Payment Integration:** Enhanced payment tracking with proof upload capabilities and reference number management.
+
 ## [1.20.9] - 2025-09-17
 
 ### Fixed
