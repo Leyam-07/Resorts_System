@@ -143,6 +143,7 @@ php scripts/seed_db.php
     If there are any pending database migrations (e.g., for schema updates), run them from the `scripts/migrations` directory.
 
 ```bash
+# Core system migrations
 php scripts/migrations/add_notes_to_users.php
 php scripts/migrations/create_payments_table.php
 php scripts/migrations/create_blocked_availabilities_table.php
@@ -153,11 +154,15 @@ php scripts/migrations/add_rich_data_to_resorts.php
 php scripts/migrations/create_resort_photos_table.php
 php scripts/migrations/create_blocked_resort_availability_table.php
 php scripts/migrations/create_blocked_facility_availability_table.php
+
+# Phase 1: Resort-Centric Booking System migrations (REQUIRED for v1.21.0+)
 php scripts/migrations/create_resort_timeframe_pricing_table.php
 php scripts/migrations/create_booking_facilities_table.php
 php scripts/migrations/create_resort_payment_methods_table.php
 php scripts/migrations/update_bookings_table_for_resort_centric.php
 ```
+
+**Note:** The Phase 1 migrations (v1.21.0+) are **required** for the resort-centric booking system. They must be run in order to support the new booking flow implemented in Phase 2.
 
 ### Application Structure
 

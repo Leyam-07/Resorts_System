@@ -156,12 +156,15 @@ class Booking {
     public static function findByCustomerId($customerId) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT b.*, f.Name as FacilityName, r.Name as ResortName
+            "SELECT b.*, r.Name as ResortName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
              FROM Bookings b
-             JOIN Facilities f ON b.FacilityID = f.FacilityID
-             JOIN Resorts r ON f.ResortID = r.ResortID
+             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
              WHERE b.CustomerID = :customerId
-             ORDER BY b.BookingDate DESC"
+             GROUP BY b.BookingID
+             ORDER BY b.BookingDate DESC, b.CreatedAt DESC"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();
@@ -172,17 +175,20 @@ class Booking {
         $db = self::getDB();
         $today = date('Y-m-d');
         
-        $sql = "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+        $sql = "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
+                       GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
                 FROM Bookings b
-                JOIN Facilities f ON b.FacilityID = f.FacilityID
-                JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+                LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
                 WHERE b.BookingDate = :today";
 
         if ($resortId) {
-            $sql .= " AND f.ResortID = :resortId";
+            $sql .= " AND b.ResortID = :resortId";
         }
 
-        $sql .= " ORDER BY b.BookingDate ASC";
+        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate ASC, b.CreatedAt ASC";
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
@@ -198,17 +204,20 @@ class Booking {
         $db = self::getDB();
         $today = date('Y-m-d');
 
-        $sql = "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+        $sql = "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
+                       GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
                 FROM Bookings b
-                JOIN Facilities f ON b.FacilityID = f.FacilityID
-                JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+                LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
                 WHERE b.BookingDate > :today AND b.Status IN ('Pending', 'Confirmed')";
 
         if ($resortId) {
-            $sql .= " AND f.ResortID = :resortId";
+            $sql .= " AND b.ResortID = :resortId";
         }
 
-        $sql .= " ORDER BY b.BookingDate ASC";
+        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate ASC, b.CreatedAt ASC";
         
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
@@ -225,17 +234,12 @@ class Booking {
         
         $sql = "SELECT SUM(p.Amount) as TotalIncome
                 FROM Payments p
-                JOIN Bookings b ON p.BookingID = b.BookingID";
-        
-        if ($resortId) {
-            $sql .= " JOIN Facilities f ON b.FacilityID = f.FacilityID";
-        }
-        
-        $sql .= " WHERE YEAR(b.BookingDate) = :year AND MONTH(b.BookingDate) = :month
-                  AND p.Status IN ('Paid', 'Partial')";
+                JOIN Bookings b ON p.BookingID = b.BookingID
+                WHERE YEAR(b.BookingDate) = :year AND MONTH(b.BookingDate) = :month
+                AND p.Status IN ('Paid', 'Partial')";
 
         if ($resortId) {
-            $sql .= " AND f.ResortID = :resortId";
+            $sql .= " AND b.ResortID = :resortId";
         }
 
         $stmt = $db->prepare($sql);
@@ -254,12 +258,16 @@ class Booking {
     public static function getBookingHistory($limit = 10) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT b.*, f.Name as FacilityName, u.Username as CustomerName
+            "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
              FROM Bookings b
-             JOIN Facilities f ON b.FacilityID = f.FacilityID
-             JOIN Users u ON b.CustomerID = u.UserID
+             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN Users u ON b.CustomerID = u.UserID
+             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
              WHERE b.BookingDate < CURDATE()
-             ORDER BY b.BookingDate DESC
+             GROUP BY b.BookingID
+             ORDER BY b.BookingDate DESC, b.CreatedAt DESC
              LIMIT :limit"
         );
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

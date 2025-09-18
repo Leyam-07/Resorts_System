@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.0] - 2025-09-18
+
+### Added
+
+- **Phase 2: Core Booking Logic Transformation:** Completed the transformation of the booking system from facility-centric to resort-centric approach with integrated pricing and payment handling.
+  - **Enhanced BookingController:**
+    - `createBooking()` method now uses resort-centric logic with `Booking::createResortBooking()`
+    - New API endpoints: `getResortPricing()`, `calculateBookingPrice()`, `checkAvailability()`
+    - Enhanced `getFacilitiesByResort()` with pricing display information
+    - Transaction-based booking creation with comprehensive validation
+  - **Complete Booking Form Redesign:**
+    - New 6-step booking flow: Resort → Date → Timeframe → Guests → Optional Facilities → Summary
+    - Dynamic facility loading and real-time price calculation via AJAX
+    - Multiple facility selection with checkbox interface and capacity validation
+    - Weekend pricing indicators and live total price updates
+    - Smart form validation enabling submit only when required fields are complete
+  - **Enhanced Booking Model Methods:**
+    - Updated `findByCustomerId()`, `findTodaysBookings()`, `findUpcomingBookings()` to support multiple facilities per booking
+    - Simplified `getMonthlyIncome()` to use direct `ResortID` filtering
+    - Enhanced `getBookingHistory()` with resort-centric data aggregation using `GROUP_CONCAT` for facility names
+  - **Improved Customer Booking Display:**
+    - Redesigned `my_bookings.php` with resort-focused table structure
+    - Enhanced columns: combined Date & Time, multiple facilities as badges, total price with balance indicator
+    - Color-coded status badges and improved responsive design
+    - Better action buttons with icons and mobile optimization
+
+### Changed
+
+- **Booking System Architecture:** Transformed from facility-first to resort-first approach where facilities are optional add-ons
+- **User Interface:** Booking form now features intuitive step-by-step flow with real-time feedback and dynamic pricing
+- **Data Display:** All booking displays now properly handle multiple facilities per booking using junction table relationships
+- **API Architecture:** Added RESTful endpoints for dynamic pricing calculation and availability checking
+
 ## [1.21.0] - 2025-09-18
 
 ### Added
