@@ -114,4 +114,162 @@ class Notification {
             return false;
         }
     }
+
+    /**
+     * Send payment submission notification to admin
+     */
+    public static function sendPaymentSubmissionNotification($bookingId, $customer) {
+        $booking = Booking::findById($bookingId);
+        if (!$booking) return false;
+
+        // Get resort and admin information
+        require_once __DIR__ . '/../Models/Resort.php';
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        
+        $resort = Resort::findById($booking->resortId);
+        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+        
+        // Get admin users for notifications
+        $admins = User::getAdminUsers();
+        
+        $facilityList = '';
+        if (!empty($facilities)) {
+            $facilityNames = array_map(function($f) { return $f->Name; }, $facilities);
+            $facilityList = 'Facilities: ' . implode(', ', $facilityNames) . '<br>';
+        }
+
+        $paidAmount = $booking->totalAmount - $booking->remainingBalance;
+        $paymentStatus = ($booking->remainingBalance <= 0) ? 'Full Payment' : 'Partial Payment';
+
+        $mail = self::getMailer();
+        
+        foreach ($admins as $admin) {
+            try {
+                $mail->clearAddresses(); // Clear previous addresses
+                $mail->addAddress($admin['Email'], $admin['FirstName']);
+                
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = '🔔 Payment Submitted - Booking #' . $booking->bookingId;
+                $mail->Body = "
+                    <h2>Payment Proof Submitted</h2>
+                    <p>Dear Admin,</p>
+                    <p>A customer has submitted payment proof for review.</p>
+                    
+                    <h3>Customer Information:</h3>
+                    <ul>
+                        <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
+                        <li><strong>Email:</strong> {$customer['Email']}</li>
+                        <li><strong>Phone:</strong> " . ($customer['Phone'] ?? 'N/A') . "</li>
+                    </ul>
+                    
+                    <h3>Booking Details:</h3>
+                    <ul>
+                        <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
+                        <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
+                        <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
+                        <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
+                        <li><strong>Guests:</strong> {$booking->numberOfGuests} person" . ($booking->numberOfGuests > 1 ? 's' : '') . "</li>
+                        <li>{$facilityList}</li>
+                    </ul>
+                    
+                    <h3>Payment Information:</h3>
+                    <ul>
+                        <li><strong>Total Booking Amount:</strong> ₱" . number_format($booking->totalAmount, 2) . "</li>
+                        <li><strong>Amount Paid:</strong> ₱" . number_format($paidAmount, 2) . "</li>
+                        <li><strong>Remaining Balance:</strong> ₱" . number_format($booking->remainingBalance, 2) . "</li>
+                        <li><strong>Payment Status:</strong> {$paymentStatus}</li>
+                        <li><strong>Reference Number:</strong> " . htmlspecialchars($booking->paymentReference ?? 'N/A') . "</li>
+                    </ul>
+                    
+                    <p><strong>⚠️ Action Required:</strong> Please review and verify the payment proof through the admin dashboard.</p>
+                    <p>The customer is waiting for confirmation to finalize their booking.</p>
+                    
+                    <p><em>Resort Management System</em></p>";
+                
+                $mail->AltBody = "Payment submitted for Booking #{$booking->bookingId} by {$customer['FirstName']} {$customer['LastName']}. Amount: ₱" . number_format($paidAmount, 2) . ". Ref: " . ($booking->paymentReference ?? 'N/A');
+
+                $mail->send();
+            } catch (Exception $e) {
+                // Log error for this admin but continue with others
+                continue;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Send payment verification confirmation to customer
+     */
+    public static function sendPaymentVerificationConfirmation($bookingId, $isVerified = true) {
+        $booking = Booking::findById($bookingId);
+        if (!$booking) return false;
+
+        $customer = User::findById($booking->customerId);
+        if (!$customer) return false;
+
+        // Get resort information
+        require_once __DIR__ . '/../Models/Resort.php';
+        $resort = Resort::findById($booking->resortId);
+
+        $mail = self::getMailer();
+        try {
+            //Recipients
+            $mail->addAddress($customer['Email'], $customer['FirstName']);
+            
+            if ($isVerified) {
+                // Payment verified - booking confirmed
+                $mail->Subject = '✅ Payment Verified - Booking Confirmed #' . $booking->bookingId;
+                $statusMessage = ($booking->remainingBalance <= 0) ? 'fully confirmed' : 'partially confirmed';
+                $nextSteps = ($booking->remainingBalance > 0) ?
+                    "<p><strong>Remaining Balance:</strong> ₱" . number_format($booking->remainingBalance, 2) . " - Please complete payment before your visit.</p>" :
+                    "<p>Your booking is fully paid and confirmed!</p>";
+                
+                $mail->Body = "
+                    <h2>🎉 Payment Verified!</h2>
+                    <p>Dear {$customer['FirstName']},</p>
+                    <p>Great news! Your payment has been verified and your booking is now {$statusMessage}.</p>
+                    
+                    <h3>Booking Details:</h3>
+                    <ul>
+                        <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
+                        <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
+                        <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
+                        <li><strong>Status:</strong> <span style='color: green;'>Confirmed</span></li>
+                    </ul>
+                    
+                    {$nextSteps}
+                    
+                    <p>We look forward to welcoming you to our resort!</p>
+                    <p><em>The Resort Management Team</em></p>";
+            } else {
+                // Payment rejected
+                $mail->Subject = '❌ Payment Issue - Booking #' . $booking->bookingId;
+                $mail->Body = "
+                    <h2>Payment Verification Issue</h2>
+                    <p>Dear {$customer['FirstName']},</p>
+                    <p>We were unable to verify your recent payment submission for booking #{$booking->bookingId}.</p>
+                    
+                    <p><strong>Please:</strong></p>
+                    <ul>
+                        <li>Check your payment proof image is clear and readable</li>
+                        <li>Ensure the reference number is correct</li>
+                        <li>Resubmit your payment proof through your account</li>
+                    </ul>
+                    
+                    <p>If you need assistance, please contact us directly.</p>
+                    <p><em>The Resort Management Team</em></p>";
+            }
+
+            $mail->AltBody = $isVerified ?
+                "Payment verified! Booking #{$booking->bookingId} is confirmed." :
+                "Payment verification failed for booking #{$booking->bookingId}. Please resubmit.";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 }

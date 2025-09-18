@@ -105,11 +105,11 @@ class BookingController {
         $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds);
 
         if ($bookingId) {
-            // Send confirmation email
+            // Send booking confirmation email (before payment)
             Notification::sendBookingConfirmation($bookingId);
 
-            // Success: Redirect to a confirmation page
-            header('Location: ?controller=booking&action=bookingSuccess&id=' . $bookingId);
+            // Redirect to payment submission instead of success page
+            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
         } else {
             // Failure: Redirect back with an error
             $_SESSION['error_message'] = "Could not save the booking. Please try again.";
@@ -332,6 +332,222 @@ class BookingController {
         }
 
         header('Location: ?controller=booking&action=showMyBookings');
+        exit;
+    }
+
+    /**
+     * Show payment submission form for a booking
+     */
+    public function showPaymentForm() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            $_SESSION['error_message'] = "Invalid booking ID.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        $booking = Booking::findById($bookingId);
+        if (!$booking) {
+            $_SESSION['error_message'] = "Booking not found.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        // Ensure this booking belongs to the current user
+        if ($booking->customerId != $_SESSION['user_id']) {
+            $_SESSION['error_message'] = "You are not authorized to access this booking.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        // Get resort information and payment methods
+        require_once __DIR__ . '/../Models/Resort.php';
+        require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        
+        $resort = Resort::findById($booking->resortId);
+        $paymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
+        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+
+        // Check for error messages
+        $errorMessage = $_SESSION['error_message'] ?? null;
+        $successMessage = $_SESSION['success_message'] ?? null;
+        unset($_SESSION['error_message'], $_SESSION['success_message']);
+
+        require_once __DIR__ . '/../Views/booking/payment.php';
+    }
+
+    /**
+     * Process payment submission with proof upload
+     */
+    public function submitPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+        $amountPaid = filter_input(INPUT_POST, 'amount_paid', FILTER_VALIDATE_FLOAT);
+        $paymentReference = filter_input(INPUT_POST, 'payment_reference', FILTER_SANITIZE_STRING);
+
+        if (!$bookingId || !$amountPaid || !$paymentReference) {
+            $_SESSION['error_message'] = "All fields are required.";
+            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            exit;
+        }
+
+        $booking = Booking::findById($bookingId);
+        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
+            $_SESSION['error_message'] = "Invalid booking.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        // Validate payment amount
+        if ($amountPaid <= 0 || $amountPaid > $booking->remainingBalance) {
+            $_SESSION['error_message'] = "Invalid payment amount. Please enter an amount between ₱1 and ₱" . number_format($booking->remainingBalance, 2);
+            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            exit;
+        }
+
+        // Handle file upload
+        $paymentProofURL = null;
+        if (isset($_FILES['payment_proof']) && $_FILES['payment_proof']['error'] === UPLOAD_ERR_OK) {
+            $paymentProofURL = $this->handlePaymentProofUpload($_FILES['payment_proof'], $bookingId);
+            if (!$paymentProofURL) {
+                $_SESSION['error_message'] = "Failed to upload payment proof. Please try again.";
+                header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+                exit;
+            }
+        } else {
+            $_SESSION['error_message'] = "Payment proof is required.";
+            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            exit;
+        }
+
+        // Update booking with payment information AND create payment record
+        require_once __DIR__ . '/../Models/Payment.php';
+        
+        // Create payment record
+        $paymentId = Payment::createFromBookingPayment($bookingId, $amountPaid, $paymentReference, $paymentProofURL);
+        
+        if ($paymentId && Booking::updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid)) {
+            // Send notification to admin
+            $this->notifyAdminPaymentSubmission($bookingId);
+
+            $_SESSION['success_message'] = "Payment submitted successfully! Your payment is being reviewed.";
+            header('Location: ?controller=booking&action=paymentSuccess&id=' . $bookingId);
+        } else {
+            $_SESSION['error_message'] = "Failed to submit payment. Please try again.";
+            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+        }
+        exit;
+    }
+
+    /**
+     * Handle payment proof file upload
+     */
+    private function handlePaymentProofUpload($file, $bookingId) {
+        // Create uploads directory if it doesn't exist
+        $uploadDir = __DIR__ . '/../../public/uploads/payment_proofs/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!in_array($file['type'], $allowedTypes)) {
+            return false;
+        }
+
+        // Validate file size (max 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            return false;
+        }
+
+        // Generate unique filename
+        $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $fileName = 'payment_' . $bookingId . '_' . uniqid() . '.' . $fileExtension;
+        $filePath = $uploadDir . $fileName;
+
+        // Move uploaded file
+        if (move_uploaded_file($file['tmp_name'], $filePath)) {
+            return 'public/uploads/payment_proofs/' . $fileName;
+        }
+
+        return false;
+    }
+
+    /**
+     * Notify admin of payment submission
+     */
+    private function notifyAdminPaymentSubmission($bookingId) {
+        // Get booking and customer information
+        $booking = Booking::findById($bookingId);
+        require_once __DIR__ . '/../Models/User.php';
+        $customer = User::findById($booking->customerId);
+        
+        // Send email notification to admin
+        Notification::sendPaymentSubmissionNotification($bookingId, $customer);
+    }
+
+    /**
+     * Show payment success page
+     */
+    public function paymentSuccess() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        $booking = Booking::findById($bookingId);
+        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        require_once __DIR__ . '/../Models/Resort.php';
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        
+        $resort = Resort::findById($booking->resortId);
+        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+
+        require_once __DIR__ . '/../Views/booking/payment_success.php';
+    }
+
+    /**
+     * Get resort payment methods (API endpoint)
+     */
+    public function getPaymentMethods() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid Resort ID']);
+            exit;
+        }
+
+        require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
+        $paymentMethods = ResortPaymentMethods::getFormattedPaymentMethods($resortId);
+        
+        echo json_encode($paymentMethods);
         exit;
     }
 }

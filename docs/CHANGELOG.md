@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0] - 2025-09-18
+
+### Added
+
+- **Phase 3: Payment Integration & Process Flow:** Completed seamless booking-to-payment integration with comprehensive payment management and verification system.
+  - **Integrated Booking-to-Payment Flow:**
+    - Modified `BookingController::createBooking()` to redirect directly to payment submission after booking creation
+    - Eliminated separate payment management - customers now submit payment immediately after booking
+    - Implemented seamless transition from booking confirmation to payment interface
+  - **Customer Payment Submission System:**
+    - Created comprehensive payment interface (`payment.php`) with detailed booking summary and pricing breakdown
+    - Implemented secure payment proof upload with image preview and file validation
+    - Added payment reference number capture and amount specification (full/partial payments)
+    - Built payment success page (`payment_success.php`) with clear next steps and status tracking
+  - **Payment Proof Management:**
+    - Implemented secure file upload system for payment screenshots with type and size validation
+    - Created dedicated storage directory (`public/uploads/payment_proofs/`) with unique filename generation
+    - Added real-time image preview functionality and comprehensive error handling
+  - **Enhanced Payment Model:**
+    - Added `createFromBookingPayment()` method for customer submission integration
+    - Implemented `getPendingPayments()`, `verifyPayment()`, and `rejectPayment()` methods for admin workflow
+    - Created `getTotalPaidAmount()` for accurate balance calculations and payment history tracking
+  - **Admin Payment Verification Interface:**
+    - Built comprehensive payment review interface (`pending.php`) with card-based layout
+    - Implemented payment proof image viewing with modal display and full-size preview
+    - Added one-click verification and rejection with automatic booking status updates
+    - Created real-time auto-refresh system for pending payment monitoring
+  - **Advanced Notification System:**
+    - Implemented `sendPaymentSubmissionNotification()` to alert admins of new payment submissions
+    - Added `sendPaymentVerificationConfirmation()` for customer payment status updates
+    - Enhanced notification system with detailed booking, customer, and payment information
+  - **Customer Experience Enhancements:**
+    - Updated `my_bookings.php` with payment status indicators and remaining balance display
+    - Added payment action buttons (Submit/Complete Payment) with intelligent state management
+    - Implemented dynamic payment flow guidance based on booking and payment status
+    - Created responsive design optimized for mobile payment submission
+
+### Changed
+
+- **Booking Workflow:** Transformed from booking-then-payment to integrated booking-to-payment flow eliminating payment step skipping
+- **Payment Processing:** Centralized all payment operations through booking workflow with automatic Payment record creation
+- **Admin Workflow:** Unified payment verification with booking status management in single interface
+- **Customer Journey:** Streamlined payment submission with immediate post-booking payment requirement and clear progress tracking
+
+### Enhanced
+
+- **User Model:** Added `findByRole()` and `getAdminUsers()` methods for role-based notification targeting
+- **Payment Controller:** Extended with admin verification methods (`showPendingPayments()`, `verifyPayment()`, `rejectPayment()`)
+- **Notification Helper:** Expanded with comprehensive payment-related email templates and automated admin alerts
+- **Booking Interface:** Integrated payment status tracking with remaining balance indicators and action button state management
+
 ## [1.22.0] - 2025-09-18
 
 ### Added

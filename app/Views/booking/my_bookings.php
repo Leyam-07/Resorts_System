@@ -89,21 +89,38 @@ require_once __DIR__ . '/../partials/header.php';
                             <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($booking->Status) ?></span>
                         </td>
                         <td>
-                            <?php if ($booking->Status === 'Completed'): ?>
-                                <?php if ($booking->hasFeedback): ?>
-                                    <span class="badge bg-secondary">Feedback Submitted</span>
+                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                <?php if ($booking->Status === 'Completed'): ?>
+                                    <?php if ($booking->hasFeedback): ?>
+                                        <span class="badge bg-secondary">Feedback Submitted</span>
+                                    <?php else: ?>
+                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#feedbackModal" data-booking-id="<?= htmlspecialchars($booking->BookingID) ?>" data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>">
+                                            <i class="fas fa-star"></i> Leave Feedback
+                                        </button>
+                                    <?php endif; ?>
+                                <?php elseif ($booking->Status === 'Cancelled'): ?>
+                                    <span class="text-muted small">No actions available</span>
                                 <?php else: ?>
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#feedbackModal" data-booking-id="<?= htmlspecialchars($booking->BookingID) ?>" data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>">
-                                        <i class="fas fa-star"></i> Leave Feedback
-                                    </button>
+                                    <!-- Payment Actions -->
+                                    <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                        <a href="?controller=booking&action=showPaymentForm&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-primary btn-sm mb-1">
+                                            <i class="fas fa-credit-card"></i>
+                                            <?php if ($booking->RemainingBalance < $booking->TotalAmount): ?>
+                                                Complete Payment
+                                            <?php else: ?>
+                                                Submit Payment
+                                            <?php endif; ?>
+                                        </a>
+                                    <?php elseif ($booking->Status === 'Pending'): ?>
+                                        <span class="badge bg-warning text-dark">Payment Under Review</span>
+                                    <?php endif; ?>
+                                    
+                                    <!-- Cancel Action -->
+                                    <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
                                 <?php endif; ?>
-                            <?php elseif ($booking->Status !== 'Cancelled'): ?>
-                                <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
-                                    <i class="fas fa-times"></i> Cancel
-                                </a>
-                            <?php else: ?>
-                                <span class="text-muted small">No actions available</span>
-                            <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

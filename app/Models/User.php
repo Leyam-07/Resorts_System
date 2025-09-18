@@ -173,4 +173,24 @@ class User {
 
         return $stmt->execute();
     }
+
+    /**
+     * Find users by role
+     */
+    public static function findByRole($role) {
+        $query = "SELECT * FROM " . self::$table . " WHERE Role = :role ORDER BY CreatedAt DESC";
+        
+        $stmt = self::getDB()->prepare($query);
+        $stmt->bindParam(':role', $role);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get admin users for notifications
+     */
+    public static function getAdminUsers() {
+        return self::findByRole('Admin');
+    }
 }

@@ -97,12 +97,24 @@ To prevent direct URL access to sensitive files (like database models and contro
 
 3.  **Set File Permissions:**
     Ensure the web server has the necessary permissions to write to the upload directories.
+
     ```bash
-    # Grant write permissions to the general uploads folder
+    # Grant write permissions to the general uploads folder and subdirectories
     chmod -R 775 /path/to/your/project/public/uploads
+
+    # Create payment proofs directory if it doesn't exist
+    mkdir -p /path/to/your/project/public/uploads/payment_proofs
+
     # Set ownership to the web server user (e.g., www-data for Apache on Linux)
     chown -R www-data:www-data /path/to/your/project/public/uploads
     ```
+
+    **Upload Directories Structure:**
+
+    - `public/uploads/resorts/` - Resort photos
+    - `public/uploads/facilities/` - Facility photos
+    - `public/uploads/payment_proofs/` - Customer payment proof images (Phase 3)
+
     _Note: The specific user may vary depending on your server setup (`apache`, `nginx`, etc.)._
 
 ## 4. Database Setup

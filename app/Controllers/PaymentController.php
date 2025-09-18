@@ -120,4 +120,89 @@ class PaymentController {
         }
         exit();
     }
+
+    /**
+     * Show pending payments for admin review
+     */
+    public function showPendingPayments() {
+        require_once __DIR__ . '/../Models/Payment.php';
+        
+        $pendingPayments = Payment::getPendingPayments();
+        
+        require_once __DIR__ . '/../Views/admin/payments/pending.php';
+    }
+
+    /**
+     * Verify a payment
+     */
+    public function verifyPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=payment&action=showPendingPayments');
+            exit();
+        }
+
+        $paymentId = filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT);
+        if (!$paymentId) {
+            $_SESSION['error_message'] = "Invalid payment ID.";
+            header('Location: ?controller=payment&action=showPendingPayments');
+            exit();
+        }
+
+        require_once __DIR__ . '/../Models/Payment.php';
+        require_once __DIR__ . '/../Helpers/Notification.php';
+        
+        if (Payment::verifyPayment($paymentId, $_SESSION['user_id'])) {
+            // Get payment info to send notification
+            $payment = Payment::findById($paymentId);
+            if ($payment) {
+                // Send verification confirmation to customer
+                Notification::sendPaymentVerificationConfirmation($payment->bookingId, true);
+            }
+            
+            $_SESSION['success_message'] = "Payment verified successfully!";
+        } else {
+            $_SESSION['error_message'] = "Failed to verify payment.";
+        }
+
+        header('Location: ?controller=payment&action=showPendingPayments');
+        exit();
+    }
+
+    /**
+     * Reject a payment
+     */
+    public function rejectPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=payment&action=showPendingPayments');
+            exit();
+        }
+
+        $paymentId = filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT);
+        $reason = filter_input(INPUT_POST, 'reason', FILTER_SANITIZE_STRING);
+        
+        if (!$paymentId) {
+            $_SESSION['error_message'] = "Invalid payment ID.";
+            header('Location: ?controller=payment&action=showPendingPayments');
+            exit();
+        }
+
+        require_once __DIR__ . '/../Models/Payment.php';
+        require_once __DIR__ . '/../Helpers/Notification.php';
+        
+        if (Payment::rejectPayment($paymentId, $reason)) {
+            // Get payment info to send notification
+            $payment = Payment::findById($paymentId);
+            if ($payment) {
+                // Send rejection notification to customer
+                Notification::sendPaymentVerificationConfirmation($payment->bookingId, false);
+            }
+            
+            $_SESSION['success_message'] = "Payment rejected.";
+        } else {
+            $_SESSION['error_message'] = "Failed to reject payment.";
+        }
+
+        header('Location: ?controller=payment&action=showPendingPayments');
+        exit();
+    }
 }
