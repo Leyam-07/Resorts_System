@@ -40,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Data Display:** All booking displays now properly handle multiple facilities per booking using junction table relationships
 - **API Architecture:** Added RESTful endpoints for dynamic pricing calculation and availability checking
 
+### Fixed
+
+- **Admin Interface Compatibility:** Updated admin dashboard and user booking views to support Phase 2 resort-centric booking changes
+  - Enhanced admin dashboard tables to display resort names, multiple facilities as badges, and total pricing information
+  - Updated user booking management interface with resort-focused layout and payment tracking
+  - Added backward compatibility for mixed booking data (legacy facility-centric and new resort-centric)
+  - Improved responsive design and status visualization across all admin booking displays
+
 ## [1.21.0] - 2025-09-18
 
 ### Added

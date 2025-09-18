@@ -14,9 +14,11 @@ if (empty($bookings)): ?>
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Facility</th>
+                <th>Resort</th>
+                <th>Facilities</th>
                 <th>Date</th>
                 <th>Time</th>
+                <th>Total</th>
                 <th>Guests</th>
                 <th>Status</th>
             </tr>
@@ -24,11 +26,39 @@ if (empty($bookings)): ?>
         <tbody>
             <?php foreach ($bookings as $booking): ?>
                 <tr>
-                    <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                    <td><strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?></strong></td>
+                    <td>
+                        <?php if (!empty($booking->FacilityNames)): ?>
+                            <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                        <?php else: ?>
+                            <span class="text-muted small">Resort access only</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?></td>
                     <td><?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->TimeSlotType)) ?></td>
+                    <td>
+                        <?php if (!empty($booking->TotalAmount)): ?>
+                            <strong>₱<?= number_format($booking->TotalAmount, 2) ?></strong>
+                            <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                <br><small class="text-warning">Balance: ₱<?= number_format($booking->RemainingBalance, 2) ?></small>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="text-muted">-</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
-                    <td><span class="badge bg-primary"><?= htmlspecialchars($booking->Status) ?></span></td>
+                    <td>
+                        <?php
+                            $statusColors = [
+                                'Pending' => 'bg-warning text-dark',
+                                'Confirmed' => 'bg-success',
+                                'Cancelled' => 'bg-danger',
+                                'Completed' => 'bg-primary'
+                            ];
+                            $statusClass = $statusColors[$booking->Status] ?? 'bg-secondary';
+                        ?>
+                        <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($booking->Status) ?></span>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

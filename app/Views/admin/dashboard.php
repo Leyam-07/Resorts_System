@@ -56,7 +56,9 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Booking ID</th>
                                         <th>Time</th>
                                         <th>Customer</th>
-                                        <th>Facility</th>
+                                        <th>Resort</th>
+                                        <th>Facilities</th>
+                                        <th>Total</th>
                                         <th>Guests</th>
                                         <th>Booking Status</th>
                                         <th>Payment Status</th>
@@ -69,7 +71,24 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td><?= htmlspecialchars($booking->BookingID) ?></td>
                                             <td><?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->TimeSlotType)) ?></td>
                                             <td><?= htmlspecialchars($booking->CustomerName) ?></td>
-                                            <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                                            <td><strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown') ?></strong></td>
+                                            <td>
+                                                <?php if (!empty($booking->FacilityNames)): ?>
+                                                    <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">Resort only</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($booking->TotalAmount)): ?>
+                                                    <strong>₱<?= number_format($booking->TotalAmount, 2) ?></strong>
+                                                    <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                                        <br><small class="text-warning">Bal: ₱<?= number_format($booking->RemainingBalance, 2) ?></small>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
                                                 <span class="badge
@@ -128,7 +147,9 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Customer</th>
-                                        <th>Facility</th>
+                                        <th>Resort</th>
+                                        <th>Facilities</th>
+                                        <th>Total</th>
                                         <th>Guests</th>
                                         <th>Status</th>
                                         <th>Payment Status</th>
@@ -141,7 +162,24 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
                                             <td><?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->TimeSlotType)) ?></td>
                                             <td><?= htmlspecialchars($booking->CustomerName) ?></td>
-                                            <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                                            <td><strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown') ?></strong></td>
+                                            <td>
+                                                <?php if (!empty($booking->FacilityNames)): ?>
+                                                    <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">Resort only</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($booking->TotalAmount)): ?>
+                                                    <strong>₱<?= number_format($booking->TotalAmount, 2) ?></strong>
+                                                    <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                                        <br><small class="text-warning">Bal: ₱<?= number_format($booking->RemainingBalance, 2) ?></small>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
                                                 <span class="badge
@@ -200,7 +238,8 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Booking ID</th>
                                         <th>Date</th>
                                         <th>Customer</th>
-                                        <th>Facility</th>
+                                        <th>Resort</th>
+                                        <th>Facilities</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -210,7 +249,14 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td><?= htmlspecialchars($booking->BookingID) ?></td>
                                             <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
                                             <td><?= htmlspecialchars($booking->CustomerName) ?></td>
-                                            <td><?= htmlspecialchars($booking->FacilityName) ?></td>
+                                            <td><strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown') ?></strong></td>
+                                            <td>
+                                                <?php if (!empty($booking->FacilityNames)): ?>
+                                                    <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-muted small">Resort only</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                  <span class="badge
                                                     <?php
