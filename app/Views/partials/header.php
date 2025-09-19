@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS - Load in head to ensure dropdowns work -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -104,5 +104,25 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
 </nav>
 <?php endif; ?>
+
+<!-- Initialize Bootstrap dropdowns -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all dropdown toggles
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
+    });
+    
+    // Add click event listeners to dropdown toggles as backup
+    document.querySelectorAll('.dropdown-toggle').forEach(function(element) {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            var dropdown = bootstrap.Dropdown.getInstance(element) || new bootstrap.Dropdown(element);
+            dropdown.toggle();
+        });
+    });
+});
+</script>
 
 <div class="container mt-4">

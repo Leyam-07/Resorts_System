@@ -18,7 +18,7 @@
                         <input type="number" class="form-control" id="capacity" name="capacity" required>
                     </div>
                     <div class="mb-3">
-                        <label for="rate" class="form-label">Rate per Slot ($)</label>
+                        <label for="rate" class="form-label">Price per Booking (₱)</label>
                         <input type="number" step="0.01" class="form-control" id="rate" name="rate" required>
                     </div>
                     <div class="mb-3">

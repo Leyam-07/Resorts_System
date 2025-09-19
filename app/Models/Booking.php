@@ -545,16 +545,16 @@ class Booking {
                 LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
                 LEFT JOIN (
                     SELECT
-                        BookingID,
-                        SUM(Amount) as TotalPaid,
+                        p2.BookingID,
+                        SUM(p2.Amount) as TotalPaid,
                         CASE
-                            WHEN SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) >= MAX(b2.TotalAmount) THEN 'Paid'
-                            WHEN SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) > 0 THEN 'Partial'
+                            WHEN SUM(CASE WHEN p2.Status = 'Verified' THEN p2.Amount ELSE 0 END) >= MAX(b2.TotalAmount) THEN 'Paid'
+                            WHEN SUM(CASE WHEN p2.Status = 'Verified' THEN p2.Amount ELSE 0 END) > 0 THEN 'Partial'
                             ELSE 'Unpaid'
                         END as PaymentStatus
                     FROM Payments p2
                     LEFT JOIN Bookings b2 ON p2.BookingID = b2.BookingID
-                    GROUP BY BookingID
+                    GROUP BY p2.BookingID
                 ) p ON b.BookingID = p.BookingID
                 WHERE 1=1";
 

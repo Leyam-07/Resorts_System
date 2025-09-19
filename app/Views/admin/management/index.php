@@ -52,7 +52,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                                     <th>ID</th>
                                                     <th>Name</th>
                                                     <th>Capacity</th>
-                                                    <th>Rate</th>
+                                                    <th>Price</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -67,7 +67,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                                             <td><?= htmlspecialchars($facility->facilityId) ?></td>
                                                             <td><?= htmlspecialchars($facility->name) ?></td>
                                                             <td><?= htmlspecialchars($facility->capacity) ?></td>
-                                                            <td>$<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
+                                                            <td>₱<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
                                                                 <button class="btn btn-outline-secondary btn-sm schedule-facility-btn" data-bs-toggle="modal" data-bs-target="#scheduleFacilityModal" data-facility-id="<?= $facility->facilityId ?>" data-facility-name="<?= htmlspecialchars($facility->name) ?>">Schedule</button>
                                                                 <button class="btn btn-outline-primary btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>

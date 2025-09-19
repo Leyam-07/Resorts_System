@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.1] - 2025-09-19
+
+### Fixed
+
+- **Critical SQL Error Resolution:** Fixed a fatal database error in the admin "Unified Booking & Payment" interface where ambiguous column references in complex JOIN queries caused the page to crash with "SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'BookingID' in field list is ambiguous". Resolved by properly prefixing table aliases in the `Booking::getBookingsWithPaymentDetails()` method.
+
+- **Bootstrap Navigation Dropdowns:** Resolved non-functional admin navigation dropdown menus where clicking "Booking & Payments", "Pricing & Blocking", and "System" headers did nothing. Fixed by correcting Bootstrap JavaScript loading order, adding explicit dropdown initialization, and implementing backup event listeners for proper dropdown functionality.
+
+- **UI/UX Consistency:** Standardized currency and terminology across all admin interfaces for consistent user experience:
+  - **Currency Standardization:** Updated all admin interfaces from US dollar ($) to Philippine peso (₱) throughout facility management forms, pricing displays, and administrative controls.
+  - **Terminology Updates:** Replaced outdated "Rate" terminology with "Price" to reflect the new fixed-pricing model (vs. previous hourly-based system).
+  - **Context Improvements:** Updated form labels from "Rate per Slot" to "Price per Booking" and "Rate (per hour)" to "Price (₱)" to align with the resort-centric booking system.
+
+### Enhanced
+
+- **Admin Interface Reliability:** All Phase 5 admin management features now fully operational with error-free database queries and proper navigation functionality.
+- **System-wide Consistency:** Complete alignment of currency display and pricing terminology across customer-facing and administrative interfaces, improving user comprehension and professional appearance.
+- **Developer Experience:** Enhanced maintainability with properly structured SQL queries and consistent Bootstrap component implementation.
+
 ## [1.25.0] - 2025-09-19
 
 ### Added
