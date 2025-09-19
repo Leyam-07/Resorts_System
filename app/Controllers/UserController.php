@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Helpers/Notification.php';
 require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Models/Feedback.php';
 require_once __DIR__ . '/../Models/Resort.php';
+require_once __DIR__ . '/../Helpers/ValidationHelper.php';
 
 class UserController {
 
@@ -111,23 +112,28 @@ class UserController {
  
      public function register() {
          if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-             // Sanitize POST data
-            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
-            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-            $password = $_POST['password']; // No sanitization needed before hashing
-            $confirmPassword = $_POST['confirm_password'];
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
+             // Phase 6: Enhanced validation
+            $validation = ValidationHelper::validateUserRegistration($_POST);
 
-            // Validate that passwords match
-            if ($password !== $confirmPassword) {
-                header('Location: index.php?action=showRegisterForm&error=password_mismatch');
-                exit();
+            if (!$validation['valid']) {
+                $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+                $_SESSION['old_input'] = $_POST;
+                header('Location: index.php?action=showRegisterForm');
+                exit;
             }
 
+            $validatedData = $validation['data'];
+
             // Attempt to create the user
-            $result = User::create($username, $password, $email, 'Customer', $firstName, $lastName, $phoneNumber);
+            $result = User::create(
+                $validatedData['username'],
+                $validatedData['password'],
+                $validatedData['email'],
+                'Customer',
+                $_POST['firstName'] ?? '',
+                $_POST['lastName'] ?? '',
+                $_POST['phoneNumber'] ?? ''
+            );
 
             if ($result === true) {
                 // Find the new user to get their details
@@ -153,23 +159,28 @@ class UserController {
 
     public function registerAdmin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Sanitize POST data
-            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
-            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-            $password = $_POST['password']; // No sanitization needed before hashing
-            $confirmPassword = $_POST['confirm_password'];
-            $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
-            $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
-            $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
+            // Phase 6: Enhanced validation
+            $validation = ValidationHelper::validateUserRegistration($_POST);
 
-            // Validate that passwords match
-            if ($password !== $confirmPassword) {
-                header('Location: index.php?action=showAdminRegisterForm&error=password_mismatch');
-                exit();
+            if (!$validation['valid']) {
+                $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+                $_SESSION['old_input'] = $_POST;
+                header('Location: index.php?action=showAdminRegisterForm');
+                exit;
             }
 
+            $validatedData = $validation['data'];
+
             // Attempt to create the user with Admin role
-            $result = User::create($username, $password, $email, 'Admin', $firstName, $lastName, $phoneNumber);
+            $result = User::create(
+                $validatedData['username'],
+                $validatedData['password'],
+                $validatedData['email'],
+                'Admin',
+                $_POST['firstName'] ?? '',
+                $_POST['lastName'] ?? '',
+                $_POST['phoneNumber'] ?? ''
+            );
 
             if ($result === true) {
                 // Redirect to login page on success

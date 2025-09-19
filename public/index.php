@@ -4,8 +4,12 @@ define('APP_LOADED', true);
 
 // Load application configuration
 require_once __DIR__ . '/../config/app.php';
+// Phase 6: Initialize enhanced error handler
+require_once __DIR__ . '/../app/Helpers/ErrorHandler.php';
+ErrorHandler::initialize();
 
 session_start();
+
 
 // If not logged in and no specific action, show login page
 if (!isset($_SESSION['user_id']) && !isset($_GET['action'])) {

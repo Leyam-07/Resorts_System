@@ -389,37 +389,73 @@ function showAuditTrail(bookingId) {
     
     modal.show();
     
-    // Fetch audit trail data (would be an AJAX call in real implementation)
-    setTimeout(() => {
-        content.innerHTML = `
-            <div class="timeline">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Phase 6 Feature:</strong> Audit trail functionality is now available.
-                    This would show all booking modifications with user attribution and timestamps.
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">Audit Trail for Booking #${bookingId}</h6>
-                        <p class="card-text">
-                            Complete history of all changes made to this booking, including:
-                        </p>
-                        <ul>
-                            <li>Booking creation with initial values</li>
-                            <li>Status changes with reasons</li>
-                            <li>Payment updates and modifications</li>
-                            <li>User attribution and IP tracking</li>
-                            <li>Timestamp and change descriptions</li>
-                        </ul>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check"></i>
-                            Backend audit trail system is fully implemented and ready for integration.
-                        </div>
+    // Fetch actual audit trail data
+    fetch(`?controller=admin&action=getBookingAuditTrail&booking_id=${bookingId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.auditTrail) {
+                let auditHtml = `
+                    <div class="mb-3">
+                        <h6><i class="fas fa-history"></i> Booking #${bookingId} Audit Trail</h6>
+                        <p class="text-muted">Total entries: ${data.totalEntries}</p>
                     </div>
+                `;
+                
+                if (data.auditTrail.length === 0) {
+                    auditHtml += `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            No audit trail entries found for this booking.
+                        </div>
+                    `;
+                } else {
+                    auditHtml += '<div class="timeline-container" style="max-height: 400px; overflow-y: auto;">';
+                    
+                    data.auditTrail.forEach(entry => {
+                        const actionColor = getActionColor(entry.action);
+                        auditHtml += `
+                            <div class="card mb-2">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-${actionColor} me-2">${entry.action}</span>
+                                            <strong>${entry.description}</strong>
+                                        </div>
+                                        <small class="text-muted">${formatDateTime(entry.createdAt)}</small>
+                                    </div>
+                                    <div class="mt-1">
+                                        <small class="text-muted">
+                                            by ${entry.username} (${entry.role})
+                                            ${entry.reason ? ` - ${entry.reason}` : ''}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    auditHtml += '</div>';
+                }
+                
+                content.innerHTML = auditHtml;
+            } else {
+                content.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading audit trail: ${data.error || 'Unknown error'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Failed to load audit trail data.
                 </div>
-            </div>
-        `;
-    }, 1000);
+            `;
+        });
 }
 
 function showPaymentSchedule(bookingId) {
@@ -436,67 +472,239 @@ function showPaymentSchedule(bookingId) {
     
     modal.show();
     
-    // Fetch payment schedule data (would be an AJAX call in real implementation)
-    setTimeout(() => {
-        content.innerHTML = `
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <strong>Phase 6 Feature:</strong> Payment schedule management is now available.
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title">Payment Schedule for Booking #${bookingId}</h6>
-                    <p class="card-text">
-                        Installment tracking and management features:
-                    </p>
-                    <ul>
-                        <li>Automatic payment schedule creation</li>
-                        <li>Installment due dates and amounts</li>
-                        <li>Overdue payment detection</li>
-                        <li>Payment schedule linking</li>
-                        <li>Custom payment plan creation</li>
-                    </ul>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Due Date</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>${new Date().toLocaleDateString()}</td>
-                                    <td>₱500.00</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>${new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString()}</td>
-                                    <td>₱500.00</td>
-                                    <td><span class="badge bg-warning">Pending</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+    // Fetch actual payment schedule data
+    fetch(`?controller=admin&action=getPaymentScheduleData&booking_id=${bookingId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let scheduleHtml = `
+                    <div class="mb-3">
+                        <h6><i class="fas fa-calendar-alt"></i> Payment Schedule for Booking #${bookingId}</h6>
                     </div>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check"></i>
-                        Backend payment schedule system is fully implemented and integrated.
+                `;
+                
+                // Summary section
+                if (data.summary) {
+                    scheduleHtml += `
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title">Schedule Summary</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li><strong>Total Installments:</strong> ${data.summary.totalInstallments}</li>
+                                            <li><strong>Total Amount:</strong> ₱${data.summary.totalAmount}</li>
+                                            <li><strong>Paid Amount:</strong> ₱${data.summary.paidAmount}</li>
+                                            <li><strong>Remaining:</strong> ₱${data.summary.remainingAmount}</li>
+                                            ${data.summary.overdueCount > 0 ? `<li class="text-danger"><strong>Overdue:</strong> ${data.summary.overdueCount}</li>` : ''}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                ${data.nextPayment ? `
+                                    <div class="card bg-warning bg-opacity-25">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">Next Payment Due</h6>
+                                            <ul class="list-unstyled mb-0">
+                                                <li><strong>Installment #${data.nextPayment.installmentNumber}</strong></li>
+                                                <li><strong>Due Date:</strong> ${formatDate(data.nextPayment.dueDate)}</li>
+                                                <li><strong>Amount:</strong> ₱${data.nextPayment.amount}</li>
+                                                <li><strong>Status:</strong> <span class="badge bg-${getStatusColor(data.nextPayment.status)}">${data.nextPayment.status}</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <div class="card bg-success bg-opacity-25">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">Payment Status</h6>
+                                            <p class="mb-0"><i class="fas fa-check-circle text-success"></i> All payments completed</p>
+                                        </div>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Schedule table
+                if (data.schedule && data.schedule.length > 0) {
+                    scheduleHtml += `
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Installment #</th>
+                                        <th>Due Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    data.schedule.forEach(item => {
+                        const statusColor = getStatusColor(item.status);
+                        const isOverdue = item.isOverdue;
+                        
+                        scheduleHtml += `
+                            <tr ${isOverdue ? 'class="table-danger"' : ''}>
+                                <td>${item.installmentNumber}</td>
+                                <td>${formatDate(item.dueDate)} ${isOverdue ? '<i class="fas fa-exclamation-triangle text-danger" title="Overdue"></i>' : ''}</td>
+                                <td>₱${item.amount}</td>
+                                <td><span class="badge bg-${statusColor}">${item.status}</span></td>
+                                <td>
+                                    ${item.status === 'Pending' ? `
+                                        <button class="btn btn-sm btn-outline-success" onclick="markSchedulePaid(${item.scheduleId})" title="Mark as Paid">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    ` : ''}
+                                    ${item.paymentId ? `<small class="text-muted">Payment #${item.paymentId}</small>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    scheduleHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    scheduleHtml += `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            No payment schedule found for this booking.
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = scheduleHtml;
+            } else {
+                content.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading payment schedule: ${data.error || 'Unknown error'}
                     </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Failed to load payment schedule data.
                 </div>
-            </div>
-        `;
-    }, 1000);
+            `;
+        });
 }
 
 function applyRecommendation(bookingId, newStatus) {
     if (confirm(`Apply lifecycle recommendation to change booking #${bookingId} status to "${newStatus}"?`)) {
-        // Would be an AJAX call in real implementation
-        alert(`Phase 6 Feature: Lifecycle recommendation would be applied.\nBooking #${bookingId} status would change to: ${newStatus}`);
-        location.reload(); // Refresh to show changes
+        const formData = new FormData();
+        formData.append('booking_id', bookingId);
+        formData.append('new_status', newStatus);
+        formData.append('reason', 'Lifecycle recommendation applied by admin');
+        
+        fetch('?controller=admin&action=applyLifecycleRecommendation', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Recommendation applied successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Failed to apply recommendation: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error applying recommendation', 'error');
+        });
     }
+}
+
+// Helper functions for formatting and UI
+function getActionColor(action) {
+    const colors = {
+        'CREATE': 'success',
+        'UPDATE': 'primary',
+        'DELETE': 'danger',
+        'STATUS_CHANGE': 'warning',
+        'PAYMENT_UPDATE': 'info'
+    };
+    return colors[action] || 'secondary';
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'Paid': 'success',
+        'Pending': 'warning',
+        'Overdue': 'danger',
+        'Cancelled': 'secondary',
+        'Verified': 'success'
+    };
+    return colors[status] || 'secondary';
+}
+
+function formatDateTime(dateTime) {
+    return new Date(dateTime).toLocaleString();
+}
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString();
+}
+
+function markSchedulePaid(scheduleId) {
+    if (confirm('Mark this installment as paid?')) {
+        const formData = new FormData();
+        formData.append('schedule_id', scheduleId);
+        formData.append('action', 'mark_paid');
+        formData.append('payment_id', prompt('Enter Payment ID (if available):') || '0');
+        
+        fetch('?controller=admin&action=updatePaymentSchedule', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Payment schedule updated!', 'success');
+                // Refresh the modal content
+                const currentBookingId = document.getElementById('paymentScheduleModal').getAttribute('data-booking-id');
+                if (currentBookingId) {
+                    showPaymentSchedule(currentBookingId);
+                }
+            } else {
+                showToast('Failed to update schedule: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating payment schedule', 'error');
+        });
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
 }
 </script>

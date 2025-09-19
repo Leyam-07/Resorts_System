@@ -8,6 +8,7 @@ require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Models/BookingAuditTrail.php';
 require_once __DIR__ . '/../Models/PaymentSchedule.php';
 require_once __DIR__ . '/../Models/BookingLifecycleManager.php';
+require_once __DIR__ . '/../Helpers/ValidationHelper.php';
 
 class BookingController {
 
@@ -35,66 +36,23 @@ class BookingController {
             exit;
         }
 
-        // 1. Sanitize and retrieve form data (Resort-centric approach)
-        $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
-        $bookingDate = filter_input(INPUT_POST, 'bookingDate', FILTER_UNSAFE_RAW);
-        $timeSlotType = filter_input(INPUT_POST, 'timeSlotType', FILTER_SANITIZE_STRING);
-        $numberOfGuests = filter_input(INPUT_POST, 'numberOfGuests', FILTER_VALIDATE_INT);
-        $facilityIds = filter_input(INPUT_POST, 'facilityIds', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        // Phase 6: Enhanced validation
+        $validation = ValidationHelper::validateBookingData($_POST);
+
+        if (!$validation['valid']) {
+            $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=booking&action=showBookingForm');
+            exit;
+        }
+
+        $validatedData = $validation['data'];
+        $resortId = $validatedData['resort_id'];
+        $bookingDate = $validatedData['booking_date'];
+        $timeSlotType = $validatedData['timeframe'];
+        $numberOfGuests = $validatedData['number_of_guests'];
+        $facilityIds = $validatedData['facility_ids'] ?? [];
         $customerId = $_SESSION['user_id'];
-
-        // 2. Basic Validation - Resort and timeframe are required, facilities are optional
-        if (!$resortId || !$bookingDate || !$timeSlotType || !$numberOfGuests) {
-            $_SESSION['error_message'] = "Resort, date, timeframe, and number of guests are required.";
-            $_SESSION['old_input'] = $_POST;
-            header('Location: ?controller=booking&action=showBookingForm');
-            exit;
-        }
-
-        // 3. Advanced Validation
-        // Check if the resort exists
-        require_once __DIR__ . '/../Models/Resort.php';
-        $resort = Resort::findById($resortId);
-        if (!$resort) {
-            $_SESSION['error_message'] = "The selected resort does not exist.";
-            $_SESSION['old_input'] = $_POST;
-            header('Location: ?controller=booking&action=showBookingForm');
-            exit;
-        }
-
-        // Validate selected facilities belong to the resort
-        if (!empty($facilityIds)) {
-            foreach ($facilityIds as $facilityId) {
-                $facility = Facility::findById($facilityId);
-                if (!$facility || $facility->resortId != $resortId) {
-                    $_SESSION['error_message'] = "One or more selected facilities are invalid for this resort.";
-                    $_SESSION['old_input'] = $_POST;
-                    header('Location: ?controller=booking&action=showBookingForm');
-                    exit;
-                }
-
-                // Check guest capacity for each facility
-                if ($numberOfGuests > $facility->capacity) {
-                    $_SESSION['error_message'] = "The number of guests (" . $numberOfGuests . ") exceeds the capacity (" . $facility->capacity . ") for facility: " . htmlspecialchars($facility->name);
-                    $_SESSION['old_input'] = $_POST;
-                    header('Location: ?controller=booking&action=showBookingForm');
-                    exit;
-                }
-            }
-        }
-
-        // Check if the booking date is in the past
-        $today = new DateTime();
-        $today->setTime(0, 0, 0);
-        $bookingDateTime = new DateTime($bookingDate);
-        $bookingDateTime->setTime(0, 0, 0);
-
-        if ($bookingDateTime < $today) {
-            $_SESSION['error_message'] = "You cannot book a date in the past.";
-            $_SESSION['old_input'] = $_POST;
-            header('Location: ?controller=booking&action=showBookingForm');
-            exit;
-        }
 
         // 4. Check for availability (resort + timeframe + optional facilities)
         if (!Booking::isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds)) {
@@ -263,28 +221,80 @@ class BookingController {
     }
 
     /**
-     * Check availability for resort + timeframe + facilities
+     * Check availability for resort + timeframe + facilities (Enhanced Phase 6)
      */
     public function checkAvailability() {
         header('Content-Type: application/json');
         
-        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
-        $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
-        $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
-        $facilityIds = filter_input(INPUT_GET, 'facility_ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        
-        if (!$resortId || !$date || !$timeframe) {
+        try {
+            $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+            $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
+            $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
+            $numberOfGuests = filter_input(INPUT_GET, 'number_of_guests', FILTER_VALIDATE_INT) ?? 1;
+            $facilityIds = filter_input(INPUT_GET, 'facility_ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+            
+            // Enhanced validation
+            if (!$resortId || $resortId <= 0) {
+                throw new InvalidArgumentException('Valid resort ID is required');
+            }
+            
+            if (!$date || !$this->isValidDate($date)) {
+                throw new InvalidArgumentException('Valid date is required');
+            }
+            
+            if (!$timeframe || !in_array($timeframe, ['12_hours', 'overnight', '24_hours'])) {
+                throw new InvalidArgumentException('Valid timeframe is required');
+            }
+            
+            if ($numberOfGuests <= 0 || $numberOfGuests > 100) {
+                throw new InvalidArgumentException('Number of guests must be between 1 and 100');
+            }
+            
+            // Sanitize facility IDs
+            $sanitizedFacilityIds = [];
+            if (is_array($facilityIds)) {
+                foreach ($facilityIds as $id) {
+                    $cleanId = filter_var($id, FILTER_VALIDATE_INT);
+                    if ($cleanId && $cleanId > 0) {
+                        $sanitizedFacilityIds[] = $cleanId;
+                    }
+                }
+            }
+            
+            // Use advanced availability checker for detailed analysis
+            $availabilityResult = AdvancedAvailabilityChecker::checkAvailabilityDetailed(
+                $resortId,
+                $date,
+                $timeframe,
+                $numberOfGuests,
+                $sanitizedFacilityIds
+            );
+            
+            echo json_encode([
+                'success' => true,
+                'available' => $availabilityResult['available'],
+                'detailed_result' => $availabilityResult,
+                'message' => $availabilityResult['available'] ?
+                    'Time slot is available' :
+                    'Time slot has conflicts or issues'
+            ]);
+            
+        } catch (InvalidArgumentException $e) {
             http_response_code(400);
-            echo json_encode(['error' => 'Missing required parameters']);
-            exit;
+            echo json_encode([
+                'success' => false,
+                'error' => 'validation_error',
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("Availability check error: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'system_error',
+                'message' => 'Unable to check availability. Please try again.'
+            ]);
         }
-
-        $isAvailable = Booking::isResortTimeframeAvailable($resortId, $date, $timeframe, $facilityIds);
-        
-        echo json_encode([
-            'available' => $isAvailable,
-            'message' => $isAvailable ? 'Available' : 'Not available for selected date and time'
-        ]);
         exit;
     }
 
@@ -726,5 +736,154 @@ class BookingController {
         
         echo json_encode($paymentMethods);
         exit;
+    }
+
+    /**
+     * Phase 6: Advanced availability report for admin
+     */
+    public function getAdvancedAvailabilityReport() {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+
+        header('Content-Type: application/json');
+        
+        try {
+            $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+            $startDate = filter_input(INPUT_GET, 'start_date', FILTER_UNSAFE_RAW);
+            $endDate = filter_input(INPUT_GET, 'end_date', FILTER_UNSAFE_RAW);
+            
+            // Default to current month if no dates provided
+            if (!$startDate) {
+                $startDate = date('Y-m-01');
+            }
+            if (!$endDate) {
+                $endDate = date('Y-m-t');
+            }
+            
+            // Validate dates
+            if (!$this->isValidDate($startDate) || !$this->isValidDate($endDate)) {
+                throw new InvalidArgumentException('Invalid date format');
+            }
+            
+            if (strtotime($endDate) < strtotime($startDate)) {
+                throw new InvalidArgumentException('End date must be after start date');
+            }
+            
+            $report = AdvancedAvailabilityChecker::getAvailabilityReport($resortId, $startDate, $endDate);
+            
+            echo json_encode([
+                'success' => true,
+                'report' => $report
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Advanced availability report error: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+        exit();
+    }
+
+    /**
+     * Phase 6: Get availability suggestions for conflict resolution
+     */
+    public function getAvailabilitySuggestions() {
+        header('Content-Type: application/json');
+        
+        try {
+            $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+            $date = filter_input(INPUT_GET, 'date', FILTER_UNSAFE_RAW);
+            $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_UNSAFE_RAW);
+            $numberOfGuests = filter_input(INPUT_GET, 'number_of_guests', FILTER_VALIDATE_INT) ?? 1;
+            $facilityIds = $_GET['facility_ids'] ?? [];
+            
+            if (!$resortId || !$date || !$timeframe) {
+                throw new InvalidArgumentException('Missing required parameters');
+            }
+            
+            // Get detailed availability analysis
+            $result = AdvancedAvailabilityChecker::checkAvailabilityDetailed(
+                $resortId,
+                $date,
+                $timeframe,
+                $numberOfGuests,
+                is_array($facilityIds) ? $facilityIds : []
+            );
+            
+            echo json_encode([
+                'success' => true,
+                'suggestions' => $result['suggestions'],
+                'alternative_dates' => $result['alternative_dates'],
+                'alternative_facilities' => $result['alternative_facilities'],
+                'optimization_suggestions' => $result['optimization_suggestions']
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Availability suggestions error: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+        exit();
+    }
+
+    /**
+     * Enhanced date validation
+     */
+    private function isValidDate($date, $format = 'Y-m-d') {
+        $d = DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
+    }
+
+    /**
+     * Enhanced input sanitization
+     */
+    private function sanitizeInput($input, $type = 'string') {
+        switch ($type) {
+            case 'int':
+                return filter_var($input, FILTER_VALIDATE_INT);
+            case 'float':
+                return filter_var($input, FILTER_VALIDATE_FLOAT);
+            case 'email':
+                return filter_var($input, FILTER_VALIDATE_EMAIL);
+            case 'url':
+                return filter_var($input, FILTER_VALIDATE_URL);
+            case 'string':
+            default:
+                return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+        }
+    }
+
+    /**
+     * Enhanced error handling with logging
+     */
+    private function handleError($message, $code = 500, $logLevel = 'error') {
+        // Log the error
+        error_log("[BookingController] $logLevel: $message");
+        
+        // Return appropriate response
+        http_response_code($code);
+        
+        if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'error' => $message,
+                'code' => $code
+            ]);
+        } else {
+            // For non-AJAX requests, redirect with error message
+            $_SESSION['error_message'] = $message;
+            header('Location: ?controller=booking&action=create');
+        }
+        exit();
     }
 }
