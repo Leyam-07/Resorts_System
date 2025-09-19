@@ -5,6 +5,9 @@ require_once __DIR__ . '/../Models/Facility.php';
 require_once __DIR__ . '/../Helpers/Notification.php';
 require_once __DIR__ . '/../Models/Feedback.php';
 require_once __DIR__ . '/../Models/Resort.php';
+require_once __DIR__ . '/../Models/BookingAuditTrail.php';
+require_once __DIR__ . '/../Models/PaymentSchedule.php';
+require_once __DIR__ . '/../Models/BookingLifecycleManager.php';
 
 class BookingController {
 
@@ -101,10 +104,24 @@ class BookingController {
             exit;
         }
 
-        // 5. Create resort-centric booking
+        // 5. Create resort-centric booking with Phase 6 enhancements
+        $totalAmount = Booking::calculateBookingTotal($resortId, $timeSlotType, $bookingDate, $facilityIds);
         $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds);
 
         if ($bookingId) {
+            // Phase 6: Log booking creation in audit trail
+            $bookingData = [
+                'resortId' => $resortId,
+                'bookingDate' => $bookingDate,
+                'timeSlotType' => $timeSlotType,
+                'numberOfGuests' => $numberOfGuests,
+                'totalAmount' => $totalAmount
+            ];
+            BookingAuditTrail::logBookingCreation($bookingId, $customerId, $bookingData);
+            
+            // Phase 6: Create payment schedule for booking
+            PaymentSchedule::createScheduleForBooking($bookingId, $totalAmount);
+            
             // Send booking confirmation email (before payment)
             Notification::sendBookingConfirmation($bookingId);
 
@@ -504,10 +521,16 @@ class BookingController {
         require_once __DIR__ . '/../Models/Resort.php';
         require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
+        require_once __DIR__ . '/../Models/PaymentSchedule.php';
         
         $resort = Resort::findById($booking->resortId);
         $paymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
         $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+        
+        // Phase 6: Get payment schedule information for display
+        $paymentSchedule = PaymentSchedule::findByBookingId($bookingId);
+        $scheduleSummary = PaymentSchedule::getScheduleSummary($bookingId);
+        $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
 
         // Check for error messages
         $errorMessage = $_SESSION['error_message'] ?? null;
@@ -570,13 +593,32 @@ class BookingController {
             exit;
         }
 
-        // Update booking with payment information AND create payment record
+        // Update booking with payment information AND create payment record with Phase 6 enhancements
         require_once __DIR__ . '/../Models/Payment.php';
         
         // Create payment record
         $paymentId = Payment::createFromBookingPayment($bookingId, $amountPaid, $paymentReference, $paymentProofURL);
         
         if ($paymentId && Booking::updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid)) {
+            // Phase 6: Log payment update in audit trail
+            BookingAuditTrail::logPaymentUpdate(
+                $bookingId,
+                $_SESSION['user_id'],
+                'PaymentSubmission',
+                'No Payment',
+                '₱' . number_format($amountPaid, 2) . ' (Pending)',
+                'Customer submitted payment proof'
+            );
+            
+            // Phase 6: Update payment schedule if applicable
+            $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
+            if ($nextPayment && $nextPayment->Amount <= $amountPaid) {
+                PaymentSchedule::markAsPaid($nextPayment->ScheduleID, $paymentId);
+            }
+            
+            // Phase 6: Trigger lifecycle management check
+            BookingLifecycleManager::processAllBookings();
+            
             // Send notification to admin
             $this->notifyAdminPaymentSubmission($bookingId);
 

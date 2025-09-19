@@ -85,6 +85,138 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
 
         <?php if ($booking->remainingBalance > 0): ?>
+        
+        <!-- Phase 6: Payment Schedule Section -->
+        <?php
+        // Get payment schedule for this booking
+        require_once __DIR__ . '/../Models/PaymentSchedule.php';
+        $paymentSchedule = PaymentSchedule::findByBookingId($booking->bookingId);
+        $scheduleSummary = PaymentSchedule::getScheduleSummary($booking->bookingId);
+        $nextPayment = PaymentSchedule::getNextPaymentDue($booking->bookingId);
+        ?>
+        
+        <?php if (!empty($paymentSchedule)): ?>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Payment Schedule</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Schedule Summary</h6>
+                        <div class="d-flex justify-content-between">
+                            <span>Total Installments:</span>
+                            <span class="fw-bold"><?= $scheduleSummary->TotalInstallments ?? 0 ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Paid Amount:</span>
+                            <span class="text-success fw-bold">₱<?= number_format($scheduleSummary->PaidAmount ?? 0, 2) ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Remaining Amount:</span>
+                            <span class="text-danger fw-bold">₱<?= number_format($scheduleSummary->RemainingAmount ?? 0, 2) ?></span>
+                        </div>
+                        <?php if (isset($scheduleSummary->OverdueCount) && $scheduleSummary->OverdueCount > 0): ?>
+                        <div class="d-flex justify-content-between">
+                            <span>Overdue Payments:</span>
+                            <span class="text-warning fw-bold"><?= $scheduleSummary->OverdueCount ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if ($nextPayment): ?>
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary-subtle text-primary">
+                                <h6 class="mb-0"><i class="fas fa-arrow-right"></i> Next Payment Due</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Installment #:</span>
+                                    <span class="fw-bold"><?= $nextPayment->InstallmentNumber ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Amount Due:</span>
+                                    <span class="fw-bold text-primary">₱<?= number_format($nextPayment->Amount, 2) ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Due Date:</span>
+                                    <span class="fw-bold <?= strtotime($nextPayment->DueDate) < time() ? 'text-danger' : 'text-success' ?>">
+                                        <?= date('M j, Y', strtotime($nextPayment->DueDate)) ?>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Status:</span>
+                                    <span class="badge <?= $nextPayment->Status === 'Overdue' ? 'bg-danger' : 'bg-warning' ?>">
+                                        <?= $nextPayment->Status ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Payment Schedule Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-info">
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> #</th>
+                                <th><i class="fas fa-calendar"></i> Due Date</th>
+                                <th><i class="fas fa-peso-sign"></i> Amount</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-receipt"></i> Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($paymentSchedule as $schedule): ?>
+                            <tr class="<?= $schedule->Status === 'Paid' ? 'table-success' : ($schedule->Status === 'Overdue' ? 'table-danger' : '') ?>">
+                                <td class="fw-bold"><?= $schedule->InstallmentNumber ?></td>
+                                <td>
+                                    <?= date('M j, Y', strtotime($schedule->DueDate)) ?>
+                                    <?php if (strtotime($schedule->DueDate) < time() && $schedule->Status !== 'Paid'): ?>
+                                        <i class="fas fa-exclamation-triangle text-warning ms-1" title="Overdue"></i>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="fw-bold">₱<?= number_format($schedule->Amount, 2) ?></td>
+                                <td>
+                                    <span class="badge <?=
+                                        $schedule->Status === 'Paid' ? 'bg-success' :
+                                        ($schedule->Status === 'Overdue' ? 'bg-danger' :
+                                        ($schedule->Status === 'Pending' ? 'bg-warning' : 'bg-secondary'))
+                                    ?>">
+                                        <?= $schedule->Status ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($schedule->PaymentID): ?>
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> Paid (ID: <?= $schedule->PaymentID ?>)
+                                        </small>
+                                    <?php else: ?>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> Awaiting payment
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <?php if ($nextPayment): ?>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb"></i> <strong>Payment Tip:</strong>
+                    You can pay the exact installment amount (₱<?= number_format($nextPayment->Amount, 2) ?>)
+                    or pay more to advance your payment schedule.
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
         <!-- Enhanced Payment Methods Card -->
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-success text-white">
@@ -142,13 +274,18 @@ require_once __DIR__ . '/../partials/header.php';
                         <div class="form-text">
                             <i class="fas fa-info-circle"></i> You can pay between ₱1.00 and ₱<?= number_format($booking->remainingBalance, 2) ?>
                         </div>
-                        <div class="mt-2 d-flex gap-2">
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
                             <button type="button" class="btn btn-success btn-sm" onclick="setFullAmount()">
                                 <i class="fas fa-money-bill"></i> Pay Full Amount (₱<?= number_format($booking->remainingBalance, 2) ?>)
                             </button>
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="setHalfAmount()">
                                 <i class="fas fa-percentage"></i> Pay 50% (₱<?= number_format($booking->remainingBalance / 2, 2) ?>)
                             </button>
+                            <?php if ($nextPayment && $nextPayment->Amount <= $booking->remainingBalance): ?>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="setInstallmentAmount()">
+                                <i class="fas fa-calendar-check"></i> Next Installment (₱<?= number_format($nextPayment->Amount, 2) ?>)
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -332,6 +469,15 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => amountInput.classList.remove('pulse'), 1000);
         validateForm();
     };
+    
+    <?php if ($nextPayment): ?>
+    window.setInstallmentAmount = function() {
+        amountInput.value = <?= $nextPayment->Amount ?>;
+        amountInput.classList.add('pulse');
+        setTimeout(() => amountInput.classList.remove('pulse'), 1000);
+        validateForm();
+    };
+    <?php endif; ?>
 
     // Enhanced drag and drop functionality
     uploadArea.addEventListener('click', function(e) {

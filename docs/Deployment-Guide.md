@@ -173,7 +173,7 @@ php scripts/migrations/create_booking_facilities_table.php
 php scripts/migrations/create_resort_payment_methods_table.php
 php scripts/migrations/update_bookings_table_for_resort_centric.php
 
-# Phase 6: Advanced Features & Refinements migrations (REQUIRED for v1.26.0+)
+# Phase 6: Advanced Features & Refinements migrations (REQUIRED for v1.26.1+)
 php scripts/migrations/create_payment_schedules_table.php
 php scripts/migrations/create_booking_audit_trail_table.php
 ```
@@ -181,7 +181,12 @@ php scripts/migrations/create_booking_audit_trail_table.php
 **Note:**
 
 - The Phase 1 migrations (v1.21.0+) are **required** for the resort-centric booking system. They must be run in order to support the new booking flow implemented in Phase 2.
-- The Phase 6 migrations (v1.26.0+) are **required** for advanced audit trails, automated lifecycle management, and enhanced payment validation features.
+- The Phase 6 migrations (v1.26.1+) are **required** for advanced audit trails, automated lifecycle management, enhanced payment validation features, payment schedule tracking, and comprehensive booking lifecycle management.
+- **Phase 6 Status (v1.26.1):** Both Phase 6 migrations have been successfully executed and are fully operational. The system now supports:
+  - **PaymentSchedules table:** Installment payment tracking with due dates and automated overdue detection
+  - **BookingAuditTrail table:** Comprehensive change tracking with user attribution and IP logging
+  - **Enhanced Admin Interface:** Phase 6 features accessible through unified booking management with audit trails and payment schedules
+  - **Customer Payment Experience:** Full payment schedule display with installment tracking and smart payment suggestions
 
 ### Application Structure
 
