@@ -3,7 +3,20 @@ $pageTitle = "Submit Payment";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
-        <h1><i class="fas fa-credit-card"></i> <?= htmlspecialchars($pageTitle) ?></h1>
+        <!-- Enhanced Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="mb-1"><i class="fas fa-credit-card text-primary"></i> <?= htmlspecialchars($pageTitle) ?></h1>
+                        <p class="text-muted mb-0">Complete your booking by submitting payment proof</p>
+                    </div>
+                    <div class="d-none d-md-block">
+                        <i class="fas fa-money-check-alt fa-3x text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <?php if (isset($errorMessage)): ?>
             <div class="alert alert-danger" role="alert">
@@ -72,20 +85,26 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
 
         <?php if ($booking->remainingBalance > 0): ?>
-        <!-- Payment Methods Card -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-money-bill"></i> Available Payment Methods</h5>
+        <!-- Enhanced Payment Methods Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-credit-card"></i> Available Payment Methods</h5>
             </div>
             <div class="card-body">
                 <?php if (!empty($paymentMethods)): ?>
                     <div class="row">
                         <?php foreach ($paymentMethods as $method): ?>
                             <div class="col-md-4 mb-3">
-                                <div class="card h-100 border-secondary">
+                                <div class="card h-100 border-success shadow-sm payment-method-card">
                                     <div class="card-body text-center">
-                                        <h6 class="card-title text-primary"><?= htmlspecialchars($method->MethodName) ?></h6>
+                                        <div class="mb-2">
+                                            <i class="fas fa-mobile-alt fa-2x text-success"></i>
+                                        </div>
+                                        <h6 class="card-title text-success fw-bold"><?= htmlspecialchars($method->MethodName) ?></h6>
                                         <p class="card-text small text-muted"><?= htmlspecialchars($method->MethodDetails) ?></p>
+                                        <div class="badge bg-success-subtle text-success">
+                                            <i class="fas fa-check"></i> Available
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -99,55 +118,97 @@ require_once __DIR__ . '/../partials/header.php';
             </div>
         </div>
 
-        <!-- Payment Submission Form -->
-        <div class="card mb-4">
-            <div class="card-header">
+        <!-- Enhanced Payment Submission Form -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="fas fa-upload"></i> Submit Payment Proof</h5>
             </div>
             <div class="card-body">
                 <form action="?controller=booking&action=submitPayment" method="POST" enctype="multipart/form-data" id="paymentForm">
                     <input type="hidden" name="booking_id" value="<?= $booking->bookingId ?>">
                     
-                    <!-- Amount Being Paid -->
+                    <!-- Enhanced Amount Being Paid -->
                     <div class="mb-4">
-                        <label for="amount_paid" class="form-label fw-bold">Amount Being Paid <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text">₱</span>
+                        <label for="amount_paid" class="form-label fw-bold">
+                            <i class="fas fa-peso-sign text-primary"></i> Amount Being Paid <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-success text-white"><i class="fas fa-peso-sign"></i></span>
                             <input type="number" class="form-control" id="amount_paid" name="amount_paid"
                                    min="1" max="<?= $booking->remainingBalance ?>" step="0.01" required
                                    placeholder="Enter amount">
+                            <span class="input-group-text">.00</span>
                         </div>
                         <div class="form-text">
-                            You can pay between ₱1.00 and ₱<?= number_format($booking->remainingBalance, 2) ?>
+                            <i class="fas fa-info-circle"></i> You can pay between ₱1.00 and ₱<?= number_format($booking->remainingBalance, 2) ?>
                         </div>
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setFullAmount()">
-                                Pay Full Amount (₱<?= number_format($booking->remainingBalance, 2) ?>)
+                        <div class="mt-2 d-flex gap-2">
+                            <button type="button" class="btn btn-success btn-sm" onclick="setFullAmount()">
+                                <i class="fas fa-money-bill"></i> Pay Full Amount (₱<?= number_format($booking->remainingBalance, 2) ?>)
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setHalfAmount()">
+                                <i class="fas fa-percentage"></i> Pay 50% (₱<?= number_format($booking->remainingBalance / 2, 2) ?>)
                             </button>
                         </div>
                     </div>
 
-                    <!-- Payment Reference -->
+                    <!-- Enhanced Payment Reference -->
                     <div class="mb-4">
-                        <label for="payment_reference" class="form-label fw-bold">Payment Reference Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="payment_reference" name="payment_reference" required
-                               placeholder="Enter transaction/reference number">
+                        <label for="payment_reference" class="form-label fw-bold">
+                            <i class="fas fa-hashtag text-primary"></i> Payment Reference Number <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                            <input type="text" class="form-control" id="payment_reference" name="payment_reference" required
+                                   placeholder="Enter transaction/reference number">
+                        </div>
                         <div class="form-text">
-                            Enter the transaction ID, reference number, or confirmation code from your payment.
+                            <i class="fas fa-info-circle"></i> Enter the transaction ID, reference number, or confirmation code from your payment.
                         </div>
                     </div>
 
-                    <!-- Payment Proof Upload -->
+                    <!-- Enhanced Payment Proof Upload -->
                     <div class="mb-4">
-                        <label for="payment_proof" class="form-label fw-bold">Payment Proof <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="payment_proof" name="payment_proof" 
-                               accept="image/*" required>
-                        <div class="form-text">
-                            Upload a screenshot or photo of your payment confirmation. Accepted formats: JPG, PNG, GIF. Max size: 5MB.
+                        <label for="payment_proof" class="form-label fw-bold">
+                            <i class="fas fa-camera text-primary"></i> Payment Proof <span class="text-danger">*</span>
+                        </label>
+                        
+                        <!-- Drag and Drop Upload Area -->
+                        <div class="upload-area border-2 border-dashed rounded-3 p-4 text-center" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h5 class="text-primary">Drop your payment proof here</h5>
+                                <p class="text-muted mb-3">or click to browse files</p>
+                                <input type="file" class="form-control d-none" id="payment_proof" name="payment_proof"
+                                       accept="image/*" required>
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('payment_proof').click()">
+                                    <i class="fas fa-folder-open"></i> Browse Files
+                                </button>
+                            </div>
                         </div>
-                        <!-- Preview area -->
+                        
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle"></i> Upload a screenshot or photo of your payment confirmation.
+                            <strong>Accepted:</strong> JPG, PNG, GIF | <strong>Max size:</strong> 5MB
+                        </div>
+                        
+                        <!-- Enhanced Preview area -->
                         <div id="imagePreview" class="mt-3" style="display: none;">
-                            <img id="previewImg" src="" alt="Payment proof preview" class="img-thumbnail" style="max-height: 200px;">
+                            <div class="card border-success">
+                                <div class="card-header bg-success-subtle">
+                                    <h6 class="mb-0 text-success">
+                                        <i class="fas fa-check-circle"></i> Payment Proof Preview
+                                    </h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img id="previewImg" src="" alt="Payment proof preview" class="img-fluid rounded" style="max-height: 300px;">
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeImage()">
+                                            <i class="fas fa-trash"></i> Remove Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -162,12 +223,17 @@ require_once __DIR__ . '/../partials/header.php';
                         </ul>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Enhanced Submit Section -->
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
-                            <i class="fas fa-paper-plane"></i> Submit Payment Proof
+                        <button type="submit" class="btn btn-success btn-lg shadow" id="submitBtn" disabled>
+                            <span class="submit-text">
+                                <i class="fas fa-paper-plane"></i> Submit Payment Proof
+                            </span>
+                            <span class="loading-text d-none">
+                                <i class="fas fa-spinner fa-spin"></i> Submitting...
+                            </span>
                         </button>
-                        <a href="?controller=booking&action=showMyBookings" class="btn btn-secondary">
+                        <a href="?controller=booking&action=showMyBookings" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Back to My Bookings
                         </a>
                     </div>
@@ -188,6 +254,60 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
         <?php endif; ?>
 
+<!-- Enhanced CSS for Payment Form -->
+<style>
+.payment-method-card {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.payment-method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.upload-area {
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    border-color: #dee2e6 !important;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    background-color: #e3f2fd;
+    border-color: #0d6efd !important;
+}
+
+.upload-area.dragover {
+    background-color: #e3f2fd;
+    border-color: #0d6efd !important;
+    transform: scale(1.02);
+}
+
+.form-control:focus, .form-select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const amountInput = document.getElementById('amount_paid');
@@ -195,65 +315,178 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewDiv = document.getElementById('imagePreview');
     const previewImg = document.getElementById('previewImg');
     const form = document.getElementById('paymentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const uploadArea = document.getElementById('uploadArea');
     
-    // Set full amount function
+    // Enhanced amount functions
     window.setFullAmount = function() {
         amountInput.value = <?= $booking->remainingBalance ?>;
+        amountInput.classList.add('pulse');
+        setTimeout(() => amountInput.classList.remove('pulse'), 1000);
+        validateForm();
     };
     
-    // File preview functionality
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validate file type
-                if (!file.type.startsWith('image/')) {
-                    alert('Please select an image file');
-                    e.target.value = '';
-                    previewDiv.style.display = 'none';
-                    return;
-                }
-                
-                // Validate file size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size must be less than 5MB');
-                    e.target.value = '';
-                    previewDiv.style.display = 'none';
-                    return;
-                }
-                
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewDiv.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewDiv.style.display = 'none';
-            }
-        });
-    }
+    window.setHalfAmount = function() {
+        amountInput.value = (<?= $booking->remainingBalance ?> / 2).toFixed(2);
+        amountInput.classList.add('pulse');
+        setTimeout(() => amountInput.classList.remove('pulse'), 1000);
+        validateForm();
+    };
+
+    // Enhanced drag and drop functionality
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target !== fileInput) {
+            fileInput.click();
+        }
+    });
+
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelection(files[0]);
+        }
+    });
+
+    // Remove image function
+    window.removeImage = function() {
+        fileInput.value = '';
+        previewDiv.style.display = 'none';
+        uploadArea.style.display = 'block';
+        validateForm();
+    };
     
-    // Form validation
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const amount = parseFloat(amountInput.value);
-            const maxAmount = <?= $booking->remainingBalance ?>;
-            
-            if (amount <= 0 || amount > maxAmount) {
-                e.preventDefault();
-                alert('Please enter a valid payment amount between ₱1.00 and ₱' + maxAmount.toLocaleString());
-                return false;
-            }
-            
-            // Confirm submission
-            if (!confirm('Are you sure you want to submit this payment? Please ensure all information is correct.')) {
-                e.preventDefault();
-                return false;
-            }
-        });
+    // Enhanced file preview functionality
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileSelection(file);
+        } else {
+            previewDiv.style.display = 'none';
+            uploadArea.style.display = 'block';
+        }
+    });
+
+    function handleFileSelection(file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showAlert('Please select an image file (JPG, PNG, GIF)', 'danger');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('File size must be less than 5MB', 'danger');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewDiv.style.display = 'block';
+            uploadArea.style.display = 'none';
+            validateForm();
+            showAlert('Image uploaded successfully!', 'success');
+        };
+        reader.readAsDataURL(file);
     }
+
+    function showAlert(message, type) {
+        // Create temporary alert
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 3000);
+    }
+
+    // Form validation
+    function validateForm() {
+        const amountValid = amountInput.value && parseFloat(amountInput.value) > 0;
+        const referenceValid = document.getElementById('payment_reference').value.trim();
+        const fileValid = fileInput.files.length > 0;
+        
+        const isValid = amountValid && referenceValid && fileValid;
+        submitBtn.disabled = !isValid;
+        
+        if (isValid) {
+            submitBtn.classList.remove('btn-secondary');
+            submitBtn.classList.add('btn-success');
+        } else {
+            submitBtn.classList.remove('btn-success');
+            submitBtn.classList.add('btn-secondary');
+        }
+    }
+
+    // Add validation listeners
+    amountInput.addEventListener('input', validateForm);
+    document.getElementById('payment_reference').addEventListener('input', validateForm);
+    
+    // Initial validation
+    validateForm();
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value);
+        const maxAmount = <?= $booking->remainingBalance ?>;
+        
+        if (amount <= 0 || amount > maxAmount) {
+            e.preventDefault();
+            showAlert(`Please enter a valid payment amount between ₱1.00 and ₱${maxAmount.toLocaleString()}`, 'danger');
+            return false;
+        }
+        
+        // Show loading state
+        const submitText = submitBtn.querySelector('.submit-text');
+        const loadingText = submitBtn.querySelector('.loading-text');
+        
+        submitText.classList.add('d-none');
+        loadingText.classList.remove('d-none');
+        submitBtn.disabled = true;
+        
+        // Confirm submission with enhanced modal-like confirm
+        if (!confirm('Are you sure you want to submit this payment?\n\n' +
+                    `Amount: ₱${amount.toLocaleString()}\n` +
+                    `Reference: ${document.getElementById('payment_reference').value}\n\n` +
+                    'Please ensure all information is correct.')) {
+            e.preventDefault();
+            
+            // Restore button state
+            submitText.classList.remove('d-none');
+            loadingText.classList.add('d-none');
+            submitBtn.disabled = false;
+            
+            return false;
+        }
+        
+        showAlert('Submitting payment proof...', 'info');
+    });
 });
 </script>
 

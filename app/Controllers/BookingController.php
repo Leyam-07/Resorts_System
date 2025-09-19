@@ -271,6 +271,141 @@ class BookingController {
         exit;
     }
 
+    /**
+     * Get calendar availability data for enhanced calendar modal
+     */
+    public function getCalendarAvailability() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
+        $month = filter_input(INPUT_GET, 'month', FILTER_SANITIZE_STRING); // YYYY-MM format
+        
+        if (!$resortId || !$timeframe) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Resort ID and timeframe are required']);
+            exit;
+        }
+
+        // Default to current month if not provided
+        if (!$month) {
+            $month = date('Y-m');
+        }
+
+        require_once __DIR__ . '/../Models/BlockedResortAvailability.php';
+        require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
+        
+        // Get start and end dates for the month
+        $startDate = $month . '-01';
+        $endDate = date('Y-m-t', strtotime($startDate));
+        
+        $availability = [];
+        
+        // Generate calendar data for each day of the month
+        $currentDate = new DateTime($startDate);
+        $endDateTime = new DateTime($endDate);
+        
+        while ($currentDate <= $endDateTime) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $dayOfWeek = $currentDate->format('w');
+            $isWeekend = ($dayOfWeek == 0 || $dayOfWeek == 6);
+            $isToday = ($dateStr === date('Y-m-d'));
+            $isPast = ($currentDate < new DateTime('today'));
+            
+            // Check if resort is available for this date/timeframe
+            $isAvailable = Booking::isResortTimeframeAvailable($resortId, $dateStr, $timeframe, []);
+            
+            // Get blocked resort dates
+            $resortBlocked = $this->isDateBlocked($resortId, $dateStr, 'resort');
+            
+            // Get existing bookings count
+            $bookingCount = $this->getBookingCountForDate($resortId, $dateStr, $timeframe);
+            
+            $availability[$dateStr] = [
+                'available' => $isAvailable && !$resortBlocked && !$isPast,
+                'isWeekend' => $isWeekend,
+                'isToday' => $isToday,
+                'isPast' => $isPast,
+                'isBlocked' => $resortBlocked,
+                'bookingCount' => $bookingCount,
+                'status' => $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $bookingCount)
+            ];
+            
+            $currentDate->modify('+1 day');
+        }
+        
+        echo json_encode([
+            'month' => $month,
+            'availability' => $availability,
+            'resortId' => $resortId,
+            'timeframe' => $timeframe
+        ]);
+        exit;
+    }
+
+    /**
+     * Helper method to check if a date is blocked
+     */
+    private function isDateBlocked($resortId, $date, $type = 'resort') {
+        if ($type === 'resort') {
+            $db = $this->getDB();
+            $stmt = $db->prepare("SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = :resortId AND BlockDate = :date");
+            $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+            $stmt->bindValue(':date', $date, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchColumn() > 0;
+        }
+        return false;
+    }
+
+    /**
+     * Helper method to get booking count for a specific date
+     */
+    private function getBookingCountForDate($resortId, $date, $timeframe) {
+        $db = $this->getDB();
+        $stmt = $db->prepare("
+            SELECT COUNT(*) FROM Bookings
+            WHERE ResortID = :resortId
+            AND BookingDate = :date
+            AND TimeSlotType = :timeframe
+            AND Status IN ('Confirmed', 'Pending')
+        ");
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->bindValue(':date', $date, PDO::PARAM_STR);
+        $stmt->bindValue(':timeframe', $timeframe, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    /**
+     * Helper method to determine day status for calendar
+     */
+    private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $bookingCount) {
+        if ($isPast) return 'past';
+        if ($isBlocked) return 'blocked';
+        if (!$isAvailable) return 'unavailable';
+        if ($bookingCount > 0) return 'booked';
+        if ($isWeekend) return 'weekend';
+        return 'available';
+    }
+
+    /**
+     * Get database connection
+     */
+    private function getDB() {
+        static $db = null;
+        if (!$db) {
+            require_once __DIR__ . '/../../config/database.php';
+            try {
+                $db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+                $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                die("Database connection failed: " . $e->getMessage());
+            }
+        }
+        return $db;
+    }
+
     public function showMyBookings() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: ?controller=user&action=login');
