@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/PaymentSchedule.php';
+require_once __DIR__ . '/BookingAuditTrail.php';
+
 class Payment {
     public $paymentId;
     public $bookingId;
@@ -8,6 +11,8 @@ class Payment {
     public $paymentDate;
     public $status;
     public $proofOfPaymentURL;
+    public $scheduleId; // Link to payment schedule if applicable
+    public $validationErrors = [];
 
     private static $db;
 
@@ -80,20 +85,45 @@ class Payment {
     }
 
     /**
-     * Create payment record from booking payment submission
+     * Create payment record from booking payment submission with enhanced validation
      */
-    public static function createFromBookingPayment($bookingId, $amount, $paymentReference, $paymentProofURL) {
+    public static function createFromBookingPayment($bookingId, $amount, $paymentReference, $paymentProofURL, $scheduleId = null) {
+        // Validate payment amount against booking and existing payments
+        $validation = self::validatePaymentAmount($bookingId, $amount);
+        if (!$validation['valid']) {
+            return ['success' => false, 'errors' => $validation['errors']];
+        }
+
         $payment = new Payment();
         $payment->bookingId = $bookingId;
         $payment->amount = $amount;
-        $payment->paymentMethod = 'Online Payment'; // Default for online submissions
+        $payment->paymentMethod = 'Online Payment (Ref: ' . $paymentReference . ')';
         $payment->status = 'Pending'; // Pending admin verification
         $payment->proofOfPaymentURL = $paymentProofURL;
+        $payment->scheduleId = $scheduleId;
         
-        // Add payment reference to the payment method details
-        $payment->paymentMethod = 'Online Payment (Ref: ' . $paymentReference . ')';
+        $paymentId = self::create($payment);
         
-        return self::create($payment);
+        if ($paymentId) {
+            // Log payment creation in audit trail
+            BookingAuditTrail::logPaymentUpdate(
+                $bookingId,
+                $_SESSION['user_id'] ?? 1,
+                'PaymentSubmitted',
+                null,
+                $amount,
+                'Customer submitted payment with reference: ' . $paymentReference
+            );
+
+            // Update payment schedule if linked
+            if ($scheduleId) {
+                PaymentSchedule::markAsPaid($scheduleId, $paymentId);
+            }
+
+            return ['success' => true, 'paymentId' => $paymentId];
+        }
+
+        return ['success' => false, 'errors' => ['Failed to create payment record']];
     }
 
     /**
@@ -136,7 +166,7 @@ class Payment {
     }
 
     /**
-     * Verify payment and update booking status
+     * Verify payment and update booking status with enhanced audit trail
      */
     public static function verifyPayment($paymentId, $adminId) {
         $db = self::getDB();
@@ -144,35 +174,68 @@ class Payment {
         try {
             $db->beginTransaction();
             
-            // Update payment status
-            $stmt = $db->prepare("UPDATE Payments SET Status = 'Verified' WHERE PaymentID = ?");
-            $stmt->execute([$paymentId]);
-            
-            // Get payment info to update booking
+            // Get payment info before verification
             $payment = self::findById($paymentId);
             if (!$payment) {
                 throw new Exception("Payment not found");
             }
+
+            // Update payment status
+            $stmt = $db->prepare("UPDATE Payments SET Status = 'Verified' WHERE PaymentID = ?");
+            $stmt->execute([$paymentId]);
             
-            // Update booking balance and status
+            // Get booking info for balance calculation
             require_once __DIR__ . '/Booking.php';
             $booking = Booking::findById($payment->bookingId);
             if (!$booking) {
                 throw new Exception("Booking not found");
             }
             
-            $newBalance = max(0, $booking->remainingBalance - $payment->amount);
-            $newStatus = ($newBalance <= 0) ? 'Confirmed' : 'Pending';
+            // Calculate new balance with smart validation
+            $balanceCalculation = self::calculateSmartBalance($booking->bookingId);
+            $newBalance = $balanceCalculation['remainingBalance'];
+            $oldStatus = $booking->status;
+            $newStatus = self::determineBookingStatusFromBalance($newBalance, $booking->TotalAmount);
             
+            // Update booking
             $updateStmt = $db->prepare("UPDATE Bookings SET RemainingBalance = ?, Status = ? WHERE BookingID = ?");
             $updateStmt->execute([$newBalance, $newStatus, $booking->bookingId]);
             
+            // Log all changes in audit trail
+            BookingAuditTrail::logPaymentUpdate(
+                $payment->bookingId,
+                $adminId,
+                'PaymentVerified',
+                'Pending',
+                'Verified',
+                'Admin verified payment of ₱' . number_format($payment->amount, 2)
+            );
+
+            if ($oldStatus !== $newStatus) {
+                BookingAuditTrail::logStatusChange(
+                    $payment->bookingId,
+                    $adminId,
+                    $oldStatus,
+                    $newStatus,
+                    'Status changed due to payment verification'
+                );
+            }
+
+            BookingAuditTrail::logPaymentUpdate(
+                $payment->bookingId,
+                $adminId,
+                'BalanceUpdated',
+                $booking->remainingBalance,
+                $newBalance,
+                'Balance updated after payment verification'
+            );
+            
             $db->commit();
-            return true;
+            return ['success' => true, 'newStatus' => $newStatus, 'newBalance' => $newBalance];
             
         } catch (Exception $e) {
             $db->rollback();
-            return false;
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
@@ -203,5 +266,198 @@ class Payment {
         $stmt = $db->prepare("SELECT COUNT(*) FROM Payments WHERE Status = 'Pending'");
         $stmt->execute();
         return $stmt->fetchColumn();
+    }
+
+    /**
+     * Phase 6: Smart balance calculation with validation
+     */
+    public static function calculateSmartBalance($bookingId) {
+        $db = self::getDB();
+        
+        // Get booking total
+        $bookingStmt = $db->prepare("SELECT TotalAmount FROM Bookings WHERE BookingID = ?");
+        $bookingStmt->execute([$bookingId]);
+        $booking = $bookingStmt->fetch(PDO::FETCH_OBJ);
+        
+        if (!$booking) {
+            return ['error' => 'Booking not found'];
+        }
+
+        // Calculate total verified payments
+        $paymentStmt = $db->prepare("SELECT SUM(Amount) as TotalPaid FROM Payments WHERE BookingID = ? AND Status = 'Verified'");
+        $paymentStmt->execute([$bookingId]);
+        $paymentResult = $paymentStmt->fetch(PDO::FETCH_OBJ);
+        
+        $totalPaid = $paymentResult->TotalPaid ?? 0;
+        $totalAmount = $booking->TotalAmount ?? 0;
+        $remainingBalance = max(0, $totalAmount - $totalPaid);
+        
+        // Get pending payments
+        $pendingStmt = $db->prepare("SELECT SUM(Amount) as PendingAmount FROM Payments WHERE BookingID = ? AND Status = 'Pending'");
+        $pendingStmt->execute([$bookingId]);
+        $pendingResult = $pendingStmt->fetch(PDO::FETCH_OBJ);
+        
+        $pendingAmount = $pendingResult->PendingAmount ?? 0;
+
+        return [
+            'totalAmount' => $totalAmount,
+            'totalPaid' => $totalPaid,
+            'pendingAmount' => $pendingAmount,
+            'remainingBalance' => $remainingBalance,
+            'paymentPercentage' => $totalAmount > 0 ? ($totalPaid / $totalAmount) * 100 : 0,
+            'isFullyPaid' => $remainingBalance <= 0,
+            'hasOverpayment' => $totalPaid > $totalAmount
+        ];
+    }
+
+    /**
+     * Validate payment amount against booking constraints
+     */
+    public static function validatePaymentAmount($bookingId, $amount) {
+        $errors = [];
+        
+        // Basic amount validation
+        if ($amount <= 0) {
+            $errors[] = 'Payment amount must be greater than zero';
+        }
+
+        // Get current balance calculation
+        $balanceInfo = self::calculateSmartBalance($bookingId);
+        
+        if (isset($balanceInfo['error'])) {
+            $errors[] = $balanceInfo['error'];
+            return ['valid' => false, 'errors' => $errors];
+        }
+
+        // Check if payment exceeds remaining balance
+        if ($amount > $balanceInfo['remainingBalance']) {
+            $errors[] = 'Payment amount (₱' . number_format($amount, 2) . ') exceeds remaining balance (₱' . number_format($balanceInfo['remainingBalance'], 2) . ')';
+        }
+
+        // Check for reasonable payment limits (e.g., minimum ₱50)
+        if ($amount < 50) {
+            $errors[] = 'Minimum payment amount is ₱50';
+        }
+
+        // Check for maximum single payment (e.g., ₱50,000)
+        if ($amount > 50000) {
+            $errors[] = 'Maximum single payment amount is ₱50,000';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'balanceInfo' => $balanceInfo
+        ];
+    }
+
+    /**
+     * Determine booking status based on balance
+     */
+    private static function determineBookingStatusFromBalance($remainingBalance, $totalAmount) {
+        if ($remainingBalance <= 0) {
+            return 'Confirmed'; // Fully paid
+        } elseif ($remainingBalance < $totalAmount) {
+            return 'Pending'; // Partially paid
+        } else {
+            return 'Pending'; // No payment yet
+        }
+    }
+
+    /**
+     * Get payment summary for a booking
+     */
+    public static function getPaymentSummary($bookingId) {
+        $db = self::getDB();
+        
+        $sql = "SELECT
+                    COUNT(*) as PaymentCount,
+                    SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) as VerifiedTotal,
+                    SUM(CASE WHEN Status = 'Pending' THEN Amount ELSE 0 END) as PendingTotal,
+                    SUM(CASE WHEN Status = 'Rejected' THEN Amount ELSE 0 END) as RejectedTotal,
+                    MAX(PaymentDate) as LastPaymentDate,
+                    MIN(PaymentDate) as FirstPaymentDate
+                FROM Payments
+                WHERE BookingID = ?";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$bookingId]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Process payment with enhanced error handling
+     */
+    public static function processPaymentWithValidation($paymentData) {
+        $errors = [];
+        
+        // Validate required fields
+        $required = ['bookingId', 'amount', 'paymentMethod'];
+        foreach ($required as $field) {
+            if (empty($paymentData[$field])) {
+                $errors[] = "Field '{$field}' is required";
+            }
+        }
+
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // Validate payment amount
+        $validation = self::validatePaymentAmount($paymentData['bookingId'], $paymentData['amount']);
+        if (!$validation['valid']) {
+            return ['success' => false, 'errors' => $validation['errors']];
+        }
+
+        // Create payment
+        $payment = new Payment();
+        $payment->bookingId = $paymentData['bookingId'];
+        $payment->amount = $paymentData['amount'];
+        $payment->paymentMethod = $paymentData['paymentMethod'];
+        $payment->status = $paymentData['status'] ?? 'Pending';
+        $payment->proofOfPaymentURL = $paymentData['proofOfPaymentURL'] ?? null;
+
+        $paymentId = self::create($payment);
+        
+        if ($paymentId) {
+            return ['success' => true, 'paymentId' => $paymentId, 'balanceInfo' => $validation['balanceInfo']];
+        } else {
+            return ['success' => false, 'errors' => ['Failed to create payment record']];
+        }
+    }
+
+    /**
+     * Get overdue payments report
+     */
+    public static function getOverduePaymentsReport($resortId = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT b.BookingID, b.BookingDate, b.TotalAmount, b.RemainingBalance,
+                       u.Username as CustomerName, u.Email as CustomerEmail,
+                       r.Name as ResortName,
+                       DATEDIFF(CURDATE(), b.BookingDate) as DaysOverdue,
+                       ps.DueDate as NextPaymentDue
+                FROM Bookings b
+                JOIN Users u ON b.CustomerID = u.UserID
+                JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN PaymentSchedules ps ON b.BookingID = ps.BookingID AND ps.Status = 'Overdue'
+                WHERE b.Status IN ('Pending', 'Confirmed')
+                AND b.RemainingBalance > 0
+                AND b.BookingDate < CURDATE()";
+        
+        if ($resortId) {
+            $sql .= " AND b.ResortID = ?";
+        }
+        
+        $sql .= " ORDER BY DaysOverdue DESC";
+        
+        $stmt = $db->prepare($sql);
+        if ($resortId) {
+            $stmt->execute([$resortId]);
+        } else {
+            $stmt->execute();
+        }
+        
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 }

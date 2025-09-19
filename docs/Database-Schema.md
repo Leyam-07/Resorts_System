@@ -252,6 +252,60 @@ CREATE TABLE IF NOT EXISTS `FacilityPhotos` (
 
 ---
 
+### Table: `PaymentSchedules`
+
+Supports installment payment tracking and management for bookings with scheduled payments.
+
+```sql
+CREATE TABLE IF NOT EXISTS `PaymentSchedules` (
+    `ScheduleID` INT PRIMARY KEY AUTO_INCREMENT,
+    `BookingID` INT NOT NULL,
+    `InstallmentNumber` INT NOT NULL,
+    `DueDate` DATE NOT NULL,
+    `Amount` DECIMAL(10, 2) NOT NULL,
+    `Status` ENUM('Pending', 'Paid', 'Overdue', 'Cancelled') DEFAULT 'Pending',
+    `PaymentID` INT NULL,
+    `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `UpdatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`BookingID`) REFERENCES `Bookings`(`BookingID`) ON DELETE CASCADE,
+    FOREIGN KEY (`PaymentID`) REFERENCES `Payments`(`PaymentID`) ON DELETE SET NULL,
+    UNIQUE KEY `unique_booking_installment` (`BookingID`, `InstallmentNumber`),
+    INDEX `idx_due_date` (`DueDate`),
+    INDEX `idx_status` (`Status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
+### Table: `BookingAuditTrail`
+
+Comprehensive audit trail system for tracking all booking modifications with full user attribution and change history.
+
+```sql
+CREATE TABLE IF NOT EXISTS `BookingAuditTrail` (
+    `AuditID` INT PRIMARY KEY AUTO_INCREMENT,
+    `BookingID` INT NOT NULL,
+    `UserID` INT NOT NULL,
+    `Action` ENUM('CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE', 'PAYMENT_UPDATE', 'FACILITY_CHANGE') NOT NULL,
+    `FieldName` VARCHAR(100) NOT NULL,
+    `OldValue` TEXT NULL,
+    `NewValue` TEXT NULL,
+    `ChangeReason` TEXT NULL,
+    `IPAddress` VARCHAR(45) NULL,
+    `UserAgent` TEXT NULL,
+    `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`BookingID`) REFERENCES `Bookings`(`BookingID`) ON DELETE CASCADE,
+    FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE,
+    INDEX `idx_booking_id` (`BookingID`),
+    INDEX `idx_user_id` (`UserID`),
+    INDEX `idx_action` (`Action`),
+    INDEX `idx_created_at` (`CreatedAt`),
+    INDEX `idx_field_name` (`FieldName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
 ### Table: `Feedback`
 
 Stores customer feedback and reviews.
