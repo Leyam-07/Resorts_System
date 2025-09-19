@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Set Footer Button
             const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
             if (userRole === 'Customer') {
-                modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}" class="btn btn-success">Book a Facility at this Resort</a>`;
+                modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}" class="btn btn-success">Book Resort Experience</a>`;
             } else {
                 modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
             }
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
                 if (userRole === 'Customer') {
-                    modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}&facility_id=${data.facilityId}" class="btn btn-success">Book Now</a>`;
+                    modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}&facility_id=${data.facilityId}" class="btn btn-success">Book This Facility</a>`;
                 } else {
                     modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
                 }

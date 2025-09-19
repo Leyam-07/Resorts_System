@@ -2,7 +2,7 @@
 $pageTitle = "New Booking";
 require_once __DIR__ . '/../partials/header.php';
 
-// Get pre-selected resort ID from URL if available
+// Get pre-selected resort ID and facility ID from URL if available
 $selectedResortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
 $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT);
 ?>
@@ -727,6 +727,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.facility-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', handleFacilitySelection);
         });
+
+        // Pre-select facility if facility_id is provided in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const preSelectedFacilityId = urlParams.get('facility_id');
+        if (preSelectedFacilityId) {
+            const facilityCheckbox = document.querySelector(`#facility_${preSelectedFacilityId}`);
+            if (facilityCheckbox) {
+                facilityCheckbox.checked = true;
+                facilityCheckbox.dispatchEvent(new Event('change'));
+            }
+        }
     }
 
     function handleFacilitySelection() {
