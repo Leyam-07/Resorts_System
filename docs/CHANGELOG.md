@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.0] - 2025-09-19
+
+### Added
+
+- **Phase 5: Admin Management System Enhancement:** Completed comprehensive admin interface transformation providing unified booking/payment management, dynamic pricing controls, and advanced blocking capabilities.
+  - **Unified Booking & Payment Management Interface:**
+    - Created comprehensive `unified_booking_management.php` view with real-time filtering by resort and booking status
+    - Implemented card-based layout with payment status indicators and action buttons for quick management
+    - Added on-site payment recording capability bypassing normal proof upload requirements
+    - Integrated booking modification tools for adding facilities and updating payment information
+  - **Dynamic Pricing Management System:**
+    - Built `pricing_management.php` interface for resort-specific timeframe pricing controls (12hrs/24hrs/overnight)
+    - Implemented weekend and holiday surcharge management with real-time price calculation
+    - Created facility fixed pricing adjustment interface with batch update capabilities
+    - Added pricing summary dashboard with visual pricing breakdowns and comparison tools
+  - **Advanced Blocking System:**
+    - Developed `advanced_blocking.php` interface with preset blocking options for operational efficiency
+    - Implemented Philippine holiday blocking system (8 major holidays: New Year's Day, People Power Anniversary, Maundy Thursday, Good Friday, Araw ng Kagitingan, Labor Day, Independence Day, Christmas Day)
+    - Added weekend blocking presets with date range selection and custom reason input
+    - Created bulk blocking operations with confirmation dialogs and visual calendar feedback
+  - **Enhanced Admin Navigation & User Experience:**
+    - Reorganized admin navigation into logical dropdown groups: "Booking & Payments", "Pricing & Blocking", "System"
+    - Added FontAwesome icons throughout admin interface for improved visual hierarchy and user guidance
+    - Implemented mobile-responsive design across all new admin interfaces
+    - Created quick action buttons and batch operations for efficient admin workflow
+  - **Backend Administrative Methods:**
+    - Added `unifiedBookingManagement()` for comprehensive booking and payment oversight interface
+    - Implemented `updateBookingPayment()` for on-site payment processing without proof requirements
+    - Created `pricingManagement()` and `updateResortPricing()` for dynamic pricing control and timeframe pricing updates
+    - Added `updateFacilityPricing()` for facility fixed pricing management across multiple facilities
+    - Developed `advancedBlocking()` and `applyPresetBlocking()` for sophisticated date blocking with preset options
+    - Implemented `isPhilippineHoliday()` and `getPhilippineHolidays()` for automated holiday detection and blocking
+  - **Testing Infrastructure:**
+    - Created comprehensive test script `test_phase5_admin_management.php` for validating all Phase 5 features
+    - Implemented system integration tests for resort timeframe pricing, unified booking management, and advanced blocking
+    - Added verification tools for payment notification system and facility pricing management
+
+### Changed
+
+- **Admin Workflow:** Transformed from scattered management pages to unified, centralized control interfaces with logical feature grouping
+- **Pricing Architecture:** Enhanced from basic facility rates to sophisticated resort-centric pricing with conditional surcharges and dynamic calculations
+- **Blocking System:** Evolved from manual date entry to intelligent preset system with holiday calendar integration and bulk operations
+- **User Experience:** Upgraded admin interfaces from basic forms to modern, responsive dashboards with real-time feedback and batch operations
+
+### Enhanced
+
+- **Administrative Efficiency:** Streamlined booking and payment management into single unified interface reducing administrative overhead
+- **Pricing Flexibility:** Implemented comprehensive pricing control system supporting complex business rules and seasonal adjustments
+- **Operational Control:** Advanced blocking system enables sophisticated availability management with preset options and holiday awareness
+- **System Integration:** Seamless workflow between booking management, payment processing, pricing control, and availability blocking
+
 ## [1.24.0] - 2025-09-19
 
 ### Added

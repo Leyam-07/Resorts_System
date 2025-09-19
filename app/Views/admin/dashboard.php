@@ -28,6 +28,45 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </div>
 <div class="container mt-4">
+    <!-- Phase 5: Quick Admin Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-tools"></i> Quick Management Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="?controller=admin&action=unifiedBookingManagement" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-calendar-check"></i><br>
+                                <small>Unified Booking & Payment</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="?controller=admin&action=pricingManagement" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-tags"></i><br>
+                                <small>Pricing Management</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="?controller=admin&action=advancedBlocking" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-ban"></i><br>
+                                <small>Advanced Blocking</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="?controller=payment&action=showPendingPayments" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-credit-card"></i><br>
+                                <small>Payment Verification</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-3">
             <div class="card text-white bg-primary mb-3">

@@ -9,6 +9,9 @@ require_once __DIR__ . '/../Models/BlockedAvailability.php';
 require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
 require_once __DIR__ . '/../Models/BlockedResortAvailability.php';
+require_once __DIR__ . '/../Models/ResortTimeframePricing.php';
+require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
+require_once __DIR__ . '/../Models/BookingFacilities.php';
 
 class AdminController {
     private $db;
@@ -840,6 +843,328 @@ class AdminController {
         $facilityId = $_GET['id'];
         $blocks = BlockedFacilityAvailability::findByFacilityId($facilityId);
         echo json_encode($blocks);
+        exit();
+    }
+
+    /**
+     * PHASE 5: UNIFIED BOOKING/PAYMENT MANAGEMENT
+     */
+
+    /**
+     * Show unified booking and payment management interface
+     */
+    public function unifiedBookingManagement() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $status = filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW);
+        
+        $resorts = Resort::findAll();
+        
+        // Get bookings with payment information
+        $bookings = Booking::getBookingsWithPaymentDetails($resortId, $status);
+        
+        // Get pending payment count for notification
+        $pendingPaymentCount = Payment::getPendingPaymentCount();
+        
+        require_once __DIR__ . '/../Views/admin/unified_booking_management.php';
+    }
+
+    /**
+     * Update booking with payment information
+     */
+    public function updateBookingPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+        $bookingStatus = filter_input(INPUT_POST, 'booking_status', FILTER_UNSAFE_RAW);
+        $paymentAmount = filter_input(INPUT_POST, 'payment_amount', FILTER_VALIDATE_FLOAT);
+        $paymentMethod = filter_input(INPUT_POST, 'payment_method', FILTER_UNSAFE_RAW);
+        $paymentStatus = filter_input(INPUT_POST, 'payment_status', FILTER_UNSAFE_RAW);
+
+        if (!$bookingId) {
+            $_SESSION['error_message'] = "Invalid booking ID.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        // Update booking status if provided
+        if ($bookingStatus) {
+            Booking::updateStatus($bookingId, $bookingStatus);
+        }
+
+        // Add payment if provided
+        if ($paymentAmount && $paymentMethod && $paymentStatus) {
+            $payment = new Payment();
+            $payment->bookingId = $bookingId;
+            $payment->amount = $paymentAmount;
+            $payment->paymentMethod = $paymentMethod;
+            $payment->status = $paymentStatus;
+            
+            if (Payment::create($payment)) {
+                // Update booking remaining balance
+                $booking = Booking::findById($bookingId);
+                if ($booking && $booking->TotalAmount > 0) {
+                    $totalPaid = Payment::getTotalPaidAmount($bookingId);
+                    $remainingBalance = max(0, $booking->TotalAmount - $totalPaid);
+                    Booking::updateRemainingBalance($bookingId, $remainingBalance);
+                }
+                $_SESSION['success_message'] = "Payment added successfully!";
+            } else {
+                $_SESSION['error_message'] = "Failed to add payment.";
+            }
+        }
+
+        header('Location: ?controller=admin&action=unifiedBookingManagement');
+        exit();
+    }
+
+    /**
+     * PRICING MANAGEMENT SYSTEM
+     */
+
+    /**
+     * Show pricing management interface
+     */
+    public function pricingManagement() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $resorts = Resort::findAll();
+        
+        $resortPricing = [];
+        $facilityPricing = [];
+        
+        if ($resortId) {
+            $resortPricing = ResortTimeframePricing::findByResortId($resortId);
+            $facilityPricing = Facility::findByResortId($resortId);
+        }
+        
+        require_once __DIR__ . '/../Views/admin/pricing_management.php';
+    }
+
+    /**
+     * Update resort timeframe pricing
+     */
+    public function updateResortPricing() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=pricingManagement');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $timeframeType = filter_input(INPUT_POST, 'timeframe_type', FILTER_UNSAFE_RAW);
+        $basePrice = filter_input(INPUT_POST, 'base_price', FILTER_VALIDATE_FLOAT);
+        $weekendSurcharge = filter_input(INPUT_POST, 'weekend_surcharge', FILTER_VALIDATE_FLOAT);
+        $holidaySurcharge = filter_input(INPUT_POST, 'holiday_surcharge', FILTER_VALIDATE_FLOAT);
+
+        if (!$resortId || !$timeframeType || !$basePrice) {
+            $_SESSION['error_message'] = "Invalid pricing data provided.";
+            header('Location: ?controller=admin&action=pricingManagement&resort_id=' . $resortId);
+            exit();
+        }
+
+        // Check if pricing already exists
+        $existingPricing = ResortTimeframePricing::findByResortAndTimeframe($resortId, $timeframeType);
+        
+        if ($existingPricing) {
+            // Update existing pricing
+            $existingPricing->basePrice = $basePrice;
+            $existingPricing->weekendSurcharge = $weekendSurcharge ?? 0;
+            $existingPricing->holidaySurcharge = $holidaySurcharge ?? 0;
+            
+            if (ResortTimeframePricing::update($existingPricing)) {
+                $_SESSION['success_message'] = "Pricing updated successfully!";
+            } else {
+                $_SESSION['error_message'] = "Failed to update pricing.";
+            }
+        } else {
+            // Create new pricing
+            $pricing = new ResortTimeframePricing();
+            $pricing->resortId = $resortId;
+            $pricing->timeframeType = $timeframeType;
+            $pricing->basePrice = $basePrice;
+            $pricing->weekendSurcharge = $weekendSurcharge ?? 0;
+            $pricing->holidaySurcharge = $holidaySurcharge ?? 0;
+            
+            if (ResortTimeframePricing::create($pricing)) {
+                $_SESSION['success_message'] = "Pricing created successfully!";
+            } else {
+                $_SESSION['error_message'] = "Failed to create pricing.";
+            }
+        }
+
+        header('Location: ?controller=admin&action=pricingManagement&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * Update facility fixed pricing
+     */
+    public function updateFacilityPricing() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=pricingManagement');
+            exit();
+        }
+
+        $facilityId = filter_input(INPUT_POST, 'facility_id', FILTER_VALIDATE_INT);
+        $rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
+
+        if (!$facilityId || !$rate) {
+            $_SESSION['error_message'] = "Invalid facility pricing data.";
+            header('Location: ?controller=admin&action=pricingManagement');
+            exit();
+        }
+
+        if (Facility::updateRate($facilityId, $rate)) {
+            $_SESSION['success_message'] = "Facility pricing updated successfully!";
+        } else {
+            $_SESSION['error_message'] = "Failed to update facility pricing.";
+        }
+
+        // Get resort ID for redirect
+        $facility = Facility::findById($facilityId);
+        $resortId = $facility ? $facility->resortId : null;
+
+        header('Location: ?controller=admin&action=pricingManagement&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * ADVANCED BLOCKING SYSTEM
+     */
+
+    /**
+     * Show advanced blocking management
+     */
+    public function advancedBlocking() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $resorts = Resort::findAll();
+        
+        require_once __DIR__ . '/../Views/admin/advanced_blocking.php';
+    }
+
+    /**
+     * Apply preset blocking (weekends, holidays)
+     */
+    public function applyPresetBlocking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
+        $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
+        $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
+        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+
+        if (!$resortId || !$presetType || !$startDate || !$endDate) {
+            $_SESSION['error_message'] = "Invalid blocking parameters.";
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            exit();
+        }
+
+        $blockedCount = 0;
+        $currentDate = new DateTime($startDate);
+        $lastDate = new DateTime($endDate);
+
+        while ($currentDate <= $lastDate) {
+            $shouldBlock = false;
+            $dateStr = $currentDate->format('Y-m-d');
+            $dayOfWeek = $currentDate->format('w'); // 0 = Sunday, 6 = Saturday
+
+            switch ($presetType) {
+                case 'weekends':
+                    $shouldBlock = ($dayOfWeek == 0 || $dayOfWeek == 6); // Sunday or Saturday
+                    break;
+                case 'philippine_holidays':
+                    $shouldBlock = $this->isPhilippineHoliday($currentDate);
+                    break;
+                case 'all_dates':
+                    $shouldBlock = true;
+                    break;
+            }
+
+            if ($shouldBlock) {
+                if (BlockedResortAvailability::create($resortId, $dateStr, $reason ?: $presetType)) {
+                    $blockedCount++;
+                }
+            }
+
+            $currentDate->modify('+1 day');
+        }
+
+        $_SESSION['success_message'] = "Blocked $blockedCount dates successfully!";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * Check if a date is a Philippine holiday
+     */
+    private function isPhilippineHoliday($date) {
+        $holidays = $this->getPhilippineHolidays($date->format('Y'));
+        $dateStr = $date->format('m-d');
+        return in_array($dateStr, $holidays);
+    }
+
+    /**
+     * Get Philippine holidays for a given year
+     */
+    private function getPhilippineHolidays($year) {
+        return [
+            '01-01', // New Year's Day
+            '04-09', // Araw ng Kagitingan (Day of Valor)
+            '05-01', // Labor Day
+            '06-12', // Independence Day
+            '08-29', // National Heroes Day (last Monday of August, approximate)
+            '11-30', // Bonifacio Day
+            '12-25', // Christmas Day
+            '12-30', // Rizal Day
+            '12-31'  // New Year's Eve
+        ];
+    }
+
+    /**
+     * Get pricing summary for dashboard
+     */
+    public function getPricingSummary() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        
+        if (!$resortId) {
+            echo json_encode(['error' => 'Resort ID required']);
+            exit();
+        }
+
+        $pricing = ResortTimeframePricing::findByResortId($resortId);
+        $facilities = Facility::findByResortId($resortId);
+        
+        $summary = [
+            'timeframe_pricing' => $pricing,
+            'facility_pricing' => $facilities
+        ];
+        
+        echo json_encode($summary);
         exit();
     }
 }

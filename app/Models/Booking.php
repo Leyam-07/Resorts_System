@@ -523,4 +523,72 @@ class Booking {
         
         return $basePrice + $facilityTotal;
     }
+
+    /**
+     * PHASE 5: Get bookings with payment details for unified management
+     */
+    public static function getBookingsWithPaymentDetails($resortId = null, $status = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT
+                    b.*,
+                    u.Username as CustomerName,
+                    u.Email as CustomerEmail,
+                    r.Name as ResortName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames,
+                    COALESCE(p.PaymentStatus, 'Unpaid') as PaymentStatus,
+                    COALESCE(p.TotalPaid, 0) as TotalPaid
+                FROM Bookings b
+                LEFT JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+                LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+                LEFT JOIN (
+                    SELECT
+                        BookingID,
+                        SUM(Amount) as TotalPaid,
+                        CASE
+                            WHEN SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) >= MAX(b2.TotalAmount) THEN 'Paid'
+                            WHEN SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) > 0 THEN 'Partial'
+                            ELSE 'Unpaid'
+                        END as PaymentStatus
+                    FROM Payments p2
+                    LEFT JOIN Bookings b2 ON p2.BookingID = b2.BookingID
+                    GROUP BY BookingID
+                ) p ON b.BookingID = p.BookingID
+                WHERE 1=1";
+
+        $params = [];
+        
+        if ($resortId) {
+            $sql .= " AND b.ResortID = :resortId";
+            $params[':resortId'] = $resortId;
+        }
+        
+        if ($status && $status !== 'all') {
+            $sql .= " AND b.Status = :status";
+            $params[':status'] = $status;
+        }
+        
+        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate DESC, b.CreatedAt DESC";
+        
+        $stmt = $db->prepare($sql);
+        foreach ($params as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Update remaining balance for a booking
+     */
+    public static function updateRemainingBalance($bookingId, $remainingBalance) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Bookings SET RemainingBalance = :remainingBalance WHERE BookingID = :bookingId");
+        $stmt->bindValue(':remainingBalance', $remainingBalance, PDO::PARAM_STR);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }

@@ -36,25 +36,34 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="?controller=admin&action=users">
-                                <i class="fas fa-users"></i> Manage Users
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="bookingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-calendar-check"></i> Booking & Payments
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="?controller=admin&action=unifiedBookingManagement"><i class="fas fa-calendar-check"></i> Unified Management</a></li>
+                                <li><a class="dropdown-item" href="?controller=payment&action=showPendingPayments"><i class="fas fa-credit-card"></i> Payment Verification</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="?controller=admin&action=management">
-                                <i class="fas fa-building"></i> Manage Resorts
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-tags"></i> Pricing & Blocking
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="pricingDropdown">
+                                <li><a class="dropdown-item" href="?controller=admin&action=pricingManagement"><i class="fas fa-tags"></i> Pricing Management</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=advancedBlocking"><i class="fas fa-ban"></i> Advanced Blocking</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="?controller=feedback&action=listAllFeedback">
-                                <i class="fas fa-comments"></i> View Feedback
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="systemDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cog"></i> System
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="?controller=admin&action=previewFacilities">
-                                <i class="fas fa-eye"></i> Preview Customer View
-                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="systemDropdown">
+                                <li><a class="dropdown-item" href="?controller=admin&action=users"><i class="fas fa-users"></i> Manage Users</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
+                                <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
+                            </ul>
                         </li>
                    <?php elseif ($_SESSION['role'] === 'Staff'): ?>
                        <li class="nav-item">

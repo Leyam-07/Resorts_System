@@ -194,4 +194,14 @@ class Payment {
         $stmt->execute([$bookingId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Get count of pending payments for notification
+     */
+    public static function getPendingPaymentCount() {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM Payments WHERE Status = 'Pending'");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
 }
