@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.3] - 2025-09-19
+
+### Fixed
+
+- **Calendar Availability System:** Resolved critical issues with the enhanced calendar modal that was preventing users from browsing available dates.
+  - **Routing Error Resolution:** Fixed "Error loading calendar data" by adding missing `getCalendarAvailability` API endpoint to the router's allowed actions whitelist in `public/index.php`
+  - **Weekend Detection Bug:** Corrected JavaScript timezone parsing issues causing Monday dates to incorrectly display as weekend (yellow) instead of available (green)
+  - **Calendar Rendering Logic:** Implemented UTC date handling in calendar grid rendering to eliminate timezone-related date calculation errors
+- **Native Calendar Icon:** Hidden distracting HTML5 date picker calendar icon using CSS webkit and Firefox-specific rules for cleaner interface
+
+### Enhanced
+
+- **Booking Form Flow Optimization:** Rearranged booking form to logical progression: Resort → Timeframe → Date → Guests → Facilities → Summary
+  - Users must now select both resort and timeframe before browsing available dates (logical prerequisite)
+  - Calendar button only enables after both required selections are made
+  - All JavaScript step indicators and validation logic updated to match new flow
+- **Calendar User Experience:** Enhanced calendar interface with improved clarity and professional appearance
+  - Button renamed from "View Calendar" to "Browse Available Dates" for clearer purpose
+  - Changed to primary blue styling for better visual prominence
+  - Updated help text to better explain both date selection options (direct input vs enhanced calendar)
+
+### Changed
+
+- **API Endpoint Access:** Extended booking controller routing to include all Phase 4-6 API endpoints: `getResortPricing`, `calculateBookingPrice`, `checkAvailability`, `getCalendarAvailability`, `showPaymentForm`, `submitPayment`, `paymentSuccess`, `getPaymentMethods`, `getAdvancedAvailabilityReport`, `getAvailabilitySuggestions`
+- **Date Selection Interface:** Streamlined to two clean options - direct date input (without native calendar icon) or enhanced availability calendar with real-time data
+
+### Technical
+
+- **Calendar System Status:** Fully operational with accurate weekend detection and real-time availability display
+- **Form Validation:** All step progression logic updated for new Resort → Timeframe → Date flow
+- **Cross-browser Compatibility:** Enhanced CSS rules ensure consistent calendar icon hiding across all major browsers
+
 ## [1.26.2] - 2025-09-19
 
 ### Added

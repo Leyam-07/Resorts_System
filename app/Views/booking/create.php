@@ -34,11 +34,11 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                     <div class="col step-indicator" id="step2">
                         <div class="step-circle">2</div>
-                        <small>Date</small>
+                        <small>Timeframe</small>
                     </div>
                     <div class="col step-indicator" id="step3">
                         <div class="step-circle">3</div>
-                        <small>Timeframe</small>
+                        <small>Date</small>
                     </div>
                     <div class="col step-indicator" id="step4">
                         <div class="step-circle">4</div>
@@ -86,30 +86,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </div>
             </div>
 
-            <!-- Step 2: Enhanced Date Selection (Required) -->
-            <div class="mb-4">
-                <label for="date" class="form-label fw-bold">
-                    <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                    <input type="date" class="form-control" id="date" name="bookingDate"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['bookingDate'] ?? '') ?>"
-                           min="<?= date('Y-m-d') ?>" required>
-                    <button type="button" class="btn btn-outline-primary" id="calendarModalBtn" disabled>
-                        <i class="fas fa-calendar"></i> View Calendar
-                    </button>
-                </div>
-                <div class="form-text">
-                    <i class="fas fa-info-circle"></i> Availability and pricing may vary by date. Use calendar view for real-time availability.
-                </div>
-                <div id="dateAvailabilityInfo" class="mt-2" style="display: none;">
-                    <div class="alert alert-info mb-0">
-                        <small><span id="selectedDateInfo"></span></small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 3: Enhanced Timeframe Selection (Required) -->
+            <!-- Step 2: Enhanced Timeframe Selection (Required) -->
             <div class="mb-4">
                 <label for="timeSlotType" class="form-label fw-bold">
                     <i class="fas fa-clock text-primary"></i> Select Timeframe <span class="text-danger">*</span>
@@ -129,6 +106,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         </option>
                     </select>
                 </div>
+                <div class="form-text">
+                    <i class="fas fa-info-circle"></i> Select your preferred timeframe to enable date browsing and see pricing
+                </div>
                 <div id="timeframePricing" class="mt-2" style="display: none;">
                     <div class="card border-primary">
                         <div class="card-body py-2">
@@ -142,6 +122,29 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Enhanced Date Selection (Required) -->
+            <div class="mb-4">
+                <label for="date" class="form-label fw-bold">
+                    <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <input type="date" class="form-control" id="date" name="bookingDate"
+                           value="<?= htmlspecialchars($_SESSION['old_input']['bookingDate'] ?? '') ?>"
+                           min="<?= date('Y-m-d') ?>" required>
+                    <button type="button" class="btn btn-primary" id="calendarModalBtn" disabled>
+                        <i class="fas fa-calendar-check"></i> Browse Available Dates
+                    </button>
+                </div>
+                <div class="form-text">
+                    <i class="fas fa-info-circle"></i> Use "Browse Available Dates" for real-time availability with color-coded calendar view, or select directly above.
+                </div>
+                <div id="dateAvailabilityInfo" class="mt-2" style="display: none;">
+                    <div class="alert alert-info mb-0">
+                        <small><span id="selectedDateInfo"></span></small>
                     </div>
                 </div>
             </div>
@@ -279,6 +282,23 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 <!-- Add CSS for enhanced UI components -->
 <style>
+/* Hide native date picker calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+    display: none;
+    -webkit-appearance: none;
+}
+
+/* Firefox date input styling */
+input[type="date"] {
+    -moz-appearance: textfield;
+}
+
 /* Step Indicators */
 .step-indicator {
     transition: all 0.3s ease;
@@ -578,10 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderCalendar(month) {
         const [year, monthNum] = month.split('-');
         const firstDay = new Date(year, monthNum - 1, 1);
-        const lastDay = new Date(year, monthNum, 0);
-        const startDate = new Date(firstDay);
-        startDate.setDate(startDate.getDate() - firstDay.getDay());
-
+        
         let html = '';
         
         // Add day headers
@@ -590,12 +607,19 @@ document.addEventListener('DOMContentLoaded', function() {
             html += `<div class="calendar-day-header">${day}</div>`;
         });
 
-        // Add calendar days
-        const currentDate = new Date(startDate);
+        // Fix: Use UTC dates to avoid timezone issues completely
+        const startOfMonth = new Date(Date.UTC(parseInt(year), parseInt(monthNum) - 1, 1));
+        const startCalendarDate = new Date(startOfMonth);
+        startCalendarDate.setUTCDate(startCalendarDate.getUTCDate() - startOfMonth.getUTCDay());
+        
+        // Generate 6 weeks (42 days) for the calendar
         for (let i = 0; i < 42; i++) {
-            const dateStr = currentDate.toISOString().split('T')[0];
-            const dayNum = currentDate.getDate();
-            const isCurrentMonth = currentDate.getMonth() === firstDay.getMonth();
+            const currentCalendarDate = new Date(startCalendarDate);
+            currentCalendarDate.setUTCDate(startCalendarDate.getUTCDate() + i);
+            
+            const dateStr = currentCalendarDate.toISOString().split('T')[0];
+            const dayNum = currentCalendarDate.getUTCDate();
+            const isCurrentMonth = currentCalendarDate.getUTCMonth() === startOfMonth.getUTCMonth();
             
             let dayClass = 'calendar-day';
             let dayData = calendarData[dateStr];
@@ -603,17 +627,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isCurrentMonth) {
                 dayClass += ' disabled text-muted';
             } else if (dayData) {
+                // Use the backend status directly - no frontend weekend calculation
                 dayClass += ` ${dayData.status}`;
                 if (!dayData.available) dayClass += ' disabled';
+            } else {
+                // No data for this date
+                dayClass += ' disabled';
             }
 
+            const dayName = currentCalendarDate.toLocaleDateString('en-US', {weekday: 'long'});
+            
             html += `
-                <div class="${dayClass}" data-date="${dateStr}" ${dayData && dayData.available && isCurrentMonth ? 'onclick="selectDate(\'' + dateStr + '\')"' : ''}>
+                <div class="${dayClass}" data-date="${dateStr}" title="${dayName}, ${dayNum}" ${dayData && dayData.available && isCurrentMonth ? 'onclick="selectDate(\'' + dateStr + '\')"' : ''}>
                     ${dayNum}
                 </div>
             `;
-            
-            currentDate.setDate(currentDate.getDate() + 1);
         }
 
         calendarGrid.innerHTML = html;
@@ -644,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enhanced guest handling
     function handleGuestsChange() {
-        advanceToStep(4);
+        advanceToStep(5);
         validateGuestCapacity();
         validateForm();
     }
@@ -830,12 +858,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateForm() {
         const resortValid = resortSelect.value;
-        const dateValid = dateInput.value;
         const timeframeValid = timeSlotSelect.value;
+        const dateValid = dateInput.value;
         const guestsValid = guestsInput.value && parseInt(guestsInput.value) > 0;
         const capacityValid = validateGuestCapacity();
 
-        const isValid = resortValid && dateValid && timeframeValid && guestsValid && capacityValid;
+        const isValid = resortValid && timeframeValid && dateValid && guestsValid && capacityValid;
 
         submitBtn.disabled = !isValid;
         
@@ -850,14 +878,14 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.classList.add('btn-secondary');
         }
 
-        // Update step indicators based on completion
-        updateStepProgress(resortValid, dateValid, timeframeValid, guestsValid);
+        // Update step indicators based on completion (new order: resort, timeframe, date, guests)
+        updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid);
     }
 
-    function updateStepProgress(resortValid, dateValid, timeframeValid, guestsValid) {
+    function updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid) {
         if (resortValid) advanceToStep(2);
-        if (dateValid) advanceToStep(3);
-        if (timeframeValid) advanceToStep(4);
+        if (timeframeValid) advanceToStep(3);
+        if (dateValid) advanceToStep(4);
         if (guestsValid) advanceToStep(5);
     }
 
@@ -866,8 +894,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = dateInput.value;
         const timeframe = timeSlotSelect.value;
 
-        if (date) advanceToStep(3);
-        if (timeframe) advanceToStep(4);
+        if (timeframe) advanceToStep(3);
+        if (date) advanceToStep(4);
 
         if (resortId && date && timeframe) {
             loadTimeframePricing(resortId, timeframe, date);

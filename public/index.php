@@ -97,7 +97,12 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     $bookingController = new BookingController();
 
     // Define allowed actions for the booking controller
-    $allowedActions = ['showBookingForm', 'createBooking', 'bookingSuccess', 'showMyBookings', 'cancelBooking', 'getFacilitiesByResort'];
+    $allowedActions = [
+        'showBookingForm', 'createBooking', 'bookingSuccess', 'showMyBookings', 'cancelBooking',
+        'getFacilitiesByResort', 'getResortPricing', 'calculateBookingPrice', 'checkAvailability',
+        'getCalendarAvailability', 'showPaymentForm', 'submitPayment', 'paymentSuccess',
+        'getPaymentMethods', 'getAdvancedAvailabilityReport', 'getAvailabilitySuggestions'
+    ];
 
     if (in_array($actionName, $allowedActions) && method_exists($bookingController, $actionName)) {
         $bookingController->$actionName();

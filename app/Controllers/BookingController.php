@@ -304,9 +304,13 @@ class BookingController {
     public function getCalendarAvailability() {
         header('Content-Type: application/json');
         
-        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
-        $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
-        $month = filter_input(INPUT_GET, 'month', FILTER_SANITIZE_STRING); // YYYY-MM format
+        // Use $_GET fallback for compatibility with testing and manual calls
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT)
+                   ?? filter_var($_GET['resort_id'] ?? null, FILTER_VALIDATE_INT);
+        $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING)
+                    ?? filter_var($_GET['timeframe'] ?? null, FILTER_SANITIZE_STRING);
+        $month = filter_input(INPUT_GET, 'month', FILTER_SANITIZE_STRING)
+                ?? filter_var($_GET['month'] ?? null, FILTER_SANITIZE_STRING);
         
         if (!$resortId || !$timeframe) {
             http_response_code(400);
@@ -334,8 +338,8 @@ class BookingController {
         
         while ($currentDate <= $endDateTime) {
             $dateStr = $currentDate->format('Y-m-d');
-            $dayOfWeek = $currentDate->format('w');
-            $isWeekend = ($dayOfWeek == 0 || $dayOfWeek == 6);
+            $dayOfWeek = intval($currentDate->format('w')); // Ensure integer
+            $isWeekend = ($dayOfWeek === 0 || $dayOfWeek === 6); // Sunday=0, Saturday=6
             $isToday = ($dateStr === date('Y-m-d'));
             $isPast = ($currentDate < new DateTime('today'));
             
