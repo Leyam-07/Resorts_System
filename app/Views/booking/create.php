@@ -157,8 +157,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                     <input type="number" class="form-control" id="guests" name="numberOfGuests"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '1') ?>"
-                           min="1" max="50" required>
+                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '') ?>"
+                           placeholder="Enter number of guests" min="1" max="50" required>
                     <span class="input-group-text">guests</span>
                 </div>
                 <div class="form-text">
@@ -672,7 +672,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enhanced guest handling
     function handleGuestsChange() {
-        advanceToStep(5);
         validateGuestCapacity();
         validateForm();
     }
@@ -741,6 +740,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // Advance to step 6 if facilities are selected
+        if (selectedFacilities.length > 0) {
+            advanceToStep(6);
+        }
+
         validateGuestCapacity();
         updatePricingDisplay();
         validateForm();
@@ -773,8 +777,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (resortId && date && timeframe) {
             loadTimeframePricing(resortId, timeframe, date);
             updateTotalPrice();
+            updateDateAvailabilityInfo(date);
         } else {
             resetPricing();
+            if (dateAvailabilityInfo) {
+                dateAvailabilityInfo.style.display = 'none';
+            }
         }
         validateForm();
     }
@@ -862,6 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateValid = dateInput.value;
         const guestsValid = guestsInput.value && parseInt(guestsInput.value) > 0;
         const capacityValid = validateGuestCapacity();
+        const facilitiesSelected = selectedFacilities.length > 0;
 
         const isValid = resortValid && timeframeValid && dateValid && guestsValid && capacityValid;
 
@@ -871,42 +880,56 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Booking';
             submitBtn.classList.remove('btn-secondary');
             submitBtn.classList.add('btn-success');
-            advanceToStep(6);
         } else {
             submitBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
             submitBtn.classList.remove('btn-success');
             submitBtn.classList.add('btn-secondary');
         }
 
-        // Update step indicators based on completion (new order: resort, timeframe, date, guests)
-        updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid);
+        // Update step indicators based on sequential completion
+        updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid, facilitiesSelected);
     }
 
-    function updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid) {
-        if (resortValid) advanceToStep(2);
-        if (timeframeValid) advanceToStep(3);
-        if (dateValid) advanceToStep(4);
-        if (guestsValid) advanceToStep(5);
-    }
+    function updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid, facilitiesSelected) {
+        // Reset all steps first
+        stepIndicators.forEach((indicator, index) => {
+            indicator.classList.remove('active', 'completed');
+        });
 
-    function handleDateOrTimeframeChange() {
-        const resortId = resortSelect.value;
-        const date = dateInput.value;
-        const timeframe = timeSlotSelect.value;
-
-        if (timeframe) advanceToStep(3);
-        if (date) advanceToStep(4);
-
-        if (resortId && date && timeframe) {
-            loadTimeframePricing(resortId, timeframe, date);
-            updateTotalPrice();
-            updateDateAvailabilityInfo(date);
-        } else {
-            resetPricing();
-            dateAvailabilityInfo.style.display = 'none';
+        // Sequential step progression for required steps
+        if (resortValid) {
+            markStepCompleted(1);
+            
+            if (timeframeValid) {
+                markStepCompleted(2);
+                
+                if (dateValid) {
+                    markStepCompleted(3);
+                    
+                    // Step 6 (Summary) becomes green when summary is displayed (after date selection)
+                    markStepCompleted(6);
+                }
+            }
         }
-        validateForm();
+
+        // Step 4 (Guests) - independent validation
+        if (guestsValid) {
+            markStepCompleted(4);
+        }
+        
+        // Step 5 (Facilities) - independent validation, turns green when facilities are selected
+        if (facilitiesSelected) {
+            markStepCompleted(5);
+        }
     }
+
+    function markStepCompleted(stepNumber) {
+        if (stepIndicators[stepNumber - 1]) {
+            stepIndicators[stepNumber - 1].classList.add('completed');
+            stepIndicators[stepNumber - 1].classList.remove('active');
+        }
+    }
+
 
     function updateDateAvailabilityInfo(date) {
         const dayOfWeek = new Date(date).getDay();

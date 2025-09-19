@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.4] - 2025-09-19
+
+### Fixed
+
+- **Booking Form Step Progression:** Resolved critical JavaScript logic issues where selecting a resort would incorrectly make all steps 1-4 turn green instead of sequential progression.
+  - **Duplicate Function Removal:** Eliminated conflicting `handleDateOrTimeframeChange()` function (lines 892-909) that was causing improper step advancement
+  - **Sequential Validation Logic:** Implemented proper step-by-step validation where each step only advances when prerequisites are met
+  - **Guest Input Requirement:** Removed prefilled "1" value from guest number field, requiring manual user input for proper step progression
+  - **Facilities Independence:** Made facility selection independent of guest validation - facilities step only turns green when actually selected
+  - **Summary Logic:** Fixed summary step to turn green when displayed (after date selection) rather than depending on facility selection
+
+### Enhanced
+
+- **Customer Navigation:** Added Dashboard link to customer navigation header, providing consistency with Admin and Staff navigation structure
+- **Step Progression Logic:** Enhanced `updateStepProgress()` function with independent validation for guest and facility steps
+- **User Experience:** Improved booking form flow with accurate visual feedback that matches actual completion status
+
+### Changed
+
+- **Form Validation:** Updated step indicators to provide precise feedback - facilities remain grey when not selected, guests step only advances with manual input
+- **JavaScript Architecture:** Consolidated step management logic into centralized `markStepCompleted()` function for better maintainability
+- **Navigation Structure:** Customer header now includes Dashboard → New Booking → My Bookings → Profile → Logout navigation flow
+
+### Technical
+
+- **Step Management System:** Complete overhaul of step progression JavaScript ensuring accurate 1→2→3→4→5→6 sequential flow
+- **Form State Management:** Enhanced tracking of form completion status with independent validation for required vs. optional steps
+- **Customer UX:** Booking form now provides intuitive, logical progression requiring actual user interaction at each step
+
 ## [1.26.3] - 2025-09-19
 
 ### Fixed
