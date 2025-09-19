@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.2] - 2025-09-19
+
+### Added
+
+- **Phase 6: Enhanced Error Handling & Validation:** Implemented a robust, centralized error handling and validation system across the application.
+  - **Centralized Error Handling:**
+    - Created `ErrorHandler.php` to catch all PHP errors, exceptions, and fatal shutdowns.
+    - Integrated `ErrorHandler` into `public/index.php` for application-wide coverage.
+    - Ensures consistent error logging and user-friendly error messages instead of raw PHP errors.
+  - **Comprehensive Validation Helper:**
+    - Developed `ValidationHelper.php` with reusable methods for various data types.
+    - Includes validation for booking data, payment submissions, user registration, pricing, facility data, and availability blocking.
+    - Supports custom validation rules (e.g., date ranges, password complexity, file uploads).
+  - **Controller Integration:**
+    - Replaced manual validation logic in `BookingController`, `UserController`, and `AdminController` with `ValidationHelper`.
+    - Improved code readability, maintainability, and security by centralizing validation rules.
+    - Provides detailed error feedback to users through session messages.
+
+### Changed
+
+- **Validation Workflow:** Transitioned from scattered, manual input validation to a centralized, reusable `ValidationHelper` class.
+- **Error Reporting:** Upgraded from default PHP error reporting to a custom `ErrorHandler` for better control and user experience.
+- **Controller Logic:** Streamlined controller methods by offloading complex validation rules to the `ValidationHelper`.
+
+### Enhanced
+
+- **Application Security:** Robust input validation minimizes vulnerabilities like SQL injection and cross-site scripting.
+- **User Experience:** Clearer, more consistent error messages provide better guidance to users during form submissions.
+- **Code Quality:** Centralized validation and error handling improve code maintainability, reduce redundancy, and promote consistency.
+- **Developer Efficiency:** Reusable validation logic accelerates development and simplifies future updates.
+
 ## [1.26.1] - 2025-09-19
 
 ### Implemented
