@@ -779,6 +779,58 @@ class AdminController {
     }
 
 
+    public function getPaymentMethodsJson() {
+        header('Content-Type: application/json');
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid Resort ID']);
+            exit();
+        }
+
+        $methods = ResortPaymentMethods::findByResortId($resortId, false);
+        echo json_encode($methods);
+        exit();
+    }
+
+    public function addPaymentMethod() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+            $methodName = filter_input(INPUT_POST, 'method_name', FILTER_UNSAFE_RAW);
+            $methodDetails = filter_input(INPUT_POST, 'method_details', FILTER_UNSAFE_RAW);
+
+            if (!$resortId || !$methodName || !$methodDetails) {
+                $_SESSION['error_message'] = "All fields are required.";
+                header('Location: ?controller=admin&action=management');
+                exit();
+            }
+
+            $paymentMethod = new ResortPaymentMethods();
+            $paymentMethod->resortId = $resortId;
+            $paymentMethod->methodName = $methodName;
+            $paymentMethod->methodDetails = $methodDetails;
+            $paymentMethod->isActive = true;
+
+            if (ResortPaymentMethods::create($paymentMethod)) {
+                $_SESSION['success_message'] = "Payment method added successfully.";
+            } else {
+                $_SESSION['error_message'] = "Failed to add payment method.";
+            }
+            header('Location: ?controller=admin&action=management');
+            exit();
+        }
+    }
+
+    public function deletePaymentMethod() {
+        $methodId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if ($methodId && ResortPaymentMethods::delete($methodId)) {
+            $_SESSION['success_message'] = "Payment method deleted successfully.";
+        } else {
+            $_SESSION['error_message'] = "Failed to delete payment method.";
+        }
+        header('Location: ?controller=admin&action=management');
+        exit();
+    }
     public function blockResortAvailability() {
         if ($_SESSION['role'] !== 'Admin') {
             http_response_code(403);

@@ -129,7 +129,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         die('Action not found.');
     }
 }
-
-// All dashboard logic is now handled by controllers.
-// The default HTML block below is no longer needed.
+ 
+ // All dashboard logic is now handled by controllers.
+ // The default HTML block below is no longer needed.
 ?>

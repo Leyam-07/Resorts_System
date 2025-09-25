@@ -39,6 +39,9 @@ require_once __DIR__ . '/../../partials/header.php';
                                             </button>
                                             <button class="btn btn-warning btn-sm edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
                                             <button class="btn btn-danger btn-sm ms-2 delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Delete Resort</button>
+                                            <button type="button" class="btn btn-info btn-sm ms-2 manage-payments-btn" data-bs-toggle="modal" data-bs-target="#managePaymentsModal" data-resort-id="<?= $resortData['resort']->resortId ?>" data-resort-name="<?= htmlspecialchars($resortData['resort']->name) ?>">
+                                                Manage Payments
+                                            </button>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <h5 class="mb-0">Facilities</h5>
@@ -444,4 +447,53 @@ function deleteFacilityBlock(blockId, facilityId) {
             alert('An error occurred. Check console for details.');
         });
 }
+
+    // Manage Payments Modal Handler (for Management Page)
+    var managePaymentsModal = document.getElementById('managePaymentsModal');
+    if (managePaymentsModal) {
+        managePaymentsModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var resortId = button.getAttribute('data-resort-id');
+            var resortName = button.getAttribute('data-resort-name');
+            
+            document.getElementById('resortNameLabel').textContent = resortName;
+            document.getElementById('paymentResortId').value = resortId;
+
+            var paymentMethodsList = document.getElementById('paymentMethodsList');
+            paymentMethodsList.innerHTML = '<p>Loading payment methods...</p>';
+
+            fetch(`?controller=admin&action=getPaymentMethodsJson&resort_id=${resortId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        paymentMethodsList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+                    if (data.length === 0) {
+                        paymentMethodsList.innerHTML = '<p>No payment methods found for this resort.</p>';
+                        return;
+                    }
+
+                    let html = '<ul class="list-group">';
+                    data.forEach(method => {
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${method.MethodName}</strong>: ${method.MethodDetails}
+                                </div>
+                                <a href="?controller=admin&action=deletePaymentMethod&id=${method.PaymentMethodID}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this payment method?');">
+                                    Delete
+                                </a>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    paymentMethodsList.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error loading payment methods:', err);
+                    paymentMethodsList.innerHTML = '<div class="alert alert-danger">Failed to load payment methods.</div>';
+                });
+        });
+    }
 </script>

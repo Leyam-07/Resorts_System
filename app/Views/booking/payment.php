@@ -46,7 +46,7 @@ require_once __DIR__ . '/../partials/header.php';
                         <?php if (!empty($facilities)): ?>
                             <p><strong>Facilities:</strong>
                                 <?php foreach ($facilities as $index => $facility): ?>
-                                    <?= htmlspecialchars($facility->Name) ?><?= $index < count($facilities) - 1 ? ', ' : '' ?>
+                                    <?= htmlspecialchars($facility->FacilityName) ?><?= $index < count($facilities) - 1 ? ', ' : '' ?>
                                 <?php endforeach; ?>
                             </p>
                         <?php endif; ?>

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.7] - 2025-09-25
+
+### Fixed
+
+- **Missing Facilities on Customer Payment Summary Page:** Corrected an issue where selected facilities were not displayed on the payment summary page (`app/Views/booking/payment.php`) due to a variable name mismatch, updating `$facility->Name` to `$facility->FacilityName`.
+- **Missing Admin Interface for Managing Resort Payment Methods:** Resolved the problem where the admin interface for managing resort-specific payment methods was not accessible. This involved:
+  - Refactoring `app/Models/ResortPaymentMethods.php` to use the centralized `Database` helper.
+  - Relocating payment method management logic (`getPaymentMethodsJson()`, `addPaymentMethod()`, `deletePaymentMethod()`) from `app/Controllers/ResortController.php` to `app/Controllers/AdminController.php`.
+  - Updating the main application router (`public/index.php`) to correctly direct requests to the `AdminController` for these actions.
+  - Adding a "Manage Payments" button to the correct admin resort management view (`app/Views/admin/management/index.php`).
+  - Integrating the "Manage Payment Methods" modal and its associated JavaScript into `app/Views/admin/management/facility_modals.php` and `app/Views/admin/management/index.php` respectively.
+
+### Changed
+
+- **Payment Method Management Logic Relocation:** Moved payment method CRUD operations from `ResortController` to `AdminController` for better architectural alignment within the admin panel.
+- **Admin UI for Resort Management:** The "Manage Resorts" interface in `app/Views/admin/management/index.php` now includes a dedicated button for managing payment methods, complete with a functional modal.
+- **Router Configuration:** Removed the redundant routing block for the `resort` controller in `public/index.php` as its payment management responsibilities were shifted.
+
 ## [1.26.6] - 2025-09-25
 
 ### Fixed

@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Models/Facility.php';
 
+require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
+
 class ResortController {
 
     public function __construct() {
@@ -96,4 +98,5 @@ class ResortController {
         }
         exit();
     }
+
 }

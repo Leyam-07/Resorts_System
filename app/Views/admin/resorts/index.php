@@ -61,6 +61,9 @@ require_once __DIR__ . '/../../partials/header.php';
                                                 <button type="button" class="btn btn-sm btn-danger delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-delete-url="?controller=resort&action=destroy&id=<?= $resort->resortId ?>">
                                                     Delete
                                                 </button>
+                                                <button type="button" class="btn btn-sm btn-info manage-payments-btn" data-bs-toggle="modal" data-bs-target="#managePaymentsModal" data-resort-id="<?= $resort->resortId ?>" data-resort-name="<?= htmlspecialchars($resort->name) ?>">
+                                                    Manage Payments
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -115,4 +118,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+    const managePaymentsModal = document.getElementById('managePaymentsModal');
+    if (managePaymentsModal) {
+        managePaymentsModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const resortId = button.getAttribute('data-resort-id');
+            const resortName = button.getAttribute('data-resort-name');
+            
+            document.getElementById('resortNameLabel').textContent = resortName;
+            document.getElementById('paymentResortId').value = resortId;
+
+            const paymentMethodsList = document.getElementById('paymentMethodsList');
+            paymentMethodsList.innerHTML = '<p>Loading payment methods...</p>';
+
+            fetch(`?controller=resort&action=getPaymentMethodsJson&resort_id=${resortId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        paymentMethodsList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+                    if (data.length === 0) {
+                        paymentMethodsList.innerHTML = '<p>No payment methods found for this resort.</p>';
+                        return;
+                    }
+
+                    let html = '<ul class="list-group">';
+                    data.forEach(method => {
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${method.MethodName}</strong>: ${method.MethodDetails}
+                                </div>
+                                <a href="?controller=resort&action=deletePaymentMethod&id=${method.PaymentMethodID}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this payment method?');">
+                                    Delete
+                                </a>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    paymentMethodsList.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error loading payment methods:', err);
+                    paymentMethodsList.innerHTML = '<div class="alert alert-danger">Failed to load payment methods.</div>';
+                });
+        });
+    }
 </script>
