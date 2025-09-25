@@ -40,7 +40,11 @@ class BookingController {
         $validation = ValidationHelper::validateBookingData($_POST);
 
         if (!$validation['valid']) {
-            $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+            $errorMessages = [];
+            foreach ($validation['errors'] as $field => $errors) {
+                $errorMessages = array_merge($errorMessages, $errors);
+            }
+            $_SESSION['error_message'] = implode('<br>', $errorMessages);
             $_SESSION['old_input'] = $_POST;
             header('Location: ?controller=booking&action=showBookingForm');
             exit;

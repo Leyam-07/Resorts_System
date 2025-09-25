@@ -72,7 +72,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-building"></i></span>
-                    <select class="form-select" id="resort" name="resortId" required>
+                    <select class="form-select" id="resort" name="resort_id" required>
                         <option value="" disabled <?= !$selectedResortId ? 'selected' : '' ?>>Choose your resort...</option>
                         <?php foreach ($resorts as $resort): ?>
                             <option value="<?= $resort->resortId ?>" <?= ($selectedResortId == $resort->resortId) ? 'selected' : '' ?>>
@@ -93,7 +93,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-time"></i></span>
-                    <select class="form-select" id="timeSlotType" name="timeSlotType" required>
+                    <select class="form-select" id="timeSlotType" name="timeframe" required>
                         <option value="" disabled selected>Choose your timeframe...</option>
                         <option value="12_hours" <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == '12_hours') ? 'selected' : '' ?>>
                             ☀️ 12 Hours (7:00 AM - 5:00 PM)
@@ -132,7 +132,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <input type="date" class="form-control" id="date" name="bookingDate"
+                    <input type="date" class="form-control" id="date" name="booking_date"
                            value="<?= htmlspecialchars($_SESSION['old_input']['bookingDate'] ?? '') ?>"
                            min="<?= date('Y-m-d') ?>" required>
                     <button type="button" class="btn btn-primary" id="calendarModalBtn" disabled>
@@ -156,7 +156,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
-                    <input type="number" class="form-control" id="guests" name="numberOfGuests"
+                    <input type="number" class="form-control" id="guests" name="number_of_guests"
                            value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '') ?>"
                            placeholder="Enter number of guests" min="1" max="50" required>
                     <span class="input-group-text">guests</span>
@@ -976,7 +976,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFacilities.forEach(facility => {
             const input = document.createElement('input');
             input.type = 'hidden';
-            input.name = 'facilityIds[]';
+            input.name = 'facility_ids[]';
             input.value = facility.id;
             this.appendChild(input);
         });
