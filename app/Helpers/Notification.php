@@ -56,8 +56,9 @@ class Notification {
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Log error: "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"
-            return false;
+            // Log error instead of halting execution
+            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            return false; // Indicate failure but don't stop the booking process
         }
     }
 

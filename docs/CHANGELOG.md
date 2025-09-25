@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.5] - 2025-09-25
+
+### Fixed
+
+- **Critical Booking Form Hang:** Resolved a critical issue where the booking form would hang indefinitely on submission, ultimately failing to create a booking or provide user feedback.
+  - **Root Cause:** Identified a database deadlock caused by multiple, unmanaged database connections being created by different models within a single booking transaction.
+  - **Architectural Fix:** Implemented a centralized database connection manager (`app/Helpers/Database.php`) to ensure all models share a single PDO instance.
+  - **Model Refactoring:** Updated `app/Models/Booking.php`, `app/Models/BookingFacilities.php`, `app/Models/PaymentSchedule.php`, and `app/Models/BookingAuditTrail.php` to use the new shared database connection.
+  - **Transaction Integrity:** Ensured that all operations within the booking creation process (booking record, facility additions, payment schedule, audit trail) now occur within a single, consistent database transaction.
+- **Silent Booking Validation Failure:** Corrected an issue where the booking form would reset without displaying validation errors.
+  - **Form Input Name Mismatch:** Aligned form input `name` attributes (`resort_id`, `booking_date`, `timeframe`, `number_of_guests`, `facility_ids[]`) in `app/Views/booking/create.php` to match backend validation expectations.
+  - **Improved Error Display:** Enhanced error message processing in `app/Controllers/BookingController.php` to correctly aggregate and display validation errors to the user.
+
+### Added
+
+- **Centralized Database Connection:** Introduced `app/Helpers/Database.php` to provide a singleton PDO database connection for the entire application, improving performance and preventing connection-related issues.
+
+### Changed
+
+- **Database Connection Management:** Transitioned all core models (`Booking`, `BookingFacilities`, `PaymentSchedule`, `BookingAuditTrail`) from independent database connection instantiation to using a single, shared connection managed by the `Database` helper.
+- **Booking Form Validation Feedback:** Improved user experience by ensuring that all validation errors are now clearly displayed on the booking form.
+
+### Technical
+
+- **Architectural Stability:** Significantly enhanced the stability and reliability of the booking system by centralizing database connection management and resolving critical deadlock conditions.
+- **Code Consistency:** Standardized database access patterns across key models, improving code maintainability and adherence to best practices.
+
 ## [1.26.4] - 2025-09-19
 
 ### Fixed
