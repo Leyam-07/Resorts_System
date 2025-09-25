@@ -47,7 +47,7 @@ class Notification {
                 <ul>
                     <li>Booking ID: {$booking->bookingId}</li>
                     <li>Date: {$booking->bookingDate}</li>
-                    <li>Time: {$booking->startTime} - {$booking->endTime}</li>
+                    <li>Time: " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
                     <li>Guests: {$booking->numberOfGuests}</li>
                 </ul>
                 <p>Thank you for choosing our resort!</p>";
@@ -77,7 +77,7 @@ class Notification {
             $mail->Subject = 'Booking Cancellation';
             $mail->Body    = "
                 <p>Dear {$customer['FirstName']},</p>
-                <p>Your booking for {$booking->bookingDate} from {$booking->startTime} to {$booking->endTime} has been cancelled.</p>
+                <p>Your booking for {$booking->bookingDate} (" . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . ") has been cancelled.</p>
                 <p>If you did not request this cancellation, please contact us immediately.</p>
                 <p>We hope to see you again soon.</p>";
             $mail->AltBody = 'Your booking for ' . $booking->bookingDate . ' has been cancelled.';

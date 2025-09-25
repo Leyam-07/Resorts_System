@@ -9,6 +9,7 @@ require_once __DIR__ . '/../Models/BookingAuditTrail.php';
 require_once __DIR__ . '/../Models/PaymentSchedule.php';
 require_once __DIR__ . '/../Models/BookingLifecycleManager.php';
 require_once __DIR__ . '/../Helpers/ValidationHelper.php';
+require_once __DIR__ . '/../Helpers/Database.php';
 
 class BookingController {
 
@@ -383,7 +384,7 @@ class BookingController {
      */
     private function isDateBlocked($resortId, $date, $type = 'resort') {
         if ($type === 'resort') {
-            $db = $this->getDB();
+            $db = Database::getInstance();
             $stmt = $db->prepare("SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = :resortId AND BlockDate = :date");
             $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
             $stmt->bindValue(':date', $date, PDO::PARAM_STR);
@@ -397,7 +398,7 @@ class BookingController {
      * Helper method to get booking count for a specific date
      */
     private function getBookingCountForDate($resortId, $date, $timeframe) {
-        $db = $this->getDB();
+        $db = Database::getInstance();
         $stmt = $db->prepare("
             SELECT COUNT(*) FROM Bookings
             WHERE ResortID = :resortId
@@ -424,22 +425,6 @@ class BookingController {
         return 'available';
     }
 
-    /**
-     * Get database connection
-     */
-    private function getDB() {
-        static $db = null;
-        if (!$db) {
-            require_once __DIR__ . '/../../config/database.php';
-            try {
-                $db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
-                $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                die("Database connection failed: " . $e->getMessage());
-            }
-        }
-        return $db;
-    }
 
     public function showMyBookings() {
         if (!isset($_SESSION['user_id'])) {
@@ -543,7 +528,7 @@ class BookingController {
         
         $resort = Resort::findById($booking->resortId);
         $paymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
-        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+        $facilities = BookingFacilities::findByBookingId($bookingId);
         
         // Phase 6: Get payment schedule information for display
         $paymentSchedule = PaymentSchedule::findByBookingId($bookingId);
@@ -721,7 +706,7 @@ class BookingController {
         require_once __DIR__ . '/../Models/BookingFacilities.php';
         
         $resort = Resort::findById($booking->resortId);
-        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+        $facilities = BookingFacilities::findByBookingId($bookingId);
 
         require_once __DIR__ . '/../Views/booking/payment_success.php';
     }

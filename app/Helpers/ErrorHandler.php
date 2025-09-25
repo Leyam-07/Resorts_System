@@ -516,7 +516,7 @@ class ErrorHandler {
                 ]);
             } else {
                 // Redirect to error page
-                header('Location: /error.php');
+                header('Location: ' . BASE_URL . '/public/error.php');
             }
         }
         

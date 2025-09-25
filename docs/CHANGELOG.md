@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.6] - 2025-09-25
+
+### Fixed
+
+- **Booking Form Hang & Database Deadlock:** Resolved a critical issue where the booking form would hang indefinitely on submission. This was caused by multiple database connections leading to deadlocks. Implemented a centralized database connection manager (`app/Helpers/Database.php`) and refactored models and controllers to use a single shared PDO instance.
+- **Silent Booking Validation Failure:** Corrected an issue where the booking form would reset without displaying validation errors by aligning form input `name` attributes with backend validation expectations and improving error message processing in `app/Controllers/BookingController.php`.
+- **Notification Email Error:** Fixed a fatal error (`Undefined property: Booking::$startTime`) in `app/Helpers/Notification.php` by updating email templates to use `Booking::getTimeSlotDisplay($booking->timeSlotType)`.
+- **Error Page Redirect Path:** Corrected the redirection path in `app/Helpers/ErrorHandler.php` to use the `BASE_URL` constant, ensuring correct redirects to `public/error.php`.
+- **Undefined Method Call on Payment Page:** Resolved a fatal error (`Call to undefined method BookingFacilities::getFacilitiesForBooking()`) in `app/Controllers/BookingController.php` by updating it to call `BookingFacilities::findByBookingId()`.
+
+### Added
+
+- **Centralized Database Connection:** Introduced `app/Helpers/Database.php` for a singleton PDO instance.
+- **Graceful Error Page:** Created `public/error.php` for user-friendly error display.
+
+### Changed
+
+- **Database Connection Management:** Transitioned core models and controllers to use the new centralized `Database` helper.
+- **Error Handling Behavior:** Modified `ErrorHandler.php` to use `BASE_URL` for robust error page redirection.
+
+### Technical
+
+- **System Stability:** Enhanced booking system stability by resolving deadlocks and centralizing database access.
+- **Workflow Integrity:** Ensured seamless booking-to-payment flow by fixing critical errors across components.
+
+## [1.26.5] - 2025-09-25
+
 ## [1.26.5] - 2025-09-25
 
 ### Fixed

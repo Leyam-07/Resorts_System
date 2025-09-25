@@ -8,3 +8,5 @@ config/mail.php
 
 # Composer lock file
 composer.lock
+
+logs/
