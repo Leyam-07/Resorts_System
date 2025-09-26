@@ -716,17 +716,32 @@ class BookingController {
      */
     public function getPaymentMethods() {
         header('Content-Type: application/json');
-        
+
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
-        if (!$resortId) {
+        $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
+
+        if (!$resortId && !$bookingId) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid Resort ID']);
+            echo json_encode(['error' => 'Invalid Resort ID or Booking ID']);
             exit;
         }
 
         require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
+
+        // If we have booking_id, get resort_id from booking
+        if ($bookingId && !$resortId) {
+            $booking = Booking::findById($bookingId);
+            if ($booking) {
+                $resortId = $booking->resortId;
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Booking not found']);
+                exit;
+            }
+        }
+
         $paymentMethods = ResortPaymentMethods::getFormattedPaymentMethods($resortId);
-        
+
         echo json_encode($paymentMethods);
         exit;
     }

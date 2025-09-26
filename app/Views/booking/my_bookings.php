@@ -103,14 +103,21 @@ require_once __DIR__ . '/../partials/header.php';
                                 <?php else: ?>
                                     <!-- Payment Actions -->
                                     <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
-                                        <a href="?controller=booking&action=showPaymentForm&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-primary btn-sm mb-1">
+                                        <button type="button" class="btn btn-primary btn-sm mb-1 payment-modal-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#paymentModal"
+                                                data-booking-id="<?= htmlspecialchars($booking->BookingID) ?>"
+                                                data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>"
+                                                data-total-amount="<?= htmlspecialchars($booking->TotalAmount) ?>"
+                                                data-remaining-balance="<?= htmlspecialchars($booking->RemainingBalance) ?>"
+                                                data-resort-name="<?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?>">
                                             <i class="fas fa-credit-card"></i>
                                             <?php if ($booking->RemainingBalance < $booking->TotalAmount): ?>
                                                 Complete Payment
                                             <?php else: ?>
                                                 Submit Payment
                                             <?php endif; ?>
-                                        </a>
+                                        </button>
                                     <?php elseif ($booking->Status === 'Pending'): ?>
                                         <span class="badge bg-warning text-dark">Payment Under Review</span>
                                     <?php endif; ?>
@@ -163,6 +170,163 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="paymentModalLabel">
+                    <i class="fas fa-credit-card"></i> Submit Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Booking Summary -->
+                <div class="card mb-4 border-primary">
+                    <div class="card-header bg-primary-subtle">
+                        <h6 class="mb-0 text-primary">
+                            <i class="fas fa-receipt"></i> Booking Summary - <span id="paymentResortName"></span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Booking Details</h6>
+                                <p><strong>Date:</strong> <span id="paymentBookingDate"></span></p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning text-dark">Pending</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Payment Information</h6>
+                                <p><strong>Total Amount:</strong> <span id="paymentTotalAmount" class="fw-bold text-success"></span></p>
+                                <p><strong>Remaining Balance:</strong> <span id="paymentRemainingBalance" class="fw-bold text-danger"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div id="paymentMethodsSection">
+                    <div class="card mb-4 border-success">
+                        <div class="card-header bg-success-subtle">
+                            <h6 class="mb-0 text-success">
+                                <i class="fas fa-credit-card"></i> Available Payment Methods
+                            </h6>
+                        </div>
+                        <div class="card-body" id="paymentMethodsList">
+                            <!-- Payment methods will be loaded here -->
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading payment methods...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <form id="paymentForm" action="?controller=booking&action=submitPayment" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="booking_id" id="paymentBookingId">
+
+                    <!-- Amount Being Paid -->
+                    <div class="mb-3">
+                        <label for="modalAmountPaid" class="form-label fw-bold">
+                            <i class="fas fa-peso-sign text-primary"></i> Amount Being Paid <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-peso-sign"></i></span>
+                            <input type="number" class="form-control" id="modalAmountPaid" name="amount_paid" min="1" step="0.01" required>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> You can pay the full amount or make a partial payment.
+                        </div>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-success btn-sm" id="payFullBtn">
+                                <i class="fas fa-money-bill"></i> Pay Full Amount
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="payHalfBtn">
+                                <i class="fas fa-percentage"></i> Pay 50%
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Reference -->
+                    <div class="mb-3">
+                        <label for="modalPaymentReference" class="form-label fw-bold">
+                            <i class="fas fa-hashtag text-primary"></i> Payment Reference Number <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                            <input type="text" class="form-control" id="modalPaymentReference" name="payment_reference" required>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> Enter the transaction ID, reference number, or confirmation code from your payment.
+                        </div>
+                    </div>
+
+                    <!-- Payment Proof Upload -->
+                    <div class="mb-3">
+                        <label for="modalPaymentProof" class="form-label fw-bold">
+                            <i class="fas fa-camera text-primary"></i> Payment Proof <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="upload-area border-2 border-dashed rounded-3 p-3 text-center" id="modalUploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                <p class="mb-2"><strong>Drop your payment proof here</strong></p>
+                                <p class="text-muted small mb-2">or click to browse files</p>
+                                <input type="file" class="form-control d-none" id="modalPaymentProof" name="payment_proof" accept="image/*" required>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('modalPaymentProof').click()">
+                                    <i class="fas fa-folder-open"></i> Browse Files
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle"></i> Upload a screenshot or photo of your payment confirmation (JPG, PNG, GIF | Max 5MB)
+                        </div>
+
+                        <div id="modalImagePreview" class="mt-2" style="display: none;">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <img id="modalPreviewImg" src="" alt="Payment proof preview" class="img-fluid rounded" style="max-height: 200px;">
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeModalImage()">
+                                            <i class="fas fa-trash"></i> Remove Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Important Notice -->
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
+                        <ul class="mb-0 small">
+                            <li>Your booking will be confirmed only after payment verification</li>
+                            <li>Please ensure the payment proof clearly shows the transaction amount and reference number</li>
+                            <li>Verification may take up to 24 hours</li>
+                        </ul>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success" id="modalSubmitBtn" disabled>
+                            <span id="modalSubmitText">
+                                <i class="fas fa-paper-plane"></i> Submit Payment Proof
+                            </span>
+                            <span id="modalLoadingText" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Submitting...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .rating-stars {
         display: inline-block;
@@ -186,6 +350,7 @@ require_once __DIR__ . '/../partials/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Feedback Modal Handler
     var feedbackModal = document.getElementById('feedbackModal');
     feedbackModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
@@ -199,7 +364,296 @@ document.addEventListener('DOMContentLoaded', function () {
         modalBookingDate.textContent = bookingDate;
         modalBookingIdInput.value = bookingId;
     });
+
+    // Payment Modal Handler
+    var paymentModal = document.getElementById('paymentModal');
+    paymentModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var bookingId = button.getAttribute('data-booking-id');
+        var bookingDate = button.getAttribute('data-booking-date');
+        var totalAmount = parseFloat(button.getAttribute('data-total-amount'));
+        var remainingBalance = parseFloat(button.getAttribute('data-remaining-balance'));
+        var resortName = button.getAttribute('data-resort-name');
+
+        // Populate modal data
+        document.getElementById('paymentBookingId').value = bookingId;
+        document.getElementById('paymentBookingDate').textContent = bookingDate;
+        document.getElementById('paymentTotalAmount').textContent = '₱' + totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('paymentRemainingBalance').textContent = '₱' + remainingBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('paymentResortName').textContent = resortName;
+
+        // Set input constraints
+        var amountInput = document.getElementById('modalAmountPaid');
+        amountInput.max = remainingBalance;
+        amountInput.value = remainingBalance; // Default to remaining balance
+
+        // Load payment methods
+        loadPaymentMethods(bookingId, resortName);
+
+        // Reset form validation
+        validateModalForm();
+    });
+
+    // Reset modal when hidden
+    paymentModal.addEventListener('hidden.bs.modal', function () {
+        // Reset form
+        document.getElementById('paymentForm').reset();
+        document.getElementById('modalImagePreview').style.display = 'none';
+        document.getElementById('modalUploadArea').style.display = 'block';
+
+        // Reset validation
+        document.getElementById('modalSubmitBtn').disabled = true;
+    });
+
+    // Load payment methods via AJAX
+    function loadPaymentMethods(bookingId, resortName) {
+        // First get resort ID from booking (we need to make a request to get resort info)
+        fetch('?controller=booking&action=getPaymentMethods&booking_id=' + bookingId, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayPaymentMethods(data);
+        })
+        .catch(error => {
+            console.error('Error loading payment methods:', error);
+            document.getElementById('paymentMethodsList').innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Unable to load payment methods. Please contact the resort directly at <strong>' + resortName + '</strong> for payment instructions.</div>';
+        });
+    }
+
+    // Display payment methods in modal
+    function displayPaymentMethods(methods) {
+        var container = document.getElementById('paymentMethodsList');
+
+        if (!methods || methods.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No payment methods are currently configured for this resort. Please contact the resort directly for payment instructions.</div>';
+            return;
+        }
+
+        var html = '<div class="row">';
+        methods.forEach(function(method) {
+            html += `
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-success shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-mobile-alt fa-2x text-success"></i>
+                            </div>
+                            <h6 class="card-title text-success fw-bold">${method.name}</h6>
+                            <p class="card-text small text-muted">${method.details}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // Quick pay buttons
+    document.getElementById('payFullBtn').addEventListener('click', function() {
+        var remainingBalance = parseFloat(document.getElementById('modalAmountPaid').max);
+        document.getElementById('modalAmountPaid').value = remainingBalance;
+        document.getElementById('modalAmountPaid').classList.add('pulse');
+        setTimeout(() => document.getElementById('modalAmountPaid').classList.remove('pulse'), 1000);
+        validateModalForm();
+    });
+
+    document.getElementById('payHalfBtn').addEventListener('click', function() {
+        var remainingBalance = parseFloat(document.getElementById('modalAmountPaid').max);
+        var halfAmount = remainingBalance / 2;
+        document.getElementById('modalAmountPaid').value = halfAmount.toFixed(2);
+        document.getElementById('modalAmountPaid').classList.add('pulse');
+        setTimeout(() => document.getElementById('modalAmountPaid').classList.remove('pulse'), 1000);
+        validateModalForm();
+    });
+
+    // File upload handling
+    var modalUploadArea = document.getElementById('modalUploadArea');
+    var modalFileInput = document.getElementById('modalPaymentProof');
+    var modalPreview = document.getElementById('modalImagePreview');
+    var modalPreviewImg = document.getElementById('modalPreviewImg');
+
+    // Click to upload
+    modalUploadArea.addEventListener('click', function(e) {
+        if (e.target !== modalFileInput) {
+            modalFileInput.click();
+        }
+    });
+
+    // Drag and drop
+    modalUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        modalUploadArea.classList.add('dragover');
+    });
+
+    modalUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        modalUploadArea.classList.remove('dragover');
+    });
+
+    modalUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        modalUploadArea.classList.remove('dragover');
+
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            modalFileInput.files = files;
+            handleModalFileSelection(files[0]);
+        }
+    });
+
+    // File input change
+    modalFileInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+            handleModalFileSelection(file);
+        } else {
+            modalPreview.style.display = 'none';
+            modalUploadArea.style.display = 'block';
+        }
+    });
+
+    function handleModalFileSelection(file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showModalAlert('Please select an image file (JPG, PNG, GIF)', 'danger');
+            modalFileInput.value = '';
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showModalAlert('File size must be less than 5MB', 'danger');
+            modalFileInput.value = '';
+            return;
+        }
+
+        // Show preview
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            modalPreviewImg.src = e.target.result;
+            modalPreview.style.display = 'block';
+            modalUploadArea.style.display = 'none';
+            validateModalForm();
+            showModalAlert('Image uploaded successfully!', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Remove image function
+    window.removeModalImage = function() {
+        modalFileInput.value = '';
+        modalPreview.style.display = 'none';
+        modalUploadArea.style.display = 'block';
+        validateModalForm();
+    };
+
+    // Form validation
+    function validateModalForm() {
+        var amount = parseFloat(document.getElementById('modalAmountPaid').value) || 0;
+        var reference = document.getElementById('modalPaymentReference').value.trim();
+        var file = modalFileInput.files.length > 0;
+        var maxAmount = parseFloat(document.getElementById('modalAmountPaid').max);
+
+        var isValid = amount > 0 && amount <= maxAmount && reference.length > 0 && file;
+        document.getElementById('modalSubmitBtn').disabled = !isValid;
+    }
+
+    // Add validation listeners
+    document.getElementById('modalAmountPaid').addEventListener('input', validateModalForm);
+    document.getElementById('modalPaymentReference').addEventListener('input', validateModalForm);
+
+    // Form submission
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        var amount = parseFloat(document.getElementById('modalAmountPaid').value);
+        var maxAmount = parseFloat(document.getElementById('modalAmountPaid').max);
+
+        if (amount <= 0 || amount > maxAmount) {
+            e.preventDefault();
+            showModalAlert('Please enter a valid payment amount between ₱1.00 and ₱' + maxAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}), 'danger');
+            return false;
+        }
+
+        // Show loading state
+        document.getElementById('modalSubmitText').style.display = 'none';
+        document.getElementById('modalLoadingText').style.display = 'inline';
+
+        // Confirm submission
+        if (!confirm('Are you sure you want to submit this payment?\n\n' +
+                    'Amount: ₱' + amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '\n' +
+                    'Reference: ' + document.getElementById('modalPaymentReference').value + '\n\n' +
+                    'Please ensure all information is correct.')) {
+            e.preventDefault();
+            document.getElementById('modalSubmitText').style.display = 'inline';
+            document.getElementById('modalLoadingText').style.display = 'none';
+            return false;
+        }
+
+        showModalAlert('Submitting payment proof...', 'info');
+    });
+
+    // Modal alert function
+    function showModalAlert(message, type) {
+        // Remove existing alerts
+        var existingAlerts = paymentModal.querySelectorAll('.alert');
+        existingAlerts.forEach(function(alert) {
+            alert.remove();
+        });
+
+        // Create new alert
+        var alert = document.createElement('div');
+        alert.className = 'alert alert-' + type + ' alert-dismissible fade show';
+        alert.style.cssText = 'position: absolute; top: 10px; left: 10px; right: 10px; z-index: 9999;';
+        alert.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+
+        paymentModal.querySelector('.modal-body').prepend(alert);
+
+        // Auto remove after 3 seconds
+        if (type !== 'danger') {
+            setTimeout(function() {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+    }
 });
+
+// Add some CSS styles for the modal
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+.upload-area {
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    border-color: #dee2e6 !important;
+    cursor: pointer;
+}
+
+.upload-area:hover, .upload-area.dragover {
+    background-color: #e3f2fd;
+    border-color: #0d6efd !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.form-control:focus, .form-select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
+}
+</style>
+`);
 </script>
 
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
