@@ -535,6 +535,9 @@ class BookingController {
         $scheduleSummary = PaymentSchedule::getScheduleSummary($bookingId);
         $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
 
+        // Check if resort has payment methods configured
+        $hasPaymentMethods = !empty($paymentMethods);
+
         // Check for error messages
         $errorMessage = $_SESSION['error_message'] ?? null;
         $successMessage = $_SESSION['success_message'] ?? null;

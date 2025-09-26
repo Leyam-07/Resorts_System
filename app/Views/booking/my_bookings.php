@@ -427,9 +427,37 @@ document.addEventListener('DOMContentLoaded', function () {
     // Display payment methods in modal
     function displayPaymentMethods(methods) {
         var container = document.getElementById('paymentMethodsList');
+        var paymentForm = document.getElementById('paymentForm');
+        var modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
         if (!methods || methods.length === 0) {
-            container.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No payment methods are currently configured for this resort. Please contact the resort directly for payment instructions.</div>';
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6 class="fw-bold"><i class="fas fa-times-circle"></i> Payment Not Available</h6>
+                    <p class="mb-2">This resort has not configured any payment methods yet.</p>
+                    <p class="mb-3"><strong>Please contact the resort directly to arrange payment outside of this system.</strong></p>
+                    <div class="d-flex gap-2">
+                        <a href="tel:" class="btn btn-outline-primary btn-sm" id="callResortBtn">
+                            <i class="fas fa-phone"></i> Call Resort
+                        </a>
+                        <a href="mailto:" class="btn btn-outline-primary btn-sm" id="emailResortBtn">
+                            <i class="fas fa-envelope"></i> Email Resort
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // Disable all form fields and submit button
+            var formElements = paymentForm.querySelectorAll('input, button[type="submit"]');
+            formElements.forEach(function(element) {
+                element.disabled = true;
+            });
+            modalSubmitBtn.disabled = true;
+
+            // Add disabled styling
+            paymentForm.classList.add('opacity-50');
+            paymentForm.style.pointerEvents = 'none';
+
             return;
         }
 

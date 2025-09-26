@@ -90,7 +90,43 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
 
         <?php if ($booking->remainingBalance > 0): ?>
-        
+
+        <?php
+        // Check if resort has payment methods configured
+        $hasPaymentMethods = !empty($paymentMethods) && isset($hasPaymentMethods) && $hasPaymentMethods;
+        ?>
+
+        <!-- Show warning if no payment methods configured for this resort -->
+        <?php if (!$hasPaymentMethods): ?>
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Payment Not Available</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h6 class="fw-bold"><i class="fas fa-times-circle"></i> No Payment Methods Configured</h6>
+                    <p class="mb-2"><strong>This resort has not configured any payment methods yet.</strong></p>
+                    <p class="mb-3">Please contact the resort directly to arrange payment. You will need to complete your payment outside of this system.</p>
+
+                    <div class="d-flex gap-2">
+                        <a href="tel:<?= htmlspecialchars($resort->phone ?? '') ?>" class="btn btn-outline-primary" <?php if (empty($resort->phone)): ?>disabled<?php endif; ?>>
+                            <i class="fas fa-phone"></i> Call Resort
+                        </a>
+                        <a href="mailto:<?= htmlspecialchars($resort->email ?? '') ?>" class="btn btn-outline-primary" <?php if (empty($resort->email)): ?>disabled<?php endif; ?>>
+                            <i class="fas fa-envelope"></i> Email Resort
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6 class="text-muted mb-2"><i class="fas fa-info-circle"></i> Payment Required</h6>
+                    <p class="mb-1"><strong>Remaining Balance:</strong> <span class="text-danger fw-bold">₱<?= number_format($booking->remainingBalance, 2) ?></span></p>
+                    <p class="small text-muted">Your booking status will remain "Pending" until payment is confirmed.</p>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
+
         <!-- Phase 6: Payment Schedule Section -->
         <?php
         // Get payment schedule for this booking
@@ -254,6 +290,8 @@ require_once __DIR__ . '/../partials/header.php';
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php endif; ?>
 
         <!-- Enhanced Payment Submission Form -->
         <div class="card mb-4 shadow-sm">

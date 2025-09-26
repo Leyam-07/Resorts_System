@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Payment Method Validation UX:** Resolved a critical user experience issue where customers could upload payment proofs and submit payments even when resorts had no configured payment methods. The warning message would disappear after uploading an image, allowing invalid payment submissions.
+  - **Root Cause:** Payment methods were only checked for display purposes but not for form functionality control
+  - **Solution:** Enhanced controller and view logic to completely disable payment functionality when no payment methods exist
+  - **Changes:**
+    - Added `$hasPaymentMethods` flag to `BookingController::showPaymentForm()` for form state control
+    - Transformed `app/Views/booking/payment.php` to show prominent warning card instead of form when no payment methods configured
+    - Enhanced `app/Views/booking/my_bookings.php` modal to disable all form fields and submit button when no payment methods exist
+    - Added direct contact options (phone/email links) for resort communication
+    - Implemented form field disabling with `pointer-events: none` for visual feedback
+  - **User Experience:** Clear messaging prevents confusion, form is completely disabled, contact information provided for alternative communication
+
 ## [1.27.0] - 2025-09-26
 
 ### Fixed

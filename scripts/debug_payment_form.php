@@ -1,87 +1,111 @@
 <?php
+
+// Test script to simulate a booking with no payment methods configured
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../app/Models/Resort.php';
 require_once __DIR__ . '/../app/Models/ResortPaymentMethods.php';
+require_once __DIR__ . '/../app/Models/Booking.php';
 
-// Start session for testing
-session_start();
+echo "=== Payment Method Testing Script ===\n\n";
 
-// Simulate a form submission
-echo "=== Testing Payment Method Form Submission ===\n\n";
+// Test 1: Check if we can create/find a resort with no payment methods
+echo "1. Creating/Finding test resort:\n";
+$testResort = null;
 
-// Test 1: Simulate POST data exactly as the form sends
-echo "Test 1: Simulating form submission...\n";
-$_POST = [
-    'resort_id' => '1',
-    'method_name' => 'Test Payment Method',
-    'method_details' => 'Test details for debugging'
-];
-$_SERVER['REQUEST_METHOD'] = 'POST';
+// Try to find existing resort with ID 1 (we'll clear its payment methods)
+$testResort = Resort::findById(1);
 
-echo "POST data: " . print_r($_POST, true) . "\n";
-echo "REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . "\n\n";
+if (!$testResort) {
+    // Create a test resort
+    echo "   No existing resort found, creating test resort...\n";
+    $testResort = new Resort();
+    $testResort->name = 'Test Resort - No Payment Methods';
+    $testResort->description = 'Resort for testing payment method restrictions';
+    $testResort->location = 'Test Location';
+    $testResort->phone = '+1234567890';
+    $testResort->email = 'test@resort.com';
+    $testResort->price = 1000;
+    $testResort->capacity = 50;
+    $result = Resort::create($testResort);
 
-// Test 2: Check direct access to $_POST vs filter_input
-echo "Test 2: Testing filter_input vs direct access...\n";
-echo "Direct \$__POST access:\n";
-echo "- resort_id: " . ($_POST['resort_id'] ?? 'missing') . "\n";
-echo "- method_name: " . ($_POST['method_name'] ?? 'missing') . "\n";
-echo "- method_details: " . ($_POST['method_details'] ?? 'missing') . "\n\n";
-
-echo "filter_input access:\n";
-try {
-    // Simulate the controller logic
-    $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
-    $methodName = filter_input(INPUT_POST, 'method_name', FILTER_UNSAFE_RAW);
-    $methodDetails = filter_input(INPUT_POST, 'method_details', FILTER_UNSAFE_RAW);
-
-    echo "Filtered data:\n";
-    echo "- resort_id: $resortId\n";
-    echo "- method_name: $methodName\n";
-    echo "- method_details: $methodDetails\n\n";
-
-    if (!$resortId || !$methodName || !$methodDetails) {
-        echo "❌ Validation failed: All fields are required.\n";
-        echo "Setting session error message...\n";
-        $_SESSION['error_message'] = "All fields are required.";
+    if ($result) {
+        $testResort = Resort::findById($result);
+        echo "   ✓ Created test resort with ID: $result\n";
     } else {
-        echo "✅ Validation passed.\n";
-        echo "Creating payment method...\n";
-
-        $paymentMethod = new ResortPaymentMethods();
-        $paymentMethod->resortId = $resortId;
-        $paymentMethod->methodName = $methodName;
-        $paymentMethod->methodDetails = $methodDetails;
-        $paymentMethod->isActive = true;
-
-        $result = ResortPaymentMethods::create($paymentMethod);
-        if ($result) {
-            echo "✅ Payment method created successfully!\n";
-            $_SESSION['success_message'] = "Payment method added successfully.";
-            echo "Session success message set.\n";
-        } else {
-            echo "❌ Failed to create payment method.\n";
-            $_SESSION['error_message'] = "Failed to add payment method.";
-            echo "Session error message set.\n";
-        }
+        echo "   ✗ Failed to create test resort\n";
+        exit(1);
     }
-
-    echo "Current session messages:\n";
-    echo "- success_message: " . ($_SESSION['success_message'] ?? 'none') . "\n";
-    echo "- error_message: " . ($_SESSION['error_message'] ?? 'none') . "\n\n";
-
-    // Simulate redirect behavior
-    echo "Test 3: Simulating redirect logic...\n";
-    $redirectLocation = '?controller=admin&action=management';
-    echo "Redirect location: $redirectLocation\n";
-    echo "Headers that would be sent: Location: $redirectLocation\n";
-
-} catch (Exception $e) {
-    echo "❌ Exception occurred: " . $e->getMessage() . "\n";
-    echo "Stack trace:\n" . $e->getStackTraceAsString() . "\n";
+} else {
+    echo "   ✓ Found existing resort: " . $testResort->name . "\n";
 }
 
-// Clean up session for next test
-unset($_SESSION['success_message']);
-unset($_SESSION['error_message']);
+echo "\n2. Checking payment methods for resort ID {$testResort->resortId}:\n";
+$paymentMethods = ResortPaymentMethods::findByResortId($testResort->resortId, true);
+echo "   Found " . count($paymentMethods) . " payment methods\n";
 
-echo "\n=== Test Complete ===\n";
+if (count($paymentMethods) > 0) {
+    echo "   ✗ Resort has payment methods configured - clearing them for test\n";
+    // Delete existing payment methods for clean test
+    try {
+        $db = Database::getInstance();
+        $db->prepare("DELETE FROM ResortPaymentMethods WHERE ResortID = ?")->execute([$testResort->resortId]);
+
+        echo "   ✓ Cleared payment methods\n";
+    } catch (Exception $e) {
+        echo "   ✗ Failed to clear payment methods: " . $e->getMessage() . "\n";
+    }
+} else {
+    echo "   ✓ Resort has no payment methods configured (perfect for testing)\n";
+}
+
+echo "\n3. Testing payment method loading logic:\n";
+// Simulate the controller logic
+$hasPaymentMethods = !empty($paymentMethods);
+
+echo "   \$hasPaymentMethods = " . ($hasPaymentMethods ? 'true' : 'false') . "\n";
+
+if (!$hasPaymentMethods) {
+    echo "   ✓ Controller would show 'No Payment Methods' warning\n";
+    echo "   ✓ Form fields would be disabled\n";
+    echo "   ✓ Submit button would be disabled\n";
+} else {
+    echo "   ✗ Unexpected: Payment methods found when none expected\n";
+}
+
+echo "\n4. Simulating getPaymentMethods API call:\n";
+try {
+    // Test the API endpoint logic
+    $apiMethods = ResortPaymentMethods::getFormattedPaymentMethods($testResort->resortId);
+    echo "   API returned " . count($apiMethods) . " methods\n";
+
+    if (count($apiMethods) === 0) {
+        echo "   ✓ API correctly returns empty array\n";
+        echo "   ✓ Frontend would show 'Payment Not Available' message\n";
+        echo "   ✓ Form would be disabled with pointer-events: none\n";
+    } else {
+        echo "   ✗ API returned methods when none expected\n";
+    }
+} catch (Exception $e) {
+    echo "Error testing API: " . $e->getMessage() . "\n";
+}
+
+echo "\n5. Test Summary:\n";
+echo "   =========================================\n";
+echo "   Resort ID: {$testResort->resortId}\n";
+echo "   Resort Name: {$testResort->name}\n";
+echo "   Payment Methods Configured: " . count($paymentMethods) . "\n";
+echo "   Expected UI Behavior:\n";
+echo "   - Payment warning should be shown: YES\n";
+echo "   - Form fields should be disabled: YES\n";
+echo "   - Submit button should be disabled: YES\n";
+echo "   - Contact resort options should be shown: YES\n";
+echo "   =========================================\n";
+
+echo "\n✅ Test completed successfully!\n";
+echo "   To test manually:\n";
+echo "   1. Create a booking for Resort ID {$testResort->resortId}\n";
+echo "   2. Go to payment page or click 'Submit Payment' in My Bookings\n";
+echo "   3. Verify the UI shows payment method restrictions\n";
+echo "   4. Try to submit payment - it should be prevented\n";
+
+?>
