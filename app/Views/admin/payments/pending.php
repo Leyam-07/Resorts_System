@@ -77,8 +77,8 @@ require_once __DIR__ . '/../../partials/header.php';
                             <?php if ($payment->ProofOfPaymentURL): ?>
                                 <h6 class="text-primary mb-2"><i class="fas fa-image"></i> Payment Proof</h6>
                                 <div class="mb-3">
-                                    <img src="<?= htmlspecialchars($payment->ProofOfPaymentURL) ?>" 
-                                         alt="Payment Proof" 
+                                    <img src="<?= BASE_URL ?>/<?= htmlspecialchars($payment->ProofOfPaymentURL) ?>"
+                                         alt="Payment Proof"
                                          class="img-fluid rounded border cursor-pointer"
                                          style="max-height: 150px; width: 100%; object-fit: cover;"
                                          onclick="showImageModal(this.src)">
@@ -163,6 +163,10 @@ require_once __DIR__ . '/../../partials/header.php';
 <script>
 // Show image in modal
 function showImageModal(src) {
+    // Ensure full URL is used for modal display
+    if (src && !src.startsWith('http')) {
+        src = '<?= BASE_URL ?>/' + src.replace(/^\/+/, '');
+    }
     document.getElementById('modalImage').src = src;
     new bootstrap.Modal(document.getElementById('imageModal')).show();
 }
