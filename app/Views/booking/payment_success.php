@@ -46,7 +46,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <strong>Facilities:</strong>
                                 <ul class="mb-0">
                                     <?php foreach ($facilities as $facility): ?>
-                                        <li><?= htmlspecialchars($facility->Name) ?></li>
+                                        <li><?= htmlspecialchars($facility->FacilityName) ?></li>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>

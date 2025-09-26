@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] - 2025-09-26
+
+### Fixed
+
+- **Payment Success Page Facilities Display:** Corrected a critical bug where the payment success page displayed empty facilities list after payment submission. Fixed property access mismatch in `app/Views/booking/payment_success.php` where `$facility->Name` was incorrectly used instead of `$facility->FacilityName` to match the SQL alias from the database query.
+- **Notification System Method Error:** Resolved fatal error during payment submission where `BookingFacilities::getFacilitiesForBooking()` was called instead of the correct method name `BookingFacilities::findByBookingId()`. Also fixed property access from `$f->Name` to `$f->FacilityName` in notification email templates to properly display facility names in admin emails.
+
+### Technical
+
+- **Database Query Alignment:** Ensured consistency between SQL query aliases in `BookingFacilities::findByBookingId()` and property access throughout the application codebase.
+
 ## [1.26.9] - 2025-09-26
 
 ### Fixed

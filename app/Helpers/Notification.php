@@ -126,16 +126,16 @@ class Notification {
         // Get resort and admin information
         require_once __DIR__ . '/../Models/Resort.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
-        
+
         $resort = Resort::findById($booking->resortId);
-        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
-        
+        $facilities = BookingFacilities::findByBookingId($bookingId);
+
         // Get admin users for notifications
         $admins = User::getAdminUsers();
-        
+
         $facilityList = '';
         if (!empty($facilities)) {
-            $facilityNames = array_map(function($f) { return $f->Name; }, $facilities);
+            $facilityNames = array_map(function($f) { return $f->FacilityName; }, $facilities);
             $facilityList = 'Facilities: ' . implode(', ', $facilityNames) . '<br>';
         }
 
