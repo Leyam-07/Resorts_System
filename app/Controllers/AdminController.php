@@ -799,10 +799,27 @@ class AdminController {
             $methodName = filter_input(INPUT_POST, 'method_name', FILTER_UNSAFE_RAW);
             $methodDetails = filter_input(INPUT_POST, 'method_details', FILTER_UNSAFE_RAW);
 
-            if (!$resortId || !$methodName || !$methodDetails) {
-                $_SESSION['error_message'] = "All fields are required.";
-                header('Location: ?controller=admin&action=management');
-                exit();
+            // Check if this is an AJAX request
+            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+            $validationErrors = [];
+            if (!$resortId) $validationErrors[] = "Invalid resort ID.";
+            if (!$methodName) $validationErrors[] = "Payment method name is required.";
+            if (!$methodDetails) $validationErrors[] = "Payment method details are required.";
+
+            if (!empty($validationErrors)) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => false,
+                        'message' => implode(' ', $validationErrors)
+                    ]);
+                    exit();
+                } else {
+                    $_SESSION['error_message'] = implode('<br>', $validationErrors);
+                    header('Location: ?controller=admin&action=management');
+                    exit();
+                }
             }
 
             $paymentMethod = new ResortPaymentMethods();
@@ -812,12 +829,32 @@ class AdminController {
             $paymentMethod->isActive = true;
 
             if (ResortPaymentMethods::create($paymentMethod)) {
-                $_SESSION['success_message'] = "Payment method added successfully.";
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Payment method added successfully!'
+                    ]);
+                    exit();
+                } else {
+                    $_SESSION['success_message'] = "Payment method added successfully.";
+                    header('Location: ?controller=admin&action=management');
+                    exit();
+                }
             } else {
-                $_SESSION['error_message'] = "Failed to add payment method.";
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Failed to add payment method.'
+                    ]);
+                    exit();
+                } else {
+                    $_SESSION['error_message'] = "Failed to add payment method.";
+                    header('Location: ?controller=admin&action=management');
+                    exit();
+                }
             }
-            header('Location: ?controller=admin&action=management');
-            exit();
         }
     }
 

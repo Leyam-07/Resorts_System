@@ -496,37 +496,18 @@ function deleteFacilityBlock(blockId, facilityId) {
 
                 fetch('?controller=admin&action=addPaymentMethod', {
                     method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData
                 })
-                .then(response => {
-                    if (response.redirected) {
-                        // If the server sends a redirect, follow it manually
-                        window.location.href = response.url;
-                        return;
-                    }
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch {
-                            // If not JSON, return as plain text
-                            return { success: response.ok, message: text };
-                        }
-                    });
-                })
+                .then(response => response.json())
                 .then(result => {
-                    if (result.success === undefined) {
-                        // Check if we got session-based response through redirect
-                        if (window.location.href.indexOf('management') > -1) {
-                            // Reload the modal content if we're back on the management page
-                            window.location.reload();
-                            return;
-                        }
-                    }
-
                     // Reset form state
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
 
+                    // Remove any existing alerts
                     var alertContainer = document.querySelector('#addPaymentMethodForm .alert');
                     if (alertContainer) alertContainer.remove();
 

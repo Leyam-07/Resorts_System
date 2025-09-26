@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.9] - 2025-09-26
+
+### Fixed
+
+- **Payment Method Modal UX Enhancement:** Eliminated brief "An error occurred" flash during payment method submissions in management modal.
+  - **Root Cause:** AJAX requests received redirect responses instead of JSON, causing parsing errors before success
+  - **Solution:** Enhanced controller AJAX detection and JSON response handling
+  - **Changes:**
+    - Added `HTTP_X_REQUESTED_WITH` header detection in `AdminController::addPaymentMethod()`
+    - Implemented JSON responses for AJAX requests while maintaining backward compatibility
+    - Simplified JavaScript error handling with direct `.json()` parsing
+    - Added `X-Requested-With: XMLHttpRequest` header to AJAX fetch requests
+  - **User Experience:** Completely smooth payment method addition without modal closures or error flashes
+
 ## [1.26.8] - 2025-09-26
 
 ### Fixed
