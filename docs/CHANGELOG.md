@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.8] - 2025-09-26
+
+### Fixed
+
+- **Blank Page on Payment Method Submission:** Resolved a critical bug where submitting the "Add Payment Method" form in the management modal would result in a blank page instead of proper feedback. Users experienced a blank page because traditional form submission with modal redirects was causing navigation issues.
+  - **Root Cause:** Modal context interference with standard form POST/redirection flow
+  - **Solution:** Implemented AJAX-based form submission that handles the request asynchronously while keeping the modal open
+  - **Changes:**
+    - Replaced traditional form submission with XMLHttpRequest in `app/Views/admin/management/index.php`
+    - Added real-time feedback with success/error messages displayed directly within the modal
+    - Implemented automatic payment methods list refresh upon successful addition
+    - Form now clears with loading states and proper error handling
+    - Prevents modal dismissal during submission process
+
+### Enhanced
+
+- **Payment Method Management UX:** Significantly improved user experience for resort payment method administration
+  - Immediate visual feedback without page refreshes or modal closures
+  - Graceful error handling with user-friendly messages
+  - Automatic form reset and list updates on successful submissions
+  - Loading indicators for better perceived performance
+
 ## [1.26.7] - 2025-09-25
 
 ### Fixed

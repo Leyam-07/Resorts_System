@@ -4,6 +4,23 @@ require_once __DIR__ . '/../../partials/header.php';
 ?>
 
 <div class="container mt-4">
+    <!-- Message Alerts -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['success_message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['error_message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -455,10 +472,109 @@ function deleteFacilityBlock(blockId, facilityId) {
             var button = event.relatedTarget;
             var resortId = button.getAttribute('data-resort-id');
             var resortName = button.getAttribute('data-resort-name');
-            
+
             document.getElementById('resortNameLabel').textContent = resortName;
             document.getElementById('paymentResortId').value = resortId;
 
+            var paymentMethodsList = document.getElementById('paymentMethodsList');
+            paymentMethodsList.innerHTML = '<p>Loading payment methods...</p>';
+
+            loadPaymentMethods(resortId);
+        });
+
+        // Handle payment method form submission via AJAX
+        var addPaymentMethodForm = document.getElementById('addPaymentMethodForm');
+        if (addPaymentMethodForm) {
+            addPaymentMethodForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent normal form submission
+
+                var formData = new FormData(this);
+                var submitBtn = this.querySelector('button[type="submit"]');
+                var originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+                submitBtn.disabled = true;
+
+                fetch('?controller=admin&action=addPaymentMethod', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // If the server sends a redirect, follow it manually
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch {
+                            // If not JSON, return as plain text
+                            return { success: response.ok, message: text };
+                        }
+                    });
+                })
+                .then(result => {
+                    if (result.success === undefined) {
+                        // Check if we got session-based response through redirect
+                        if (window.location.href.indexOf('management') > -1) {
+                            // Reload the modal content if we're back on the management page
+                            window.location.reload();
+                            return;
+                        }
+                    }
+
+                    // Reset form state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+
+                    var alertContainer = document.querySelector('#addPaymentMethodForm .alert');
+                    if (alertContainer) alertContainer.remove();
+
+                    var alertClass = result.success ? 'alert-success' : 'alert-danger';
+                    var alertMessage = result.message || (result.success ? 'Payment method added successfully!' : 'Failed to add payment method.');
+
+                    var alertDiv = document.createElement('div');
+                    alertDiv.className = `alert ${alertClass} alert-dismissible fade show mt-2`;
+                    alertDiv.innerHTML = `
+                        <i class="fas fa-${result.success ? 'check-circle' : 'exclamation-circle'}"></i>
+                        ${alertMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+
+                    var form = document.getElementById('addPaymentMethodForm');
+                    form.insertBefore(alertDiv, form.firstChild);
+
+                    if (result.success) {
+                        // Clear form and reload payment methods
+                        form.reset();
+                        var resortId = document.getElementById('paymentResortId').value;
+                        loadPaymentMethods(resortId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+
+                    var alertContainer = document.querySelector('#addPaymentMethodForm .alert');
+                    if (alertContainer) alertContainer.remove();
+
+                    var alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                    alertDiv.innerHTML = `
+                        <i class="fas fa-exclamation-circle"></i>
+                        An error occurred. Please try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+
+                    var form = document.getElementById('addPaymentMethodForm');
+                    form.insertBefore(alertDiv, form.firstChild);
+                });
+            });
+        }
+
+        // Function to load payment methods
+        function loadPaymentMethods(resortId) {
             var paymentMethodsList = document.getElementById('paymentMethodsList');
             paymentMethodsList.innerHTML = '<p>Loading payment methods...</p>';
 
@@ -494,6 +610,6 @@ function deleteFacilityBlock(blockId, facilityId) {
                     console.error('Error loading payment methods:', err);
                     paymentMethodsList.innerHTML = '<div class="alert alert-danger">Failed to load payment methods.</div>';
                 });
-        });
+        }
     }
 </script>

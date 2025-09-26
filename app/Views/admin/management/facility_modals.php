@@ -56,8 +56,8 @@
                 <div id="paymentMethodsList" class="mb-3"></div>
                 <hr>
                 <h6>Add New Payment Method</h6>
-                <form id="addPaymentMethodForm" action="?controller=admin&action=addPaymentMethod" method="POST">
-                    <input type="hidden" id="paymentResortId" name="resort_id">
+                <form id="addPaymentMethodForm" action="?controller=admin&action=addPaymentMethod" method="POST" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" id="paymentResortId" name="resort_id" value="">
                     <div class="mb-3">
                         <label for="methodName" class="form-label">Method Name (e.g., GCash, BPI)</label>
                         <input type="text" class="form-control" id="methodName" name="method_name" required>
