@@ -8,11 +8,23 @@ require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
 class ResortController {
 
     public function __construct() {
-        // Ensure user is an Admin
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-            http_response_code(403);
-            require_once __DIR__ . '/../Views/errors/403.php';
-            exit();
+        // Public actions that don't require admin role can be whitelisted.
+        $action = $_GET['action'] ?? 'index';
+        $publicActions = ['getFacilitiesJson'];
+
+        if (in_array($action, $publicActions)) {
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(403);
+                require_once __DIR__ . '/../Views/errors/403.php';
+                exit();
+            }
+        } else {
+            // For all other actions, ensure user is an Admin
+            if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+                http_response_code(403);
+                require_once __DIR__ . '/../Views/errors/403.php';
+                exit();
+            }
         }
     }
 
@@ -99,4 +111,24 @@ class ResortController {
         exit();
     }
 
+    public function getFacilitiesJson() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid or missing Resort ID.']);
+            exit();
+        }
+
+        try {
+            $facilities = Facility::findByResortId($resortId);
+            echo json_encode(['success' => true, 'facilities' => $facilities]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            error_log("Error in getFacilitiesJson: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'A server error occurred while fetching facilities.']);
+        }
+        exit();
+    }
 }

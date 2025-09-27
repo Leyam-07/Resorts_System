@@ -1549,4 +1549,107 @@ class AdminController {
         ]);
         exit();
     }
+    /**
+     * Get comprehensive booking details for the on-site management modal
+     */
+    public function getBookingDetailsForManagement() {
+        header('Content-Type: application/json');
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+            exit();
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid Booking ID.']);
+            exit();
+        }
+
+        try {
+            $booking = Booking::findById($bookingId);
+            if (!$booking) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Booking not found.']);
+                exit();
+            }
+
+            $bookedFacilities = BookingFacilities::findByBookingId($bookingId);
+            
+            // We only need the IDs for the initial check in the UI
+            $booking->BookedFacilities = $bookedFacilities;
+
+            echo json_encode(['success' => true, 'booking' => $booking]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            error_log("Error in getBookingDetailsForManagement: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'A server error occurred.']);
+        }
+        exit();
+    }
+
+    /**
+     * Handle comprehensive booking updates from the on-site management modal
+     */
+    public function adminUpdateBooking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        if ($_SESSION['role'] !== 'Admin') {
+            $_SESSION['error_message'] = "You are not authorized to perform this action.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        // --- Data Collection ---
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $bookingStatus = filter_input(INPUT_POST, 'booking_status', FILTER_UNSAFE_RAW);
+        
+        // Facility IDs will be an array
+        $facilityIds = $_POST['facilities'] ?? [];
+        
+        $paymentAmount = filter_input(INPUT_POST, 'payment_amount', FILTER_VALIDATE_FLOAT);
+        $paymentMethod = filter_input(INPUT_POST, 'payment_method', FILTER_UNSAFE_RAW);
+        
+        // --- Validation ---
+        if (!$bookingId || !$resortId || !$bookingStatus) {
+            $_SESSION['error_message'] = "Missing required booking information.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        // --- Prepare data for the model ---
+        $updateData = [
+            'booking_id' => $bookingId,
+            'status' => $bookingStatus,
+            'facility_ids' => $facilityIds
+        ];
+
+        $paymentData = null;
+        if ($paymentAmount > 0 && !empty($paymentMethod)) {
+            $paymentData = [
+                'amount' => $paymentAmount,
+                'method' => $paymentMethod,
+                'status' => 'Verified' // Admin-added payments are auto-verified
+            ];
+        }
+        
+        $adminUserId = $_SESSION['user_id'];
+
+        // --- Call the Model to process the update ---
+        $result = Booking::adminUpdateBooking($updateData, $paymentData, $adminUserId);
+
+        if ($result['success']) {
+            $_SESSION['success_message'] = "Booking #{$bookingId} has been updated successfully.";
+        } else {
+            $_SESSION['error_message'] = "Failed to update booking #{$bookingId}: " . ($result['error'] ?? 'An unknown error occurred.');
+        }
+
+        header('Location: ?controller=admin&action=unifiedBookingManagement');
+        exit();
+    }
 }

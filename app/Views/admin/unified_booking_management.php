@@ -227,18 +227,18 @@ require_once __DIR__ . '/../partials/header.php';
 <div class="modal fade" id="manageBookingModal" tabindex="-1" aria-labelledby="manageBookingModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="POST" action="?controller=admin&action=updateBookingPayment">
+            <form id="manageBookingForm" method="POST" action="?controller=admin&action=adminUpdateBooking">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="manageBookingModalLabel">Manage Booking & Payment</h5>
+                    <h5 class="modal-title" id="manageBookingModalLabel">Manage On-Site Booking</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="modalBookingId" name="booking_id">
+                    <input type="hidden" id="modalResortId" name="resort_id">
                     
                     <div class="mb-3">
                         <label for="bookingStatus" class="form-label">Booking Status</label>
                         <select class="form-select" id="bookingStatus" name="booking_status">
-                            <option value="">Keep current status</option>
                             <option value="Pending">Pending</option>
                             <option value="Confirmed">Confirmed</option>
                             <option value="Completed">Completed</option>
@@ -247,7 +247,14 @@ require_once __DIR__ . '/../partials/header.php';
                     </div>
 
                     <hr>
-                    <h6>Add Payment (Optional)</h6>
+                    <h6>Manage Facilities (On-Site Add-ons)</h6>
+                    <div id="facilitiesManagementSection" class="mb-3">
+                        <p class="text-muted small">Loading available facilities...</p>
+                        <!-- Checkboxes will be dynamically inserted here -->
+                    </div>
+
+                    <hr>
+                    <h6>Record On-Site Payment (Optional)</h6>
                     
                     <div class="row">
                         <div class="col-md-6">
@@ -282,7 +289,7 @@ require_once __DIR__ . '/../partials/header.php';
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Booking</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -347,15 +354,72 @@ document.addEventListener('DOMContentLoaded', function() {
     
     modal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
-        
-        // Update modal data
-        document.getElementById('modalBookingId').value = button.getAttribute('data-booking-id');
-        document.getElementById('bookingStatus').value = button.getAttribute('data-booking-status');
-        
-        // Update modal title
-        document.getElementById('manageBookingModalLabel').textContent = 
-            'Manage Booking #' + button.getAttribute('data-booking-id');
+        const bookingId = button.getAttribute('data-booking-id');
+
+        // Reset form state
+        const form = document.getElementById('manageBookingForm');
+        form.reset();
+        document.getElementById('facilitiesManagementSection').innerHTML = '<p class="text-muted small">Loading available facilities...</p>';
+
+        // Set basic modal data
+        document.getElementById('modalBookingId').value = bookingId;
+        document.getElementById('manageBookingModalLabel').textContent = 'Manage Booking #' + bookingId;
+
+        // Fetch comprehensive booking details for the modal
+        fetch(`?controller=admin&action=getBookingDetailsForManagement&booking_id=${bookingId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const booking = data.booking;
+                    document.getElementById('bookingStatus').value = booking.Status;
+                    document.getElementById('modalResortId').value = booking.ResortID;
+                    
+                    // Now fetch facilities for the resort
+                    fetchFacilities(booking.resortId, booking.BookedFacilities);
+                } else {
+                    document.getElementById('facilitiesManagementSection').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching booking details:', error);
+                document.getElementById('facilitiesManagementSection').innerHTML = '<div class="alert alert-danger">Failed to load booking details.</div>';
+            });
     });
+
+    function fetchFacilities(resortId, bookedFacilities) {
+        const container = document.getElementById('facilitiesManagementSection');
+        
+        fetch(`?controller=resort&action=getFacilitiesJson&resort_id=${resortId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.facilities) {
+                    if (data.facilities.length > 0) {
+                        let facilitiesHtml = '<label class="form-label">Available Facilities:</label>';
+
+                        data.facilities.forEach(facility => {
+                            const isChecked = bookedFacilities.some(bf => bf.facilityId == facility.facilityId);
+                            facilitiesHtml += `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="facilities[]" value="${facility.facilityId}" id="facility_${facility.facilityId}" ${isChecked ? 'checked' : ''}>
+                                    <label class="form-check-label" for="facility_${facility.facilityId}">
+                                        ${facility.name} (+₱${parseFloat(facility.rate).toFixed(2)})
+                                    </label>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = facilitiesHtml;
+                    } else {
+                        container.innerHTML = '<p class="text-muted small">No facilities available for this resort.</p>';
+                    }
+                } else {
+                    container.innerHTML = `<div class="alert alert-warning">${data.error || 'Could not load facilities.'}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching facilities:', error);
+                container.innerHTML = '<div class="alert alert-danger">Failed to load facilities.</div>';
+            });
+    }
 });
 
 // Phase 6: Enhanced JavaScript functions

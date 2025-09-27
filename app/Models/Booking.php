@@ -3,6 +3,7 @@
 require_once __DIR__ . '/BlockedFacilityAvailability.php';
 require_once __DIR__ . '/ResortTimeframePricing.php';
 require_once __DIR__ . '/BookingFacilities.php';
+require_once __DIR__ . '/BookingAuditTrail.php';
 
 class Booking {
     public $bookingId;
@@ -606,5 +607,138 @@ class Booking {
         $stmt->bindValue(':remainingBalance', $remainingBalance, PDO::PARAM_STR);
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+    /**
+     * Recalculate and update the total amount and remaining balance for a booking.
+     * This should be called within a transaction.
+     */
+    public static function recalculateBookingTotals($bookingId) {
+        $db = self::getDB();
+        $booking = self::findById($bookingId);
+        if (!$booking) {
+            throw new Exception("Booking not found for recalculation.");
+        }
+
+        // Recalculate TotalAmount
+        $newTotalAmount = self::calculateBookingTotal(
+            $booking->resortId,
+            $booking->timeSlotType,
+            $booking->bookingDate,
+            BookingFacilities::getFacilityIds($bookingId)
+        );
+
+        // Recalculate RemainingBalance
+        $totalPaid = Payment::getTotalPaidAmount($bookingId);
+        $newRemainingBalance = max(0, $newTotalAmount - $totalPaid);
+
+        // Update the booking record
+        $stmt = $db->prepare("UPDATE Bookings SET TotalAmount = :totalAmount, RemainingBalance = :remainingBalance WHERE BookingID = :bookingId");
+        $stmt->bindValue(':totalAmount', $newTotalAmount, PDO::PARAM_STR);
+        $stmt->bindValue(':remainingBalance', $newRemainingBalance, PDO::PARAM_STR);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to update booking totals.");
+        }
+
+        return ['totalAmount' => $newTotalAmount, 'remainingBalance' => $newRemainingBalance];
+    }
+
+    /**
+     * Comprehensive, transactional update for a booking by an admin.
+     * Handles status changes, facility modifications, and on-site payments.
+     */
+    public static function adminUpdateBooking($updateData, $paymentData, $adminUserId) {
+        $db = self::getDB();
+        $db->beginTransaction();
+
+        try {
+            $bookingId = $updateData['booking_id'];
+            $originalBooking = self::findById($bookingId);
+            if (!$originalBooking) {
+                throw new Exception("Booking not found.");
+            }
+
+            // 1. Update Booking Status
+            if ($originalBooking->status !== $updateData['status']) {
+                $oldStatus = $originalBooking->status;
+                self::updateStatus($bookingId, $updateData['status']);
+                BookingAuditTrail::logStatusChange($bookingId, $adminUserId, $oldStatus, $updateData['status'], 'Admin booking modification');
+            }
+
+            // 2. Update Facilities
+            $originalFacilityIds = BookingFacilities::getFacilityIds($bookingId);
+            $newFacilityIds = $updateData['facility_ids'];
+            // Sort to ensure consistent comparison
+            sort($originalFacilityIds);
+            sort($newFacilityIds);
+
+            if ($originalFacilityIds !== $newFacilityIds) {
+                // Get facility names for audit trail
+                require_once __DIR__ . '/Facility.php';
+                $originalNames = [];
+                foreach ($originalFacilityIds as $facilityId) {
+                    $facility = Facility::findById($facilityId);
+                    if ($facility) {
+                        $originalNames[] = $facility->name;
+                    }
+                }
+                $originalFacilitiesStr = implode(', ', $originalNames);
+
+                $newNames = [];
+                foreach ($newFacilityIds as $facilityId) {
+                    $facility = Facility::findById($facilityId);
+                    if ($facility) {
+                        $newNames[] = $facility->name;
+                    }
+                }
+                $newFacilitiesStr = implode(', ', $newNames);
+
+                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds);
+                BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'Admin facility modification');
+            }
+
+            // 3. Recalculate Totals (if facilities changed)
+            if ($originalFacilityIds !== $newFacilityIds) {
+                $oldTotalAmount = $originalBooking->totalAmount;
+                $oldRemainingBalance = $originalBooking->remainingBalance;
+                $totalsResult = self::recalculateBookingTotals($bookingId);
+                BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'TotalAmount', $oldTotalAmount, $totalsResult['totalAmount'], 'Recalculated due to facility changes');
+                if ($oldRemainingBalance !== $totalsResult['remainingBalance']) {
+                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $totalsResult['remainingBalance'], 'Recalculated due to facility changes');
+                }
+            }
+
+            // 4. Add On-Site Payment (if provided)
+            if ($paymentData) {
+                $paymentAmount = $paymentData['amount'];
+                $oldRemainingBalance = $originalBooking->remainingBalance;
+                $payment = new Payment();
+                $payment->bookingId = $bookingId;
+                $payment->amount = $paymentAmount;
+                $payment->paymentMethod = $paymentData['method'];
+                $payment->status = 'Verified'; // Admin payments are auto-verified
+                $payment->proofOfPaymentURL = 'On-Site Payment by Admin';
+
+                if (!Payment::create($payment)) {
+                    throw new Exception("Failed to record on-site payment.");
+                }
+                BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAmount', '0', $paymentAmount, 'On-site payment receipt by admin');
+
+                // After adding payment, recalculate balance again
+                $balanceResult = self::recalculateBookingTotals($bookingId);
+                if ($oldRemainingBalance !== $balanceResult['remainingBalance']) {
+                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $balanceResult['remainingBalance'], 'Updated after on-site payment');
+                }
+            }
+
+            $db->commit();
+            return ['success' => true];
+
+        } catch (Exception $e) {
+            $db->rollback();
+            error_log("Admin Booking Update Failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 }

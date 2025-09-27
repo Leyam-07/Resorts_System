@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0] - 2025-09-27
+
+### Added
+
+- **On-Site Booking Management System:** Implemented comprehensive administrator functionality for real-time booking modifications through the Unified Booking Management interface.
+  - **Enhanced Manage Booking Modal:** Redesigned modal in `unified_booking_management.php` to support on-site booking modifications including dynamic facilities management, on-site payment recording, and audit trail integration.
+  - **Dynamic Facilities Management:** Added AJAX-powered facilities population with pre-selected existing bookings, real-time pricing calculations, and checkbox-based add/remove functionality.
+  - **On-Site Payment Recording:** Implemented payment amount, method, and status fields for admin-recorded payments bypassing normal proof upload requirements.
+  - **Backend Controller Integration:** Added `getBookingDetailsForManagement()` and `adminUpdateBooking()` endpoints in `AdminController.php` for comprehensive booking data retrieval and transactional updates.
+  - **Audit Trail Integration:** Comprehensive logging of all administrative booking modifications including status changes, facility additions/removals, total amount recalculations, on-site payments, and balance updates with user attribution and change tracking.
+  - **Resort Controller Restoration:** Added missing resort controller routing in `public/index.php` and fixed facilities loading endpoint CORS and property access issues.
+
+### Changed
+
+- **JavaScript Property Access:** Corrected facility JavaScript code to use camelCase properties (`facility.name`, `facility.rate`, `facility.facilityId`) instead of PascalCase, aligning with PHP object structure.
+- **Booking Model Enhancement:** Extended `adminUpdateBooking()` method in `Booking.php` with full audit trail logging, transactional safety, and comprehensive validation for multi-operation booking updates.
+- **Facility.php Consistency:** Updated to use centralized Database helper for consistent connection management across all models.
+
+### Fixed
+
+- **Facilities Loading Bug:** Resolved critical "Failed to load facilities" JavaScript error caused by missing resort controller routing and incorrect property case handling in AJAX responses.
+- **Modal Data Population:** Fixed booking facilities pre-selection in management modal by correcting BookedFacilities property access and comparison logic.
+- **Audit Trail Attribution:** Ensured all audit entries properly attribute changes to the admin user performing modifications.
+
+### Security
+
+- **Controller Access Control:** Verified role-based access controls for all new admin booking modification endpoints, ensuring only administrators can perform on-site booking changes.
+
 ## [1.27.3] - 2025-09-27
 
 ### Fixed
