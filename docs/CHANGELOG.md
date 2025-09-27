@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.32.0] - 2025-09-27
+
+### Fixed
+
+- **Payment Modal File Upload Reliability:** Resolved a critical user experience issue where customers had to select payment proof images multiple times before the upload would accept. The problem was caused by the browser not immediately populating `file.type` and `file.size` properties when a file is first selected, causing validation to fail incorrectly on initial attempts.
+  - **Retry Mechanism Implementation:** Added intelligent retry logic to the `handleModalFileSelection()` function with up to 3 attempts and 100ms delays to allow browser time to populate file metadata
+  - **Extension Fallback Validation:** Implemented immediate validation using file extension (JPG, PNG, GIF, WebP) as a reliable fallback when full metadata isn't available
+  - **Error Resilience:** Added comprehensive error handling for FileReader failures and improved user feedback throughout the upload process
+  - **Enhanced User Experience:** Eliminated the frustrating requirement for users to select the same file multiple times, providing smooth first-attempt uploads
+  - **Cross-browser Compatibility:** Improved compatibility across different browsers where file metadata loading varies in timing
+
+### Technical
+
+- **File API Optimization:** Enhanced client-side file handling to work around known browser limitations in File API metadata loading
+- **User Experience Improvement:** Significantly reduced user friction in payment proof submissions by eliminating retry requirements
+
 ## [1.31.0] - 2025-09-27
 
 ### Fixed

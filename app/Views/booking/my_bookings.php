@@ -545,10 +545,45 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    function handleModalFileSelection(file) {
-        // Validate file type
+    function handleModalFileSelection(file, retryCount = 0) {
+        const maxRetries = 3;
+        const retryDelay = 100; // milliseconds
+
+        // Validate file name extension as fallback (immediate check)
+        const fileName = file.name.toLowerCase();
+        const validExtensions = /\.(jpg|jpeg|png|gif|webp)$/;
+        const hasValidExtension = validExtensions.test(fileName);
+
+        if (!hasValidExtension) {
+            showModalAlert('Please select an image file (JPG, PNG, GIF, WebP)', 'danger');
+            modalFileInput.value = '';
+            return;
+        }
+
+        // Check if file metadata is available
+        if (!file.type || file.size === 0) {
+            // File metadata not ready yet, retry after delay
+            if (retryCount < maxRetries) {
+                setTimeout(() => {
+                    handleModalFileSelection(file, retryCount + 1);
+                }, retryDelay);
+                return;
+            } else {
+                // Max retries reached, use extension-based validation
+                if (hasValidExtension) {
+                    // Assume valid since extension is valid, size might be 0 due to browser limitations
+                    proceedWithFileProcessing(file);
+                } else {
+                    showModalAlert('Unable to validate file. Please try selecting the file again.', 'danger');
+                    modalFileInput.value = '';
+                }
+                return;
+            }
+        }
+
+        // Validate file type once metadata is available
         if (!file.type.startsWith('image/')) {
-            showModalAlert('Please select an image file (JPG, PNG, GIF)', 'danger');
+            showModalAlert('Please select an image file (JPG, PNG, GIF, WebP)', 'danger');
             modalFileInput.value = '';
             return;
         }
@@ -560,6 +595,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // All validations passed, proceed
+        proceedWithFileProcessing(file);
+    }
+
+    function proceedWithFileProcessing(file) {
         // Show preview
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -568,6 +608,10 @@ document.addEventListener('DOMContentLoaded', function () {
             modalUploadArea.style.display = 'none';
             validateModalForm();
             showModalAlert('Image uploaded successfully!', 'success');
+        };
+        reader.onerror = function() {
+            showModalAlert('Error reading the selected file. Please try again.', 'danger');
+            modalFileInput.value = '';
         };
         reader.readAsDataURL(file);
     }
