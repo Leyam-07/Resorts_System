@@ -10,3 +10,6 @@ config/mail.php
 composer.lock
 
 logs/
+
+# All uploaded media files
+/public/uploads/
