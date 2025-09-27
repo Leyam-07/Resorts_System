@@ -1029,9 +1029,9 @@ class AdminController {
             if (Payment::create($payment)) {
                 // Update booking remaining balance
                 $booking = Booking::findById($bookingId);
-                if ($booking && $booking->TotalAmount > 0) {
+                if ($booking && $booking->totalAmount > 0) {
                     $totalPaid = Payment::getTotalPaidAmount($bookingId);
-                    $remainingBalance = max(0, $booking->TotalAmount - $totalPaid);
+                    $remainingBalance = max(0, $booking->totalAmount - $totalPaid);
                     Booking::updateRemainingBalance($bookingId, $remainingBalance);
                 }
                 $_SESSION['success_message'] = "Payment added successfully!";

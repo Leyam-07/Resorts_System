@@ -20,11 +20,8 @@ class BookingAuditTrail {
     private static $db;
 
     private static function getDB() {
-        if (!self::$db) {
-            require_once __DIR__ . '/../Helpers/Database.php';
-            self::$db = Database::getInstance();
-        }
-        return self::$db;
+        require_once __DIR__ . '/../Helpers/Database.php';
+        return Database::getInstance();
     }
 
     /**

@@ -17,16 +17,8 @@ class Payment {
     private static $db;
 
     private static function getDB() {
-        if (!self::$db) {
-            require_once __DIR__ . '/../../config/database.php';
-            try {
-                self::$db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
-                self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                die("Database connection failed: " . $e->getMessage());
-            }
-        }
-        return self::$db;
+        require_once __DIR__ . '/../Helpers/Database.php';
+        return Database::getInstance();
     }
 
     public static function create(Payment $payment) {
@@ -195,7 +187,7 @@ class Payment {
             $balanceCalculation = self::calculateSmartBalance($booking->bookingId);
             $newBalance = $balanceCalculation['remainingBalance'];
             $oldStatus = $booking->status;
-            $newStatus = self::determineBookingStatusFromBalance($newBalance, $booking->TotalAmount);
+            $newStatus = self::determineBookingStatusFromBalance($newBalance, $booking->totalAmount);
             
             // Update booking
             $updateStmt = $db->prepare("UPDATE Bookings SET RemainingBalance = ?, Status = ? WHERE BookingID = ?");
@@ -289,7 +281,7 @@ class Payment {
         $paymentResult = $paymentStmt->fetch(PDO::FETCH_OBJ);
         
         $totalPaid = $paymentResult->TotalPaid ?? 0;
-        $totalAmount = $booking->TotalAmount ?? 0;
+        $totalAmount = $booking->totalAmount ?? 0;
         $remainingBalance = max(0, $totalAmount - $totalPaid);
         
         // Get pending payments

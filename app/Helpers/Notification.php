@@ -21,6 +21,7 @@ class Notification {
         $mail->Password   = MAIL_PASSWORD;
         $mail->SMTPSecure = MAIL_SMTPSECURE;
         $mail->Port       = MAIL_PORT;
+        $mail->Timeout    = 5; // 5 second timeout to prevent hanging
         // Sender
         $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
         return $mail;

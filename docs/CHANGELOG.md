@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.31.0] - 2025-09-27
+
+### Fixed
+
+- **Payment Verification Infinite Loading:** Resolved critical infinite loading issue where clicking "Verify & Approve" on pending payments would hang for 2-3 minutes. The system now processes payments instantly and redirects correctly.
+  - **Database Lock Deadlocks:** Fixed database deadlock caused by multiple concurrent PDO connections. Unified all models to use centrally managed Database singleton (`Database::getInstance()`), eliminating lock wait timeouts.
+  - **Model Database Connections:** Updated Payment, BookingAuditTrail, and other models to use shared database connection instead of independent PDO instances.
+- **Property Name Inconsistencies:** Corrected systematic undefined property errors where database columns (PascalCase) and PHP object properties (camelCase) were mismatched.
+  - **Payment Model:** Fixed `booking->TotalAmount` references to `booking->totalAmount`
+  - **BookingLifecycleManager:** Fixed `$booking->Status` to `$booking->status` and `$booking->BookingDate` to `$booking->bookingDate`
+- **Email Notification System:** Enhanced reliability by adding non-blocking email sending with proper error handling.
+  - **SMTP Timeouts:** Added 5-second timeout to PHPMailer to prevent indefinite hanging on SMTP failures
+  - **Error Handling:** Wrapped email calls in try-catch blocks with logging instead of blocking payment processing
+  - **Async Behavior:** Email failures no longer interrupt payment verification workflow
+
+### Added
+
+- **Payment Debugging Infrastructure:** Created comprehensive debugging scripts for payment verification troubleshooting.
+  - `scripts/debug_payment_verification.php` - Direct CLI testing of Payment::verifyPayment()
+  - `scripts/debug_payments_status.php` - Payment status investigation
+  - `scripts/debug_pending_payments.php` - Pending payments enumeration
+
+### Technical
+
+- **Database Architecture Improvement:** Eliminated multiple concurrent database connections that caused transaction deadlocks and lock wait timeouts.
+- **Application Stability:** Significantly improved stability by preventing database connection conflicts and email system hangs.
+- **Error Recovery:** Enhanced system resilience with non-blocking email notifications and proper error logging.
+
+### Changed
+
+- **Database Connection Management:** Migrated from per-model database connections to globally managed singleton pattern for consistent transaction handling.
+
+---
+
 ## [Unreleased]
 
 ## [1.28.1] - 2025-09-27

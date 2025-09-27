@@ -152,13 +152,17 @@ class PaymentController {
         require_once __DIR__ . '/../Helpers/Notification.php';
         
         if (Payment::verifyPayment($paymentId, $_SESSION['user_id'])) {
-            // Get payment info to send notification
+            // Payment verification successful - try to send confirmation email
             $payment = Payment::findById($paymentId);
             if ($payment) {
-                // Send verification confirmation to customer
-                Notification::sendPaymentVerificationConfirmation($payment->bookingId, true);
+                try {
+                    Notification::sendPaymentVerificationConfirmation($payment->bookingId, true);
+                } catch (Exception $e) {
+                    // Log email failure but don't fail the payment verification
+                    error_log("Payment verification email failed: " . $e->getMessage());
+                }
             }
-            
+
             $_SESSION['success_message'] = "Payment verified successfully!";
         } else {
             $_SESSION['error_message'] = "Failed to verify payment.";
@@ -190,13 +194,17 @@ class PaymentController {
         require_once __DIR__ . '/../Helpers/Notification.php';
         
         if (Payment::rejectPayment($paymentId, $reason)) {
-            // Get payment info to send notification
+            // Get payment info to send rejection notification
             $payment = Payment::findById($paymentId);
             if ($payment) {
-                // Send rejection notification to customer
-                Notification::sendPaymentVerificationConfirmation($payment->bookingId, false);
+                try {
+                    Notification::sendPaymentVerificationConfirmation($payment->bookingId, false);
+                } catch (Exception $e) {
+                    // Log email failure but don't fail the payment rejection
+                    error_log("Payment rejection email failed: " . $e->getMessage());
+                }
             }
-            
+
             $_SESSION['success_message'] = "Payment rejected.";
         } else {
             $_SESSION['error_message'] = "Failed to reject payment.";
