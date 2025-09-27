@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.1] - 2025-09-27
+
+### Fixed
+
+- **Payment Submission Property Access Errors:** Resolved critical undefined property errors in the payment submission workflow that caused redirects to error pages instead of successful payment processing.
+  - **PaymentSchedule.scheduleId Access:** Fixed undefined property `$nextPayment->scheduleId` in `BookingController::submitPayment()` by correcting property name from camelCase to PascalCase (`$nextPayment->ScheduleID`)
+  - **PaymentSchedule.amount Access:** Fixed undefined property `$nextPayment->amount` access by correcting to PascalCase (`$nextPayment->Amount`)
+  - **Payment.ScheduleID Property:** Added missing `$ScheduleID` property to Payment model to match database schema
+  - **BookingLifecycleManager.Status Access:** Fixed undefined property `$booking->Status` in LifecycleManager by correcting camelCase to lowercase (`$booking->status`)
+  - **Property Name Consistency:** Standardized property naming throughout payment and booking models to use PascalCase for database column matches vs camelCase for object properties
+- **Database Field Mapping Issues:** Corrected systematic inconsistency between database columns (PascalCase: `ScheduleID`, `Amount`) and PHP object properties that caused undefined property warnings throughout the payment system
+
+### Technical
+
+- **Property Access Standardization:** Updated all PaymentSchedule and Booking property access throughout controllers and models to use correct case-sensitive property names
+- **Database Schema Alignment:** Ensured all PHP property access matches actual database column names for PaymentSchedule, Payment, and Booking models
+- **Error Flow Restoration:** Restored proper payment submission flow that now correctly redirects to payment success pages instead of error pages
+
 ## [1.28.0] - 2025-09-27
 
 ### Added

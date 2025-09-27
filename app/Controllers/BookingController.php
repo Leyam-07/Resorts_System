@@ -635,13 +635,13 @@ class BookingController {
                 // Now mark the first installment as paid
                 $newSchedule = PaymentSchedule::findByBookingId($bookingId);
                 if (!empty($newSchedule)) {
-                    PaymentSchedule::markAsPaid($newSchedule[0]->scheduleId, $paymentId);
+                    PaymentSchedule::markAsPaid($newSchedule[0]->ScheduleID, $paymentId);
                 }
             } else {
                 // Schedule exists, find the next due installment and mark it as paid
                 $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
-                if ($nextPayment && $amountPaid >= $nextPayment->amount) {
-                    PaymentSchedule::markAsPaid($nextPayment->scheduleId, $paymentId);
+                if ($nextPayment && $amountPaid >= $nextPayment->Amount) {
+                    PaymentSchedule::markAsPaid($nextPayment->ScheduleID, $paymentId);
                 }
             }
             

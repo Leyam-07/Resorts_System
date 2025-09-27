@@ -47,7 +47,7 @@ class BookingLifecycleManager {
             foreach ($bookings as $booking) {
                 $results['processed']++;
                 
-                $oldStatus = $booking->Status;
+                $oldStatus = $booking->status;
                 $newStatus = self::determineNewStatus($booking);
                 
                 if ($newStatus !== $oldStatus) {

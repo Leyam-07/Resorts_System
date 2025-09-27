@@ -11,7 +11,7 @@ class Payment {
     public $paymentDate;
     public $status;
     public $proofOfPaymentURL;
-    public $scheduleId; // Link to payment schedule if applicable
+    public $ScheduleID; // Link to payment schedule if applicable
     public $validationErrors = [];
 
     private static $db;
@@ -100,7 +100,7 @@ class Payment {
         $payment->paymentMethod = 'Online Payment (Ref: ' . $paymentReference . ')';
         $payment->status = 'Pending'; // Pending admin verification
         $payment->proofOfPaymentURL = $paymentProofURL;
-        $payment->scheduleId = $scheduleId;
+        $payment->ScheduleID = $scheduleId;
         
         $paymentId = self::create($payment);
         
