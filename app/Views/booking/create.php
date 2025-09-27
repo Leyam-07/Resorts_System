@@ -231,9 +231,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 <!-- Enhanced Calendar Modal -->
 <div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-primary text-white py-2">
                 <h5 class="modal-title" id="calendarModalLabel">
                     <i class="fas fa-calendar-alt"></i> Select Date - Availability Calendar
                 </h5>
@@ -246,21 +246,17 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </div>
                 <div id="calendarContent" style="display: none;">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="calendarMonth" class="form-label">Month:</label>
-                            <input type="month" class="form-control" id="calendarMonth" value="<?= date('Y-m') ?>">
+                        <div class="col-12">
+                            <input type="month" class="form-control form-control-sm" id="calendarMonth" value="<?= date('Y-m') ?>">
                         </div>
-                        <div class="col-md-6">
-                            <div class="legend">
-                                <small class="text-muted">Legend:</small>
-                                <div class="d-flex flex-wrap gap-2 mt-1">
-                                    <span class="badge bg-success"><i class="fas fa-check"></i> Available</span>
-                                    <span class="badge bg-warning"><i class="fas fa-calendar-week"></i> Weekend</span>
-                                    <span class="badge bg-danger"><i class="fas fa-ban"></i> Unavailable</span>
-                                    <span class="badge bg-secondary"><i class="fas fa-lock"></i> Blocked</span>
-                                    <span class="badge bg-dark"><i class="fas fa-history"></i> Past</span>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="legend text-center mb-2">
+                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                            <span class="badge bg-success">Available</span>
+                            <span class="badge bg-warning">Weekend</span>
+                            <span class="badge bg-info text-dark">Booked</span>
+                            <span class="badge bg-danger">Taken</span>
+                            <span class="badge bg-secondary">Blocked</span>
                         </div>
                     </div>
                     <div id="calendarGrid" class="calendar-grid">
@@ -337,20 +333,23 @@ input[type="date"] {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    font-size: 0.9rem;
+    gap: 1px;
+    font-size: 0.7rem;
 }
 
 .calendar-day {
-    aspect-ratio: 1;
-    border: 1px solid #dee2e6;
+    aspect-ratio: 1 / 1.2;
+    border: 1px solid #f0f0f0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
     position: relative;
+    padding: 1px;
+    text-align: center;
 }
 
 .calendar-day:hover:not(.disabled) {
@@ -374,6 +373,12 @@ input[type="date"] {
     background-color: #f8d7da;
     border-color: #dc3545;
     color: #721c24;
+}
+
+.calendar-day.booked {
+    background-color: #cff4fc;
+    border-color: #0dcaf0;
+    color: #087990;
 }
 
 .calendar-day.blocked {
@@ -405,6 +410,20 @@ input[type="date"] {
     color: white;
     font-weight: bold;
     border: 1px solid #495057;
+    justify-content: center;
+    padding: 5px;
+}
+
+.calendar-day .day-number {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.calendar-day .day-status {
+    font-size: 0.55em;
+    text-transform: uppercase;
+    margin-top: 1px;
+    font-weight: 500;
 }
 
 /* Enhanced form animations */
@@ -639,7 +658,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             html += `
                 <div class="${dayClass}" data-date="${dateStr}" title="${dayName}, ${dayNum}" ${dayData && dayData.available && isCurrentMonth ? 'onclick="selectDate(\'' + dateStr + '\')"' : ''}>
-                    ${dayNum}
+                    <div class="day-number">${dayNum}</div>
+                    <div class="day-status">${dayData ? dayData.statusText : ''}</div>
                 </div>
             `;
         }

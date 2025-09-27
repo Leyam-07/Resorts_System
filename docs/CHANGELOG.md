@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.2] - 2025-09-27
+
+### Fixed
+
+- **Calendar UI/UX Overhaul:** Resolved multiple issues with the booking calendar to improve user experience, readability, and mobile adaptability.
+
+  - **Logic Bug:** Fixed an issue where dates with pending bookings were not visually distinct. The backend logic in `BookingController.php` was updated to correctly assign a "Booked" status.
+  - **Readability:** Enhanced the calendar UI in `app/Views/booking/create.php` to display both the date and a clear status text (e.g., "Booked", "Available"), and added a new "Booked" status to the legend.
+  - **Critical Loading Error:** Resolved a JavaScript bug that caused the calendar to fail to load after initial fixes were applied.
+  - **Mobile Adaptability:** Made the calendar UI more compact and mobile-friendly with CSS adjustments for a better experience on smaller screens.
+
+- **Payment Method Validation UX:** Resolved a critical user experience issue where customers could upload payment proofs and submit payments even when resorts had no configured payment methods. The warning message would disappear after uploading an image, allowing invalid payment submissions.
+  - **Root Cause:** Payment methods were only checked for display purposes but not for form functionality control
+
+## [1.27.1] - 2025-09-26
+
 ### Fixed
 
 - **Payment Method Validation UX:** Resolved a critical user experience issue where customers could upload payment proofs and submit payments even when resorts had no configured payment methods. The warning message would disappear after uploading an image, allowing invalid payment submissions.

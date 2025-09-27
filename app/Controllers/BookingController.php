@@ -357,14 +357,27 @@ class BookingController {
             // Get existing bookings count
             $bookingCount = $this->getBookingCountForDate($resortId, $dateStr, $timeframe);
             
+            $status = $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $bookingCount);
+            
+            $statusText = '';
+            switch ($status) {
+                case 'available': $statusText = 'Available'; break;
+                case 'weekend': $statusText = 'Weekend'; break;
+                case 'booked': $statusText = 'Booked'; break;
+                case 'blocked': $statusText = 'Blocked'; break;
+                case 'unavailable': $statusText = 'Taken'; break;
+                case 'past': $statusText = 'Past'; break;
+            }
+
             $availability[$dateStr] = [
-                'available' => $isAvailable && !$resortBlocked && !$isPast,
+                'available' => ($status === 'available' || $status === 'weekend'),
                 'isWeekend' => $isWeekend,
                 'isToday' => $isToday,
                 'isPast' => $isPast,
                 'isBlocked' => $resortBlocked,
                 'bookingCount' => $bookingCount,
-                'status' => $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $bookingCount)
+                'status' => $status,
+                'statusText' => $statusText
             ];
             
             $currentDate->modify('+1 day');
@@ -419,8 +432,8 @@ class BookingController {
     private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $bookingCount) {
         if ($isPast) return 'past';
         if ($isBlocked) return 'blocked';
-        if (!$isAvailable) return 'unavailable';
         if ($bookingCount > 0) return 'booked';
+        if (!$isAvailable) return 'unavailable';
         if ($isWeekend) return 'weekend';
         return 'available';
     }
