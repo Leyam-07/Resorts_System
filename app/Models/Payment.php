@@ -265,12 +265,17 @@ class Payment {
      */
     public static function calculateSmartBalance($bookingId) {
         $db = self::getDB();
-        
+
         // Get booking total
         $bookingStmt = $db->prepare("SELECT TotalAmount FROM Bookings WHERE BookingID = ?");
-        $bookingStmt->execute([$bookingId]);
+        $stmtResult = $bookingStmt->execute([$bookingId]);
+
+        if (!$stmtResult) {
+            return ['error' => 'Database query failed'];
+        }
+
         $booking = $bookingStmt->fetch(PDO::FETCH_OBJ);
-        
+
         if (!$booking) {
             return ['error' => 'Booking not found'];
         }
@@ -281,7 +286,7 @@ class Payment {
         $paymentResult = $paymentStmt->fetch(PDO::FETCH_OBJ);
         
         $totalPaid = $paymentResult->TotalPaid ?? 0;
-        $totalAmount = $booking->totalAmount ?? 0;
+        $totalAmount = $booking->TotalAmount ?? 0;
         $remainingBalance = max(0, $totalAmount - $totalPaid);
         
         // Get pending payments
