@@ -82,7 +82,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Facilities</th>
                                         <th>Payment Info</th>
                                         <th>Status</th>
-                                        <th>Phase 6 Info</th>
+                                        <th>Audit & Payment Sched</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -160,28 +160,12 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td>
                                                 <!-- Phase 6: Advanced Information Column -->
                                                 <div class="small">
-                                                    <?php
-                                                    // Get payment schedule summary
-                                                    require_once __DIR__ . '/../../Models/PaymentSchedule.php';
-                                                    $scheduleSummary = PaymentSchedule::getScheduleSummary($booking->BookingID);
-                                                    ?>
-                                                    <?php if ($scheduleSummary && $scheduleSummary->TotalInstallments > 0): ?>
-                                                        <div class="text-info mb-1">
-                                                            <i class="fas fa-calendar-alt"></i>
-                                                            <?= $scheduleSummary->TotalInstallments ?> installments
-                                                            <?php if ($scheduleSummary->OverdueCount > 0): ?>
-                                                                <span class="text-danger">(<?= $scheduleSummary->OverdueCount ?> overdue)</span>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php
-                                                    // Get audit trail count
-                                                    require_once __DIR__ . '/../../Models/BookingAuditTrail.php';
-                                                    $auditTrail = BookingAuditTrail::getBookingAuditTrail($booking->BookingID, 5);
-                                                    ?>
-                                                    <div class="text-muted">
-                                                        <i class="fas fa-history"></i> <?= count($auditTrail) ?> changes
+                                                    <div class="text-info mb-1" title="Payment Schedule">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                        <?= htmlspecialchars($booking->PaymentScheduleSummary) ?>
+                                                    </div>
+                                                    <div class="text-muted" title="Audit Trail">
+                                                        <i class="fas fa-history"></i> <?= htmlspecialchars($booking->AuditTrailCount) ?> changes
                                                     </div>
                                                 </div>
                                             </td>
@@ -200,7 +184,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <div class="btn-group" role="group">
                                                         <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle"
                                                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-tools"></i> Phase 6
+                                                            <i class="fas fa-tools"></i> Tools
                                                         </button>
                                                         <ul class="dropdown-menu">
                                                             <li><a class="dropdown-item" href="#"

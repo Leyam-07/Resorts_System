@@ -31,45 +31,57 @@ class PaymentSchedule {
     public static function createScheduleForBooking($bookingId, $totalAmount, $downPayment = null, $installments = 2) {
         $db = self::getDB();
         
-        // Default: 50% down payment if not specified
+        // If downpayment is not specified, assume it's a 50/50 split unless it's a full payment.
         if ($downPayment === null) {
+            // This logic assumes a default of 2 installments if not a full payment
             $downPayment = $totalAmount * 0.5;
         }
-        
-        // Validate inputs
+
+        // If the initial payment covers the full amount, create a single installment schedule.
         if ($downPayment >= $totalAmount) {
-            $downPayment = $totalAmount; // Full payment
+            $downPayment = $totalAmount;
             $installments = 1;
         }
-        
-        $remainingAmount = $totalAmount - $downPayment;
-        $installmentAmount = $remainingAmount / ($installments - 1);
         
         $db->beginTransaction();
         
         try {
-            // Create down payment schedule
-            $schedule = new PaymentSchedule();
-            $schedule->bookingId = $bookingId;
-            $schedule->installmentNumber = 1;
-            $schedule->dueDate = date('Y-m-d'); // Due immediately
-            $schedule->amount = $downPayment;
-            $schedule->status = 'Pending';
-            
-            self::createScheduleItem($schedule);
-            
-            // Create remaining installment schedules
-            for ($i = 2; $i <= $installments; $i++) {
+            if ($installments === 1) {
+                // Handle single (full) payment
                 $schedule = new PaymentSchedule();
                 $schedule->bookingId = $bookingId;
-                $schedule->installmentNumber = $i;
-                $schedule->dueDate = date('Y-m-d', strtotime('+' . (($i - 1) * 7) . ' days')); // Weekly installments
-                $schedule->amount = ($i == $installments) ? 
-                    ($remainingAmount - ($installmentAmount * ($installments - 2))) : // Last installment gets remainder
-                    $installmentAmount;
+                $schedule->installmentNumber = 1;
+                $schedule->dueDate = date('Y-m-d'); // Due immediately
+                $schedule->amount = $totalAmount;
                 $schedule->status = 'Pending';
-                
                 self::createScheduleItem($schedule);
+            } else {
+                // Handle multiple installments (downpayment + remaining)
+                $remainingAmount = $totalAmount - $downPayment;
+                // Ensure there's at least one more installment for the remaining amount
+                $numRemainingInstallments = max(1, $installments - 1);
+                $installmentAmount = $remainingAmount / $numRemainingInstallments;
+
+                // 1. Create down payment schedule
+                $schedule = new PaymentSchedule();
+                $schedule->bookingId = $bookingId;
+                $schedule->installmentNumber = 1;
+                $schedule->dueDate = date('Y-m-d'); // Due immediately
+                $schedule->amount = $downPayment;
+                $schedule->status = 'Pending';
+                self::createScheduleItem($schedule);
+                
+                // 2. Create remaining installment schedules
+                for ($i = 1; $i <= $numRemainingInstallments; $i++) {
+                    $schedule = new PaymentSchedule();
+                    $schedule->bookingId = $bookingId;
+                    $schedule->installmentNumber = $i + 1;
+                    // Simple weekly due date for subsequent payments
+                    $schedule->dueDate = date('Y-m-d', strtotime("+" . $i . " week"));
+                    $schedule->amount = $installmentAmount;
+                    $schedule->status = 'Pending';
+                    self::createScheduleItem($schedule);
+                }
             }
             
             $db->commit();
@@ -77,6 +89,8 @@ class PaymentSchedule {
             
         } catch (Exception $e) {
             $db->rollback();
+            // Log the error for debugging
+            error_log("Payment schedule creation failed for booking {$bookingId}: " . $e->getMessage());
             return false;
         }
     }

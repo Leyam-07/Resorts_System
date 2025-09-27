@@ -75,8 +75,7 @@ class BookingLifecycleManager {
     private static function getBookingsForProcessing() {
         $db = self::getDB();
         
-        // Get bookings that are not yet completed or cancelled and might need status updates
-        $sql = "SELECT b.*, 
+        $sql = "SELECT b.*,
                        COALESCE(SUM(CASE WHEN p.Status = 'Verified' THEN p.Amount ELSE 0 END), 0) as TotalPaid
                 FROM Bookings b
                 LEFT JOIN Payments p ON b.BookingID = p.BookingID
@@ -87,19 +86,41 @@ class BookingLifecycleManager {
         
         $stmt = $db->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $bookings = [];
+        foreach ($results as $data) {
+            $booking = new Booking();
+            $booking->bookingId = $data['BookingID'];
+            $booking->customerId = $data['CustomerID'];
+            $booking->resortId = $data['ResortID'];
+            $booking->facilityId = $data['FacilityID'];
+            $booking->bookingDate = $data['BookingDate'];
+            $booking->timeSlotType = $data['TimeSlotType'];
+            $booking->numberOfGuests = $data['NumberOfGuests'];
+            $booking->status = $data['Status'];
+            $booking->totalAmount = $data['TotalAmount'];
+            $booking->paymentProofURL = $data['PaymentProofURL'];
+            $booking->paymentReference = $data['PaymentReference'];
+            $booking->remainingBalance = $data['RemainingBalance'];
+            $booking->createdAt = $data['CreatedAt'];
+            // Add the extra property dynamically
+            $booking->TotalPaid = $data['TotalPaid'];
+            $bookings[] = $booking;
+        }
+        return $bookings;
     }
 
     /**
      * Determine the new status for a booking based on business rules
      */
     private static function determineNewStatus($booking) {
-        $currentStatus = $booking->Status;
-        $bookingDate = new DateTime($booking->BookingDate);
+        $currentStatus = $booking->status;
+        $bookingDate = new DateTime($booking->bookingDate);
         $today = new DateTime();
         $totalPaid = $booking->TotalPaid ?? 0;
-        $totalAmount = $booking->TotalAmount ?? 0;
-        $remainingBalance = $booking->RemainingBalance ?? $totalAmount;
+        $totalAmount = $booking->totalAmount ?? 0;
+        $remainingBalance = $booking->remainingBalance ?? $totalAmount;
 
         // Rule 1: Mark as completed if booking date has passed and was confirmed
         if ($currentStatus === 'Confirmed' && $bookingDate < $today) {
@@ -319,6 +340,18 @@ class BookingLifecycleManager {
             return [];
         }
 
+        // To make the $booking object compatible with determineNewStatus,
+        // we need to fetch and add the TotalPaid property.
+        $db = self::getDB();
+        $sql = "SELECT COALESCE(SUM(CASE WHEN p.Status = 'Verified' THEN p.Amount ELSE 0 END), 0) as TotalPaid
+                FROM Payments p
+                WHERE p.BookingID = :bookingId";
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $booking->TotalPaid = $result['TotalPaid'] ?? 0;
+
         $recommendations = [];
         $newStatus = self::determineNewStatus($booking);
         
@@ -339,7 +372,7 @@ class BookingLifecycleManager {
      * Get reason for status change recommendation
      */
     private static function getStatusChangeReason($booking, $newStatus) {
-        $bookingDate = new DateTime($booking->BookingDate);
+        $bookingDate = new DateTime($booking->bookingDate);
         $today = new DateTime();
 
         switch ($newStatus) {
@@ -362,7 +395,7 @@ class BookingLifecycleManager {
      * Get priority level for recommendation
      */
     private static function getRecommendationPriority($booking, $newStatus) {
-        $bookingDate = new DateTime($booking->BookingDate);
+        $bookingDate = new DateTime($booking->bookingDate);
         $today = new DateTime();
         $daysDiff = $today->diff($bookingDate)->days;
 

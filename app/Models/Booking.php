@@ -532,7 +532,10 @@ class Booking {
                     r.Name as ResortName,
                     GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames,
                     COALESCE(p.PaymentStatus, 'Unpaid') as PaymentStatus,
-                    COALESCE(p.TotalPaid, 0) as TotalPaid
+                    COALESCE(p.TotalPaid, 0) as TotalPaid,
+                    -- Phase 6 Data
+                    COALESCE(at.AuditTrailCount, 0) as AuditTrailCount,
+                    COALESCE(ps.PaymentScheduleSummary, 'Not Scheduled') as PaymentScheduleSummary
                 FROM Bookings b
                 LEFT JOIN Users u ON b.CustomerID = u.UserID
                 LEFT JOIN Resorts r ON b.ResortID = r.ResortID
@@ -551,6 +554,24 @@ class Booking {
                     LEFT JOIN Bookings b2 ON p2.BookingID = b2.BookingID
                     GROUP BY p2.BookingID
                 ) p ON b.BookingID = p.BookingID
+                -- Phase 6: Join for Audit Trail Count
+                LEFT JOIN (
+                    SELECT BookingID, COUNT(*) as AuditTrailCount
+                    FROM BookingAuditTrail
+                    GROUP BY BookingID
+                ) at ON b.BookingID = at.BookingID
+                -- Phase 6: Join for Payment Schedule Summary
+                LEFT JOIN (
+                    SELECT
+                        BookingID,
+                        CONCAT(
+                            COUNT(*), ' installments (',
+                            SUM(CASE WHEN Status = 'Paid' THEN 1 ELSE 0 END), ' Paid, ',
+                            SUM(CASE WHEN Status IN ('Pending', 'Overdue') THEN 1 ELSE 0 END), ' Due)'
+                        ) as PaymentScheduleSummary
+                    FROM PaymentSchedules
+                    GROUP BY BookingID
+                ) ps ON b.BookingID = ps.BookingID
                 WHERE 1=1";
 
         $params = [];

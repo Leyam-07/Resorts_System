@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.3] - 2025-09-27
+
+### Fixed
+
+- **Admin UI Fatal Errors & Performance:** Resolved a series of critical issues that made the "Unified Booking & Payment Management" page unusable.
+  - **Fatal Errors:** Fixed multiple `Undefined property` PHP errors in `app/Models/BookingLifecycleManager.php` caused by inconsistent property name casing (`Status` vs. `status`).
+  - **N+1 Query Problem:** Eliminated a major performance bottleneck by refactoring `Booking::getBookingsWithPaymentDetails()` to use `JOIN`s, fetching all required data in a single query instead of one query per booking.
+- **Payment Schedule Logic:** Corrected a flaw in `app/Models/PaymentSchedule.php` that incorrectly created 2-part payment schedules for bookings paid in full. The system now correctly generates a single installment record for full payments.
+- **Audit Trail Clarity:** Refactored `app/Models/BookingAuditTrail.php` to log a single, consolidated "CREATE" event for new bookings instead of a separate entry for each field, making the audit trail cleaner and more accurate.
+
+### Changed
+
+- **Business Logic:** The application now creates payment schedules _after_ the first payment is submitted in `app/Controllers/BookingController.php`, ensuring the schedule accurately reflects the payment type (full or partial).
+- **Admin UI:** The "Phase 6 Info" column was renamed to "Audit & Payment Sched" for better clarity in `app/Views/admin/unified_booking_management.php`.
+
 ## [1.27.2] - 2025-09-27
 
 ### Fixed
@@ -18,9 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Critical Loading Error:** Resolved a JavaScript bug that caused the calendar to fail to load after initial fixes were applied.
   - **Mobile Adaptability:** Made the calendar UI more compact and mobile-friendly with CSS adjustments for a better experience on smaller screens.
 
-- **Payment Method Validation UX:** Resolved a critical user experience issue where customers could upload payment proofs and submit payments even when resorts had no configured payment methods. The warning message would disappear after uploading an image, allowing invalid payment submissions.
-  - **Root Cause:** Payment methods were only checked for display purposes but not for form functionality control
-
 ## [1.27.1] - 2025-09-26
 
 ### Fixed
@@ -30,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Solution:** Enhanced controller and view logic to completely disable payment functionality when no payment methods exist
   - **Changes:**
     - Added `$hasPaymentMethods` flag to `BookingController::showPaymentForm()` for form state control
-    - Transformed `app/Views/booking/payment.php` to show prominent warning card instead of form when no payment methods configured
     - Enhanced `app/Views/booking/my_bookings.php` modal to disable all form fields and submit button when no payment methods exist
     - Added direct contact options (phone/email links) for resort communication
     - Implemented form field disabling with `pointer-events: none` for visual feedback

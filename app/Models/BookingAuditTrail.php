@@ -31,18 +31,25 @@ class BookingAuditTrail {
      * Log a booking creation
      */
     public static function logBookingCreation($bookingId, $userId, $bookingData) {
-        $changes = [
-            'ResortID' => $bookingData['resortId'] ?? null,
-            'BookingDate' => $bookingData['bookingDate'] ?? null,
-            'TimeSlotType' => $bookingData['timeSlotType'] ?? null,
-            'NumberOfGuests' => $bookingData['numberOfGuests'] ?? null,
-            'TotalAmount' => $bookingData['totalAmount'] ?? null,
-            'Status' => 'Pending'
-        ];
+        // Consolidate booking data into a single, readable summary
+        $summary = sprintf(
+            "Resort ID: %s, Date: %s, Time: %s, Guests: %d, Total: %.2f",
+            $bookingData['resortId'] ?? 'N/A',
+            $bookingData['bookingDate'] ?? 'N/A',
+            $bookingData['timeSlotType'] ?? 'N/A',
+            $bookingData['numberOfGuests'] ?? 0,
+            $bookingData['totalAmount'] ?? 0.00
+        );
 
-        foreach ($changes as $field => $value) {
-            self::logChange($bookingId, $userId, 'CREATE', $field, null, $value, 'Initial booking creation');
-        }
+        self::logChange(
+            $bookingId,
+            $userId,
+            'CREATE',
+            'Booking', // FieldName is now 'Booking'
+            null,
+            $summary, // NewValue is the consolidated summary
+            'Initial booking creation'
+        );
     }
 
     /**
@@ -270,7 +277,7 @@ class BookingAuditTrail {
         
         switch ($action) {
             case 'create':
-                return "Created booking with {$field}: {$newValue}";
+                return "Booking created. Details: {$newValue}";
             case 'update':
                 return "Updated {$field} from '{$oldValue}' to '{$newValue}'";
             case 'status_change':

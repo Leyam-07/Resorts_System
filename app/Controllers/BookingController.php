@@ -82,9 +82,6 @@ class BookingController {
             ];
             BookingAuditTrail::logBookingCreation($bookingId, $customerId, $bookingData);
             
-            // Phase 6: Create payment schedule for booking
-            PaymentSchedule::createScheduleForBooking($bookingId, $totalAmount);
-            
             // Send booking confirmation email (before payment)
             Notification::sendBookingConfirmation($bookingId);
 
@@ -629,10 +626,23 @@ class BookingController {
                 'Customer submitted payment proof'
             );
             
-            // Phase 6: Update payment schedule if applicable
-            $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
-            if ($nextPayment && $nextPayment->Amount <= $amountPaid) {
-                PaymentSchedule::markAsPaid($nextPayment->ScheduleID, $paymentId);
+            // Phase 6: Create or update payment schedule
+            $existingSchedules = PaymentSchedule::findByBookingId($bookingId);
+            if (empty($existingSchedules)) {
+                // This is the first payment, so create the schedule now
+                PaymentSchedule::createScheduleForBooking($bookingId, $booking->totalAmount, $amountPaid);
+                
+                // Now mark the first installment as paid
+                $newSchedule = PaymentSchedule::findByBookingId($bookingId);
+                if (!empty($newSchedule)) {
+                    PaymentSchedule::markAsPaid($newSchedule[0]->scheduleId, $paymentId);
+                }
+            } else {
+                // Schedule exists, find the next due installment and mark it as paid
+                $nextPayment = PaymentSchedule::getNextPaymentDue($bookingId);
+                if ($nextPayment && $amountPaid >= $nextPayment->amount) {
+                    PaymentSchedule::markAsPaid($nextPayment->scheduleId, $paymentId);
+                }
             }
             
             // Phase 6: Trigger lifecycle management check
