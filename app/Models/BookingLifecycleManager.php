@@ -117,7 +117,7 @@ class BookingLifecycleManager {
     private static function determineNewStatus($booking) {
         $currentStatus = $booking->status;
         $bookingDate = new DateTime($booking->bookingDate);
-        $today = new DateTime();
+        $today = new DateTime('today'); // Compare against midnight for date-only comparison
         $totalPaid = $booking->TotalPaid ?? 0;
         $totalAmount = $booking->totalAmount ?? 0;
         $remainingBalance = $booking->remainingBalance ?? $totalAmount;
