@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.0] - 2025-09-27
+
+### Fixed
+
+- **Offline Bootstrap & FontAwesome Accessibility:** Resolved critical offline functionality issue where Bootstrap CSS and FontAwesome icons failed to load. The problem occurred because view files used absolute paths (`/assets/`) that assumed the project root was the web root, but the application is deployed under a subdirectory (`/ResortsSystem/`).
+  - **Dynamic Asset Path Resolution:** Updated asset URLs throughout view files to use `<?= BASE_URL ?>/assets/css/bootstrap.min.css` etc., ensuring correct resolution regardless of deployment path
+  - **Affected View Files:** Updated `header.php`, `login.php`, `register.php`, `register-admin.php`, `public/error.php`, `app/Views/errors/403.php` to use dynamic BASE_URL paths
+  - **Bootstrap JavaScript Loading Fix:** Moved Bootstrap JS bundle from footer to header to ensure dropdowns initialize before DOM manipulation
+  - **Path Consistency:** All CDN assets (Bootstrap 5.3.0 CSS/JS, FontAwesome 6.4.0) now load successfully offline with local assets
+  - **BASE_URL Dynamic Construction:** Utilizes path stripping logic to generate absolute URLs from web root to project directory
+
+### Changed
+
+- **Asset Loading Strategy:** Transitioned from footer-loaded JavaScript (which caused dropdown initialization issues) to head-loaded JavaScript for reliable component initialization
+- **Cross-Environment Compatibility:** Application now functions identically in online and offline environments without asset loading failures
+
+### Technical
+
+- **Deployment Path Independence:** Implemented BASE_URL-based path resolution to support subdirectory deployments
+- **Bootstrap Component Reliability:** Ensured dropdown menus and other Bootstrap components work consistently across all pages
+- **Offline-First Approach:** Eliminated dependency on external CDNs, enabling full offline functionality
+
 ## [1.32.0] - 2025-09-27
 
 ### Fixed
