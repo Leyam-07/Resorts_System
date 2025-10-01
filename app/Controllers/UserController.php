@@ -137,7 +137,7 @@ class UserController {
 
             if ($result === true) {
                 // Find the new user to get their details
-                $newUser = User::findByUsername($username);
+                $newUser = User::findByUsername($validatedData['username']);
                 if ($newUser) {
                     // Send welcome email
                     Notification::sendWelcomeEmail($newUser['UserID']);

@@ -17,8 +17,14 @@
                     <h3 class="card-title text-center">Create an Admin Account</h3>
                     <hr>
                     <?php
-                        if (isset($_GET['error'])) {
-                            $errorMsg = '';
+                        $errorMsg = '';
+                        $oldInput = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : [];
+                        unset($_SESSION['old_input']);
+
+                        if (isset($_SESSION['error_message']) && !empty($_SESSION['error_message'])) {
+                            $errorMsg = $_SESSION['error_message'];
+                            unset($_SESSION['error_message']);
+                        } elseif (isset($_GET['error'])) {
                             switch ($_GET['error']) {
                                 case 'username_exists':
                                     $errorMsg = 'Username already taken. Please choose another.';
@@ -33,18 +39,21 @@
                                     $errorMsg = 'Registration failed. Please try again.';
                                     break;
                             }
+                        }
+                        if (!empty($errorMsg)) {
                             echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
                         }
                     ?>
                     <!-- Registration Form -->
                     <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST">
+                        <input type="hidden" name="role" value="Admin">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($oldInput['username'] ?? ''); ?>" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($oldInput['email'] ?? ''); ?>" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
@@ -58,16 +67,16 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="firstName" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="firstName" name="firstName">
+                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($oldInput['firstName'] ?? ''); ?>">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="lastName" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName">
+                                <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($oldInput['lastName'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($oldInput['phoneNumber'] ?? ''); ?>">
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Register Admin</button>

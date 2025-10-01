@@ -181,19 +181,13 @@ class ValidationHelper {
         
         // Additional password validation
         if ($result['valid']) {
-            // Check password complexity
-            $password = $result['data']['password'];
-            if (!self::validatePasswordComplexity($password)) {
-                $result['valid'] = false;
-                $result['errors']['password'][] = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
-            }
-            
             // Check password confirmation
+            $password = $result['data']['password'];
             if ($password !== $data['confirm_password']) {
                 $result['valid'] = false;
                 $result['errors']['confirm_password'][] = 'Password confirmation does not match';
             }
-            
+
             // Check username format
             if (!preg_match('/^[a-zA-Z0-9_]+$/', $result['data']['username'])) {
                 $result['valid'] = false;

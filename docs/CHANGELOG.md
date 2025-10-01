@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.2] - 2025-10-01
+
+### Fixed
+
+- **Registration System Issues:** Resolved critical issues with customer and admin registration functionality.
+  - **Undefined Variable Bug:** Fixed fatal error in `UserController::register()` where `$username` variable was undefined when sending welcome emails
+  - **Validation Error Display:** Added proper display of validation errors from session to registration forms, fixing issue where password complexity errors weren't shown to users
+  - **Form Repopulation:** Implemented automatic repopulation of form fields when validation fails, preventing users from losing entered data
+  - **Hidden Role Fields:** Added required role fields to registration forms to satisfy backend validation requirements
+  - **Password Complexity:** Relaxed password requirements from requiring uppercase, lowercase, and numbers to only requiring minimum 8 characters, as initially requested
+
+### Added
+
+- **Enhanced Registration Forms:** Registration forms now provide better user feedback with validation error messages and field repopulation
+
 ## [1.33.1] - 2025-10-01
 
 ### Fixed
