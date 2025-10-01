@@ -455,6 +455,10 @@ class BookingController {
             }
         }
 
+        // Get admin contact information for fallback contact buttons
+        $adminUsers = User::getAdminUsers();
+        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null; // Use first admin
+
         require_once __DIR__ . '/../Views/booking/my_bookings.php';
     }
 

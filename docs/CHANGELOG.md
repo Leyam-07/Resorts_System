@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.1] - 2025-10-01
+
+### Fixed
+
+- **Payment Modal Contact Buttons:** Resolved issue where "Call Resort" and "Email Resort" buttons in the payment modal were non-functional (empty hrefs) when no payment methods were configured for a resort.
+  - **Admin Contact Integration:** Updated system to use admin contact information (phone and email) for all resort contact buttons, ensuring consistent support contact across all resorts.
+  - **Dynamic Button Population:** Modified `BookingController::showMyBookings()` to retrieve and pass admin contact data to the view.
+  - **JavaScript Contact Handling:** Updated modal display logic to dynamically populate contact buttons with admin phone and email using template literals.
+  - **Button Naming Improvement:** Changed button text for better clarity, as the button uses the phone number for contact regardless of calling.
+  - **Database Independence:** Solution uses existing admin user contact fields, avoiding need for additional resort-specific contact database fields.
+
 ## [1.33.0] - 2025-09-27
 
 ### Fixed

@@ -349,6 +349,10 @@ require_once __DIR__ . '/../partials/header.php';
 </style>
 
 <script>
+// Admin contact information
+const adminPhone = '<?= htmlspecialchars($adminContact['PhoneNumber'] ?? '') ?>';
+const adminEmail = '<?= htmlspecialchars($adminContact['Email'] ?? '') ?>';
+
 document.addEventListener('DOMContentLoaded', function () {
     // Feedback Modal Handler
     var feedbackModal = document.getElementById('feedbackModal');
@@ -437,11 +441,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p class="mb-2">This resort has not configured any payment methods yet.</p>
                     <p class="mb-3"><strong>Please contact the resort directly to arrange payment outside of this system.</strong></p>
                     <div class="d-flex gap-2">
-                        <a href="tel:" class="btn btn-outline-primary btn-sm" id="callResortBtn">
-                            <i class="fas fa-phone"></i> Call Resort
+                        <a href="tel:${adminPhone}" class="btn btn-outline-primary btn-sm" id="callResortBtn">
+                            <i class="fas fa-phone"></i> Phone
                         </a>
-                        <a href="mailto:" class="btn btn-outline-primary btn-sm" id="emailResortBtn">
-                            <i class="fas fa-envelope"></i> Email Resort
+                        <a href="mailto:${adminEmail}" class="btn btn-outline-primary btn-sm" id="emailResortBtn">
+                            <i class="fas fa-envelope"></i> Email
                         </a>
                     </div>
                 </div>
