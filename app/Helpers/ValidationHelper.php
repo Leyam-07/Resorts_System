@@ -17,7 +17,7 @@ class ValidationHelper {
             'resort_id' => 'required|integer|min:1',
             'booking_date' => 'required|date',
             'timeframe' => 'required|in:12_hours,overnight,24_hours',
-            'number_of_guests' => 'required|integer|min:1|max:100',
+            'number_of_guests' => 'required|integer|min:1',
             'facility_ids' => 'array'
         ];
 
@@ -30,7 +30,6 @@ class ValidationHelper {
             'timeframe.in' => 'Please select a valid time slot option',
             'number_of_guests.required' => 'Please specify number of guests',
             'number_of_guests.min' => 'At least 1 guest is required',
-            'number_of_guests.max' => 'Maximum 100 guests allowed',
             'facility_ids.array' => 'Invalid facility selection format'
         ];
 
@@ -38,6 +37,14 @@ class ValidationHelper {
         
         // Additional custom validations
         if ($result['valid']) {
+            // Validate guest capacity against the selected resort
+            require_once __DIR__ . '/../Models/Resort.php';
+            $resort = Resort::findById($result['data']['resort_id']);
+            if ($resort && $result['data']['number_of_guests'] > $resort->capacity) {
+                $result['valid'] = false;
+                $result['errors']['number_of_guests'][] = 'Number of guests exceeds the resort capacity of ' . $resort->capacity;
+            }
+
             // Validate booking date is not in the past
             $bookingDate = new DateTime($result['data']['booking_date']);
             $today = new DateTime('today');
@@ -233,7 +240,6 @@ class ValidationHelper {
         $rules = [
             'resort_id' => 'required|integer|min:1',
             'name' => 'required|sanitize|min:2|max:100',
-            'capacity' => 'required|integer|min:1|max:1000',
             'rate' => 'required|float|min:0|max:50000',
             'short_description' => 'sanitize|max:255',
             'description' => 'sanitize|max:1000'
@@ -244,9 +250,6 @@ class ValidationHelper {
             'name.required' => 'Facility name is required',
             'name.min' => 'Facility name must be at least 2 characters',
             'name.max' => 'Facility name cannot exceed 100 characters',
-            'capacity.required' => 'Capacity is required',
-            'capacity.min' => 'Capacity must be at least 1',
-            'capacity.max' => 'Capacity cannot exceed 1000',
             'rate.required' => 'Rate is required',
             'rate.min' => 'Rate cannot be negative',
             'rate.max' => 'Rate cannot exceed ₱50,000',

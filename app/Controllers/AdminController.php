@@ -283,7 +283,6 @@ class AdminController {
             $validatedData = $validation['data'];
             $facility = new Facility();
             $facility->name = $validatedData['name'];
-            $facility->capacity = $validatedData['capacity'];
             $facility->rate = $validatedData['rate'];
             $facility->shortDescription = $validatedData['short_description'];
             $facility->fullDescription = $validatedData['description'];
@@ -325,7 +324,6 @@ class AdminController {
             $facility = new Facility();
             $facility->facilityId = $facilityId;
             $facility->name = $validatedData['name'];
-            $facility->capacity = $validatedData['capacity'];
             $facility->rate = $validatedData['rate'];
             $facility->shortDescription = $validatedData['short_description'];
             $facility->fullDescription = $validatedData['description'];

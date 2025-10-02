@@ -193,9 +193,6 @@ require_once __DIR__ . '/../partials/header.php';
                                                             <h6 class="card-title">
                                                                 <i class="fas fa-building"></i> <?= htmlspecialchars($facility->name) ?>
                                                             </h6>
-                                                            <p class="card-text small text-muted">
-                                                                Capacity: <?= $facility->capacity ?> guests
-                                                            </p>
                                                             
                                                             <div class="input-group">
                                                                 <span class="input-group-text">₱</span>

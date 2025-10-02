@@ -157,12 +157,12 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                     <input type="number" class="form-control" id="guests" name="number_of_guests"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '') ?>"
-                           placeholder="Enter number of guests" min="1" max="50" required>
-                    <span class="input-group-text">guests</span>
+                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '1') ?>"
+                           placeholder="Enter number of guests" min="1" required>
+                    <span class="input-group-text" id="guest_capacity_display">/ 0</span>
                 </div>
                 <div class="form-text">
-                    <i class="fas fa-info-circle"></i> Ensure the number doesn't exceed facility capacities
+                    <i class="fas fa-info-circle"></i> Ensure the number doesn't exceed resort capacity.
                 </div>
                 <div id="guestCapacityWarning" class="mt-2" style="display: none;">
                     <div class="alert alert-warning mb-0">
@@ -514,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedDateInfo = document.getElementById('selectedDateInfo');
     const guestCapacityWarning = document.getElementById('guestCapacityWarning');
     const capacityWarningText = document.getElementById('capacityWarningText');
+    const guestCapacityDisplay = document.getElementById('guest_capacity_display');
 
     // Step indicators
     const stepIndicators = document.querySelectorAll('.step-indicator');
@@ -525,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let calendarData = {};
     let selectedCalendarDate = null;
     let currentStep = 1;
+    let resortCapacity = 0;
 
     // Event listeners
     resortSelect.addEventListener('change', handleResortChange);
@@ -576,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
         advanceToStep(2);
         calendarModalBtn.disabled = false;
         loadFacilities(resortId);
+        loadResortDetails(resortId);
         handleDateOrTimeframeChange();
     }
 
@@ -692,6 +695,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enhanced guest handling
     function handleGuestsChange() {
+        const numberOfGuests = parseInt(guestsInput.value) || 0;
+        if (numberOfGuests > resortCapacity) {
+            guestsInput.value = resortCapacity;
+            guestCapacityWarning.style.display = 'block';
+            capacityWarningText.textContent = `Number of guests cannot exceed the resort capacity of ${resortCapacity}.`;
+        } else {
+            guestCapacityWarning.style.display = 'none';
+        }
         validateGuestCapacity();
         validateForm();
     }
@@ -726,13 +737,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="form-check">
                                 <input class="form-check-input facility-checkbox" type="checkbox"
                                        value="${facility.facilityId}" id="facility_${facility.facilityId}"
-                                       data-price="${facility.rate}" data-capacity="${facility.capacity}">
+                                       data-price="${facility.rate}">
                                 <label class="form-check-label" for="facility_${facility.facilityId}">
                                     <strong>${facility.name}</strong>
                                 </label>
                             </div>
                             <div class="mt-2 small text-muted">
-                                <div>Capacity: ${facility.capacity} guests</div>
                                 <div class="text-primary fw-bold">${facility.priceDisplay}</div>
                             </div>
                         </div>
@@ -766,8 +776,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedFacilities.push({
                 id: checkbox.value,
                 price: parseFloat(checkbox.dataset.price),
-                name: checkbox.nextElementSibling.textContent.trim(),
-                capacity: parseInt(checkbox.dataset.capacity)
+                name: checkbox.nextElementSibling.textContent.trim()
             });
         });
 
@@ -781,23 +790,21 @@ document.addEventListener('DOMContentLoaded', function() {
         validateForm();
     }
 
+    function loadResortDetails(resortId) {
+        fetch(`?controller=booking&action=getResortDetails&resort_id=${resortId}`)
+            .then(response => response.json())
+            .then(data => {
+                resortCapacity = data.capacity;
+                guestsInput.max = resortCapacity;
+                guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
+            })
+            .catch(error => console.error('Error fetching resort details:', error));
+    }
+
     function validateGuestCapacity() {
-        const numberOfGuests = parseInt(guestsInput.value) || 0;
-        let hasCapacityIssue = false;
-
-        document.querySelectorAll('.facility-checkbox:checked').forEach(checkbox => {
-            const capacity = parseInt(checkbox.dataset.capacity);
-            const cardBody = checkbox.closest('.card-body');
-            
-            if (numberOfGuests > capacity) {
-                cardBody.classList.add('bg-warning-subtle');
-                hasCapacityIssue = true;
-            } else {
-                cardBody.classList.remove('bg-warning-subtle');
-            }
-        });
-
-        return !hasCapacityIssue;
+        // This function is now a placeholder and can be removed or repurposed.
+        // For now, it will always return true as capacity is handled at the resort level.
+        return true;
     }
 
     function handleDateOrTimeframeChange() {

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `Resorts` (
   `ContactPerson` VARCHAR(255),
   `ShortDescription` TEXT,
   `FullDescription` TEXT,
+  `Capacity` INT NOT NULL DEFAULT 25,
   `MainPhotoURL` VARCHAR(255)
 );
 ```
@@ -68,7 +69,6 @@ CREATE TABLE IF NOT EXISTS `Facilities` (
   `FacilityID` INT PRIMARY KEY AUTO_INCREMENT,
   `ResortID` INT,
   `Name` VARCHAR(255) NOT NULL,
-  `Capacity` INT,
   `Rate` DECIMAL(10, 2),
   `ShortDescription` TEXT,
   `FullDescription` TEXT,

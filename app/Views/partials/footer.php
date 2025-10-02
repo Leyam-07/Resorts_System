@@ -234,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div id="main-photo-container" class="mb-3">${mainPhotoHTML}</div>
                     <div class="thumbnail-gallery">${thumbnailsHTML}</div><hr>
                     <h5>Description</h5><p>${data.fullDescription || 'No description available.'}</p><hr>
-                    <p><strong>Capacity:</strong> ${data.capacity} people</p>
                     <p><strong>Price:</strong> ₱${parseFloat(data.rate).toFixed(2)}</p>`;
 
                 const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';

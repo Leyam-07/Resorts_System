@@ -38,7 +38,6 @@ class AdvancedAvailabilityChecker {
             'conflicts' => [],
             'warnings' => [],
             'suggestions' => [],
-            'capacity_issues' => [],
             'blocking_issues' => [],
             'alternative_dates' => [],
             'alternative_facilities' => [],
@@ -68,26 +67,25 @@ class AdvancedAvailabilityChecker {
             $result['conflicts'] = array_merge($result['conflicts'], $timeframeCheck['conflicts']);
         }
 
-        // 4. Facility-specific availability and capacity check
+        // 4. Facility-specific availability check
         if (!empty($facilityIds)) {
             $facilityCheck = self::checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $numberOfGuests, $excludeBookingId);
             if (!$facilityCheck['available']) {
                 $result['conflicts'] = array_merge($result['conflicts'], $facilityCheck['conflicts']);
-                $result['capacity_issues'] = array_merge($result['capacity_issues'], $facilityCheck['capacity_issues']);
                 $result['alternative_facilities'] = $facilityCheck['alternative_facilities'];
             }
             $result['warnings'] = array_merge($result['warnings'], $facilityCheck['warnings']);
         }
 
         // 5. Advanced conflict resolution suggestions
-        if (!empty($result['conflicts']) || !empty($result['capacity_issues'])) {
+        if (!empty($result['conflicts'])) {
             $result['suggestions'] = self::generateConflictResolutionSuggestions(
                 $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds, $result
             );
         }
 
         // 6. Resource optimization suggestions
-        if (empty($result['conflicts']) && empty($result['capacity_issues'])) {
+        if (empty($result['conflicts'])) {
             $result['optimization_suggestions'] = self::generateOptimizationSuggestions(
                 $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds
             );
@@ -106,8 +104,7 @@ class AdvancedAvailabilityChecker {
         }
 
         // Final availability determination
-        $result['available'] = empty($result['conflicts']) && 
-                              empty($result['capacity_issues']) && 
+        $result['available'] = empty($result['conflicts']) &&
                               empty($result['blocking_issues']);
 
         return $result;
@@ -226,13 +223,12 @@ class AdvancedAvailabilityChecker {
     }
 
     /**
-     * Check facility-specific availability and capacity
+     * Check facility-specific availability
      */
     private static function checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $numberOfGuests, $excludeBookingId = null) {
         $result = [
             'available' => true,
             'conflicts' => [],
-            'capacity_issues' => [],
             'warnings' => [],
             'alternative_facilities' => []
         ];
@@ -252,25 +248,6 @@ class AdvancedAvailabilityChecker {
                 continue;
             }
 
-            // Check capacity
-            if ($numberOfGuests > $facility->capacity) {
-                $result['capacity_issues'][] = [
-                    'type' => 'capacity_exceeded',
-                    'message' => "Facility '{$facility->name}' capacity ({$facility->capacity}) exceeded by {$numberOfGuests} guests",
-                    'facility_id' => $facilityId,
-                    'facility_name' => $facility->name,
-                    'facility_capacity' => $facility->capacity,
-                    'requested_guests' => $numberOfGuests,
-                    'severity' => 'high'
-                ];
-                $result['available'] = false;
-
-                // Suggest alternative facilities with higher capacity
-                $result['alternative_facilities'] = array_merge(
-                    $result['alternative_facilities'], 
-                    self::suggestAlternativeFacilities($facility->resortId, $numberOfGuests, $facility->facilityId)
-                );
-            }
 
             // Check facility-level blocks
             $blockStmt = $db->prepare("SELECT * FROM BlockedFacilityAvailability WHERE FacilityID = ? AND BlockDate = ?");
@@ -300,16 +277,6 @@ class AdvancedAvailabilityChecker {
                 $result['available'] = false;
             }
 
-            // Capacity warnings (near limit but not exceeded)
-            if ($numberOfGuests > ($facility->capacity * 0.8) && $numberOfGuests <= $facility->capacity) {
-                $result['warnings'][] = [
-                    'type' => 'capacity_warning',
-                    'message' => "Facility '{$facility->name}' will be near capacity ({$numberOfGuests}/{$facility->capacity} guests)",
-                    'facility_id' => $facilityId,
-                    'facility_name' => $facility->name,
-                    'severity' => 'medium'
-                ];
-            }
         }
 
         return $result;
@@ -336,17 +303,6 @@ class AdvancedAvailabilityChecker {
             }
         }
 
-        // If there are capacity issues, suggest facility combinations
-        if (!empty($conflicts['capacity_issues'])) {
-            $facilityCombiations = self::suggestFacilityCombinations($resortId, $numberOfGuests, $bookingDate, $timeSlotType);
-            if (!empty($facilityCombiations)) {
-                $suggestions[] = [
-                    'type' => 'facility_combination',
-                    'message' => 'Consider booking multiple facilities to accommodate all guests',
-                    'options' => $facilityCombiations
-                ];
-            }
-        }
 
         // Suggest alternative dates
         $alternativeDates = self::suggestAlternativeDates($resortId, $bookingDate, $timeSlotType, 7);
@@ -508,97 +464,7 @@ class AdvancedAvailabilityChecker {
         return $alternatives;
     }
 
-    /**
-     * Suggest alternative facilities with higher capacity
-     */
-    private static function suggestAlternativeFacilities($resortId, $requiredCapacity, $excludeFacilityId = null) {
-        $db = self::getDB();
-        $sql = "SELECT * FROM Facilities WHERE ResortID = ? AND Capacity >= ?";
-        $params = [$resortId, $requiredCapacity];
-        
-        if ($excludeFacilityId) {
-            $sql .= " AND FacilityID != ?";
-            $params[] = $excludeFacilityId;
-        }
-        
-        $sql .= " ORDER BY Capacity ASC, Rate ASC";
-        
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        $facilities = $stmt->fetchAll(PDO::FETCH_OBJ);
-        
-        $alternatives = [];
-        foreach ($facilities as $facility) {
-            $alternatives[] = [
-                'facility_id' => $facility->FacilityID,
-                'name' => $facility->Name,
-                'capacity' => $facility->Capacity,
-                'rate' => $facility->Rate,
-                'description' => $facility->ShortDescription
-            ];
-        }
-        
-        return array_slice($alternatives, 0, 3); // Return top 3 alternatives
-    }
 
-    /**
-     * Suggest facility combinations for large groups
-     */
-    private static function suggestFacilityCombinations($resortId, $totalGuests, $bookingDate, $timeSlotType) {
-        $db = self::getDB();
-        $stmt = $db->prepare("SELECT * FROM Facilities WHERE ResortID = ? ORDER BY Capacity DESC, Rate ASC");
-        $stmt->execute([$resortId]);
-        $facilities = $stmt->fetchAll(PDO::FETCH_OBJ);
-        
-        $combinations = [];
-        
-        // Simple combination logic - can be enhanced with more sophisticated algorithms
-        $availableFacilities = [];
-        foreach ($facilities as $facility) {
-            if (Booking::isTimeSlotAvailable($facility->FacilityID, $bookingDate, $timeSlotType)) {
-                $availableFacilities[] = $facility;
-            }
-        }
-        
-        // Try to find combinations that meet the guest requirement
-        if (count($availableFacilities) >= 2) {
-            for ($i = 0; $i < count($availableFacilities) - 1; $i++) {
-                for ($j = $i + 1; $j < count($availableFacilities); $j++) {
-                    $totalCapacity = $availableFacilities[$i]->Capacity + $availableFacilities[$j]->Capacity;
-                    $totalCost = $availableFacilities[$i]->Rate + $availableFacilities[$j]->Rate;
-                    
-                    if ($totalCapacity >= $totalGuests) {
-                        $combinations[] = [
-                            'facilities' => [
-                                [
-                                    'id' => $availableFacilities[$i]->FacilityID,
-                                    'name' => $availableFacilities[$i]->Name,
-                                    'capacity' => $availableFacilities[$i]->Capacity,
-                                    'rate' => $availableFacilities[$i]->Rate
-                                ],
-                                [
-                                    'id' => $availableFacilities[$j]->FacilityID,
-                                    'name' => $availableFacilities[$j]->Name,
-                                    'capacity' => $availableFacilities[$j]->Capacity,
-                                    'rate' => $availableFacilities[$j]->Rate
-                                ]
-                            ],
-                            'total_capacity' => $totalCapacity,
-                            'total_cost' => $totalCost,
-                            'cost_per_guest' => round($totalCost / $totalGuests, 2)
-                        ];
-                    }
-                }
-            }
-        }
-        
-        // Sort by cost efficiency
-        usort($combinations, function($a, $b) {
-            return $a['cost_per_guest'] <=> $b['cost_per_guest'];
-        });
-        
-        return array_slice($combinations, 0, 3); // Return top 3 combinations
-    }
 
     /**
      * Suggest complementary facilities
@@ -713,8 +579,7 @@ class AdvancedAvailabilityChecker {
             'partially_booked_days' => 0,
             'fully_booked_days' => 0,
             'peak_demand_dates' => [],
-            'low_demand_dates' => [],
-            'capacity_utilization' => []
+            'low_demand_dates' => []
         ];
         
         $currentDate = new DateTime($startDate);

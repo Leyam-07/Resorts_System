@@ -195,6 +195,31 @@ class BookingController {
         echo json_encode($response);
         exit;
     }
+    public function getResortDetails() {
+        header('Content-Type: application/json');
+        
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid Resort ID']);
+            exit;
+        }
+
+        $resort = Resort::findById($resortId);
+
+        if ($resort) {
+            echo json_encode([
+                'resort_id' => $resort->resortId,
+                'name' => $resort->name,
+                'capacity' => $resort->capacity
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Resort not found']);
+        }
+        exit;
+    }
 
     /**
      * Calculate total booking price dynamically

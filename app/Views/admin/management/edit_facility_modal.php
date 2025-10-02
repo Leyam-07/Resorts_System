@@ -14,10 +14,6 @@
                         <input type="text" class="form-control" id="editFacilityName" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editFacilityCapacity" class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="editFacilityCapacity" name="capacity" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="editFacilityRate" class="form-label">Price per Booking (₱)</label>
                         <input type="number" step="0.01" class="form-control" id="editFacilityRate" name="rate" required>
                     </div>

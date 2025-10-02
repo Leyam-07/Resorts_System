@@ -71,7 +71,6 @@ require_once __DIR__ . '/../../partials/header.php';
                                                 <tr>
                                                     <th>ID</th>
                                                     <th>Name</th>
-                                                    <th>Capacity</th>
                                                     <th>Price</th>
                                                     <th>Actions</th>
                                                 </tr>
@@ -86,7 +85,6 @@ require_once __DIR__ . '/../../partials/header.php';
                                                         <tr data-facility-id="<?= $facility->facilityId ?>">
                                                             <td><?= htmlspecialchars($facility->facilityId) ?></td>
                                                             <td><?= htmlspecialchars($facility->name) ?></td>
-                                                            <td><?= htmlspecialchars($facility->capacity) ?></td>
                                                             <td>₱<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
                                                                 <button class="btn btn-outline-secondary btn-sm schedule-facility-btn" data-bs-toggle="modal" data-bs-target="#scheduleFacilityModal" data-facility-id="<?= $facility->facilityId ?>" data-facility-name="<?= htmlspecialchars($facility->name) ?>">Schedule</button>
@@ -295,7 +293,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     document.getElementById('editFacilityId').value = data.facilityId;
                     document.getElementById('editFacilityName').value = data.name;
-                    document.getElementById('editFacilityCapacity').value = data.capacity;
                     document.getElementById('editFacilityRate').value = data.rate;
                     document.getElementById('editFacilityShortDescription').value = data.shortDescription || '';
                     document.getElementById('editFacilityFullDescription').value = data.fullDescription || '';

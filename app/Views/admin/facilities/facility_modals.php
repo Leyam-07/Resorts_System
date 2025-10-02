@@ -31,10 +31,6 @@ if (!defined('APP_LOADED')) {
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="capacity" class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="capacity" name="capacity" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="rate" class="form-label">Rate (per hour)</label>
                         <input type="number" step="0.01" class="form-control" id="rate" name="rate" required>
                     </div>

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.34.0] - 2025-10-02
+
+### Changed
+
+- **Capacity Logic Refactoring:** Overhauled the system to align with the new resort-based capacity model by removing all deprecated facility-level capacity logic. This improves architectural consistency and simplifies the booking process.
+
+### Removed
+
+- **Deprecated Facility Capacity:** Removed the `Capacity` column from the `Facilities` database table and all associated logic from the backend and frontend.
+  - **Backend:** Cleared capacity-related code from the `Facility` model, `AdminController`, and `ValidationHelper`.
+  - **Admin UI:** Removed all capacity fields and displays from facility management modals, lists, and pricing pages.
+  - **Customer UI:** Stripped out facility capacity displays and validation from the booking form, as guest limits are now exclusively handled at the resort level.
+
 ## [1.33.2] - 2025-10-01
 
 ### Fixed

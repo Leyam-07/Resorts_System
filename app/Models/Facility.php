@@ -4,7 +4,6 @@ class Facility {
     public $facilityId;
     public $resortId;
     public $name;
-    public $capacity;
     public $rate;
    public $shortDescription;
    public $fullDescription;
@@ -28,12 +27,11 @@ class Facility {
     public static function create(Facility $facility) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Facilities (ResortID, Name, Capacity, Rate, ShortDescription, FullDescription, MainPhotoURL)
-             VALUES (:resortId, :name, :capacity, :rate, :shortDescription, :fullDescription, :mainPhotoURL)"
+            "INSERT INTO Facilities (ResortID, Name, Rate, ShortDescription, FullDescription, MainPhotoURL)
+             VALUES (:resortId, :name, :rate, :shortDescription, :fullDescription, :mainPhotoURL)"
         );
         $stmt->bindValue(':resortId', $facility->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':name', $facility->name, PDO::PARAM_STR);
-        $stmt->bindValue(':capacity', $facility->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':rate', $facility->rate, PDO::PARAM_STR);
        $stmt->bindValue(':shortDescription', $facility->shortDescription, PDO::PARAM_STR);
        $stmt->bindValue(':fullDescription', $facility->fullDescription, PDO::PARAM_STR);
@@ -57,7 +55,6 @@ class Facility {
             $facility->facilityId = $data['FacilityID'];
             $facility->resortId = $data['ResortID'];
             $facility->name = $data['Name'];
-            $facility->capacity = $data['Capacity'];
             $facility->rate = $data['Rate'];
            $facility->shortDescription = $data['ShortDescription'];
            $facility->fullDescription = $data['FullDescription'];
@@ -77,7 +74,6 @@ class Facility {
             $facility->facilityId = $data['FacilityID'];
             $facility->resortId = $data['ResortID'];
             $facility->name = $data['Name'];
-            $facility->capacity = $data['Capacity'];
             $facility->rate = $data['Rate'];
            $facility->shortDescription = $data['ShortDescription'];
            $facility->fullDescription = $data['FullDescription'];
@@ -109,7 +105,6 @@ class Facility {
             $facility->facilityId = $data['FacilityID'];
             $facility->resortId = $data['ResortID'];
             $facility->name = $data['Name'];
-            $facility->capacity = $data['Capacity'];
             $facility->rate = $data['Rate'];
            $facility->shortDescription = $data['ShortDescription'];
            $facility->fullDescription = $data['FullDescription'];
@@ -123,13 +118,12 @@ class Facility {
         $db = self::getDB();
         $stmt = $db->prepare(
             "UPDATE Facilities
-             SET ResortID = :resortId, Name = :name, Capacity = :capacity, Rate = :rate,
+             SET ResortID = :resortId, Name = :name, Rate = :rate,
                  ShortDescription = :shortDescription, FullDescription = :fullDescription, MainPhotoURL = :mainPhotoURL
              WHERE FacilityID = :facilityId"
         );
         $stmt->bindValue(':resortId', $facility->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':name', $facility->name, PDO::PARAM_STR);
-        $stmt->bindValue(':capacity', $facility->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':rate', $facility->rate, PDO::PARAM_STR);
        $stmt->bindValue(':shortDescription', $facility->shortDescription, PDO::PARAM_STR);
        $stmt->bindValue(':fullDescription', $facility->fullDescription, PDO::PARAM_STR);
@@ -216,7 +210,6 @@ class Facility {
                 'id' => $facility->facilityId,
                 'name' => $facility->name,
                 'price' => $facility->rate,
-                'capacity' => $facility->capacity,
                 'description' => $facility->shortDescription,
                 'display' => $facility->name . ' (₱' . number_format($facility->rate, 2) . ')'
             ];
