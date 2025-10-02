@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="thumbnail-gallery">${thumbnailsHTML}</div><hr>
                         <h5>About ${data.name}</h5><p>${data.fullDescription || 'No description available.'}</p><hr>
                         <p><strong>Address:</strong> ${data.address}</p>
-                        <p><strong>Contact:</strong> ${data.contactPerson}</p>`;
+                        <p><strong>Contact:</strong> ${data.contactPerson}</p>
+                        <p><strong>Capacity:</strong> ${data.capacity} guests</p>`;
                     
                     const mainPhoto = detailsTab.querySelector('#main-resort-photo');
                     const thumbnails = detailsTab.querySelectorAll('.thumbnail-item-resort');
