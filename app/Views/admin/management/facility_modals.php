@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <form action="?controller=admin&action=addFacility" method="POST" id="addFacilityForm" enctype="multipart/form-data">
-                    <input type="hidden" name="resortId" id="addFacilityResortId">
+                    <input type="hidden" name="resort_id" id="addFacilityResortId">
                     <div class="mb-3">
                         <label for="name" class="form-label">Facility Name</label>
                         <input type="text" class="form-control" id="name" name="name" required>
@@ -19,11 +19,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="shortDescription" class="form-label">Short Description</label>
-                        <textarea class="form-control" id="shortDescription" name="shortDescription" rows="2"></textarea>
+                        <textarea class="form-control" id="shortDescription" name="short_description" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="fullDescription" class="form-label">Full Description</label>
-                        <textarea class="form-control" id="fullDescription" name="fullDescription" rows="4"></textarea>
+                        <textarea class="form-control" id="fullDescription" name="description" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="facilityPhotos" class="form-label">Upload Photos</label>

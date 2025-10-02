@@ -19,11 +19,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="editFacilityShortDescription" class="form-label">Short Description</label>
-                        <textarea class="form-control" id="editFacilityShortDescription" name="shortDescription" rows="2"></textarea>
+                        <textarea class="form-control" id="editFacilityShortDescription" name="short_description" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="editFacilityFullDescription" class="form-label">Full Description</label>
-                        <textarea class="form-control" id="editFacilityFullDescription" name="fullDescription" rows="4"></textarea>
+                        <textarea class="form-control" id="editFacilityFullDescription" name="description" rows="4"></textarea>
                     </div>
                     <hr>
                     <h5>Manage Photos</h5>

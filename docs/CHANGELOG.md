@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.35.1] - 2025-10-02
+
+### Fixed
+
+- **Facility Management Form Validation:** Resolved the "Resort selection is required" error when adding new facilities and similar validation issues when editing facilities. The form field `name` attributes in the facility management modals were updated to consistently use `snake_case` (`resort_id`, `short_description`, `description`) to match backend validation expectations.
+  - Affected files:
+    - [`app/Views/admin/management/facility_modals.php`](app/Views/admin/management/facility_modals.php)
+    - [`app/Views/admin/management/edit_facility_modal.php`](app/Views/admin/management/edit_facility_modal.php)
+
 ## [1.35.0] - 2025-10-02
 
 ### Added
