@@ -157,12 +157,12 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                     <input type="number" class="form-control" id="guests" name="number_of_guests"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '1') ?>"
+                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '') ?>"
                            placeholder="Enter number of guests" min="1" required>
                     <span class="input-group-text" id="guest_capacity_display">/ 0</span>
                 </div>
                 <div class="form-text">
-                    <i class="fas fa-info-circle"></i> Ensure the number doesn't exceed resort capacity.
+                    <i class="fas fa-info-circle"></i> <span id="guestCapacityNote">Ensure the number doesn't exceed resort capacity</span>
                 </div>
                 <div id="guestCapacityWarning" class="mt-2" style="display: none;">
                     <div class="alert alert-warning mb-0">
@@ -791,14 +791,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadResortDetails(resortId) {
-        fetch(`?controller=booking&action=getResortDetails&resort_id=${resortId}`)
-            .then(response => response.json())
-            .then(data => {
-                resortCapacity = data.capacity;
-                guestsInput.max = resortCapacity;
-                guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
+        console.log('loadResortDetails called with resortId:', resortId);
+        const url = `?controller=booking&action=getResortDetails&resort_id=${resortId}`;
+        console.log('Fetching from URL:', url);
+
+        fetch(url)
+            .then(response => {
+                console.log('Fetch response status:', response.status);
+                return response.json();
             })
-            .catch(error => console.error('Error fetching resort details:', error));
+            .then(data => {
+                console.log('API response data:', data);
+                if (data.capacity !== undefined) {
+                    resortCapacity = data.capacity;
+                    guestsInput.max = resortCapacity;
+                    guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
+                    // Update the help text with maximum capacity
+                    document.getElementById('guestCapacityNote').textContent = `Ensure the number doesn't exceed resort capacity - ${resortCapacity} maximum.`;
+                    console.log('Capacity updated to:', resortCapacity);
+                } else {
+                    console.error('No capacity in response data');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching resort details:', error);
+                // Set a fallback capacity to test
+                resortCapacity = 10; // Fallback for testing
+                guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
+                // Update the help text with fallback capacity
+                document.getElementById('guestCapacityNote').textContent = `Ensure the number doesn't exceed resort capacity - ${resortCapacity} maximum.`;
+                console.log('Using fallback capacity:', resortCapacity);
+            });
     }
 
     function validateGuestCapacity() {

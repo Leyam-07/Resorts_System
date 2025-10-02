@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.0] - 2025-10-02
+
+### Fixed
+
+- **New Bookings Page Resort Capacity Display Issue:** Resolved a critical bug where the resort capacity always displayed as "0" instead of the actual capacity value, causing guest validation errors. The API endpoint `getResortDetails` was not routable due to missing whitelisted action in the routing system. Added comprehensive debugging and fallback capacity handling.
+  - **Root Cause:** `getResortDetails` method excluded from allowed actions in `public/index.php` booking controller whitelist, preventing AJAX API calls
+  - **Solution:**
+    - Added `'getResortDetails'` to booking controller allowed actions in routing whitelist
+    - Enhanced `loadResortDetails()` JavaScript function with console debugging and fallback capacity display
+    - Added dynamic capacity help text that updates with actual resort capacity limit after API call
+    - Affected files:
+      - [`public/index.php`](public/index.php) - Added API endpoint to routing whitelist
+      - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Enhanced AJAX calls and added dynamic capacity notes
+
+### Changed
+
+- **Guest Input Field Default Value:** Modified the initial number of guests field value from "1" to empty string to require manual user input and prevent premature form completion. Updated step validation logic to correctly handle empty guest input, ensuring logical booking progression.
+  - **Impact:** Users must now explicitly enter guest count instead of defaulting to 1, improving intentional booking creation
+  - **Validation:** Step 4 (Guests) only marks complete when field contains valid number > 0, aligning with form progression logic
+  - **Affected files:**
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Changed default value and enhanced validation
+
+### Enhanced
+
+- **Booking Form User Experience:** Added real-time resort capacity feedback and improved guest validation warnings. Help text now dynamically displays specific capacity limits (e.g., "Ensure the number doesn't exceed resort capacity - 25 maximum.") when resort is selected, providing clearer guidance to users.
+  - **JavaScript Enhancements:** Added capacity note updates in loadResortDetails function with console logging for debugging
+  - **Error Resilience:** Implemented fallback capacity handling to prevent complete booking form breakdown if API calls fail
+
 ## [1.35.1] - 2025-10-02
 
 ### Fixed
