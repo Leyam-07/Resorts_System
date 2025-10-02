@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.1] - 2025-10-02
+
+### Fixed
+
+- **Admin "Edit Resort" Modal Capacity Display:** Resolved an issue where the "Capacity" field in the "Edit Resort" modal displayed as blank instead of showing the existing resort capacity. The JavaScript logic was updated to correctly fetch and populate this field.
+  - **Root Cause:** Incomplete JavaScript in `app/Views/admin/resorts/index.php` that did not populate the `capacity` field.
+  - **Solution:**
+    - Moved and enhanced JavaScript logic to `app/Views/admin/resorts/resort_modals.php` to dynamically fetch and populate all resort details, including `capacity`.
+    - Removed redundant JavaScript from `app/Views/admin/resorts/index.php`.
+    - Whitelisted `getResortJson` action in `app/Controllers/ResortController.php` to ensure proper API access.
+  - **Affected files:**
+    - [`app/Views/admin/resorts/resort_modals.php`](app/Views/admin/resorts/resort_modals.php) - Added comprehensive JavaScript for modal population.
+    - [`app/Views/admin/resorts/index.php`](app/Views/admin/resorts/index.php) - Removed deprecated JavaScript.
+    - [`app/Controllers/ResortController.php`](app/Controllers/ResortController.php) - Updated access control for `getResortJson`.
+
 ## [1.36.0] - 2025-10-02
 
 ### Fixed

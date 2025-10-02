@@ -157,3 +157,127 @@ if (!defined('APP_LOADED')) {
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editResortModal = document.getElementById('editResortModal');
+    if(editResortModal) {
+        editResortModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const resortId = button.getAttribute('data-resort-id');
+            const form = editResortModal.querySelector('#editResortForm');
+            
+            // Clear previous data
+            form.reset();
+            document.getElementById('photoGallery').innerHTML = '';
+
+            if (resortId) {
+                fetch(`?controller=resort&action=getResortJson&id=${resortId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if(data.error) {
+                            alert(data.error);
+                        } else {
+                            form.querySelector('#editResortId').value = data.resortId;
+                            form.querySelector('#editName').value = data.name;
+                            form.querySelector('#editAddress').value = data.address;
+                            form.querySelector('#editCapacity').value = data.capacity;
+                            form.querySelector('#editContactPerson').value = data.contactPerson;
+                            form.querySelector('#editShortDescription').value = data.shortDescription || '';
+                            form.querySelector('#editFullDescription').value = data.fullDescription || '';
+
+                            // Populate photo gallery
+                            const photoGallery = document.getElementById('photoGallery');
+                            if(data.photos && data.photos.length > 0) {
+                                let photosHtml = '<div class="row">';
+                                data.photos.forEach(photo => {
+                                    photosHtml += `
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card">
+                                                <img src="${photo.PhotoURL}" class="card-img-top" alt="Resort Photo">
+                                                <div class="card-body text-center">
+                                                    <a href="?controller=admin&action=deleteResortPhoto&photo_id=${photo.PhotoID}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                                                    ${photo.PhotoURL !== data.mainPhotoURL ? `<a href="?controller=admin&action=setMainResortPhoto&resort_id=${data.resortId}&photo_id=${photo.PhotoID}" class="btn btn-sm btn-secondary">Set as Main</a>` : '<span class="badge bg-success">Main Photo</span>'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                photosHtml += '</div>';
+                                photoGallery.innerHTML = photosHtml;
+                            } else {
+                                photoGallery.innerHTML = '<p>No photos uploaded for this resort.</p>';
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error loading resort data:', err);
+                        alert('Failed to load resort data. Please try again.');
+                    });
+            }
+        });
+    }
+
+    const deleteResortModal = document.getElementById('deleteResortModal');
+    if(deleteResortModal){
+        deleteResortModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const deleteUrl = button.getAttribute('data-delete-url');
+            const confirmBtn = document.getElementById('confirmDeleteResortBtn');
+            confirmBtn.setAttribute('href', deleteUrl);
+        });
+    }
+
+    const managePaymentsModal = document.getElementById('managePaymentsModal');
+    if (managePaymentsModal) {
+        managePaymentsModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const resortId = button.getAttribute('data-resort-id');
+            const resortName = button.getAttribute('data-resort-name');
+            
+            document.getElementById('resortNameLabel').textContent = resortName;
+            document.getElementById('paymentResortId').value = resortId;
+
+            const paymentMethodsList = document.getElementById('paymentMethodsList');
+            paymentMethodsList.innerHTML = '<p>Loading payment methods...</p>';
+
+            fetch(`?controller=admin&action=getPaymentMethodsJson&resort_id=${resortId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        paymentMethodsList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+                    if (data.length === 0) {
+                        paymentMethodsList.innerHTML = '<p>No payment methods found for this resort.</p>';
+                        return;
+                    }
+
+                    let html = '<ul class="list-group">';
+                    data.forEach(method => {
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${method.MethodName}</strong>: ${method.MethodDetails}
+                                </div>
+                                <a href="?controller=admin&action=deletePaymentMethod&id=${method.PaymentMethodID}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this payment method?');">
+                                    Delete
+                                </a>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    paymentMethodsList.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error loading payment methods:', err);
+                    paymentMethodsList.innerHTML = '<div class="alert alert-danger">Failed to load payment methods.</div>';
+                });
+        });
+    }
+});
+</script>

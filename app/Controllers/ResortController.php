@@ -10,7 +10,7 @@ class ResortController {
     public function __construct() {
         // Public actions that don't require admin role can be whitelisted.
         $action = $_GET['action'] ?? 'index';
-        $publicActions = ['getFacilitiesJson'];
+        $publicActions = ['getFacilitiesJson', 'getResortJson'];
 
         if (in_array($action, $publicActions)) {
             if (!isset($_SESSION['user_id'])) {
