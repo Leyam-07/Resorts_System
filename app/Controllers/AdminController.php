@@ -558,16 +558,22 @@ class AdminController {
     // Resort Management Logic (Moved from ResortController)
     public function storeResort() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Phase 6: Enhanced validation for resort data
-            // Note: A 'validateResortData' method should be added to ValidationHelper.php
-            // For now, we assume it exists and mirrors the facility validation structure.
-            // Let's proceed with a placeholder validation.
+            $validation = ValidationHelper::validateResortData($_POST);
+
+            if (!$validation['valid']) {
+                $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+                header('Location: ?controller=admin&action=management&error=validation_failed');
+                exit;
+            }
+
+            $validatedData = $validation['data'];
             $resort = new Resort();
-            $resort->name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-            $resort->address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING);
-            $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_SANITIZE_STRING);
-            $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_SANITIZE_STRING);
-            $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_SANITIZE_STRING);
+            $resort->name = $validatedData['name'];
+            $resort->address = $validatedData['address'];
+            $resort->contactPerson = $validatedData['contactPerson'];
+            $resort->shortDescription = $validatedData['shortDescription'];
+            $resort->fullDescription = $validatedData['fullDescription'];
+            $resort->capacity = $validatedData['capacity'];
             
             $resortId = Resort::create($resort);
 
@@ -597,12 +603,21 @@ class AdminController {
             $resort = Resort::findById($resortId);
             if (!$resort) { die('Resort not found.'); }
 
-            // Phase 6: Enhanced validation for resort data
-            $resort->name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-            $resort->address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING);
-            $resort->contactPerson = filter_input(INPUT_POST, 'contactPerson', FILTER_SANITIZE_STRING);
-            $resort->shortDescription = filter_input(INPUT_POST, 'shortDescription', FILTER_SANITIZE_STRING);
-            $resort->fullDescription = filter_input(INPUT_POST, 'fullDescription', FILTER_SANITIZE_STRING);
+            $validation = ValidationHelper::validateResortData($_POST);
+
+            if (!$validation['valid']) {
+                $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
+                header('Location: ?controller=admin&action=management&error=validation_failed');
+                exit;
+            }
+
+            $validatedData = $validation['data'];
+            $resort->name = $validatedData['name'];
+            $resort->address = $validatedData['address'];
+            $resort->contactPerson = $validatedData['contactPerson'];
+            $resort->shortDescription = $validatedData['shortDescription'];
+            $resort->fullDescription = $validatedData['fullDescription'];
+            $resort->capacity = $validatedData['capacity'];
             
             // Handle new photo uploads
             $newPhotoURLs = $this->handlePhotoUpload('photos', 'resorts');

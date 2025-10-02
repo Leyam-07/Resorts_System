@@ -93,7 +93,7 @@ class Resort {
         $sql = "
             SELECT
                 r.ResortID, r.Name as ResortName, r.Address, r.ContactPerson, r.ShortDescription, r.FullDescription, r.MainPhotoURL,
-                f.FacilityID, f.Name as FacilityName, f.Capacity, f.Rate
+                f.FacilityID, f.Name as FacilityName, f.Rate
             FROM Resorts r
             LEFT JOIN Facilities f ON r.ResortID = f.ResortID
             ORDER BY r.Name ASC, f.Name ASC
@@ -123,7 +123,7 @@ class Resort {
                 $facility = new Facility();
                 $facility->facilityId = $row['FacilityID'];
                 $facility->name = $row['FacilityName'];
-                $facility->capacity = $row['Capacity'];
+                // $facility->capacity = $row['Capacity']; // Deprecated
                 $facility->rate = $row['Rate'];
                 $resortsWithFacilities[$resortId]['facilities'][] = $facility;
             }

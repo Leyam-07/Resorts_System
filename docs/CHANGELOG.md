@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.35.0] - 2025-10-02
+
+### Added
+
+- **Resort Capacity Management:** Implemented a new `Capacity` field in the "Add New Resort" and "Edit Resort" modals, allowing administrators to define a guest limit for each resort.
+- **Resort Validation:** Created a new `validateResortData()` function in `ValidationHelper.php` to provide robust, server-side validation for all resort-related data, including the new capacity field.
+
+### Changed
+
+- **Admin Controller:** The `storeResort()` and `updateResort()` methods in `AdminController.php` were refactored to integrate the new `validateResortData()` function, ensuring all resort data is validated before being saved to the database.
+
 ## [1.34.0] - 2025-10-02
 
 ### Changed
