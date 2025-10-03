@@ -888,12 +888,19 @@ class AdminController {
         }
         $resortId = filter_input(INPUT_POST, 'resortId', FILTER_VALIDATE_INT);
         $blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
-        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+        $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
 
-        if ($resortId && $blockDate) {
-            BlockedResortAvailability::create($resortId, $blockDate, $reason);
+        if (!$resortId || !$blockDate || empty($reason)) {
+            $_SESSION['error_message'] = "Block date and reason are required.";
+            // Redirect back to the advanced blocking page specifically
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            exit;
         }
-        header('Location: ?controller=admin&action=management');
+
+        BlockedResortAvailability::create($resortId, $blockDate, $reason);
+        
+        $_SESSION['success_message'] = "Successfully blocked the date: " . htmlspecialchars($blockDate);
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit;
     }
 
@@ -940,11 +947,20 @@ class AdminController {
         }
         $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
         $blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
-        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+        $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
 
-        if ($facilityId && $blockDate) {
-            BlockedFacilityAvailability::create($facilityId, $blockDate, $reason);
+        if (!$facilityId || !$blockDate || empty($reason)) {
+            $_SESSION['error_message'] = "Block date and reason are required for blocking a facility.";
+            header('Location: ?controller=admin&action=management');
+            exit;
         }
+
+        if (BlockedFacilityAvailability::create($facilityId, $blockDate, $reason)) {
+            $_SESSION['success_message'] = "Successfully blocked the date for the facility.";
+        } else {
+            $_SESSION['error_message'] = "Failed to block the date for the facility.";
+        }
+        
         header('Location: ?controller=admin&action=management');
         exit;
     }
@@ -1205,10 +1221,10 @@ class AdminController {
         $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
         $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
         $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
-        $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
+        $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
 
-        if (!$resortId || !$presetType || !$startDate || !$endDate) {
-            $_SESSION['error_message'] = "Invalid blocking parameters.";
+        if (!$resortId || !$presetType || !$startDate || !$endDate || empty($reason)) {
+            $_SESSION['error_message'] = "All fields, including a reason, are required for preset blocking.";
             header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
             exit();
         }
@@ -1235,7 +1251,7 @@ class AdminController {
             }
 
             if ($shouldBlock) {
-                if (BlockedResortAvailability::create($resortId, $dateStr, $reason ?: $presetType)) {
+                if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
                     $blockedCount++;
                 }
             }

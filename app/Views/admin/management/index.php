@@ -149,8 +149,8 @@ require_once __DIR__ . '/edit_facility_modal.php';
                         <input type="date" class="form-control" id="facilityBlockDate" name="blockDate" required>
                     </div>
                     <div class="mb-3">
-                        <label for="facilityBlockReason" class="form-label">Reason (Optional)</label>
-                        <input type="text" class="form-control" id="facilityBlockReason" name="reason">
+                        <label for="facilityBlockReason" class="form-label">Reason</label>
+                        <input type="text" class="form-control" id="facilityBlockReason" name="reason" required>
                     </div>
                     <button type="submit" class="btn btn-danger">Block Date</button>
                 </form>
@@ -184,8 +184,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         <input type="date" class="form-control" id="blockDate" name="blockDate" required>
                     </div>
                     <div class="mb-3">
-                        <label for="reason" class="form-label">Reason (Optional)</label>
-                        <input type="text" class="form-control" id="reason" name="reason">
+                        <label for="reason" class="form-label">Reason</label>
+                        <input type="text" class="form-control" id="reason" name="reason" required>
                     </div>
                     <button type="submit" class="btn btn-danger">Block Date</button>
                 </form>
@@ -369,7 +369,7 @@ function loadResortBlocks(resortId) {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <strong>${block.BlockDate}</strong>
-                            <small class="text-muted ms-2">${block.Reason || ''}</small>
+                            <small class="text-muted ms-2">${block.Reason}</small>
                         </div>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteResortBlock(${block.BlockedAvailabilityID}, ${resortId})">
                             <i class="fas fa-trash"></i>
@@ -427,7 +427,7 @@ function loadFacilityBlocks(facilityId) {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <strong>${block.BlockDate}</strong>
-                            <small class="text-muted ms-2">${block.Reason || ''}</small>
+                            <small class="text-muted ms-2">${block.Reason}</small>
                         </div>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteFacilityBlock(${block.BlockedAvailabilityID}, ${facilityId})">
                             <i class="fas fa-trash"></i>

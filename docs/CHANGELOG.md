@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.8] - 2025-10-03
+
+### Changed
+
+- **Mandatory Blocking Reason:** The 'Reason' field for all date-blocking functionalities has been made mandatory, removing its optional status to ensure better administrative accountability.
+  - **Solution:**
+    - Modified [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php) to remove the "(Optional)" label and add the `required` HTML attribute to the reason input fields for both "Preset Blocking" and "Manual Date Blocking". The JavaScript display logic was also updated to no longer show "No reason specified".
+    - Updated [`app/Views/admin/management/index.php`](app/Views/admin/management/index.php) to similarly remove the "(Optional)" label and add the `required` HTML attribute to the reason fields within the resort and facility blocking modals. The JavaScript display logic was adjusted to directly show the reason.
+    - Enhanced the `AdminController.php` by adding server-side validation to the `applyPresetBlocking()`, `blockResortAvailability()`, and `blockFacilityAvailability()` methods. These methods now verify that a non-empty `reason` is provided before processing any blocking request, redirecting with an error message if the validation fails.
+  - **Affected files:**
+    - [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php) - UI updates for reason field.
+    - [`app/Views/admin/management/index.php`](app/Views/admin/management/index.php) - UI updates for reason fields in modals.
+    - [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php) - Server-side validation for blocking actions.
+
 ## [1.36.7] - 2025-10-03
 
 ### Enhanced

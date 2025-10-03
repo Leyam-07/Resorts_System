@@ -74,9 +74,9 @@ require_once __DIR__ . '/../partials/header.php';
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Reason (Optional)</label>
-                                                    <input type="text" class="form-control" name="reason" 
-                                                           placeholder="e.g., Maintenance, Private Event">
+                                                    <label class="form-label">Reason</label>
+                                                    <input type="text" class="form-control" name="reason"
+                                                           placeholder="e.g., Maintenance, Private Event" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -128,8 +128,8 @@ require_once __DIR__ . '/../partials/header.php';
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Reason</label>
-                                                    <input type="text" class="form-control" name="reason" 
-                                                           placeholder="Optional reason">
+                                                    <input type="text" class="form-control" name="reason"
+                                                           placeholder="e.g., Maintenance, Private Event" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -289,7 +289,7 @@ function loadBlockedDates(resortId) {
                                     <div>
                                         <h6 class="card-title mb-1">${formattedDate}</h6>
                                         <p class="card-text small text-muted mb-0">
-                                            ${block.Reason || 'No reason specified'}
+                                            ${block.Reason}
                                         </p>
                                     </div>
                                     <button class="btn btn-outline-danger btn-sm" 
