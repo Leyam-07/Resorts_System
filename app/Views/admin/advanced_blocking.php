@@ -182,6 +182,43 @@ require_once __DIR__ . '/../partials/header.php';
                                     </form>
                                 </div>
                             </div>
+
+                           <!-- Deblocking Options -->
+                           <div class="card mt-4">
+                               <div class="card-header">
+                                   <h5><i class="fas fa-key"></i> Deblocking Options</h5>
+                                   <p class="text-muted mb-0">Remove existing blocks by date range or all at once</p>
+                               </div>
+                               <div class="card-body">
+                                   <!-- Deblock by Date Range -->
+                                   <form method="POST" action="?controller=admin&action=deblockByDateRange" class="mb-3">
+                                       <input type="hidden" name="resort_id" value="<?= $_GET['resort_id'] ?>">
+                                       <div class="row">
+                                           <div class="col-md-6">
+                                               <label class="form-label">Start Date</label>
+                                               <input type="date" class="form-control" name="start_date" required>
+                                           </div>
+                                           <div class="col-md-6">
+                                               <label class="form-label">End Date</label>
+                                               <input type="date" class="form-control" name="end_date" required>
+                                           </div>
+                                       </div>
+                                       <button type="submit" class="btn btn-success mt-2">
+                                           <i class="fas fa-key"></i> Deblock Date Range
+                                       </button>
+                                   </form>
+                                   <hr>
+                                   <!-- Deblock All -->
+                                   <form method="POST" action="?controller=admin&action=deblockAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this resort? This action cannot be undone.');">
+                                       <input type="hidden" name="resort_id" value="<?= $_GET['resort_id'] ?>">
+                                       <div class="d-grid">
+                                           <button type="submit" class="btn btn-info">
+                                               <i class="fas fa-globe"></i> Deblock All Dates
+                                           </button>
+                                       </div>
+                                   </form>
+                               </div>
+                           </div>
                         </div>
 
                         <!-- Preset Information & Calendar Preview -->

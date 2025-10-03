@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.37.0] - 2025-10-03
+
+### Added
+
+- **Advanced Deblocking System:** Implemented a comprehensive deblocking feature set in the "Advanced Blocking" system, allowing administrators to efficiently remove existing date blocks.
+  - **Solution:**
+    - Added a new "Deblocking Options" card to the UI in [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php), featuring a form for deblocking by date range and a "Deblock All" button.
+    - Implemented two new controller methods, `deblockAll()` and `deblockByDateRange()`, in [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php) to handle the backend logic for these actions.
+    - Added two corresponding data-layer methods, `deleteAllForResort()` and `deleteByDateRange()`, to the [`app/Models/BlockedResortAvailability.php`](app/Models/BlockedResortAvailability.php) model to execute the database deletions.
+    - Included an `onsubmit` JavaScript confirmation dialog for the "Deblock All" feature to prevent accidental data loss.
+  - **Affected files:**
+    - [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php) - UI enhancements.
+    - [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php) - Backend logic implementation.
+    - [`app/Models/BlockedResortAvailability.php`](app/Models/BlockedResortAvailability.php) - Database method implementation.
+
 ## [1.36.9] - 2025-10-03
 
 ### Changed

@@ -48,4 +48,26 @@ class BlockedResortAvailability {
         $stmt->bindValue(':id', $blockedAvailabilityId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public static function deleteAllForResort($resortId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("DELETE FROM BlockedResortAvailability WHERE ResortID = :resortId");
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    public static function deleteByDateRange($resortId, $startDate, $endDate) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "DELETE FROM BlockedResortAvailability
+             WHERE ResortID = :resortId
+             AND BlockDate BETWEEN :startDate AND :endDate"
+        );
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+        $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }

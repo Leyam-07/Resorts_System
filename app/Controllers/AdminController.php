@@ -1284,6 +1284,55 @@ class AdminController {
     }
 
     /**
+     * Deblock all dates for a specific resort
+     */
+    public function deblockAll() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            $_SESSION['error_message'] = "Invalid Resort ID.";
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $deletedCount = BlockedResortAvailability::deleteAllForResort($resortId);
+
+        $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the resort.";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * Deblock dates within a specific range for a resort
+     */
+    public function deblockByDateRange() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
+        $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
+
+        if (!$resortId || !$startDate || !$endDate) {
+            $_SESSION['error_message'] = "Resort ID, start date, and end date are required.";
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            exit();
+        }
+
+        $deletedCount = BlockedResortAvailability::deleteByDateRange($resortId, $startDate, $endDate);
+
+        $_SESSION['success_message'] = "Successfully removed $deletedCount blocks within the selected date range.";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
      * Get pricing summary for dashboard
      */
     public function getPricingSummary() {
