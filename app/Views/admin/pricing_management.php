@@ -116,6 +116,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <th>Timeframe</th>
                                                     <th>Regular</th>
                                                     <th>Weekend</th>
+                                                    <th>Holiday</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -140,6 +141,13 @@ require_once __DIR__ . '/../partials/header.php';
                                                         <td>
                                                             <?php if ($pricing): ?>
                                                                 <strong>₱<?= number_format($pricing->BasePrice + $pricing->WeekendSurcharge, 0) ?></strong>
+                                                            <?php else: ?>
+                                                                <small class="text-muted">-</small>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($pricing): ?>
+                                                                <strong>₱<?= number_format($pricing->BasePrice + $pricing->HolidaySurcharge, 0) ?></strong>
                                                             <?php else: ?>
                                                                 <small class="text-muted">-</small>
                                                             <?php endif; ?>
@@ -222,7 +230,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-lg-4 col-md-6 mb-3">
                                             <h6>Regular Day (Weekday)</h6>
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-bordered">
@@ -233,7 +241,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <?php foreach ($timeframes as $timeframe): 
+                                                        <?php foreach ($timeframes as $timeframe):
                                                             $pricing = null;
                                                             foreach ($resortPricing as $p) {
                                                                 if ($p->TimeframeType === $timeframe) {
@@ -257,7 +265,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-lg-4 col-md-6 mb-3">
                                             <h6>Weekend Day (Saturday/Sunday)</h6>
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-bordered">
@@ -268,7 +276,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <?php foreach ($timeframes as $timeframe): 
+                                                        <?php foreach ($timeframes as $timeframe):
                                                             $pricing = null;
                                                             foreach ($resortPricing as $p) {
                                                                 if ($p->TimeframeType === $timeframe) {
@@ -284,6 +292,44 @@ require_once __DIR__ . '/../partials/header.php';
                                                                         ₱<?= number_format($pricing->BasePrice + $pricing->WeekendSurcharge, 2) ?>
                                                                         <?php if ($pricing->WeekendSurcharge > 0): ?>
                                                                             <small class="text-success">(+₱<?= number_format($pricing->WeekendSurcharge, 0) ?>)</small>
+                                                                        <?php endif; ?>
+                                                                    <?php else: ?>
+                                                                        <span class="text-muted">Not set</span>
+                                                                    <?php endif; ?>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 mb-3">
+                                            <h6>Holiday</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Package</th>
+                                                            <th>Price</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($timeframes as $timeframe):
+                                                            $pricing = null;
+                                                            foreach ($resortPricing as $p) {
+                                                                if ($p->TimeframeType === $timeframe) {
+                                                                    $pricing = $p;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        ?>
+                                                            <tr>
+                                                                <td><?= str_replace('_', ' ', ucfirst($timeframe)) ?></td>
+                                                                <td>
+                                                                    <?php if ($pricing): ?>
+                                                                        ₱<?= number_format($pricing->BasePrice + $pricing->HolidaySurcharge, 2) ?>
+                                                                        <?php if ($pricing->HolidaySurcharge > 0): ?>
+                                                                            <small class="text-primary">(+₱<?= number_format($pricing->HolidaySurcharge, 0) ?>)</small>
                                                                         <?php endif; ?>
                                                                     <?php else: ?>
                                                                         <span class="text-muted">Not set</span>
