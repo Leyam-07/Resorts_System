@@ -316,6 +316,19 @@ input[type="date"] {
     -moz-appearance: textfield;
 }
 
+/* Restore and always show number input arrows (spinners) */
+/* For WebKit browsers (Chrome, Safari, Edge) */
+input[type="number"].form-control::-webkit-inner-spin-button,
+input[type="number"].form-control::-webkit-outer-spin-button {
+    -webkit-appearance: inner-spin-button;
+    opacity: 1;
+}
+
+/* For Firefox */
+input[type="number"].form-control {
+    -moz-appearance: number-input;
+}
+
 /* Step Indicators */
 .step-indicator {
     transition: all 0.3s ease;
@@ -485,6 +498,18 @@ input[type="date"] {
 
 .btn:hover {
     transform: translateY(-1px);
+}
+
+/* Shake animation for feedback */
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.shake {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 /* Loading states */
@@ -749,13 +774,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enhanced guest handling
     function handleGuestsChange() {
         const numberOfGuests = parseInt(guestsInput.value) || 0;
-        if (numberOfGuests > resortCapacity) {
+        
+        if (resortCapacity > 0 && numberOfGuests > resortCapacity) {
             guestsInput.value = resortCapacity;
             guestCapacityWarning.style.display = 'block';
             capacityWarningText.textContent = `Number of guests cannot exceed the resort capacity of ${resortCapacity}.`;
+
+            // Add shake effect for visual feedback
+            guestsInput.classList.add('shake');
+            guestCapacityWarning.classList.add('shake');
+            
+            // Remove the class after the animation ends to allow re-triggering
+            setTimeout(() => {
+                guestsInput.classList.remove('shake');
+                guestCapacityWarning.classList.remove('shake');
+            }, 820); // Match animation duration
         } else {
             guestCapacityWarning.style.display = 'none';
         }
+
         validateGuestCapacity();
         updateBookingSummaryDetails();
         validateForm();
@@ -862,7 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('API response data:', data);
                 if (data.capacity !== undefined) {
                     resortCapacity = data.capacity;
-                    guestsInput.max = resortCapacity;
+                    // guestsInput.max = resortCapacity; // Removed to allow manual override and provide feedback
                     guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
                     // Update the help text with maximum capacity
                     document.getElementById('guestCapacityNote').textContent = `Ensure the number doesn't exceed resort capacity - ${resortCapacity} maximum.`;

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.6] - 2025-10-03
+
+### Enhanced
+
+- **Number of Guests Input Field UI/UX:** Improved the usability and feedback of the "Number of Guests" input field on the New Booking page.
+  - **Always Visible Arrows:** Overrode default Bootstrap styling to ensure the up and down arrows (spinners) on the number input field are always visible, enhancing discoverability and ease of use.
+  - **Capacity Exceeded Feedback:** Implemented a subtle "shake" animation on the input field and its warning message when a user attempts to increase the number of guests beyond the resort's maximum capacity. This provides immediate visual feedback that the limit has been reached.
+  - **Affected files:**
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Added custom CSS for spinner visibility and JavaScript for shake animation and capacity handling.
+
 ## [1.36.5] - 2025-10-03
 
 ### Fixed
