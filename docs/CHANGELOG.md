@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.2] - 2025-10-03
+
+### Fixed
+
+- **Booking Cancellation Logic:** Resolved an issue where customers could cancel bookings after submitting payment or for completed bookings.
+  - **Root Cause:** The UI incorrectly displayed the cancel button, and the backend lacked validation for booking status and payment status during cancellation.
+  - **Solution:**
+    - Modified `app/Views/booking/my_bookings.php` to hide the "Cancel" button for bookings with `Status` other than 'Pending' or when `RemainingBalance` is less than `TotalAmount`.
+    - Implemented server-side validation in `app/Controllers/BookingController.php` to prevent cancellation if the booking `Status` is not 'Pending' or if a partial payment has been made (`remainingBalance < totalAmount`).
+  - **Affected files:**
+    - [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php) - UI logic for displaying the cancel button.
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Server-side validation for cancellation.
+
 ## [1.36.1] - 2025-10-02
 
 ### Fixed

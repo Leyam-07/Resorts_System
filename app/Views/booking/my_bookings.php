@@ -123,9 +123,11 @@ require_once __DIR__ . '/../partials/header.php';
                                     <?php endif; ?>
                                     
                                     <!-- Cancel Action -->
+                                    <?php if ($booking->Status === 'Pending' && $booking->RemainingBalance >= $booking->TotalAmount): ?>
                                     <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
                                         <i class="fas fa-times"></i> Cancel
                                     </a>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </td>
