@@ -498,7 +498,7 @@ input[type="number"].form-control {
 .resort-card .form-check-input {
     position: absolute;
     top: 10px;
-    right: 10px;
+    left: 10px;
     width: 1.5em;
     height: 1.5em;
     z-index: 10;
@@ -533,6 +533,11 @@ input[type="number"].form-control {
 
 .facility-card .form-check-label {
     cursor: pointer;
+}
+
+.facility-card.selected {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
 
 /* Enhanced form animations */
@@ -891,7 +896,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '';
         facilities.forEach(facility => {
             html += `
-                <div class="col-md-6 col-lg-4 mb-3">
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
                     <div class="card h-100 facility-card">
                         <img src="${facility.mainPhotoURL || 'assets/images/default-facility.jpg'}" class="card-img-top" alt="${facility.name}">
                         <div class="card-body d-flex flex-column">
@@ -921,6 +926,23 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.addEventListener('change', handleFacilitySelection);
         });
 
+        // Add event listener to the whole card to toggle the checkbox
+        document.querySelectorAll('.facility-card').forEach(card => {
+            card.addEventListener('click', (event) => {
+                // Prevent the event from firing twice if the user clicks directly on the checkbox/label
+                if (event.target.classList.contains('facility-checkbox') || event.target.closest('.form-check-label')) {
+                    return;
+                }
+                
+                const checkbox = card.querySelector('.facility-checkbox');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    // Dispatch a change event to trigger the handler
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
         // Pre-select facility if facility_id is provided in URL
         const urlParams = new URLSearchParams(window.location.search);
         const preSelectedFacilityId = urlParams.get('facility_id');
@@ -935,12 +957,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleFacilitySelection() {
         selectedFacilities = [];
-        document.querySelectorAll('.facility-checkbox:checked').forEach(checkbox => {
-            selectedFacilities.push({
-                id: checkbox.value,
-                price: parseFloat(checkbox.dataset.price),
-                name: checkbox.nextElementSibling.textContent.trim()
-            });
+        document.querySelectorAll('.facility-checkbox').forEach(checkbox => {
+            const card = checkbox.closest('.facility-card');
+            if (checkbox.checked) {
+                selectedFacilities.push({
+                    id: checkbox.value,
+                    price: parseFloat(checkbox.dataset.price),
+                    name: checkbox.nextElementSibling.textContent.trim()
+                });
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
         });
 
         // Advance to step 6 if facilities are selected
