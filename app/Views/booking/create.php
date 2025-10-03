@@ -196,7 +196,28 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         <h5 class="mb-0"><i class="fas fa-receipt"></i> Booking Summary</h5>
                     </div>
                     <div class="card-body">
+                        <div id="bookingDetails" class="mb-3" style="display: none;">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span><i class="fas fa-building text-muted me-2"></i>Resort:</span>
+                                    <strong id="summaryResort" class="text-end">N/A</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span><i class="fas fa-clock text-muted me-2"></i>Timeframe:</span>
+                                    <strong id="summaryTimeframeText" class="text-end">N/A</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span><i class="fas fa-calendar-alt text-muted me-2"></i>Date:</span>
+                                    <strong id="summaryDate" class="text-end">N/A</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span><i class="fas fa-users text-muted me-2"></i>Guests:</span>
+                                    <strong id="summaryGuests" class="text-end">N/A</strong>
+                                </li>
+                            </ul>
+                        </div>
                         <div id="pricingBreakdown" style="display: none;">
+                            <h6 class="text-muted">Pricing Details:</h6>
                             <div class="d-flex justify-content-between mb-2 py-2">
                                 <span><i class="fas fa-clock text-muted"></i> Base Price (<span id="summaryTimeframe"></span>):</span>
                                 <span id="summaryBasePrice" class="fw-bold text-success">₱0.00</span>
@@ -212,7 +233,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         </div>
                         <div id="noPricingMessage" class="text-muted text-center py-4">
                             <i class="fas fa-calculator fa-2x mb-2 opacity-50"></i>
-                            <p class="mb-0">Complete your selections to see pricing breakdown</p>
+                            <p class="mb-0">Complete your selections to see your booking summary</p>
                         </div>
                     </div>
                 </div>
@@ -527,6 +548,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const summaryBasePrice = document.getElementById('summaryBasePrice');
     const facilityPricing = document.getElementById('facilityPricing');
     const noFacilitiesMessage = document.getElementById('noFacilitiesMessage');
+    const bookingDetails = document.getElementById('bookingDetails');
+    const summaryResort = document.getElementById('summaryResort');
+    const summaryDate = document.getElementById('summaryDate');
+    const summaryGuests = document.getElementById('summaryGuests');
+    const summaryTimeframeText = document.getElementById('summaryTimeframeText');
 
     // Enhanced UI elements
     const calendarModalBtn = document.getElementById('calendarModalBtn');
@@ -606,6 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadFacilities(resortId);
         loadResortDetails(resortId);
         handleDateOrTimeframeChange();
+        updateBookingSummaryDetails();
     }
 
     // Enhanced calendar functionality
@@ -730,6 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
             guestCapacityWarning.style.display = 'none';
         }
         validateGuestCapacity();
+        updateBookingSummaryDetails();
         validateForm();
     }
 
@@ -816,6 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         validateGuestCapacity();
         updatePricingDisplay();
+        updateBookingSummaryDetails();
         validateForm();
     }
 
@@ -874,6 +903,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dateAvailabilityInfo.style.display = 'none';
             }
         }
+        updateBookingSummaryDetails();
         validateForm();
     }
 
@@ -931,17 +961,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePricingDisplay() {
+        updateBookingSummaryDetails(); // Update details whenever pricing is updated
+
         if (currentBasePrice > 0) {
             // Update facility pricing breakdown
             let facilityHtml = '';
-            selectedFacilities.forEach(facility => {
-                facilityHtml += `
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small">${facility.name}:</span>
-                        <span class="small">₱${facility.price.toLocaleString()}</span>
-                    </div>
-                `;
-            });
+            if (selectedFacilities.length > 0) {
+                facilityHtml += '<small class="text-muted">Additional Facilities:</small>';
+                selectedFacilities.forEach(facility => {
+                    facilityHtml += `
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small ps-3"><i class="fas fa-building text-muted me-2"></i>${facility.name}:</span>
+                            <span class="small">+ ₱${facility.price.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+            }
             facilityPricing.innerHTML = facilityHtml;
 
             pricingBreakdown.style.display = 'block';
@@ -1040,6 +1075,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetFacilities() {
         facilitiesContainer.innerHTML = '<div class="col-12">' + noFacilitiesMessage.outerHTML + '</div>';
         selectedFacilities = [];
+    }
+
+    function updateBookingSummaryDetails() {
+        const resortName = resortSelect.options[resortSelect.selectedIndex]?.text.trim() || 'N/A';
+        const timeframeValue = timeSlotSelect.options[timeSlotSelect.selectedIndex]?.text.trim().split('(')[0].trim() || 'N/A';
+        const dateValue = dateInput.value
+            ? new Date(dateInput.value + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            : 'N/A';
+        const guestsValue = guestsInput.value || 'N/A';
+
+        summaryResort.textContent = resortName;
+        summaryTimeframeText.textContent = timeframeValue;
+        summaryDate.textContent = dateValue;
+        summaryGuests.textContent = guestsValue;
+
+        // Show the details section if a resort is selected
+        if (resortSelect.value) {
+            bookingDetails.style.display = 'block';
+            noPricingMessage.innerHTML = '<i class="fas fa-info-circle fa-2x mb-2 opacity-50"></i><p class="mb-0">Continue selections for pricing</p>';
+        } else {
+            bookingDetails.style.display = 'none';
+            noPricingMessage.innerHTML = '<i class="fas fa-calculator fa-2x mb-2 opacity-50"></i><p class="mb-0">Complete your selections to see your booking summary</p>';
+        }
     }
 
     function resetPricing() {

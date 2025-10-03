@@ -5,9 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.36.2] - 2025-10-03
+## [1.36.4] - 2025-10-03
 
-### Fixed
+### Enhanced
+
+- **Expanded Booking Summary on New Booking Page:** Enhanced the booking summary section on the customer-facing "New Booking" page to include more comprehensive details for better user clarity.
+  - **Solution:**
+    - Modified [`app/Views/booking/create.php`](app/Views/booking/create.php) to display the selected Resort, Timeframe, Date, and Number of Guests in a dedicated "Booking Details" section.
+    - Updated the JavaScript in [`app/Views/booking/create.php`](app/Views/booking/create.php) to dynamically populate these new summary fields as the user makes their selections.
+    - Added a Font Awesome `fa-building` icon next to each selected facility in the pricing breakdown for improved visual presentation.
+  - **Affected files:**
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Updated HTML structure and JavaScript logic for the expanded booking summary.
+
+## [1.36.3] - 2025-10-03
 
 ### Enhanced
 
@@ -19,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Affected files:**
     - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Added icon assignment and base URL prepending for facility images.
     - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Implemented UI changes for facility cards and new CSS rules.
+
+## [1.36.2] - 2025-10-03
 
 ### Fixed
 
