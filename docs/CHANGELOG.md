@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.9] - 2025-10-03
+
+### Changed
+
+- **Holiday Blocking UI/UX:** Refactored the "Philippine Holidays" preset in the "Advanced Blocking" system to improve usability and address logical flaws.
+  - **Solution:**
+    - Replaced the `Start Date` and `End Date` inputs with a series of checkboxes for specific holidays when the "Philippine Holidays" preset is selected in [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php).
+    - Implemented JavaScript to dynamically toggle the visibility of the date-range picker and the new holiday checkbox container based on the selected preset.
+    - Updated the `applyPresetBlocking()` method in [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php) to process the array of selected holidays, blocking them for the current year.
+    - Removed the redundant and logically flawed `isPhilippineHoliday()` and `getPhilippineHolidays()` methods.
+  - **Affected files:**
+    - [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php) - UI and JavaScript changes.
+    - [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php) - Backend logic update and code cleanup.
+
 ## [1.36.8] - 2025-10-03
 
 ### Changed

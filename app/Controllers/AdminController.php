@@ -1219,75 +1219,68 @@ class AdminController {
 
         $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
         $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
-        $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
-        $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
         $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
+        $blockedCount = 0;
 
-        if (!$resortId || !$presetType || !$startDate || !$endDate || empty($reason)) {
-            $_SESSION['error_message'] = "All fields, including a reason, are required for preset blocking.";
+        if (!$resortId || !$presetType || empty($reason)) {
+            $_SESSION['error_message'] = "Resort, preset type, and reason are required.";
             header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
             exit();
         }
 
-        $blockedCount = 0;
-        $currentDate = new DateTime($startDate);
-        $lastDate = new DateTime($endDate);
-
-        while ($currentDate <= $lastDate) {
-            $shouldBlock = false;
-            $dateStr = $currentDate->format('Y-m-d');
-            $dayOfWeek = $currentDate->format('w'); // 0 = Sunday, 6 = Saturday
-
-            switch ($presetType) {
-                case 'weekends':
-                    $shouldBlock = ($dayOfWeek == 0 || $dayOfWeek == 6); // Sunday or Saturday
-                    break;
-                case 'philippine_holidays':
-                    $shouldBlock = $this->isPhilippineHoliday($currentDate);
-                    break;
-                case 'all_dates':
-                    $shouldBlock = true;
-                    break;
+        if ($presetType === 'philippine_holidays') {
+            $holidays = $_POST['holidays'] ?? [];
+            if (empty($holidays)) {
+                $_SESSION['error_message'] = "Please select at least one holiday to block.";
+                header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                exit();
             }
-
-            if ($shouldBlock) {
+            $currentYear = date('Y');
+            foreach ($holidays as $holiday) {
+                $dateStr = $currentYear . '-' . $holiday;
                 if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
                     $blockedCount++;
                 }
             }
+        } else {
+            $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
+            $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
 
-            $currentDate->modify('+1 day');
+            if (!$startDate || !$endDate) {
+                $_SESSION['error_message'] = "Start date and end date are required for this preset.";
+                header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                exit();
+            }
+
+            $currentDate = new DateTime($startDate);
+            $lastDate = new DateTime($endDate);
+
+            while ($currentDate <= $lastDate) {
+                $shouldBlock = false;
+                $dateStr = $currentDate->format('Y-m-d');
+                $dayOfWeek = $currentDate->format('w'); // 0 = Sunday, 6 = Saturday
+
+                switch ($presetType) {
+                    case 'weekends':
+                        $shouldBlock = ($dayOfWeek == 0 || $dayOfWeek == 6); // Sunday or Saturday
+                        break;
+                    case 'all_dates':
+                        $shouldBlock = true;
+                        break;
+                }
+
+                if ($shouldBlock) {
+                    if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
+                        $blockedCount++;
+                    }
+                }
+                $currentDate->modify('+1 day');
+            }
         }
 
         $_SESSION['success_message'] = "Blocked $blockedCount dates successfully!";
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit();
-    }
-
-    /**
-     * Check if a date is a Philippine holiday
-     */
-    private function isPhilippineHoliday($date) {
-        $holidays = $this->getPhilippineHolidays($date->format('Y'));
-        $dateStr = $date->format('m-d');
-        return in_array($dateStr, $holidays);
-    }
-
-    /**
-     * Get Philippine holidays for a given year
-     */
-    private function getPhilippineHolidays($year) {
-        return [
-            '01-01', // New Year's Day
-            '04-09', // Araw ng Kagitingan (Day of Valor)
-            '05-01', // Labor Day
-            '06-12', // Independence Day
-            '08-29', // National Heroes Day (last Monday of August, approximate)
-            '11-30', // Bonifacio Day
-            '12-25', // Christmas Day
-            '12-30', // Rizal Day
-            '12-31'  // New Year's Eve
-        ];
     }
 
     /**

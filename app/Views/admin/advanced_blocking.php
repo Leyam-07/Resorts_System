@@ -58,7 +58,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Preset Type</label>
-                                                    <select class="form-select" name="preset_type" required>
+                                                    <select class="form-select" name="preset_type" id="presetTypeSelect" required>
                                                         <option value="">Choose preset...</option>
                                                         <option value="weekends">
                                                             <i class="fas fa-calendar-week"></i> Weekends Only (Sat & Sun)
@@ -81,19 +81,61 @@ require_once __DIR__ . '/../partials/header.php';
                                             </div>
                                         </div>
                                         
-                                        <div class="row">
+                                        <div class="row" id="dateRangeContainer">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Start Date</label>
-                                                    <input type="date" class="form-control" name="start_date" 
+                                                    <input type="date" class="form-control" name="start_date"
                                                            min="<?= date('Y-m-d') ?>" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">End Date</label>
-                                                    <input type="date" class="form-control" name="end_date" 
+                                                    <input type="date" class="form-control" name="end_date"
                                                            min="<?= date('Y-m-d') ?>" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="holidayCheckboxContainer" class="mb-3" style="display: none;">
+                                            <label class="form-label">Select Holidays to Block (for the current year)</label>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="01-01" id="holiday_01-01">
+                                                        <label class="form-check-label" for="holiday_01-01">New Year's Day (Jan 1)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="04-09" id="holiday_04-09">
+                                                        <label class="form-check-label" for="holiday_04-09">Araw ng Kagitingan (Apr 9)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="05-01" id="holiday_05-01">
+                                                        <label class="form-check-label" for="holiday_05-01">Labor Day (May 1)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="06-12" id="holiday_06-12">
+                                                        <label class="form-check-label" for="holiday_06-12">Independence Day (Jun 12)</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="08-29" id="holiday_08-29">
+                                                        <label class="form-check-label" for="holiday_08-29">National Heroes Day (Aug 29)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="11-30" id="holiday_11-30">
+                                                        <label class="form-check-label" for="holiday_11-30">Bonifacio Day (Nov 30)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-25" id="holiday_12-25">
+                                                        <label class="form-check-label" for="holiday_12-25">Christmas Day (Dec 25)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-30" id="holiday_12-30">
+                                                        <label class="form-check-label" for="holiday_12-30">Rizal Day (Dec 30)</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -170,7 +212,7 @@ require_once __DIR__ . '/../partials/header.php';
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <h6><i class="fas fa-ban text-danger"></i> All Dates</h6>
+                                        <h6><i class="fas fa-ban text-danger"></i> Full Block</h6>
                                         <p class="small text-muted">Blocks every single day within the selected date range. Useful for maintenance periods or temporary closure.</p>
                                     </div>
                                 </div>
@@ -244,6 +286,25 @@ document.addEventListener('DOMContentLoaded', function() {
         loadBlockedDates(resortId);
     });
 });
+
+   document.getElementById('presetTypeSelect').addEventListener('change', function() {
+       const holidayContainer = document.getElementById('holidayCheckboxContainer');
+       const dateRangeContainer = document.getElementById('dateRangeContainer');
+       const startDateInput = dateRangeContainer.querySelector('input[name="start_date"]');
+       const endDateInput = dateRangeContainer.querySelector('input[name="end_date"]');
+
+       if (this.value === 'philippine_holidays') {
+           holidayContainer.style.display = 'block';
+           dateRangeContainer.style.display = 'none';
+           startDateInput.required = false;
+           endDateInput.required = false;
+       } else {
+           holidayContainer.style.display = 'none';
+           dateRangeContainer.style.display = 'block';
+           startDateInput.required = true;
+           endDateInput.required = true;
+       }
+   });
 
 function loadBlockedDates(resortId) {
     const blocksList = document.getElementById('blockedDatesList');
