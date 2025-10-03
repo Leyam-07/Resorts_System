@@ -67,7 +67,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                             <i class="fas fa-flag"></i> Philippine Holidays
                                                         </option>
                                                         <option value="all_dates">
-                                                            <i class="fas fa-ban"></i> All Dates (Full Block)
+                                                            <i class="fas fa-ban"></i> Full Block (All Dates)
                                                         </option>
                                                     </select>
                                                 </div>
