@@ -70,16 +70,32 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <label for="resort" class="form-label fw-bold">
                     <i class="fas fa-map-marker-alt text-primary"></i> Select Resort <span class="text-danger">*</span>
                 </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-building"></i></span>
-                    <select class="form-select" id="resort" name="resort_id" required>
-                        <option value="" disabled <?= !$selectedResortId ? 'selected' : '' ?>>Choose your resort...</option>
+                <div class="row g-3" id="resort-selection-container">
+                    <?php if (empty($resorts)): ?>
+                        <div class="col-12">
+                            <div class="alert alert-warning text-center">No resorts are currently available.</div>
+                        </div>
+                    <?php else: ?>
                         <?php foreach ($resorts as $resort): ?>
-                            <option value="<?= $resort->resortId ?>" <?= ($selectedResortId == $resort->resortId) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($resort->name) ?>
-                            </option>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card resort-card h-100">
+                                    <label for="resort_<?= $resort->resortId ?>" class="form-check-label w-100 mb-0">
+                                        <input type="radio" class="form-check-input resort-radio" name="resort_id"
+                                               id="resort_<?= $resort->resortId ?>" value="<?= $resort->resortId ?>"
+                                               <?= ($selectedResortId == $resort->resortId) ? 'checked' : '' ?>>
+                                        <img src="<?= htmlspecialchars($resort->mainPhotoURL) ?>" class="card-img-top" alt="<?= htmlspecialchars($resort->name) ?>">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <i class="<?= htmlspecialchars($resort->icon) ?> text-primary me-2"></i>
+                                                <?= htmlspecialchars($resort->name) ?>
+                                            </h5>
+                                            <p class="card-text small text-muted"><?= htmlspecialchars($resort->shortDescription) ?></p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
-                    </select>
+                    <?php endif; ?>
                 </div>
                 <div class="form-text">
                     <i class="fas fa-info-circle"></i> Your resort selection will determine available facilities and pricing
@@ -460,6 +476,39 @@ input[type="number"].form-control {
     font-weight: 500;
 }
 
+/* Enhanced Resort Cards */
+.resort-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.resort-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.resort-card .card-img-top {
+    height: 150px;
+    object-fit: cover;
+}
+
+.resort-card .form-check-input {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 1.5em;
+    height: 1.5em;
+    z-index: 10;
+}
+
+.resort-card.selected {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
 /* Enhanced Facility Cards */
 .facility-card {
     transition: all 0.3s ease;
@@ -555,7 +604,7 @@ input[type="number"].form-control {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Form elements
-    const resortSelect = document.getElementById('resort');
+    const resortRadios = document.querySelectorAll('input[name="resort_id"]');
     const dateInput = document.getElementById('date');
     const timeSlotSelect = document.getElementById('timeSlotType');
     const guestsInput = document.getElementById('guests');
@@ -604,9 +653,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedCalendarDate = null;
     let currentStep = 1;
     let resortCapacity = 0;
+    let selectedResortId = null; // Track selected resort ID
 
     // Event listeners
-    resortSelect.addEventListener('change', handleResortChange);
+    resortRadios.forEach(radio => {
+        radio.addEventListener('change', handleResortChange);
+    });
     dateInput.addEventListener('change', handleDateOrTimeframeChange);
     timeSlotSelect.addEventListener('change', handleDateOrTimeframeChange);
     guestsInput.addEventListener('input', handleGuestsChange);
@@ -618,8 +670,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize form if there are pre-selected values
     updateStepIndicators();
-    if (resortSelect.value) {
+    // Check for pre-selected resort and trigger change if found
+    const preSelectedResortRadio = document.querySelector('.resort-radio:checked');
+    if (preSelectedResortRadio) {
+        selectedResortId = preSelectedResortRadio.value;
         handleResortChange();
+        highlightSelectedResort(selectedResortId);
     }
 
     // Enhanced step management
@@ -643,26 +699,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function handleResortChange() {
-        const resortId = resortSelect.value;
-        if (!resortId) {
+    function handleResortChange(event) {
+        const newlySelectedResortId = event ? event.target.value : selectedResortId; // Get ID from event or initial load
+        if (!newlySelectedResortId) {
             resetFacilities();
             resetPricing();
             calendarModalBtn.disabled = true;
             return;
         }
 
+        selectedResortId = newlySelectedResortId; // Update the global state
+        highlightSelectedResort(selectedResortId);
+
         advanceToStep(2);
         calendarModalBtn.disabled = false;
-        loadFacilities(resortId);
-        loadResortDetails(resortId);
+        loadFacilities(selectedResortId);
+        loadResortDetails(selectedResortId);
         handleDateOrTimeframeChange();
         updateBookingSummaryDetails();
     }
 
+    function highlightSelectedResort(resortId) {
+        document.querySelectorAll('.resort-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        const selectedCard = document.querySelector(`#resort_${resortId}`).closest('.resort-card');
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
+        }
+    }
+
     // Enhanced calendar functionality
     function openCalendarModal() {
-        if (!resortSelect.value || !timeSlotSelect.value) {
+        if (!selectedResortId || !timeSlotSelect.value) {
             alert('Please select a resort and timeframe first');
             return;
         }
@@ -672,7 +741,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadCalendarData() {
-        const resortId = resortSelect.value;
+        const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const timeframe = timeSlotSelect.value;
         const month = calendarMonth.value;
 
@@ -926,7 +995,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleDateOrTimeframeChange() {
-        const resortId = resortSelect.value;
+        const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
         const timeframe = timeSlotSelect.value;
 
@@ -947,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // New function to check availability via API
     function checkAvailability() {
-        const resortId = resortSelect.value;
+        const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
         const timeframe = timeSlotSelect.value;
         const guests = guestsInput.value || 1;
@@ -990,6 +1059,8 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`?controller=booking&action=getResortPricing&resort_id=${resortId}&timeframe=${timeframe}&date=${date}`)
             .then(response => response.json())
             .then(pricing => {
+                // Advance to step 3 (Date) if pricing is successfully loaded
+                advanceToStep(3);
                 currentBasePrice = pricing.basePrice;
                 basePriceDisplay.textContent = pricing.basePriceDisplay;
                 summaryTimeframe.textContent = pricing.timeframeDisplay;
@@ -1011,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTotalPrice() {
-        const resortId = resortSelect.value;
+        const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const timeframe = timeSlotSelect.value;
         const date = dateInput.value;
         const facilityIds = selectedFacilities.map(f => f.id);
@@ -1069,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validateForm() {
-        const resortValid = resortSelect.value;
+        const resortValid = selectedResortId !== null; // Check if a resort is selected
         const timeframeValid = timeSlotSelect.value;
         const dateValid = dateInput.value;
         const guestsValid = guestsInput.value && parseInt(guestsInput.value) > 0;
@@ -1157,7 +1228,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateBookingSummaryDetails() {
-        const resortName = resortSelect.options[resortSelect.selectedIndex]?.text.trim() || 'N/A';
+        let resortName = 'N/A';
+        if (selectedResortId) {
+            const selectedResortRadio = document.querySelector(`input[name="resort_id"][value="${selectedResortId}"]`);
+            if (selectedResortRadio) {
+                const resortCard = selectedResortRadio.closest('.resort-card');
+                if (resortCard) {
+                    resortName = resortCard.querySelector('.card-title').textContent.trim();
+                }
+            }
+        }
+
         const timeframeValue = timeSlotSelect.options[timeSlotSelect.selectedIndex]?.text.trim().split('(')[0].trim() || 'N/A';
         const dateValue = dateInput.value
             ? new Date(dateInput.value + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -1170,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         summaryGuests.textContent = guestsValue;
 
         // Show the details section if a resort is selected
-        if (resortSelect.value) {
+        if (selectedResortId) { // Check against selectedResortId
             bookingDetails.style.display = 'block';
             noPricingMessage.innerHTML = '<i class="fas fa-info-circle fa-2x mb-2 opacity-50"></i><p class="mb-0">Continue selections for pricing</p>';
         } else {

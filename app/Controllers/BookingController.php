@@ -112,6 +112,13 @@ class BookingController {
         // Fetch all resorts and their facilities
         $resorts = Resort::findAll();
 
+        // Add icon and full photo URL to each resort for display
+        foreach ($resorts as $resort) {
+            $resort->icon = $this->getIconForResort($resort->name);
+            // Prepend BASE_URL to the mainPhotoURL for correct display
+            $resort->mainPhotoURL = BASE_URL . '/' . $resort->mainPhotoURL;
+        }
+
         // Check for error messages and old input from session
         $errorMessage = $_SESSION['error_message'] ?? null;
         $oldInput = $_SESSION['old_input'] ?? [];
@@ -928,6 +935,17 @@ class BookingController {
         if (strpos($name, 'grill') !== false) return 'fas fa-fire-alt';
         if (strpos($name, 'kitchen') !== false) return 'fas fa-utensils';
         return 'fas fa-swimming-pool'; // Default icon
+    }
+
+    /**
+     * Helper to assign an icon based on resort name
+     */
+    private function getIconForResort($resortName) {
+        $name = strtolower($resortName);
+        if (strpos($name, 'villa') !== false) return 'fas fa-house-user';
+        if (strpos($name, 'season') !== false) return 'fas fa-cloud-sun';
+        if (strpos($name, 'classic') !== false) return 'fas fa-gopuram';
+        return 'fas fa-hotel'; // Default icon
     }
 
     /**

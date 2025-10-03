@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.7] - 2025-10-03
+
+### Enhanced
+
+- **Resort Selection Visuals on New Booking Page:** Transformed the resort selection process from a dropdown menu to a visually engaging, card-based interface on the new booking page, similar to the facility selection.
+  - **Solution:**
+    - Modified [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) to dynamically assign relevant Font Awesome icons to resorts based on their names and prepend the `BASE_URL` to resort image URLs for consistent access. A new helper method `getIconForResort` was added.
+    - Updated [`app/Views/booking/create.php`](app/Views/booking/create.php) to display resort cards with their main photo, a descriptive icon, and a short description, replacing the previous dropdown menu. New CSS styling was added for visual presentation, including hover effects and a `selected` state for chosen cards.
+    - Adjusted the JavaScript in [`app/Views/booking/create.php`](app/Views/booking/create.php) to handle the `change` event for the new resort radio buttons, update the UI with the selected resort, and ensure that all subsequent form logic (loading facilities, pricing, summary, and validation) correctly uses the chosen resort.
+  - **Affected files:**
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Added icon assignment and base URL prepending for resort images.
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Implemented UI changes for resort cards and new CSS rules, and updated JavaScript for resort selection handling.
+
+### Fixed
+
+- **Booking Summary & Calendar Modal Issues after Resort UI Update:** Resolved issues where the booking summary did not update immediately upon resort selection, and the "Browse Available Dates" button was non-functional after the resort selection UI was changed.
+  - **Root Cause:** The JavaScript code was still referencing the old `<select>` element for resort selection, leading to incorrect values for the `resortId` and preventing dependent functions from triggering.
+  - **Solution:** Modified the JavaScript in [`app/Views/booking/create.php`](app/Views/booking/create.php) to correctly retrieve the `resortId` from the new radio button inputs, ensuring the `handleResortChange`, `openCalendarModal`, and `handleDateOrTimeframeChange` functions use the correct selected resort ID.
+  - **Affected files:**
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Updated JavaScript to correctly handle resort selection from radio buttons for summary updates and calendar functionality.
+
 ## [1.36.6] - 2025-10-03
 
 ### Enhanced
