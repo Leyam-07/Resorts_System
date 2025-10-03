@@ -904,7 +904,49 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         updateBookingSummaryDetails();
+        checkAvailability(); // Check availability when date/timeframe changes
         validateForm();
+    }
+
+    // New function to check availability via API
+    function checkAvailability() {
+        const resortId = resortSelect.value;
+        const date = dateInput.value;
+        const timeframe = timeSlotSelect.value;
+        const guests = guestsInput.value || 1;
+        const facilityIds = selectedFacilities.map(f => f.id);
+        
+        if (!resortId || !date || !timeframe) {
+            return;
+        }
+
+        let url = `?controller=booking&action=checkAvailability&resort_id=${resortId}&date=${date}&timeframe=${timeframe}&number_of_guests=${guests}`;
+        facilityIds.forEach(id => {
+            url += `&facility_ids[]=${id}`;
+        });
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const availabilityResultDiv = document.getElementById('dateAvailabilityInfo');
+                if (data.available) {
+                    availabilityResultDiv.innerHTML = `<div class="alert alert-success mb-0"><small>This date is available!</small></div>`;
+                    submitBtn.disabled = false;
+                } else {
+                    let errorMessage = 'This date is not available.';
+                    if (data.detailed_result && data.detailed_result.conflicts && data.detailed_result.conflicts.length > 0) {
+                        errorMessage = data.detailed_result.conflicts.map(c => c.message).join('<br>');
+                    } else if (data.detailed_result && data.detailed_result.blocking_issues && data.detailed_result.blocking_issues.length > 0) {
+                        errorMessage = data.detailed_result.blocking_issues.map(b => b.message).join('<br>');
+                    }
+                    availabilityResultDiv.innerHTML = `<div class="alert alert-danger mb-0"><small>${errorMessage}</small></div>`;
+                    submitBtn.disabled = true;
+                }
+                availabilityResultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error checking availability:', error);
+            });
     }
 
     function loadTimeframePricing(resortId, timeframe, date) {
@@ -971,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedFacilities.forEach(facility => {
                     facilityHtml += `
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="small ps-3"><i class="fas fa-building text-muted me-2"></i>${facility.name}:</span>
+                            <span class="small ps-3"><i class="fas fa-swimming-pool text-muted me-2"></i>${facility.name}:</span>
                             <span class="small">+ ₱${facility.price.toLocaleString()}</span>
                         </div>
                     `;

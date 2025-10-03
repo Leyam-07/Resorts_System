@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.5] - 2025-10-03
+
+### Fixed
+
+- **One Booking Per Day Rule:** Resolved an issue where customers could book multiple timeframes for the same resort on the same day. The system now enforces a "one booking per resort per day" rule, regardless of the chosen timeframe.
+  - **Root Cause:** The availability checks (`isResortTimeframeAvailable` and `isTimeSlotAvailable` in `Booking.php`, and `analyzeTimeframeConflicts` in `AdvancedAvailabilityChecker.php`) were designed to check for conflicts only within specific timeframes, allowing multiple bookings on the same day if timeframes didn't overlap. The calendar display in `BookingController.php` also reflected this incorrect logic.
+  - **Solution:**
+    - Modified [`app/Models/AdvancedAvailabilityChecker.php`](app/Models/AdvancedAvailabilityChecker.php) to update the `analyzeTimeframeConflicts` method. It now checks for _any_ existing booking on the given date for a resort, instead of only conflicting timeframes, ensuring the frontend accurately reflects true daily availability.
+    - Updated [`app/Models/Booking.php`](app/Models/Booking.php) by modifying the `isResortTimeframeAvailable` and `isTimeSlotAvailable` methods. These methods now ignore the `timeSlotType` parameter for the primary availability check and instead query for _any_ existing booking for the specified resort on the given `bookingDate`, enforcing the one-booking-per-day rule at the model level.
+    - Adjusted [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) to update the `getBookingCountForDate` method. This method now counts all bookings for a given date for a resort, regardless of the timeframe, ensuring the calendar display correctly marks a day as "Booked" if any booking exists.
+    - Enhanced [`app/Views/booking/create.php`](app/Views/booking/create.php) by adding a new JavaScript `checkAvailability()` function. This function performs a real-time AJAX call to the backend's `checkAvailability` endpoint, and if the date is unavailable (due to an existing booking), it disables the "Complete Booking" button and displays an appropriate error message, improving user experience.
+  - **Affected files:**
+    - [`app/Models/AdvancedAvailabilityChecker.php`](app/Models/AdvancedAvailabilityChecker.php) - Updated availability logic.
+    - [`app/Models/Booking.php`](app/Models/Booking.php) - Modified core booking availability checks.
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Adjusted calendar date status logic.
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Added client-side availability check and button disabling.
+
 ## [1.36.4] - 2025-10-03
 
 ### Enhanced

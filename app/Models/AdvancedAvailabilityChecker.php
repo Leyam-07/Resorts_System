@@ -164,38 +164,18 @@ class AdvancedAvailabilityChecker {
     private static function analyzeTimeframeConflicts($resortId, $bookingDate, $timeSlotType, $excludeBookingId = null) {
         $db = self::getDB();
         
-        // Define detailed conflict rules
-        $conflicts = [
-            '12_hours'  => ['12_hours', '24_hours'],
-            'overnight' => ['overnight', '24_hours'],
-            '24_hours'  => ['12_hours', 'overnight', '24_hours']
-        ];
-
         $result = ['available' => true, 'conflicts' => []];
 
-        if (!isset($conflicts[$timeSlotType])) {
-            $result['available'] = false;
-            $result['conflicts'][] = [
-                'type' => 'invalid_timeframe',
-                'message' => 'Invalid timeframe type: ' . $timeSlotType,
-                'severity' => 'high'
-            ];
-            return $result;
-        }
-
-        $conflictingSlots = $conflicts[$timeSlotType];
-        $placeholders = rtrim(str_repeat('?,', count($conflictingSlots)), ',');
-
+        // New logic: Check if there is ANY booking for the resort on the given date, regardless of timeframe.
         $sql = "SELECT b.*, u.Username as CustomerName, r.Name as ResortName
                 FROM Bookings b
                 LEFT JOIN Users u ON b.CustomerID = u.UserID
                 LEFT JOIN Resorts r ON b.ResortID = r.ResortID
                 WHERE b.ResortID = ?
                 AND b.BookingDate = ?
-                AND b.Status IN ('Pending', 'Confirmed')
-                AND b.TimeSlotType IN ($placeholders)";
+                AND b.Status IN ('Pending', 'Confirmed')";
         
-        $params = [$resortId, $bookingDate, ...$conflictingSlots];
+        $params = [$resortId, $bookingDate];
 
         if ($excludeBookingId) {
             $sql .= " AND b.BookingID != ?";
@@ -210,8 +190,8 @@ class AdvancedAvailabilityChecker {
             $result['available'] = false;
             foreach ($conflictingBookings as $booking) {
                 $result['conflicts'][] = [
-                    'type' => 'timeframe_conflict',
-                    'message' => "Conflicts with existing {$booking->TimeSlotType} booking by {$booking->CustomerName} (#{$booking->BookingID})",
+                    'type' => 'date_conflict', // Changed type from timeframe_conflict
+                    'message' => "The resort is already booked on this date (Booking by {$booking->CustomerName}). Please choose another date.",
                     'severity' => 'high',
                     'conflicting_booking_id' => $booking->BookingID,
                     'conflicting_timeframe' => $booking->TimeSlotType

@@ -438,16 +438,15 @@ class BookingController {
      */
     private function getBookingCountForDate($resortId, $date, $timeframe) {
         $db = Database::getInstance();
+        // Updated logic: Count all bookings for the date, regardless of timeframe.
         $stmt = $db->prepare("
             SELECT COUNT(*) FROM Bookings
             WHERE ResortID = :resortId
             AND BookingDate = :date
-            AND TimeSlotType = :timeframe
             AND Status IN ('Confirmed', 'Pending')
         ");
         $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
         $stmt->bindValue(':date', $date, PDO::PARAM_STR);
-        $stmt->bindValue(':timeframe', $timeframe, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetchColumn();
     }
@@ -928,7 +927,7 @@ class BookingController {
         if (strpos($name, 'cottage') !== false) return 'fas fa-campground';
         if (strpos($name, 'grill') !== false) return 'fas fa-fire-alt';
         if (strpos($name, 'kitchen') !== false) return 'fas fa-utensils';
-        return 'fas fa-building'; // Default icon
+        return 'fas fa-swimming-pool'; // Default icon
     }
 
     /**

@@ -326,71 +326,56 @@ class Booking {
 
     public static function isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType, $excludeBookingId = null) {
         $db = self::getDB();
-
-        // Define which time slots conflict with each other
-        $conflicts = [
-            '12_hours'  => ['12_hours', '24_hours'],
-            'overnight' => ['overnight', '24_hours'],
-            '24_hours'  => ['12_hours', 'overnight', '24_hours']
-        ];
-
-        // If the requested time slot type is invalid, it's not available.
-        if (!isset($conflicts[$timeSlotType])) {
-            return false;
+    
+        // Get the ResortID for the given FacilityID
+        $facilityStmt = $db->prepare("SELECT ResortID FROM Facilities WHERE FacilityID = ?");
+        $facilityStmt->execute([$facilityId]);
+        $resortId = $facilityStmt->fetchColumn();
+    
+        if (!$resortId) {
+            return false; // Facility not found or not associated with a resort
         }
-
-        $conflictingSlots = $conflicts[$timeSlotType];
-        $placeholders = rtrim(str_repeat('?,', count($conflictingSlots)), ',');
-
+    
+        // New logic: Check if there is ANY booking for the resort on the given date.
         $sql = "SELECT COUNT(*) FROM Bookings
-                WHERE FacilityID = ?
+                WHERE ResortID = ?
                 AND BookingDate = ?
-                AND Status IN ('Pending', 'Confirmed')
-                AND TimeSlotType IN ($placeholders)";
+                AND Status IN ('Pending', 'Confirmed')";
         
-        $params = [$facilityId, $bookingDate, ...$conflictingSlots];
-
+        $params = [$resortId, $bookingDate];
+    
         if ($excludeBookingId) {
             $sql .= " AND BookingID != ?";
             $params[] = $excludeBookingId;
         }
-
+    
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
         
-        $bookingConflict = $stmt->fetchColumn() > 0;
-        if ($bookingConflict) {
-            return false; // Found a conflicting booking
+        if ($stmt->fetchColumn() > 0) {
+            return false; // A booking already exists for this resort on this day
         }
-
-        // Now, check for resort-level blocks for the entire day
-        $facilityStmt = $db->prepare("SELECT ResortID FROM Facilities WHERE FacilityID = ?");
-        $facilityStmt->execute([$facilityId]);
-        $resortId = $facilityStmt->fetchColumn();
-
-        if ($resortId) {
-            $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability
-                         WHERE ResortID = ?
-                         AND BlockDate = ?";
-            $blockStmt = $db->prepare($blockSql);
-            $blockStmt->execute([$resortId, $bookingDate]);
-            $isBlocked = $blockStmt->fetchColumn() > 0;
-            if ($isBlocked) {
-                return false; // The entire resort is blocked for this day
-            }
+    
+        // Check for resort-level blocks for the entire day
+        $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability
+                     WHERE ResortID = ?
+                     AND BlockDate = ?";
+        $blockStmt = $db->prepare($blockSql);
+        $blockStmt->execute([$resortId, $bookingDate]);
+        if ($blockStmt->fetchColumn() > 0) {
+            return false; // The entire resort is blocked for this day
         }
-
-        // Finally, check for facility-level blocks for the entire day
+    
+        // Check for facility-level blocks for the entire day
         $facilityBlockSql = "SELECT COUNT(*) FROM BlockedFacilityAvailability
                              WHERE FacilityID = ?
                              AND BlockDate = ?";
         $facilityBlockStmt = $db->prepare($facilityBlockSql);
         $facilityBlockStmt->execute([$facilityId, $bookingDate]);
-        $isFacilityBlocked = $facilityBlockStmt->fetchColumn() > 0;
-        if ($isFacilityBlocked) {
+        if ($facilityBlockStmt->fetchColumn() > 0) {
             return false; // The specific facility is blocked for this day
         }
-
+    
         return true; // No conflicts found
     }
 
@@ -398,24 +383,47 @@ class Booking {
      * Check if a resort + timeframe combination is available (for resort-centric booking)
      */
     public static function isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds = [], $excludeBookingId = null) {
-        // Check resort-level blocks
         $db = self::getDB();
+    
+        // 1. Check for resort-level blocks for the entire day
         $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = ? AND BlockDate = ?";
         $blockStmt = $db->prepare($blockSql);
         $blockStmt->execute([$resortId, $bookingDate]);
         if ($blockStmt->fetchColumn() > 0) {
             return false; // Resort is blocked for this date
         }
-
-        // If facilities are selected, check their availability
+    
+        // 2. New logic: Check if there is ANY booking for the resort on the given date.
+        $bookingSql = "SELECT COUNT(*) FROM Bookings
+                       WHERE ResortID = ?
+                       AND BookingDate = ?
+                       AND Status IN ('Pending', 'Confirmed')";
+        
+        $bookingParams = [$resortId, $bookingDate];
+    
+        if ($excludeBookingId) {
+            $bookingSql .= " AND BookingID != ?";
+            $bookingParams[] = $excludeBookingId;
+        }
+    
+        $bookingStmt = $db->prepare($bookingSql);
+        $bookingStmt->execute($bookingParams);
+        if ($bookingStmt->fetchColumn() > 0) {
+            return false; // A booking already exists for this resort on this day.
+        }
+    
+        // 3. If facilities are selected, check their individual availability (for blocks)
         if (!empty($facilityIds)) {
             foreach ($facilityIds as $facilityId) {
-                if (!self::isTimeSlotAvailable($facilityId, $bookingDate, $timeSlotType, $excludeBookingId)) {
-                    return false;
+                $facilityBlockSql = "SELECT COUNT(*) FROM BlockedFacilityAvailability WHERE FacilityID = ? AND BlockDate = ?";
+                $facilityBlockStmt = $db->prepare($facilityBlockSql);
+                $facilityBlockStmt->execute([$facilityId, $bookingDate]);
+                if ($facilityBlockStmt->fetchColumn() > 0) {
+                    return false; // A required facility is specifically blocked.
                 }
             }
         }
-
+    
         return true; // Available
     }
 
