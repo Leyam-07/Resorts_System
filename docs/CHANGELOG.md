@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Enhanced
+
+- **Facility Selection Visuals on New Booking Page:** Greatly improved the visual appeal and user experience of the facility selection section on the new booking page by adding icons, images, and descriptions.
+  - **Solution:**
+    - Modified [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) to dynamically assign relevant Font Awesome icons to facilities based on their names and prepend the `BASE_URL` to facility image URLs for consistent access.
+    - Updated [`app/Views/booking/create.php`](app/Views/booking/create.php) to display facility cards with their main photo, a descriptive icon, short description, and price.
+    - Added new CSS styling within `app/Views/booking/create.php` to enhance the visual presentation of facility cards, including hover effects and consistent image display.
+  - **Affected files:**
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Added icon assignment and base URL prepending for facility images.
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php) - Implemented UI changes for facility cards and new CSS rules.
+
+### Fixed
+
 - **Booking Cancellation Logic:** Resolved an issue where customers could cancel bookings after submitting payment or for completed bookings.
   - **Root Cause:** The UI incorrectly displayed the cancel button, and the backend lacked validation for booking status and payment status during cancellation.
   - **Solution:**

@@ -426,6 +426,32 @@ input[type="date"] {
     font-weight: 500;
 }
 
+/* Enhanced Facility Cards */
+.facility-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.facility-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.facility-card .card-img-top {
+    height: 150px;
+    object-fit: cover;
+}
+
+.facility-card .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.facility-card .form-check-label {
+    cursor: pointer;
+}
+
 /* Enhanced form animations */
 .form-control:focus, .form-select:focus {
     transform: translateY(-1px);
@@ -732,18 +758,21 @@ document.addEventListener('DOMContentLoaded', function() {
         facilities.forEach(facility => {
             html += `
                 <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
+                    <div class="card h-100 facility-card">
+                        <img src="${facility.mainPhotoURL || 'assets/images/default-facility.jpg'}" class="card-img-top" alt="${facility.name}">
+                        <div class="card-body d-flex flex-column">
                             <div class="form-check">
                                 <input class="form-check-input facility-checkbox" type="checkbox"
                                        value="${facility.facilityId}" id="facility_${facility.facilityId}"
                                        data-price="${facility.rate}">
                                 <label class="form-check-label" for="facility_${facility.facilityId}">
+                                    <i class="${facility.icon} me-2 text-primary"></i>
                                     <strong>${facility.name}</strong>
                                 </label>
                             </div>
                             <div class="mt-2 small text-muted">
-                                <div class="text-primary fw-bold">${facility.priceDisplay}</div>
+                                <p class="mb-1">${facility.shortDescription || ''}</p>
+                                <div class="text-primary fw-bold fs-5">${facility.priceDisplay}</div>
                             </div>
                         </div>
                     </div>

@@ -146,9 +146,13 @@ class BookingController {
 
         $facilities = Facility::findByResortId($resortId);
         
-        // Add pricing information to facilities for display
+        // Add pricing information and icon to facilities for display
+        // Add pricing information, icon, and full photo URL to facilities for display
         foreach ($facilities as &$facility) {
             $facility->priceDisplay = '₱' . number_format($facility->rate, 2);
+            $facility->icon = $this->getIconForFacility($facility->name);
+            // Prepend BASE_URL to the mainPhotoURL for correct display
+            $facility->mainPhotoURL = BASE_URL . '/' . $facility->mainPhotoURL;
         }
         
         echo json_encode($facilities);
@@ -911,6 +915,20 @@ class BookingController {
     private function isValidDate($date, $format = 'Y-m-d') {
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) === $date;
+    }
+
+    /**
+     * Helper to assign an icon based on facility name
+     */
+    private function getIconForFacility($facilityName) {
+        $name = strtolower($facilityName);
+        if (strpos($name, 'pool') !== false) return 'fas fa-swimming-pool';
+        if (strpos($name, 'videoke') !== false || strpos($name, 'karaoke') !== false) return 'fas fa-microphone-alt';
+        if (strpos($name, 'room') !== false) return 'fas fa-bed';
+        if (strpos($name, 'cottage') !== false) return 'fas fa-campground';
+        if (strpos($name, 'grill') !== false) return 'fas fa-fire-alt';
+        if (strpos($name, 'kitchen') !== false) return 'fas fa-utensils';
+        return 'fas fa-building'; // Default icon
     }
 
     /**
