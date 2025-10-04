@@ -599,7 +599,7 @@ class BookingController {
         $successMessage = $_SESSION['success_message'] ?? null;
         unset($_SESSION['error_message'], $_SESSION['success_message']);
 
-        require_once __DIR__ . '/../Views/booking/payment.php';
+        require_once __DIR__ . '/../Views/booking/confirmation.php';
     }
 
     /**

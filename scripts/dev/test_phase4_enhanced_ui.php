@@ -224,7 +224,7 @@ runTest("File Structure & Dependencies", function() {
     // Test main Phase 4 files exist
     $phase4Files = [
         'app/Views/booking/create.php' => 'Enhanced booking form',
-        'app/Views/booking/payment.php' => 'Enhanced payment form',
+        'app/Views/booking/confirmation.php' => 'Enhanced confirmation and payment summary form',
         'app/Views/partials/header.php' => 'Enhanced header with icons'
     ];
     
@@ -386,10 +386,10 @@ runTest("No Regression - Phase 2-3 Integration", function() {
     return true;
 });
 
-// Test 6: Enhanced Payment Form Backend Integration
-runTest("Enhanced Payment Form Backend", function() {
-    // Test that enhanced payment form preserves backend functionality
-    $paymentFormFile = __DIR__ . '/../../app/Views/booking/payment.php';
+// Test 6: Enhanced Confirmation Form Backend Integration
+runTest("Enhanced Confirmation Form Backend", function() {
+    // Test that enhanced confirmation form preserves backend functionality
+    $paymentFormFile = __DIR__ . '/../../app/Views/booking/confirmation.php';
     $paymentContent = file_get_contents($paymentFormFile);
     
     // Check for enhanced features

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.1] - 2025-10-04
+
+### Changed
+
+- **View File Name Revision:** Renamed `app/Views/booking/payment.php` to `confirmation.php` to better reflect its purpose as a booking confirmation page displaying booking summary and payment status information rather than a payment form.
+  - Updated all references in controllers, test scripts, and documentation links.
+  - Changed file perspective from payment-centric to confirmation-centric, improving code clarity and semantic accuracy.
+  - **Affected files:**
+    - `app/Views/booking/confirmation.php` (renamed from `payment.php`)
+    - `app/Controllers/BookingController.php` - Updated include path
+    - `scripts/dev/test_phase4_enhanced_ui.php` - Updated test file references and descriptions
+
 ## [1.39.0] - 2025-10-04
 
 ### Changed
