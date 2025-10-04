@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.2] - 2025-10-04
+
+### Fixed
+
+- **Payment Submission Performance:** Resolved a critical 2-minute delay during payment submission by optimizing the booking lifecycle management.
+  - **Root Cause:** The `BookingLifecycleManager::processAllBookings()` method, a system-wide maintenance task, was incorrectly triggered by individual customer payment submissions, causing significant synchronous processing overhead.
+  - **Solution:** Replaced the inefficient `processAllBookings()` call with a new, targeted method `BookingLifecycleManager::processBookingAfterPayment($bookingId)`. This ensures that only the relevant booking is processed immediately after payment, drastically reducing the response time to milliseconds.
+  - **Remaining Logic:** The `processAllBookings()` method remains available for scheduled background tasks (cron jobs) to handle system-wide booking status updates without impacting real-time user interactions.
+  - **Affected files:**
+    - [`app/Models/BookingLifecycleManager.php`](app/Models/BookingLifecycleManager.php) - Added `processBookingAfterPayment()` and `getSingleBookingForProcessing()` methods.
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Replaced `processAllBookings()` with `processBookingAfterPayment($bookingId)`.
+
 ## [1.39.1] - 2025-10-04
 
 ### Changed

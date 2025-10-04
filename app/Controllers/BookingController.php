@@ -692,7 +692,7 @@ class BookingController {
             }
             
             // Phase 6: Trigger lifecycle management check
-            BookingLifecycleManager::processAllBookings();
+            BookingLifecycleManager::processBookingAfterPayment($bookingId);
             
             // Send notification to admin
             $this->notifyAdminPaymentSubmission($bookingId);

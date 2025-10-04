@@ -70,6 +70,77 @@ class BookingLifecycleManager {
     }
 
     /**
+     * Process a single booking for automated status transitions, typically after a payment.
+     * This is a targeted and efficient alternative to processAllBookings().
+     */
+    public static function processBookingAfterPayment($bookingId) {
+        try {
+            // Get the specific booking that needs processing
+            $booking = self::getSingleBookingForProcessing($bookingId);
+            
+            if (!$booking) {
+                // Booking might not be in a state that needs processing, which is not an error.
+                return ['success' => true, 'message' => 'Booking not found or does not require processing.'];
+            }
+
+            $oldStatus = $booking->status;
+            $newStatus = self::determineNewStatus($booking);
+
+            if ($newStatus !== $oldStatus) {
+                if (self::updateBookingStatus($booking->bookingId, $oldStatus, $newStatus, 'Automated transition after payment')) {
+                    return ['success' => true, 'status_changed' => true, 'old' => $oldStatus, 'new' => $newStatus];
+                } else {
+                    return ['success' => false, 'message' => "Failed to update booking {$booking->bookingId}"];
+                }
+            }
+            
+            return ['success' => true, 'status_changed' => false];
+
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => "System error: " . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Get a single booking for processing, including its total paid amount.
+     */
+    private static function getSingleBookingForProcessing($bookingId) {
+        $db = self::getDB();
+        
+        $sql = "SELECT b.*,
+                       COALESCE(SUM(CASE WHEN p.Status = 'Verified' THEN p.Amount ELSE 0 END), 0) as TotalPaid
+                FROM Bookings b
+                LEFT JOIN Payments p ON b.BookingID = p.BookingID
+                WHERE b.BookingID = :bookingId
+                GROUP BY b.BookingID";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($data) {
+            $booking = new Booking();
+            $booking->bookingId = $data['BookingID'];
+            $booking->customerId = $data['CustomerID'];
+            $booking->resortId = $data['ResortID'];
+            $booking->facilityId = $data['FacilityID'];
+            $booking->bookingDate = $data['BookingDate'];
+            $booking->timeSlotType = $data['TimeSlotType'];
+            $booking->numberOfGuests = $data['NumberOfGuests'];
+            $booking->status = $data['Status'];
+            $booking->totalAmount = $data['TotalAmount'];
+            $booking->paymentProofURL = $data['PaymentProofURL'];
+            $booking->paymentReference = $data['PaymentReference'];
+            $booking->remainingBalance = $data['RemainingBalance'];
+            $booking->createdAt = $data['CreatedAt'];
+            $booking->TotalPaid = $data['TotalPaid'];
+            return $booking;
+        }
+        return null;
+    }
+
+    /**
      * Get bookings that need processing
      */
     private static function getBookingsForProcessing() {
