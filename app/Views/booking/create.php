@@ -136,6 +136,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 <div id="weekendNotice" style="display: none;" class="badge bg-warning">
                                     <i class="fas fa-calendar-week"></i> Weekend Rate
                                 </div>
+                                <div id="holidayNotice" style="display: none;" class="badge bg-info">
+                                    <i class="fas fa-star"></i> Holiday Rate
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -291,7 +294,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         <div class="d-flex flex-wrap gap-1 justify-content-center">
                             <span class="badge bg-success">Available</span>
                             <span class="badge bg-warning">Weekend</span>
-                            <span class="badge bg-info text-dark">Booked</span>
+                            <span class="badge bg-info">Holiday</span>
+                            <span class="badge bg-primary">Booked</span>
                             <span class="badge bg-danger">Taken</span>
                             <span class="badge bg-secondary">Blocked</span>
                         </div>
@@ -419,6 +423,12 @@ input[type="number"].form-control {
     color: #664d03;
 }
 
+.calendar-day.holiday {
+   background-color: #cff4fc;
+   border-color: #0dcaf0;
+   color: #055160;
+}
+
 .calendar-day.unavailable {
     background-color: #f8d7da;
     border-color: #dc3545;
@@ -426,9 +436,9 @@ input[type="number"].form-control {
 }
 
 .calendar-day.booked {
-    background-color: #cff4fc;
-    border-color: #0dcaf0;
-    color: #087990;
+   background-color: #dbe4ff;
+   border-color: #0d6efd;
+   color: #0a58ca;
 }
 
 .calendar-day.blocked {
@@ -620,6 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeframePricing = document.getElementById('timeframePricing');
     const basePriceDisplay = document.getElementById('basePriceDisplay');
     const weekendNotice = document.getElementById('weekendNotice');
+    const holidayNotice = document.getElementById('holidayNotice');
     const pricingBreakdown = document.getElementById('pricingBreakdown');
     const noPricingMessage = document.getElementById('noPricingMessage');
     const totalPriceDisplay = document.getElementById('totalPriceDisplay');
@@ -1100,6 +1111,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     weekendNotice.style.display = 'none';
                 }
 
+                if (pricing.isHoliday) {
+                   holidayNotice.style.display = 'block';
+                } else {
+                   holidayNotice.style.display = 'none';
+                }
+
                 timeframePricing.style.display = 'block';
                 updatePricingDisplay();
             })
@@ -1240,7 +1257,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         
         let info = `Selected: ${dayNames[dayOfWeek]}, ${new Date(date).toLocaleDateString()}`;
-        if (isWeekend) {
+
+       // Fetch holiday status from calendar data if available
+       const dateStr = new Date(date).toISOString().split('T')[0];
+       const dayData = calendarData[dateStr];
+       const isHoliday = dayData ? dayData.isHoliday : false;
+
+        if (isHoliday) {
+           info += ' (Holiday rates may apply)';
+        } else if (isWeekend) {
             info += ' (Weekend rates may apply)';
         }
         

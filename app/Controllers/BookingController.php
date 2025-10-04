@@ -201,6 +201,11 @@ class BookingController {
             $dayOfWeek = date('w', strtotime($date));
             $isWeekend = ($dayOfWeek == 0 || $dayOfWeek == 6);
             $response['isWeekend'] = $isWeekend;
+
+            // Check if current date is a holiday
+            require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+            $isHoliday = HolidayHelper::isHoliday($date);
+            $response['isHoliday'] = $isHoliday;
         }
         
         echo json_encode($response);
@@ -378,6 +383,11 @@ class BookingController {
             $dateStr = $currentDate->format('Y-m-d');
             $dayOfWeek = intval($currentDate->format('w')); // Ensure integer
             $isWeekend = ($dayOfWeek === 0 || $dayOfWeek === 6); // Sunday=0, Saturday=6
+            
+            // Check if it's a holiday
+            require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+            $isHoliday = HolidayHelper::isHoliday($dateStr);
+            
             $isToday = ($dateStr === date('Y-m-d'));
             $isPast = ($currentDate < new DateTime('today'));
             
@@ -390,12 +400,13 @@ class BookingController {
             // Get existing bookings count
             $bookingCount = $this->getBookingCountForDate($resortId, $dateStr, $timeframe);
             
-            $status = $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $bookingCount);
+            $status = $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $isHoliday, $bookingCount);
             
             $statusText = '';
             switch ($status) {
                 case 'available': $statusText = 'Available'; break;
                 case 'weekend': $statusText = 'Weekend'; break;
+                case 'holiday': $statusText = 'Holiday'; break;
                 case 'booked': $statusText = 'Booked'; break;
                 case 'blocked': $statusText = 'Blocked'; break;
                 case 'unavailable': $statusText = 'Taken'; break;
@@ -403,8 +414,9 @@ class BookingController {
             }
 
             $availability[$dateStr] = [
-                'available' => ($status === 'available' || $status === 'weekend'),
+                'available' => ($status === 'available' || $status === 'weekend' || $status === 'holiday'),
                 'isWeekend' => $isWeekend,
+                'isHoliday' => $isHoliday,
                 'isToday' => $isToday,
                 'isPast' => $isPast,
                 'isBlocked' => $resortBlocked,
@@ -461,11 +473,12 @@ class BookingController {
     /**
      * Helper method to determine day status for calendar
      */
-    private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $bookingCount) {
+    private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $isHoliday, $bookingCount) {
         if ($isPast) return 'past';
         if ($isBlocked) return 'blocked';
         if ($bookingCount > 0) return 'booked';
         if (!$isAvailable) return 'unavailable';
+        if ($isHoliday) return 'holiday'; // Prioritize holiday over weekend
         if ($isWeekend) return 'weekend';
         return 'available';
     }

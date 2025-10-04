@@ -111,9 +111,11 @@ class ResortTimeframePricing {
             $totalPrice += $pricing->weekendSurcharge;
         }
 
-        // TODO: Implement holiday checking logic
-        // This would require a holidays table or external API
-        // For now, weekends cover most premium pricing scenarios
+        // Check if it's a holiday
+        require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+        if (HolidayHelper::isHoliday($bookingDate)) {
+            $totalPrice += $pricing->holidaySurcharge;
+        }
 
         return $totalPrice;
     }

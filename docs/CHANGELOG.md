@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.7] - 2025-10-04
+
+### Added
+
+- **Holiday Rate Implementation & Admin Integration:** Implemented a comprehensive "Holiday Rate" feature across the booking system, including backend logic, API updates, frontend UI, and admin panel synchronization.
+  - **Centralized Holiday Logic:**
+    - Created a new helper class, [`app/Helpers/HolidayHelper.php`](app/Helpers/HolidayHelper.php), to centralize the list of Philippine holidays and provide a static method (`isHoliday()`) for date checking.
+    - Added a `getHolidays()` method to `HolidayHelper` to retrieve the full list of holidays with their names for dynamic UI generation.
+  - **Backend Pricing Logic:**
+    - Modified `ResortTimeframePricing::calculatePrice()` in [`app/Models/ResortTimeframePricing.php`](app/Models/ResortTimeframePricing.php:114) to use `HolidayHelper::isHoliday()` and apply the `holidaySurcharge` when applicable.
+  - **API Endpoints Updates:**
+    - Updated `BookingController::getResortPricing()` in [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php:202) to include an `isHoliday` flag in its JSON response.
+    - Enhanced `BookingController::getCalendarAvailability()` in [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php:380) to identify and mark holidays with a `'holiday'` status for the calendar modal.
+  - **Customer-Facing UI Enhancements:**
+    - Modified [`app/Views/booking/create.php`](app/Views/booking/create.php) to display a new **"Holiday Rate" badge** next to the base price when a holiday is selected.
+    - Updated the calendar modal in [`app/Views/booking/create.php`](app/Views/booking/create.php) to visually highlight holidays with a distinct light blue background and "Holiday" status text.
+    - Adjusted the selected date label in [`app/Views/booking/create.php`](app/Views/booking/create.php) to append **"(Holiday rates may apply)"** for selected holiday dates.
+  - **Admin Panel Synchronization:**
+    - Refactored `AdminController::advancedBlocking()` in [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php:1205) to fetch the holiday list dynamically from `HolidayHelper::getHolidays()` and pass it to the view.
+    - Updated the preset blocking logic in `AdminController::applyPresetBlocking()` in [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php:1231) to validate selected holidays against the `HolidayHelper`'s list.
+    - Modified the `app/Views/admin/advanced_blocking.php` view to dynamically generate holiday checkboxes for preset blocking, replacing the previous hardcoded list, and updated the holiday information text.
+  - **Affected files:**
+    - [`app/Helpers/HolidayHelper.php`](app/Helpers/HolidayHelper.php) (New file & modified)
+    - [`app/Models/ResortTimeframePricing.php`](app/Models/ResortTimeframePricing.php)
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php)
+    - [`app/Views/booking/create.php`](app/Views/booking/create.php)
+    - [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php)
+    - [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php)
+
 ## [1.39.6] - 2025-10-04
 
 ### Added

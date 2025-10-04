@@ -1204,6 +1204,10 @@ class AdminController {
 
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
         $resorts = Resort::findAll();
+
+        // Phase 6: Get holidays dynamically for the view
+        require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+        $holidays = HolidayHelper::getHolidays();
         
         require_once __DIR__ . '/../Views/admin/advanced_blocking.php';
     }
@@ -1229,17 +1233,23 @@ class AdminController {
         }
 
         if ($presetType === 'philippine_holidays') {
-            $holidays = $_POST['holidays'] ?? [];
-            if (empty($holidays)) {
+            $holidaysToBlock = $_POST['holidays'] ?? [];
+            if (empty($holidaysToBlock)) {
                 $_SESSION['error_message'] = "Please select at least one holiday to block.";
                 header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
                 exit();
             }
+            
+            require_once __DIR__ . '/../Helpers/HolidayHelper.php';
             $currentYear = date('Y');
-            foreach ($holidays as $holiday) {
-                $dateStr = $currentYear . '-' . $holiday;
-                if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
-                    $blockedCount++;
+            
+            foreach ($holidaysToBlock as $monthDay) {
+                // Validate that the provided holiday is a legitimate holiday
+                if (HolidayHelper::isHoliday($currentYear . '-' . $monthDay)) {
+                    $dateStr = $currentYear . '-' . $monthDay;
+                    if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
+                        $blockedCount++;
+                    }
                 }
             }
         } else {
