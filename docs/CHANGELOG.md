@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.4] - 2025-10-04
+
+### Fixed
+
+- **Customer Feedback System Bug Fixes:** Resolved critical issues with the newly implemented facility feedback functionality that prevented proper loading and submission.
+  - **Facility Feedback Loading Failure:** Fixed JavaScript error "Could not load facilities for feedback" in the feedback modal.
+    - **Root Cause:** `getFacilitiesForBooking` API endpoint was not included in the booking controller allowed actions, causing routing denial.
+    - **Solution:** Added `'getFacilitiesForBooking'` to the `$allowedActions` array in `public/index.php`.
+  - **Feedback Submission Database Lock Timeout:** Resolved critical performance issue where feedback submissions hung for 2 minutes and failed with "Failed to submit feedback. Please try again."
+    - **Root Cause:** Single large transaction spanning `Feedback` and `FacilityFeedback` tables caused MySQL `innodb_lock_wait_timeout` (50 seconds) due to heavy lock contention.
+    - **Solution:** Refactored `Feedback::createWithFacilities()` to commit main feedback first, then create facility feedbacks individually without wrapping transaction to prevent lock timeouts.
+    - **Added Comprehensive Error Logging:** Implemented detailed logging in `FeedbackController`, `Feedback` model, and `FacilityFeedback` model using `\ErrorHandler::log()` to capture submission events and debug future issues in `logs/application.log`.
+  - **Affected files:**
+    - [`public/index.php`](public/index.php) - Added API endpoint to routing whitelist.
+    - [`app/Controllers/FeedbackController.php`](app/Controllers/FeedbackController.php) - Enhanced input validation and error logging.
+    - [`app/Models/Feedback.php`](app/Models/Feedback.php) - Fixed transaction logic and added logging.
+    - [`app/Models/FacilityFeedback.php`](app/Models/FacilityFeedback.php) - Added validation and logging.
+
 ## [1.39.3] - 2025-10-04
 
 ### Fixed

@@ -91,11 +91,18 @@ class Feedback {
        return $stmt->fetchAll(PDO::FETCH_OBJ);
    }
     public static function createWithFacilities(Feedback $feedback, $facilityFeedbacks = []) {
+        \ErrorHandler::log("Starting createWithFacilities with feedback: " . json_encode($feedback) . ", facilities: " . json_encode($facilityFeedbacks), 'DEBUG');
+
+        if (empty($facilityFeedbacks)) {
+            // No facilities, simple create
+            return self::create($feedback);
+        }
+
         $db = self::getDB();
-        $db->beginTransaction();
 
         try {
-            // Re-use the existing create method for the main feedback
+            // Create main feedback first in its own transaction
+            $db->beginTransaction();
             $stmt = $db->prepare(
                 "INSERT INTO Feedback (BookingID, Rating, Comment)
                  VALUES (:bookingId, :rating, :comment)"
@@ -103,14 +110,20 @@ class Feedback {
             $stmt->bindValue(':bookingId', $feedback->bookingId, PDO::PARAM_INT);
             $stmt->bindValue(':rating', $feedback->rating, PDO::PARAM_INT);
             $stmt->bindValue(':comment', $feedback->comment, PDO::PARAM_STR);
-            
+
             if (!$stmt->execute()) {
+                $db->rollBack();
                 throw new Exception("Failed to create main feedback entry.");
             }
             $feedbackId = $db->lastInsertId();
+            \ErrorHandler::log("Created main feedback with ID: $feedbackId", 'DEBUG');
+            $db->commit();
 
+            // Now create facility feedbacks individually (no transaction, as they are less critical)
             require_once __DIR__ . '/FacilityFeedback.php';
+            $facilityErrors = [];
             foreach ($facilityFeedbacks as $facilityData) {
+                \ErrorHandler::log("Processing facility feedback: " . json_encode($facilityData), 'DEBUG');
                 $facilityFeedback = new FacilityFeedback();
                 $facilityFeedback->feedbackId = $feedbackId;
                 $facilityFeedback->facilityId = $facilityData['id'];
@@ -118,15 +131,23 @@ class Feedback {
                 $facilityFeedback->comment = $facilityData['comment'];
 
                 if (!FacilityFeedback::create($facilityFeedback)) {
-                    throw new Exception("Failed to save feedback for facility ID " . $facilityData['id']);
+                    $facilityErrors[] = "Failed to save feedback for facility ID " . $facilityData['id'];
+                    \ErrorHandler::log("Failed to create facility feedback for ID: " . $facilityData['id'], 'ERROR');
+                } else {
+                    \ErrorHandler::log("Created facility feedback for ID: " . $facilityData['id'], 'DEBUG');
                 }
             }
 
-            $db->commit();
+            if (!empty($facilityErrors)) {
+                // Some facility feedbacks failed, but main feedback succeeded
+                \ErrorHandler::log("Main feedback created but some facility feedbacks failed: " . implode('; ', $facilityErrors), 'WARNING');
+            }
+
+            \ErrorHandler::log("Feed back submission completed", 'INFO');
             return $feedbackId;
         } catch (Exception $e) {
-            $db->rollBack();
-            error_log("Feedback submission failed: " . $e->getMessage());
+            // If rollback happened, main feedback failed
+            \ErrorHandler::log("Feedback submission failed: " . $e->getMessage(), 'ERROR');
             return false;
         }
     }

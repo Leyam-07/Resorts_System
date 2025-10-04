@@ -101,7 +101,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
         'showBookingForm', 'createBooking', 'bookingSuccess', 'showMyBookings', 'cancelBooking',
         'getFacilitiesByResort', 'getResortPricing', 'getResortDetails', 'calculateBookingPrice', 'checkAvailability',
         'getCalendarAvailability', 'showPaymentForm', 'submitPayment', 'paymentSuccess',
-        'getPaymentMethods', 'getAdvancedAvailabilityReport', 'getAvailabilitySuggestions'
+        'getPaymentMethods', 'getAdvancedAvailabilityReport', 'getAvailabilitySuggestions', 'getFacilitiesForBooking'
     ];
 
     if (in_array($actionName, $allowedActions) && method_exists($bookingController, $actionName)) {

@@ -12,10 +12,14 @@ class FeedbackController {
             exit;
         }
 
+        \ErrorHandler::log("SubmitFeedback received: " . json_encode($_POST), 'DEBUG');
+
         $bookingId = filter_input(INPUT_POST, 'bookingId', FILTER_VALIDATE_INT);
         $resortRating = filter_input(INPUT_POST, 'resort_rating', FILTER_VALIDATE_INT);
         $resortComment = filter_input(INPUT_POST, 'resort_comment', FILTER_SANITIZE_SPECIAL_CHARS);
         $facilitiesData = $_POST['facilities'] ?? [];
+
+        \ErrorHandler::log("Filtered data - bookingId: $bookingId, resortRating: $resortRating, facilitiesData: " . json_encode($facilitiesData), 'DEBUG');
 
         if (!$bookingId || !$resortRating) {
             $_SESSION['error_message'] = "A rating for the resort is required.";

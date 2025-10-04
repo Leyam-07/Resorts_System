@@ -24,6 +24,14 @@ class FacilityFeedback {
     }
 
     public static function create(FacilityFeedback $feedback) {
+        \ErrorHandler::log("Creating FacilityFeedback: feedbackId={$feedback->feedbackId}, facilityId={$feedback->facilityId}, rating={$feedback->rating}", 'DEBUG');
+
+        // Validate rating
+        if ($feedback->rating < 1 || $feedback->rating > 5) {
+            \ErrorHandler::log("Invalid rating: {$feedback->rating}", 'ERROR');
+            return false;
+        }
+
         $db = self::getDB();
         $stmt = $db->prepare(
             "INSERT INTO FacilityFeedback (FeedbackID, FacilityID, Rating, Comment)
@@ -35,8 +43,11 @@ class FacilityFeedback {
         $stmt->bindValue(':comment', $feedback->comment, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            return $db->lastInsertId();
+            $id = $db->lastInsertId();
+            \ErrorHandler::log("FacilityFeedback created with ID: $id", 'DEBUG');
+            return $id;
         }
+        \ErrorHandler::log("Failed to execute FacilityFeedback insert", 'ERROR');
         return false;
     }
 }
