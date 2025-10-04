@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.3] - 2025-10-04
+
+### Fixed
+
+- **Payment Proof File Upload Reliability:** Completely refactored the client-side payment proof upload validation to be more robust and eliminate issues where files were not accepted on the first attempt.
+  - **Removed Unreliable Retry Logic:** The previous implementation that attempted to retry reading file metadata has been replaced.
+  - **Definitive Image Validation:** The new `handleModalFileSelection()` function now uses a combination of `FileReader` to read the file and the `Image` object to programmatically load it. This guarantees that the file is a valid and non-corrupted image before the preview is shown and the form is enabled.
+  - **Improved User Feedback:** Added clearer, more immediate feedback to the user during the validation process, including "Validating image..." and "Image accepted" messages.
+  - **Foolproof Validation:** This new method is not dependent on browser timing for metadata and provides a definitive check, making the upload process foolproof.
+  - **Affected files:**
+    - [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php) - Overhauled the `handleModalFileSelection` JavaScript function.
+
 ## [1.39.2] - 2025-10-04
 
 ### Fixed

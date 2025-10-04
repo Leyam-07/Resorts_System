@@ -605,76 +605,69 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    function handleModalFileSelection(file, retryCount = 0) {
-        const maxRetries = 3;
-        const retryDelay = 100; // milliseconds
-
-        // Validate file name extension as fallback (immediate check)
-        const fileName = file.name.toLowerCase();
-        const validExtensions = /\.(jpg|jpeg|png|gif|webp)$/;
-        const hasValidExtension = validExtensions.test(fileName);
-
-        if (!hasValidExtension) {
-            showModalAlert('Please select an image file (JPG, PNG, GIF, WebP)', 'danger');
-            modalFileInput.value = '';
+    function handleModalFileSelection(file) {
+        // Immediately check for a file
+        if (!file) {
+            removeModalImage(); // Reset if no file is selected
             return;
         }
 
-        // Check if file metadata is available
-        if (!file.type || file.size === 0) {
-            // File metadata not ready yet, retry after delay
-            if (retryCount < maxRetries) {
-                setTimeout(() => {
-                    handleModalFileSelection(file, retryCount + 1);
-                }, retryDelay);
-                return;
-            } else {
-                // Max retries reached, use extension-based validation
-                if (hasValidExtension) {
-                    // Assume valid since extension is valid, size might be 0 due to browser limitations
-                    proceedWithFileProcessing(file);
-                } else {
-                    showModalAlert('Unable to validate file. Please try selecting the file again.', 'danger');
-                    modalFileInput.value = '';
-                }
-                return;
-            }
-        }
+        const validExtensions = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
 
-        // Validate file type once metadata is available
-        if (!file.type.startsWith('image/')) {
-            showModalAlert('Please select an image file (JPG, PNG, GIF, WebP)', 'danger');
-            modalFileInput.value = '';
+        // --- Step 1: Basic file validation (Client-side) ---
+        // Validate file type based on MIME type for better accuracy
+        if (!validExtensions.includes(file.type)) {
+            showModalAlert('Invalid file type. Please select a JPG, PNG, GIF, or WebP image.', 'danger');
+            removeModalImage();
             return;
         }
 
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showModalAlert('File size must be less than 5MB', 'danger');
-            modalFileInput.value = '';
+        // Validate file size
+        if (file.size > maxFileSize) {
+            showModalAlert(`File is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 5MB.`, 'danger');
+            removeModalImage();
             return;
         }
 
-        // All validations passed, proceed
-        proceedWithFileProcessing(file);
-    }
+        // --- Step 2: Advanced validation using FileReader and Image object ---
+        const reader = new FileReader();
 
-    function proceedWithFileProcessing(file) {
-        // Show preview
-        var reader = new FileReader();
+        // Show a loading/processing state to the user
+        showModalAlert('Validating image...', 'info');
+
         reader.onload = function(e) {
-            modalPreviewImg.src = e.target.result;
-            modalPreview.style.display = 'block';
-            modalUploadArea.style.display = 'none';
-            validateModalForm();
-            showModalAlert('Image uploaded successfully!', 'success');
+            const img = new Image();
+            img.onload = function() {
+                // This confirms the file is a valid, renderable image
+                // All validations passed, proceed to show preview
+                modalPreviewImg.src = e.target.result;
+                modalPreview.style.display = 'block';
+                modalUploadArea.style.display = 'none';
+                validateModalForm();
+                showModalAlert('Image accepted and ready for upload!', 'success');
+            };
+
+            img.onerror = function() {
+                // This triggers if the file data is corrupted or not a real image
+                showModalAlert('The selected file is not a valid or supported image. Please try another file.', 'danger');
+                removeModalImage();
+            };
+
+            // Set the src to trigger the image load/error events
+            img.src = e.target.result;
         };
+
         reader.onerror = function() {
-            showModalAlert('Error reading the selected file. Please try again.', 'danger');
-            modalFileInput.value = '';
+            // This triggers if the browser cannot read the file at all
+            showModalAlert('There was an error reading the file. Please try selecting it again.', 'danger');
+            removeModalImage();
         };
+
+        // Start reading the file
         reader.readAsDataURL(file);
     }
+
 
     // Remove image function
     window.removeModalImage = function() {
