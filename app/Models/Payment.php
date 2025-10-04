@@ -79,7 +79,7 @@ class Payment {
     /**
      * Create payment record from booking payment submission with enhanced validation
      */
-    public static function createFromBookingPayment($bookingId, $amount, $paymentReference, $paymentProofURL, $scheduleId = null) {
+    public static function createFromBookingPayment($bookingId, $amount, $paymentMethod, $paymentReference, $paymentProofURL, $scheduleId = null) {
         // Validate payment amount against booking and existing payments
         $validation = self::validatePaymentAmount($bookingId, $amount);
         if (!$validation['valid']) {
@@ -89,7 +89,7 @@ class Payment {
         $payment = new Payment();
         $payment->bookingId = $bookingId;
         $payment->amount = $amount;
-        $payment->paymentMethod = 'Online Payment (Ref: ' . $paymentReference . ')';
+        $payment->paymentMethod = $paymentMethod; // Use the provided payment method
         $payment->status = 'Pending'; // Pending admin verification
         $payment->proofOfPaymentURL = $paymentProofURL;
         $payment->ScheduleID = $scheduleId;

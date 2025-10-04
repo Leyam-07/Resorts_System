@@ -239,87 +239,90 @@ require_once __DIR__ . '/../partials/header.php';
                 <!-- Payment Form -->
                 <form id="paymentForm" action="?controller=booking&action=submitPayment" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="booking_id" id="paymentBookingId">
+                    <input type="hidden" name="payment_method" id="selectedPaymentMethod">
 
-                    <!-- Amount Being Paid -->
-                    <div class="mb-3">
-                        <label for="modalAmountPaid" class="form-label fw-bold">
-                            <i class="fas fa-peso-sign text-primary"></i> Amount Being Paid <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-peso-sign"></i></span>
-                            <input type="number" class="form-control" id="modalAmountPaid" name="amount_paid" min="1" step="0.01" required>
-                        </div>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle"></i> You can pay the full amount or make a partial payment.
-                        </div>
-                        <div class="mt-2 d-flex gap-2 flex-wrap">
-                            <button type="button" class="btn btn-success btn-sm" id="payFullBtn">
-                                <i class="fas fa-money-bill"></i> Pay Full Amount
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="payHalfBtn">
-                                <i class="fas fa-percentage"></i> Pay 50%
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Payment Reference -->
-                    <div class="mb-3">
-                        <label for="modalPaymentReference" class="form-label fw-bold">
-                            <i class="fas fa-hashtag text-primary"></i> Payment Reference Number <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-receipt"></i></span>
-                            <input type="text" class="form-control" id="modalPaymentReference" name="payment_reference" required>
-                        </div>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle"></i> Enter the transaction ID, reference number, or confirmation code from your payment.
-                        </div>
-                    </div>
-
-                    <!-- Payment Proof Upload -->
-                    <div class="mb-3">
-                        <label for="modalPaymentProof" class="form-label fw-bold">
-                            <i class="fas fa-camera text-primary"></i> Payment Proof <span class="text-danger">*</span>
-                        </label>
-
-                        <div class="upload-area border-2 border-dashed rounded-3 p-3 text-center" id="modalUploadArea">
-                            <div class="upload-content">
-                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
-                                <p class="mb-2"><strong>Drop your payment proof here</strong></p>
-                                <p class="text-muted small mb-2">or click to browse files</p>
-                                <input type="file" class="form-control d-none" id="modalPaymentProof" name="payment_proof" accept="image/*" required>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('modalPaymentProof').click()">
-                                    <i class="fas fa-folder-open"></i> Browse Files
+                    <div id="paymentFormFields" style="display: none;">
+                        <!-- Amount Being Paid -->
+                        <div class="mb-3">
+                            <label for="modalAmountPaid" class="form-label fw-bold">
+                                <i class="fas fa-peso-sign text-primary"></i> Amount Being Paid <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-peso-sign"></i></span>
+                                <input type="number" class="form-control" id="modalAmountPaid" name="amount_paid" min="1" step="0.01" required>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> You can pay the full amount or make a partial payment.
+                            </div>
+                            <div class="mt-2 d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-success btn-sm" id="payFullBtn">
+                                    <i class="fas fa-money-bill"></i> Pay Full Amount
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="payHalfBtn">
+                                    <i class="fas fa-percentage"></i> Pay 50%
                                 </button>
                             </div>
                         </div>
 
-                        <div class="form-text mt-2">
-                            <i class="fas fa-info-circle"></i> Upload a screenshot or photo of your payment confirmation (JPG, PNG, GIF | Max 5MB)
+                        <!-- Payment Reference -->
+                        <div class="mb-3">
+                            <label for="modalPaymentReference" class="form-label fw-bold">
+                                <i class="fas fa-hashtag text-primary"></i> Payment Reference Number <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                                <input type="text" class="form-control" id="modalPaymentReference" name="payment_reference" required>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> Enter the transaction ID, reference number, or confirmation code from your payment.
+                            </div>
                         </div>
 
-                        <div id="modalImagePreview" class="mt-2" style="display: none;">
-                            <div class="card border-success">
-                                <div class="card-body text-center">
-                                    <img id="modalPreviewImg" src="" alt="Payment proof preview" class="img-fluid rounded" style="max-height: 200px;">
-                                    <div class="mt-2">
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeModalImage()">
-                                            <i class="fas fa-trash"></i> Remove Image
-                                        </button>
+                        <!-- Payment Proof Upload -->
+                        <div class="mb-3">
+                            <label for="modalPaymentProof" class="form-label fw-bold">
+                                <i class="fas fa-camera text-primary"></i> Payment Proof <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="upload-area border-2 border-dashed rounded-3 p-3 text-center" id="modalUploadArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                    <p class="mb-2"><strong>Drop your payment proof here</strong></p>
+                                    <p class="text-muted small mb-2">or click to browse files</p>
+                                    <input type="file" class="form-control d-none" id="modalPaymentProof" name="payment_proof" accept="image/*" required>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('modalPaymentProof').click()">
+                                        <i class="fas fa-folder-open"></i> Browse Files
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> Upload a screenshot or photo of your payment confirmation (JPG, PNG, GIF | Max 5MB)
+                            </div>
+
+                            <div id="modalImagePreview" class="mt-2" style="display: none;">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <img id="modalPreviewImg" src="" alt="Payment proof preview" class="img-fluid rounded" style="max-height: 200px;">
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeModalImage()">
+                                                <i class="fas fa-trash"></i> Remove Image
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Important Notice -->
-                    <div class="alert alert-warning">
-                        <h6><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
-                        <ul class="mb-0 small">
-                            <li>Your booking will be confirmed only after payment verification</li>
-                            <li>Please ensure the payment proof clearly shows the transaction amount and reference number</li>
-                            <li>Verification may take up to 24 hours</li>
-                        </ul>
+                        <!-- Important Notice -->
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
+                            <ul class="mb-0 small">
+                                <li>Your booking will be confirmed only after payment verification</li>
+                                <li>Please ensure the payment proof clearly shows the transaction amount and reference number</li>
+                                <li>Verification may take up to 24 hours</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <!-- Submit Buttons -->
@@ -449,6 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Load payment methods
         loadPaymentMethods(bookingId, resortName);
+        
+        // Hide the main form fields initially
+        document.getElementById('paymentFormFields').style.display = 'none';
 
         // Reset form validation
         validateModalForm();
@@ -460,6 +466,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('paymentForm').reset();
         document.getElementById('modalImagePreview').style.display = 'none';
         document.getElementById('modalUploadArea').style.display = 'block';
+        document.getElementById('paymentFormFields').style.display = 'none';
 
         // Reset validation
         document.getElementById('modalSubmitBtn').disabled = true;
@@ -522,23 +529,44 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         var html = '<div class="row">';
-        methods.forEach(function(method) {
+        methods.forEach(function(method, index) {
             html += `
                 <div class="col-md-6 mb-3">
-                    <div class="card h-100 border-success shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="mb-2">
+                    <label for="payment_method_option_${index}" class="card h-100 payment-method-card text-center" style="cursor: pointer;">
+                        <div class="card-body">
+                             <input type="radio" name="payment_method_option" value="${method.name}" id="payment_method_option_${index}" class="form-check-input" required style="position: absolute; top: 10px; left: 10px;">
+                             <div class="mb-2 mt-2">
                                 <i class="fas fa-mobile-alt fa-2x text-success"></i>
                             </div>
                             <h6 class="card-title text-success fw-bold">${method.name}</h6>
                             <p class="card-text small text-muted">${method.details}</p>
                         </div>
-                    </div>
+                    </label>
                 </div>
             `;
         });
         html += '</div>';
         container.innerHTML = html;
+
+        // Add event listeners to the radio buttons
+        var paymentRadios = container.querySelectorAll('input[name="payment_method_option"]');
+        paymentRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    // Update the hidden input in the form
+                    document.getElementById('selectedPaymentMethod').value = this.value;
+
+                    // Show the form fields
+                    document.getElementById('paymentFormFields').style.display = 'block';
+                    
+                    // Highlight selected card
+                    document.querySelectorAll('.payment-method-card').forEach(card => card.classList.remove('border-primary', 'border-3'));
+                    this.closest('.payment-method-card').classList.add('border-primary', 'border-3');
+                    
+                    validateModalForm();
+                }
+            });
+        });
     }
 
     // Quick pay buttons
@@ -683,8 +711,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var reference = document.getElementById('modalPaymentReference').value.trim();
         var file = modalFileInput.files.length > 0;
         var maxAmount = parseFloat(document.getElementById('modalAmountPaid').max);
+        var paymentMethodSelected = document.getElementById('selectedPaymentMethod').value;
 
-        var isValid = amount > 0 && amount <= maxAmount && reference.length > 0 && file;
+        var isValid = paymentMethodSelected && amount > 0 && amount <= maxAmount && reference.length > 0 && file;
         document.getElementById('modalSubmitBtn').disabled = !isValid;
     }
 
@@ -751,6 +780,26 @@ document.addEventListener('DOMContentLoaded', function () {
 // Add some CSS styles for the modal
 document.head.insertAdjacentHTML('beforeend', `
 <style>
+.payment-method-card {
+    transition: all 0.2s ease-in-out;
+    position: relative; /* Needed for absolute positioning of radio button */
+}
+.payment-method-card.border-primary {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+}
+.payment-method-card .form-check-input {
+    width: 1.5em; /* Make radio button larger */
+    height: 1.5em; /* Make radio button larger */
+    border-color: #0d6efd; /* Add border color */
+}
+.payment-method-card .form-check-input:checked {
+    background-color: #0d6efd; /* Highlight background when checked */
+    border-color: #0d6efd;
+}
+.payment-method-card:hover {
+    background-color: #e9ecef; /* Subtle hover effect for the card */
+}
 .upload-area {
     transition: all 0.3s ease;
     background-color: #f8f9fa;

@@ -71,6 +71,12 @@ require_once __DIR__ . '/../partials/header.php';
                             </span>
                         </div>
                         
+                        <?php if ($latestPayment && !empty($latestPayment->PaymentMethod)): ?>
+                            <div class="mb-2">
+                                <strong>Payment Method:</strong> <?= htmlspecialchars($latestPayment->PaymentMethod) ?>
+                            </div>
+                        <?php endif; ?>
+                        
                         <?php if ($booking->paymentReference): ?>
                             <div class="mb-2">
                                 <strong>Payment Reference:</strong> <?= htmlspecialchars($booking->paymentReference) ?>

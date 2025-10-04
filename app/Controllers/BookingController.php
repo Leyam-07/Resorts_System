@@ -619,9 +619,10 @@ class BookingController {
         $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
         $amountPaid = filter_input(INPUT_POST, 'amount_paid', FILTER_VALIDATE_FLOAT);
         $paymentReference = filter_input(INPUT_POST, 'payment_reference', FILTER_SANITIZE_STRING);
+        $paymentMethod = filter_input(INPUT_POST, 'payment_method', FILTER_SANITIZE_STRING);
 
-        if (!$bookingId || !$amountPaid || !$paymentReference) {
-            $_SESSION['error_message'] = "All fields are required.";
+        if (!$bookingId || !$amountPaid || !$paymentReference || !$paymentMethod) {
+            $_SESSION['error_message'] = "All fields are required, including payment method.";
             header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
             exit;
         }
@@ -659,9 +660,10 @@ class BookingController {
         require_once __DIR__ . '/../Models/Payment.php';
         
         // Create payment record
-        $paymentId = Payment::createFromBookingPayment($bookingId, $amountPaid, $paymentReference, $paymentProofURL);
+        $paymentResult = Payment::createFromBookingPayment($bookingId, $amountPaid, $paymentMethod, $paymentReference, $paymentProofURL);
         
-        if ($paymentId && Booking::updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid)) {
+        if ($paymentResult['success'] && Booking::updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid)) {
+            $paymentId = $paymentResult['paymentId'];
             // Phase 6: Log payment update in audit trail
             BookingAuditTrail::logPaymentUpdate(
                 $bookingId,
@@ -776,9 +778,11 @@ class BookingController {
 
         require_once __DIR__ . '/../Models/Resort.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
+        require_once __DIR__ . '/../Models/Payment.php';
         
         $resort = Resort::findById($booking->resortId);
         $facilities = BookingFacilities::findByBookingId($bookingId);
+        $latestPayment = current(Payment::findByBookingId($bookingId)); // Get the most recent payment
 
         require_once __DIR__ . '/../Views/booking/payment_success.php';
     }

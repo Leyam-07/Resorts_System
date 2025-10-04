@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.6] - 2025-10-04
+
+### Added
+
+- **Progressive Disclosure for Payment Modal:** Implemented a progressive disclosure pattern for the payment modal on the "My Bookings" page, improving user experience by revealing payment form fields only after a method is selected.
+  - **Frontend:**
+    - Modified [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php) to initially hide payment form fields (`#paymentFormFields`).
+    - Updated JavaScript to render payment methods as selectable radio buttons and show `#paymentFormFields` when a selection is made.
+    - Added a hidden input field (`#selectedPaymentMethod`) within the form to correctly capture the chosen payment method's value.
+  - **Backend:**
+    - Modified [`app/Models/Payment.php`](app/Models/Payment.php) `createFromBookingPayment()` to accept a `$paymentMethod` parameter.
+    - Updated [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) `submitPayment()` to retrieve and pass the selected `payment_method` to the model.
+  - **Payment Method Display on Success Page:** The selected payment method is now displayed on the payment success page for confirmation.
+    - Updated [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) `paymentSuccess()` to fetch the latest payment record.
+    - Modified [`app/Views/booking/payment_success.php`](app/Views/booking/payment_success.php) to display the `PaymentMethod` from the latest payment.
+  - **Affected files:**
+    - [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php)
+    - [`app/Models/Payment.php`](app/Models/Payment.php)
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php)
+    - [`app/Views/booking/payment_success.php`](app/Views/booking/payment_success.php)
+
+### Fixed
+
+- **Payment Method Submission Error:** Resolved an issue where the payment method was not being submitted with the form, leading to a "All fields are required, including payment method" error.
+  - **Root Cause:** The payment method radio buttons were technically outside the `<form>` element, preventing their values from being submitted.
+  - **Solution:** Implemented a hidden input field (`<input type="hidden" name="payment_method" id="selectedPaymentMethod">`) within the form in [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php). JavaScript now updates this hidden field's value whenever a payment method radio button is selected, ensuring the data is correctly posted.
+  - **Affected files:**
+    - [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php)
+
 ## [1.39.5] - 2025-10-04
 
 ### Fixed
