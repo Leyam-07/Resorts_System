@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.5] - 2025-10-04
+
+### Fixed
+
+- **Feedback Modal Display Issues:** Resolved comprehensive bugs in the resort and facility detail modals where feedback was not properly reflected and displayed.
+  - **Facility Feedback Data Source Error:** Fixed critical issue where facility feedback modals were incorrectly displaying main resort feedback instead of facility-specific feedback.
+    - **Root Cause:** `findByFacilityId()` method queried `Feedback` table (resort feedback) instead of `FacilityFeedback` table.
+    - **Solution:** Updated method to query `FacilityFeedback` table with proper joins to display actual facility-specific ratings and comments.
+  - **Resort Feedback Query Logic Error:** Corrected incomplete data retrieval for resort feedback display in modal tabs.
+    - **Root Cause:** Query used `b.FacilityID` join instead of `b.ResortID` filtering, plus NULL FacilityID handling for bookings.
+    - **Solution:** Changed to `LEFT JOIN Facilities` with proper `WHERE b.ResortID = :resortId` and `COALESCE` handling for NULL facility references.
+  - **Modal Feedback Text Cleanup:** Removed redundant "reviewing General Resort Experience" text from resort feedback cards for cleaner UI presentation.
+    - **implementation:** Simplified card display to show only customer name, rating stars, comment, and date.
+  - **Affected files:**
+    - [`app/Models/Feedback.php`](app/Models/Feedback.php) - Fixed `findByFacilityId()` and `findByResortId()` query logic.
+
+### Enhanced
+
+- **Modal Tab Feedback Counts:** Added real-time feedback count indicators to resort and facility modal tab titles for improved user insights.
+  - **Implementation:** JavaScript dynamically updates tab text (e.g., "Feedback (5)") after AJAX data fetch, with fallback to "Feedback" on errors.
+  - **Features:** Shows "(0)" for no feedback, handles loading and error states gracefully.
+  - **Affected files:**
+    - [`app/Views/partials/footer.php`](app/Views/partials/footer.php) - Enhanced modal JavaScript with count display logic.
+
 ## [1.39.4] - 2025-10-04
 
 ### Fixed

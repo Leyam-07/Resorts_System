@@ -150,22 +150,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(data => {
                     if (data.length === 0) {
                         feedbackTab.innerHTML = '<p class="text-center">No feedback available for this resort yet.</p>';
+                        // Update tab to show (0)
+                        const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
+                        if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (0)';
                     } else {
-                        let feedbackHtml = '<h5>Customer Reviews</h5>';
+                        let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
                         data.forEach(review => {
                             feedbackHtml += `
                                 <div class="card mb-2">
                                     <div class="card-body">
-                                        <h6 class="card-title">${review.CustomerName} <span class="text-muted small">- reviewing ${review.FacilityName}</span> <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                        <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                         <p class="card-text">${review.Comment}</p>
                                         <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                     </div>
                                 </div>`;
                         });
                         feedbackTab.innerHTML = feedbackHtml;
+                        // Update tab to show count
+                        const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
+                        if (feedbackTabTrigger) feedbackTabTrigger.textContent = `Feedback (${data.length})`;
                     }
                 }).catch(error => {
                     feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
+                    const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback';
                 });
 
             // Set Footer Button
@@ -264,22 +272,30 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.length === 0) {
                     feedbackTab.innerHTML = '<p class="text-center">No feedback available for this facility yet.</p>';
-                    return;
+                    // Update tab to show (0)
+                    const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (0)';
+                } else {
+                    let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
+                    data.forEach(review => {
+                        feedbackHtml += `
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                    <p class="card-text">${review.Comment}</p>
+                                    <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
+                                </div>
+                            </div>`;
+                    });
+                    feedbackTab.innerHTML = feedbackHtml;
+                    // Update tab to show count
+                    const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = `Feedback (${data.length})`;
                 }
-                let feedbackHtml = '<h5>Customer Reviews</h5>';
-                data.forEach(review => {
-                    feedbackHtml += `
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
-                                <p class="card-text">${review.Comment}</p>
-                                <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
-                            </div>
-                        </div>`;
-                });
-                feedbackTab.innerHTML = feedbackHtml;
             }).catch(error => {
                 feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
+                const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
+                if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback';
             });
     }
 });

@@ -63,12 +63,14 @@ class Feedback {
    public static function findByFacilityId($facilityId) {
        $db = self::getDB();
        $stmt = $db->prepare(
-           "SELECT f.Rating, f.Comment, f.CreatedAt, u.Username as CustomerName
-            FROM Feedback f
+           "SELECT ff.Rating, ff.Comment, ff.CreatedAt, u.Username as CustomerName, CONCAT('Feedback for ', fac.Name) as FeedbackContext
+            FROM FacilityFeedback ff
+            JOIN Feedback f ON ff.FeedbackID = f.FeedbackID
             JOIN Bookings b ON f.BookingID = b.BookingID
             JOIN Users u ON b.CustomerID = u.UserID
-            WHERE b.FacilityID = :facilityId
-            ORDER BY f.CreatedAt DESC"
+            JOIN Facilities fac ON ff.FacilityID = fac.FacilityID
+            WHERE ff.FacilityID = :facilityId
+            ORDER BY ff.CreatedAt DESC"
        );
        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
        $stmt->execute();
@@ -78,12 +80,12 @@ class Feedback {
    public static function findByResortId($resortId) {
        $db = self::getDB();
        $stmt = $db->prepare(
-           "SELECT f.Rating, f.Comment, f.CreatedAt, u.Username as CustomerName, fac.Name as FacilityName
+           "SELECT f.Rating, f.Comment, f.CreatedAt, u.Username as CustomerName, COALESCE(fac.Name, 'General Resort Experience') as FacilityName
             FROM Feedback f
             JOIN Bookings b ON f.BookingID = b.BookingID
             JOIN Users u ON b.CustomerID = u.UserID
-            JOIN Facilities fac ON b.FacilityID = fac.FacilityID
-            WHERE fac.ResortID = :resortId
+            LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
+            WHERE b.ResortID = :resortId
             ORDER BY f.CreatedAt DESC"
        );
        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
