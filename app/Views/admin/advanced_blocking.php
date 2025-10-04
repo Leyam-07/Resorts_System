@@ -107,6 +107,14 @@ require_once __DIR__ . '/../partials/header.php';
                                                         <label class="form-check-label" for="holiday_01-01">New Year's Day (Jan 1)</label>
                                                     </div>
                                                     <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="02-14" id="holiday_02-14">
+                                                        <label class="form-check-label" for="holiday_02-14">Valentine's Day (Feb 14)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="02-25" id="holiday_02-25">
+                                                        <label class="form-check-label" for="holiday_02-25">EDSA People Power Revolution Anniversary (Feb 25)</label>
+                                                    </div>
+                                                    <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="holidays[]" value="04-09" id="holiday_04-09">
                                                         <label class="form-check-label" for="holiday_04-09">Araw ng Kagitingan (Apr 9)</label>
                                                     </div>
@@ -118,15 +126,39 @@ require_once __DIR__ . '/../partials/header.php';
                                                         <input class="form-check-input" type="checkbox" name="holidays[]" value="06-12" id="holiday_06-12">
                                                         <label class="form-check-label" for="holiday_06-12">Independence Day (Jun 12)</label>
                                                     </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="08-21" id="holiday_08-21">
+                                                        <label class="form-check-label" for="holiday_08-21">Ninoy Aquino Day (Aug 21)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="10-24" id="holiday_10-24">
+                                                        <label class="form-check-label" for="holiday_10-24">United Nations Day (Oct 24)</label>
+                                                    </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="08-29" id="holiday_08-29">
-                                                        <label class="form-check-label" for="holiday_08-29">National Heroes Day (Aug 29)</label>
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="10-31" id="holiday_10-31">
+                                                        <label class="form-check-label" for="holiday_10-31">Halloween / All Saints' Eve (Oct 31)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="11-01" id="holiday_11-01">
+                                                        <label class="form-check-label" for="holiday_11-01">All Saints' Day (Nov 1)</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="holidays[]" value="11-30" id="holiday_11-30">
                                                         <label class="form-check-label" for="holiday_11-30">Bonifacio Day (Nov 30)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-08" id="holiday_12-08">
+                                                        <label class="form-check-label" for="holiday_12-08">Feast of the Immaculate Conception (Dec 8)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-10" id="holiday_12-10">
+                                                        <label class="form-check-label" for="holiday_12-10">Human Rights Day (Dec 10)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-24" id="holiday_12-24">
+                                                        <label class="form-check-label" for="holiday_12-24">Christmas Eve (Dec 24)</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="holidays[]" value="12-25" id="holiday_12-25">
@@ -135,6 +167,10 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="holidays[]" value="12-30" id="holiday_12-30">
                                                         <label class="form-check-label" for="holiday_12-30">Rizal Day (Dec 30)</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="12-31" id="holiday_12-31">
+                                                        <label class="form-check-label" for="holiday_12-31">New Year's Eve (Dec 31)</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -238,13 +274,22 @@ require_once __DIR__ . '/../partials/header.php';
                                         <p class="small text-muted">Blocks major Philippine holidays including:</p>
                                         <ul class="small">
                                             <li>New Year's Day (Jan 1)</li>
+                                            <li>Valentine's Day (Feb 14)</li>
+                                            <li>EDSA People Power Revolution Anniversary (Feb 25)</li>
                                             <li>Araw ng Kagitingan (Apr 9)</li>
                                             <li>Labor Day (May 1)</li>
                                             <li>Independence Day (Jun 12)</li>
-                                            <li>National Heroes Day (Aug 29)</li>
+                                            <li>Ninoy Aquino Day (Aug 21)</li>
+                                            <li>United Nations Day (Oct 24)</li>
+                                            <li>Halloween / All Saints' Eve (Oct 31)</li>
+                                            <li>All Saints' Day (Nov 1)</li>
                                             <li>Bonifacio Day (Nov 30)</li>
+                                            <li>Feast of the Immaculate Conception (Dec 8)</li>
+                                            <li>Human Rights Day (Dec 10)</li>
+                                            <li>Christmas Eve (Dec 24)</li>
                                             <li>Christmas Day (Dec 25)</li>
                                             <li>Rizal Day (Dec 30)</li>
+                                            <li>New Year's Eve (Dec 31)</li>
                                         </ul>
                                     </div>
                                     
