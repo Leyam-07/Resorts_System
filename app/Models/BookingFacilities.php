@@ -165,4 +165,16 @@ class BookingFacilities {
             return false;
         }
     }
+    public static function getFacilitiesForBooking($bookingId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT f.FacilityID, f.Name
+             FROM BookingFacilities bf
+             JOIN Facilities f ON bf.FacilityID = f.FacilityID
+             WHERE bf.BookingID = :bookingId"
+        );
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 }

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.38.0] - 2025-10-04
+
+### Added
+
+- **Enhanced Customer Feedback System:** Implemented comprehensive feedback functionality allowing customers to submit reviews for both the booked resort and its optional facilities through a single, dynamic modal.
+  - **Solution:**
+    - Created a new database migration (`scripts/migrations/create_facility_feedback_table.php`) to add a `FacilityFeedback` table, linking facility-specific feedback to the main booking feedback.
+    - Developed a new `app/Models/FacilityFeedback.php` model to manage interactions with the new table.
+    - Extended `app/Controllers/BookingController.php` with a `getFacilitiesForBooking()` API endpoint to dynamically fetch facilities for a given booking.
+    - Modified `app/Views/booking/my_bookings.php` to include a dynamic modal that displays separate feedback forms for the resort and each associated facility.
+    - Updated the `app/Models/Feedback.php` model with a `createWithFacilities()` method to handle the transactional saving of both resort and facility feedback.
+    - Refactored `app/Controllers/FeedbackController.php` to process the combined feedback data and utilize the new transactional save method.
+  - **Affected files:**
+    - [`scripts/migrations/create_facility_feedback_table.php`](scripts/migrations/create_facility_feedback_table.php) - New database migration.
+    - [`app/Models/FacilityFeedback.php`](app/Models/FacilityFeedback.php) - New model for facility feedback.
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php) - Added API endpoint.
+    - [`app/Models/BookingFacilities.php`](app/Models/BookingFacilities.php) - Added `getFacilitiesForBooking` method.
+    - [`app/Views/booking/my_bookings.php`](app/Views/booking/my_bookings.php) - Updated UI for dynamic feedback modal.
+    - [`app/Models/Feedback.php`](app/Models/Feedback.php) - Added transactional save method.
+    - [`app/Controllers/FeedbackController.php`](app/Controllers/FeedbackController.php) - Updated to handle new feedback structure.
+
 ## [1.37.0] - 2025-10-03
 
 ### Added

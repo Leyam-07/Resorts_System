@@ -991,4 +991,25 @@ class BookingController {
         }
         exit();
     }
+    public function getFacilitiesForBooking() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_GET['booking_id']) || !isset($_SESSION['user_id'])) {
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
+        $booking = Booking::findById($bookingId);
+
+        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
+            echo json_encode(['error' => 'Invalid booking']);
+            return;
+        }
+
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+
+        echo json_encode($facilities);
+    }
 }

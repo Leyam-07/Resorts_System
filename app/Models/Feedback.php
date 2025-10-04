@@ -90,4 +90,44 @@ class Feedback {
        $stmt->execute();
        return $stmt->fetchAll(PDO::FETCH_OBJ);
    }
+    public static function createWithFacilities(Feedback $feedback, $facilityFeedbacks = []) {
+        $db = self::getDB();
+        $db->beginTransaction();
+
+        try {
+            // Re-use the existing create method for the main feedback
+            $stmt = $db->prepare(
+                "INSERT INTO Feedback (BookingID, Rating, Comment)
+                 VALUES (:bookingId, :rating, :comment)"
+            );
+            $stmt->bindValue(':bookingId', $feedback->bookingId, PDO::PARAM_INT);
+            $stmt->bindValue(':rating', $feedback->rating, PDO::PARAM_INT);
+            $stmt->bindValue(':comment', $feedback->comment, PDO::PARAM_STR);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create main feedback entry.");
+            }
+            $feedbackId = $db->lastInsertId();
+
+            require_once __DIR__ . '/FacilityFeedback.php';
+            foreach ($facilityFeedbacks as $facilityData) {
+                $facilityFeedback = new FacilityFeedback();
+                $facilityFeedback->feedbackId = $feedbackId;
+                $facilityFeedback->facilityId = $facilityData['id'];
+                $facilityFeedback->rating = $facilityData['rating'];
+                $facilityFeedback->comment = $facilityData['comment'];
+
+                if (!FacilityFeedback::create($facilityFeedback)) {
+                    throw new Exception("Failed to save feedback for facility ID " . $facilityData['id']);
+                }
+            }
+
+            $db->commit();
+            return $feedbackId;
+        } catch (Exception $e) {
+            $db->rollBack();
+            error_log("Feedback submission failed: " . $e->getMessage());
+            return false;
+        }
+    }
 }

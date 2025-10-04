@@ -13,13 +13,12 @@ class FeedbackController {
         }
 
         $bookingId = filter_input(INPUT_POST, 'bookingId', FILTER_VALIDATE_INT);
-        $rating = filter_input(INPUT_POST, 'rating', FILTER_VALIDATE_INT);
-        $comment = filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_SPECIAL_CHARS);
+        $resortRating = filter_input(INPUT_POST, 'resort_rating', FILTER_VALIDATE_INT);
+        $resortComment = filter_input(INPUT_POST, 'resort_comment', FILTER_SANITIZE_SPECIAL_CHARS);
+        $facilitiesData = $_POST['facilities'] ?? [];
 
-        if (!$bookingId || !$rating) {
-            $_SESSION['error_message'] = "Rating is required.";
-            // Redirect back to the bookings page with an error
-            $_SESSION['error_message'] = "Rating is required.";
+        if (!$bookingId || !$resortRating) {
+            $_SESSION['error_message'] = "A rating for the resort is required.";
             header('Location: ?controller=booking&action=showMyBookings');
             exit;
         }
@@ -33,10 +32,22 @@ class FeedbackController {
 
         $feedback = new Feedback();
         $feedback->bookingId = $bookingId;
-        $feedback->rating = $rating;
-        $feedback->comment = $comment;
+        $feedback->rating = $resortRating;
+        $feedback->comment = $resortComment;
 
-        if (Feedback::create($feedback)) {
+        // Sanitize and prepare facility feedback data
+        $facilityFeedbacks = [];
+        if (!empty($facilitiesData)) {
+            foreach ($facilitiesData as $facilityId => $data) {
+                $facilityFeedbacks[] = [
+                    'id' => filter_var($facilityId, FILTER_VALIDATE_INT),
+                    'rating' => filter_var($data['rating'], FILTER_VALIDATE_INT),
+                    'comment' => filter_var($data['comment'], FILTER_SANITIZE_SPECIAL_CHARS)
+                ];
+            }
+        }
+
+        if (Feedback::createWithFacilities($feedback, $facilityFeedbacks)) {
             $_SESSION['success_message'] = "Thank you for your feedback!";
             header('Location: ?controller=booking&action=showMyBookings');
         } else {
