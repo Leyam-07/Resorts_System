@@ -103,6 +103,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             </div>
 
             <!-- Step 2: Enhanced Timeframe Selection (Required) -->
+            <fieldset id="step2-fieldset">
             <div class="mb-4">
                 <label for="timeSlotType" class="form-label fw-bold">
                     <i class="fas fa-clock text-primary"></i> Select Timeframe <span class="text-danger">*</span>
@@ -144,8 +145,10 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                 </div>
             </div>
+            </fieldset>
 
             <!-- Step 3: Enhanced Date Selection (Required) -->
+            <fieldset id="step3-fieldset">
             <div class="mb-4">
                 <label for="date" class="form-label fw-bold">
                     <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
@@ -167,8 +170,10 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                 </div>
             </div>
+            </fieldset>
 
             <!-- Step 4: Enhanced Number of Guests (Required) -->
+            <fieldset id="step4-fieldset">
             <div class="mb-4">
                 <label for="guests" class="form-label fw-bold">
                     <i class="fas fa-users text-primary"></i> Number of Guests <span class="text-danger">*</span>
@@ -189,8 +194,10 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                 </div>
             </div>
+            </fieldset>
 
             <!-- Step 5: Enhanced Facility Selection -->
+            <fieldset id="step5-fieldset">
             <div class="mb-4">
                 <label class="form-label fw-bold">
                     <i class="fas fa-swimming-pool text-primary"></i> Additional Facilities
@@ -207,6 +214,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                 </div>
             </div>
+            </fieldset>
 
             <!-- Step 6: Enhanced Booking Summary -->
             <div class="mb-4">
@@ -626,6 +634,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const facilitiesContainer = document.getElementById('facilitiesContainer');
     const submitBtn = document.getElementById('submitBtn');
 
+    // Fieldsets for steps
+    const step2Fieldset = document.getElementById('step2-fieldset');
+    const step3Fieldset = document.getElementById('step3-fieldset');
+    const step4Fieldset = document.getElementById('step4-fieldset');
+    const step5Fieldset = document.getElementById('step5-fieldset');
+
     // Display elements
     const timeframePricing = document.getElementById('timeframePricing');
     const basePriceDisplay = document.getElementById('basePriceDisplay');
@@ -684,6 +698,15 @@ document.addEventListener('DOMContentLoaded', function() {
     calendarMonth.addEventListener('change', loadCalendarData);
     selectDateBtn.addEventListener('click', selectCalendarDate);
 
+    function initializeFormState() {
+        step2Fieldset.disabled = true;
+        step3Fieldset.disabled = true;
+        step4Fieldset.disabled = true;
+        step5Fieldset.disabled = true;
+    }
+    
+    initializeFormState();
+
     // Initialize form if there are pre-selected values
     updateStepIndicators();
     // Check for pre-selected resort and trigger change if found
@@ -721,11 +744,18 @@ document.addEventListener('DOMContentLoaded', function() {
             resetFacilities();
             resetPricing();
             calendarModalBtn.disabled = true;
+            initializeFormState(); // Disable steps if resort is deselected
             return;
         }
 
         selectedResortId = newlySelectedResortId; // Update the global state
         highlightSelectedResort(selectedResortId);
+
+        // Enable subsequent steps
+        step2Fieldset.disabled = false;
+        step3Fieldset.disabled = false;
+        step4Fieldset.disabled = false;
+        step5Fieldset.disabled = false;
 
         advanceToStep(2);
         calendarModalBtn.disabled = false;
