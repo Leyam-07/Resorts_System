@@ -322,3 +322,22 @@ CREATE TABLE IF NOT EXISTS `Feedback` (
 ```
 
 ---
+
+### Table: `FacilityFeedback`
+
+Stores feedback and ratings for individual facilities, linked to a main booking feedback entry.
+
+```sql
+CREATE TABLE IF NOT EXISTS `FacilityFeedback` (
+  `FacilityFeedbackID` INT PRIMARY KEY AUTO_INCREMENT,
+  `FeedbackID` INT,
+  `FacilityID` INT,
+  `Rating` INT NOT NULL CHECK (`Rating` >= 1 AND `Rating` <= 5),
+  `Comment` TEXT,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`FeedbackID`) REFERENCES `Feedback`(`FeedbackID`) ON DELETE CASCADE,
+  FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`) ON DELETE CASCADE
+);
+```
+
+---
