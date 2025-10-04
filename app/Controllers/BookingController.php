@@ -527,7 +527,7 @@ class BookingController {
         }
 
         // Check if the booking can be cancelled
-        if ($booking->Status !== 'Pending' || $booking->remainingBalance < $booking->totalAmount) {
+        if ($booking->status !== 'Pending' || $booking->remainingBalance < $booking->totalAmount) {
             $_SESSION['error_message'] = "This booking cannot be cancelled as it has been paid or is no longer pending.";
             header('Location: ?controller=booking&action=showMyBookings');
             exit;

@@ -46,15 +46,15 @@ class BookingLifecycleManager {
             
             foreach ($bookings as $booking) {
                 $results['processed']++;
-                
+
                 $oldStatus = $booking->status;
                 $newStatus = self::determineNewStatus($booking);
-                
+
                 if ($newStatus !== $oldStatus) {
-                    if (self::updateBookingStatus($booking->BookingID, $oldStatus, $newStatus, 'Automated status transition')) {
+                    if (self::updateBookingStatus($booking->bookingId, $oldStatus, $newStatus, 'Automated status transition')) {
                         $results[strtolower($newStatus)]++;
                     } else {
-                        $results['errors'][] = "Failed to update booking {$booking->BookingID}";
+                        $results['errors'][] = "Failed to update booking {$booking->bookingId}";
                     }
                 }
             }

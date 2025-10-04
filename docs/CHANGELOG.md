@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.0] - 2025-10-04
+
+### Changed
+
+- **Submission Payment Page Simplification:** Streamlined the Submit Payment page to only display Booking Summary information, removing all payment method displays, payment scheduling sections, and payment submission forms. The page now serves as a confirmation screen after booking creation, guiding customers to use the modal payment system from the My Bookings page instead of direct form submission.
+  - **Removed Sections:** Eliminated Available Payment Methods card, Phase 6 Payment Schedule section, and Payment Submission Form
+  - **Updated UI:** Changed page title to "Booking Confirmation" and page description for better clarity
+  - **Updated Visuals:** Changed header icons to check-circle to reflect confirmation rather than payment processing
+  - **Navigation:** Replaced complex payment processing with simple "Back to My Bookings" navigation
+  - **Affected files:** [`app/Views/booking/payment.php`](app/Views/booking/payment.php) - Complete UI and logic overhaul for simplified booking confirmation
+
 ## [1.38.0] - 2025-10-04
 
 ### Added
