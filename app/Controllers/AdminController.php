@@ -709,69 +709,70 @@ class AdminController {
         }
 
         $methods = ResortPaymentMethods::findByResortId($resortId, false);
-        echo json_encode($methods);
+        // Manually map to avoid issues with inconsistent property names if any exist
+        $mappedMethods = array_map(function($method) {
+            return [
+                'PaymentMethodID' => $method->PaymentMethodID,
+                'ResortID' => $method->ResortID,
+                'MethodType' => $method->MethodType,
+                'AccountDetails' => $method->AccountDetails,
+                'IsActive' => $method->IsActive
+            ];
+        }, $methods);
+        echo json_encode($mappedMethods);
         exit();
     }
 
     public function addPaymentMethod() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
-            $methodName = filter_input(INPUT_POST, 'method_name', FILTER_UNSAFE_RAW);
-            $methodDetails = filter_input(INPUT_POST, 'method_details', FILTER_UNSAFE_RAW);
+            $methodType = filter_input(INPUT_POST, 'method_type', FILTER_UNSAFE_RAW);
+            $accountDetails = filter_input(INPUT_POST, 'account_details', FILTER_UNSAFE_RAW);
 
-            // Check if this is an AJAX request
             $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
             $validationErrors = [];
             if (!$resortId) $validationErrors[] = "Invalid resort ID.";
-            if (!$methodName) $validationErrors[] = "Payment method name is required.";
-            if (!$methodDetails) $validationErrors[] = "Payment method details are required.";
+            if (!$methodType) $validationErrors[] = "Payment method type is required.";
+            if (!$accountDetails) $validationErrors[] = "Account details are required.";
 
             if (!empty($validationErrors)) {
                 if ($isAjax) {
                     header('Content-Type: application/json');
-                    echo json_encode([
-                        'success' => false,
-                        'message' => implode(' ', $validationErrors)
-                    ]);
+                    echo json_encode(['success' => false, 'message' => implode(' ', $validationErrors)]);
                     exit();
                 } else {
                     $_SESSION['error_message'] = implode('<br>', $validationErrors);
-                    header('Location: ?controller=admin&action=management');
+                    header('Location: ' . $_SERVER['HTTP_REFERER']);
                     exit();
                 }
             }
 
             $paymentMethod = new ResortPaymentMethods();
             $paymentMethod->resortId = $resortId;
-            $paymentMethod->methodName = $methodName;
-            $paymentMethod->methodDetails = $methodDetails;
+            $paymentMethod->methodType = $methodType;
+            $paymentMethod->accountDetails = $accountDetails;
+            $paymentMethod->isDefault = false; // Not handled in this form
             $paymentMethod->isActive = true;
 
             if (ResortPaymentMethods::create($paymentMethod)) {
                 if ($isAjax) {
                     header('Content-Type: application/json');
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Payment method added successfully!'
-                    ]);
+                    echo json_encode(['success' => true, 'message' => 'Payment method added successfully!']);
                     exit();
                 } else {
                     $_SESSION['success_message'] = "Payment method added successfully.";
-                    header('Location: ?controller=admin&action=management');
+                    header('Location: ' . $_SERVER['HTTP_REFERER']);
                     exit();
                 }
             } else {
                 if ($isAjax) {
                     header('Content-Type: application/json');
-                    echo json_encode([
-                        'success' => false,
-                        'message' => 'Failed to add payment method.'
-                    ]);
+                    echo json_encode(['success' => false, 'message' => 'Failed to add payment method. A method of this type may already exist for the resort.']);
                     exit();
                 } else {
-                    $_SESSION['error_message'] = "Failed to add payment method.";
-                    header('Location: ?controller=admin&action=management');
+                    $_SESSION['error_message'] = "Failed to add payment method. A method of this type may already exist for the resort.";
+                    header('Location: ' . $_SERVER['HTTP_REFERER']);
                     exit();
                 }
             }
@@ -785,7 +786,8 @@ class AdminController {
         } else {
             $_SESSION['error_message'] = "Failed to delete payment method.";
         }
-        header('Location: ?controller=admin&action=management');
+        // Redirect back to the referrer (e.g., pricing management page)
+        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?controller=admin&action=pricingManagement'));
         exit();
     }
     public function blockResortAvailability() {
@@ -1000,10 +1002,12 @@ class AdminController {
         
         $resortPricing = [];
         $facilityPricing = [];
+        $paymentMethods = [];
         
         if ($resortId) {
             $resortPricing = ResortTimeframePricing::findByResortId($resortId);
             $facilityPricing = Facility::findByResortId($resortId);
+            $paymentMethods = ResortPaymentMethods::findByResortId($resortId, false);
         }
         
         require_once __DIR__ . '/../Views/admin/pricing_management.php';

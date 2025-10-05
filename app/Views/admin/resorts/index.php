@@ -61,9 +61,6 @@ require_once __DIR__ . '/../../partials/header.php';
                                                 <button type="button" class="btn btn-sm btn-danger delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-delete-url="?controller=resort&action=destroy&id=<?= $resort->resortId ?>">
                                                     Delete
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info manage-payments-btn" data-bs-toggle="modal" data-bs-target="#managePaymentsModal" data-resort-id="<?= $resort->resortId ?>" data-resort-name="<?= htmlspecialchars($resort->name) ?>">
-                                                    Manage Payments
-                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

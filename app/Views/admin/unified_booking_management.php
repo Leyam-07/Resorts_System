@@ -267,12 +267,9 @@ require_once __DIR__ . '/../partials/header.php';
                             <div class="mb-3">
                                 <label for="paymentMethod" class="form-label">Payment Method</label>
                                 <select class="form-select" id="paymentMethod" name="payment_method">
-                                    <option value="">Select method</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="GCash">GCash</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="">Loading payment methods...</option>
                                 </select>
+                                <div class="form-text small">Choose from configured payment methods for this resort</div>
                             </div>
                         </div>
                     </div>
@@ -374,8 +371,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('bookingStatus').value = booking.Status;
                     document.getElementById('modalResortId').value = booking.ResortID;
                     
-                    // Now fetch facilities for the resort
+                    // Now fetch facilities and payment methods for the resort
                     fetchFacilities(booking.resortId, booking.BookedFacilities);
+                    fetchPaymentMethods(booking.resortId);
                 } else {
                     document.getElementById('facilitiesManagementSection').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }
@@ -388,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fetchFacilities(resortId, bookedFacilities) {
         const container = document.getElementById('facilitiesManagementSection');
-        
+
         fetch(`?controller=resort&action=getFacilitiesJson&resort_id=${resortId}`)
             .then(response => response.json())
             .then(data => {
@@ -418,6 +416,54 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error fetching facilities:', error);
                 container.innerHTML = '<div class="alert alert-danger">Failed to load facilities.</div>';
+            });
+    }
+
+    function fetchPaymentMethods(resortId) {
+        const selectElement = document.getElementById('paymentMethod');
+
+        fetch(`?controller=booking&action=getPaymentMethods&resort_id=${resortId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear loading option and existing options
+                selectElement.innerHTML = '';
+
+                if (data.length > 0) {
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select payment method...';
+                    selectElement.appendChild(defaultOption);
+
+                    // Add payment methods
+                    data.forEach(method => {
+                        const option = document.createElement('option');
+                        option.value = method.name;
+                        option.textContent = method.name + ' - ' + method.details;
+                        selectElement.appendChild(option);
+                    });
+                } else {
+                    // No payment methods configured
+                    const noMethodsOption = document.createElement('option');
+                    noMethodsOption.value = '';
+                    noMethodsOption.textContent = 'No online payment methods configured';
+                    selectElement.appendChild(noMethodsOption);
+
+                    // Add cash as fallback
+                    const cashOption = document.createElement('option');
+                    cashOption.value = 'Cash';
+                    cashOption.textContent = 'Cash (No online methods configured)';
+                    selectElement.appendChild(cashOption);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching payment methods:', error);
+                selectElement.innerHTML = '<option value="">Error loading payment methods</option>';
+                // Add cash as fallback anyway
+                const cashOption = document.createElement('option');
+                cashOption.value = 'Cash';
+                cashOption.textContent = 'Cash (Error loading online methods)';
+                selectElement.appendChild(cashOption);
             });
     }
 });

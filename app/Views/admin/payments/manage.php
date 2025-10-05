@@ -1,6 +1,7 @@
 <?php
 $pageTitle = "Manage Payments";
 require_once __DIR__ . '/../../partials/header.php';
+require_once __DIR__ . '/../../../Models/ResortPaymentMethods.php';
 ?>
 
 <div class="container mt-4">
@@ -93,10 +94,20 @@ require_once __DIR__ . '/../../partials/header.php';
                         <div class="mb-3">
                             <label for="payment_method" class="form-label">Payment Method</label>
                             <select class="form-select" id="payment_method" name="payment_method" required>
-                                <option value="Gcash">Gcash</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Cash">Cash</option>
+                                <option value="">Select payment method...</option>
+                                <?php
+                                // Get payment methods for this resort
+                                $resortPaymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
+                                foreach ($resortPaymentMethods as $method): ?>
+                                    <option value="<?= htmlspecialchars($method->MethodType) ?>">
+                                        <?= htmlspecialchars($method->MethodType) ?> - <?= htmlspecialchars($method->AccountDetails) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                <?php if (empty($resortPaymentMethods)): ?>
+                                    <option value="Cash">Cash (No online methods configured)</option>
+                                <?php endif; ?>
                             </select>
+                            <div class="form-text small">Choose from configured payment methods for this resort</div>
                         </div>
                     </div>
                     <div class="col-md-3">

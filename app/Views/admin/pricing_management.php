@@ -221,6 +221,63 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
                     </div>
 
+                    <!-- Payment Methods Management -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-credit-card"></i> Payment Method Management</h5>
+                                    <p class="text-muted mb-0">Manage accepted payment methods for this resort</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-7">
+                                            <h6>Existing Methods</h6>
+                                            <?php if (empty($paymentMethods)): ?>
+                                                <div class="alert alert-info">No payment methods configured for this resort.</div>
+                                            <?php else: ?>
+                                                <ul class="list-group">
+                                                    <?php foreach ($paymentMethods as $method): ?>
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <strong><?= htmlspecialchars($method->MethodType) ?></strong>:
+                                                                <span><?= htmlspecialchars($method->AccountDetails) ?></span>
+                                                            </div>
+                                                            <a href="?controller=admin&action=deletePaymentMethod&id=<?= $method->PaymentMethodID ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this payment method?');">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <h6>Add New Method</h6>
+                                            <form method="POST" action="?controller=admin&action=addPaymentMethod">
+                                                <input type="hidden" name="resort_id" value="<?= $_GET['resort_id'] ?>">
+                                                <div class="mb-3">
+                                                    <label for="method_type" class="form-label">Payment Method Name</label>
+                                                    <input type="text" class="form-control" id="method_type" name="method_type"
+                                                           placeholder="e.g., GCash, PayPal, Maya, BPI, etc." required>
+                                                    <div class="form-text">Enter the name of the payment method (e.g., GCash, PayPal, Maya, Bank Name)</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="account_details" class="form-label">Account Details</label>
+                                                    <textarea class="form-control" id="account_details" name="account_details" rows="3"
+                                                              placeholder="Enter only account number and account name (e.g., 09123456789 - Juan Dela Cruz)" required></textarea>
+                                                    <div class="form-text">Include only the account number and account holder name. Do not repeat the payment method name.</div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    <i class="fas fa-plus"></i> Add Payment Method
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Pricing Examples -->
                     <div class="row mt-4">
                         <div class="col-12">

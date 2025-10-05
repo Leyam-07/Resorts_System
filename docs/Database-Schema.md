@@ -153,7 +153,7 @@ Configuration table for resort-specific payment methods and settings.
 CREATE TABLE IF NOT EXISTS `ResortPaymentMethods` (
   `PaymentMethodID` INT PRIMARY KEY AUTO_INCREMENT,
   `ResortID` INT NOT NULL,
-  `MethodType` ENUM('Gcash', 'Bank Transfer', 'Cash') NOT NULL,
+  `MethodType` VARCHAR(100) NOT NULL,
   `AccountDetails` TEXT,
   `IsDefault` BOOLEAN DEFAULT FALSE,
   `IsActive` BOOLEAN DEFAULT TRUE,

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.9] - 2025-10-05
+
+### Changed
+
+- **Payment Method System Consistency Refactor:** Transformed the payment method system to ensure complete consistency across all admin interfaces. All dropdowns and selection inputs now show resort-specific payment methods (e.g., "GCash - 0912..."), replacing free-text fields and fixing previously empty dropdowns.
+  - **Database Schema Update:** Migrated the `MethodType` column in the `ResortPaymentMethods` table from a restrictive `ENUM` to a flexible `VARCHAR(100)`, allowing administrators to define custom payment method names.
+  - **Backend Model Enhancement:** Updated `ResortPaymentMethods.php` to support the new flexible `MethodType` and added `getFormattedPaymentMethods()` to supply data in the "Name - Details" format.
+  - **Admin UI Overhaul:**
+    - **Pricing Management (`pricing_management.php`):** Correctly displays the list of configured, resort-specific payment methods.
+    - **Payment Management (`payments/manage.php`):** Fixed the previously empty dropdown to now load and display the correct, resort-specific payment options.
+    - **Unified Booking Modal (`unified_booking_management.php`):** Implemented a dynamic, AJAX-powered dropdown that loads resort-specific payment methods when an admin manages a booking. Includes a "Cash" fallback if no online methods are configured.
+  - **API Endpoint:** Enhanced `BookingController::getPaymentMethods()` to return formatted JSON for dynamic frontend dropdowns.
+  - **Affected files:**
+    - [`scripts/migrations/change_method_type_to_varchar.php`](scripts/migrations/change_method_type_to_varchar.php)
+    - [`app/Models/ResortPaymentMethods.php`](app/Models/ResortPaymentMethods.php)
+    - [`app/Views/admin/pricing_management.php`](app/Views/admin/pricing_management.php)
+    - [`app/Views/admin/payments/manage.php`](app/Views/admin/payments/manage.php)
+    - [`app/Views/admin/unified_booking_management.php`](app/Views/admin/unified_booking_management.php)
+    - [`app/Controllers/BookingController.php`](app/Controllers/BookingController.php)
+
 ## [1.39.8] - 2025-10-05
 
 ### Changed

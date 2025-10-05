@@ -3,10 +3,12 @@
 class ResortPaymentMethods {
     public $paymentMethodId;
     public $resortId;
-    public $methodName;
-    public $methodDetails;
+    public $methodType;
+    public $accountDetails;
+    public $isDefault;
     public $isActive;
     public $createdAt;
+    public $updatedAt;
 
     private static $db;
 
@@ -21,12 +23,13 @@ class ResortPaymentMethods {
     public static function create(ResortPaymentMethods $paymentMethod) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO ResortPaymentMethods (ResortID, MethodName, MethodDetails, IsActive)
-             VALUES (:resortId, :methodName, :methodDetails, :isActive)"
+            "INSERT INTO ResortPaymentMethods (ResortID, MethodType, AccountDetails, IsDefault, IsActive)
+             VALUES (:resortId, :methodType, :accountDetails, :isDefault, :isActive)"
         );
         $stmt->bindValue(':resortId', $paymentMethod->resortId, PDO::PARAM_INT);
-        $stmt->bindValue(':methodName', $paymentMethod->methodName, PDO::PARAM_STR);
-        $stmt->bindValue(':methodDetails', $paymentMethod->methodDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':methodType', $paymentMethod->methodType, PDO::PARAM_STR);
+        $stmt->bindValue(':accountDetails', $paymentMethod->accountDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':isDefault', $paymentMethod->isDefault, PDO::PARAM_BOOL);
         $stmt->bindValue(':isActive', $paymentMethod->isActive, PDO::PARAM_BOOL);
 
         if ($stmt->execute()) {
@@ -46,10 +49,12 @@ class ResortPaymentMethods {
             $paymentMethod = new ResortPaymentMethods();
             $paymentMethod->paymentMethodId = $data['PaymentMethodID'];
             $paymentMethod->resortId = $data['ResortID'];
-            $paymentMethod->methodName = $data['MethodName'];
-            $paymentMethod->methodDetails = $data['MethodDetails'];
+            $paymentMethod->methodType = $data['MethodType'];
+            $paymentMethod->accountDetails = $data['AccountDetails'];
+            $paymentMethod->isDefault = $data['IsDefault'];
             $paymentMethod->isActive = $data['IsActive'];
             $paymentMethod->createdAt = $data['CreatedAt'];
+            $paymentMethod->updatedAt = $data['UpdatedAt'];
             return $paymentMethod;
         }
         return null;
@@ -63,7 +68,7 @@ class ResortPaymentMethods {
             $sql .= " AND IsActive = 1";
         }
         
-        $sql .= " ORDER BY MethodName ASC";
+        $sql .= " ORDER BY MethodType ASC";
         
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
@@ -77,7 +82,7 @@ class ResortPaymentMethods {
             "SELECT rpm.*, r.Name as ResortName
              FROM ResortPaymentMethods rpm
              JOIN Resorts r ON rpm.ResortID = r.ResortID
-             ORDER BY r.Name ASC, rpm.MethodName ASC"
+             ORDER BY r.Name ASC, rpm.MethodType ASC"
         );
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
@@ -86,11 +91,12 @@ class ResortPaymentMethods {
         $db = self::getDB();
         $stmt = $db->prepare(
             "UPDATE ResortPaymentMethods
-             SET MethodName = :methodName, MethodDetails = :methodDetails, IsActive = :isActive
+             SET MethodType = :methodType, AccountDetails = :accountDetails, IsDefault = :isDefault, IsActive = :isActive
              WHERE PaymentMethodID = :paymentMethodId"
         );
-        $stmt->bindValue(':methodName', $paymentMethod->methodName, PDO::PARAM_STR);
-        $stmt->bindValue(':methodDetails', $paymentMethod->methodDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':methodType', $paymentMethod->methodType, PDO::PARAM_STR);
+        $stmt->bindValue(':accountDetails', $paymentMethod->accountDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':isDefault', $paymentMethod->isDefault, PDO::PARAM_BOOL);
         $stmt->bindValue(':isActive', $paymentMethod->isActive, PDO::PARAM_BOOL);
         $stmt->bindValue(':paymentMethodId', $paymentMethod->paymentMethodId, PDO::PARAM_INT);
 
@@ -121,15 +127,15 @@ class ResortPaymentMethods {
     public static function createDefaultPaymentMethods($resortId) {
         $defaultMethods = [
             [
-                'name' => 'GCash',
+                'type' => 'Gcash',
                 'details' => 'Send payment to GCash number: [Add GCash number here]'
             ],
             [
-                'name' => 'Bank Transfer',
+                'type' => 'Bank Transfer',
                 'details' => 'Transfer to: [Add bank account details here]'
             ],
             [
-                'name' => 'Cash on Arrival',
+                'type' => 'Cash',
                 'details' => 'Pay cash upon arrival at the resort'
             ]
         ];
@@ -137,12 +143,22 @@ class ResortPaymentMethods {
         foreach ($defaultMethods as $method) {
             $paymentMethod = new ResortPaymentMethods();
             $paymentMethod->resortId = $resortId;
-            $paymentMethod->methodName = $method['name'];
-            $paymentMethod->methodDetails = $method['details'];
+            $paymentMethod->methodType = $method['type'];
+            $paymentMethod->accountDetails = $method['details'];
+            $paymentMethod->isDefault = ($method['type'] === 'Gcash'); // Example default
             $paymentMethod->isActive = true;
 
             self::create($paymentMethod);
         }
+    }
+
+    /**
+     * Get suggested payment method examples for admins
+     */
+    public static function getAvailableMethodTypes() {
+        // Return common payment method examples that admins can use or modify
+        // These are no longer restricted - admins can enter any custom method name
+        return ['GCash', 'Maya', 'PayPal', 'BPI', 'BDO', 'UnionBank', 'Cash'];
     }
 
     /**
@@ -154,10 +170,8 @@ class ResortPaymentMethods {
 
         foreach ($methods as $method) {
             $formatted[] = [
-                'id' => $method->PaymentMethodID,
-                'name' => $method->MethodName,
-                'details' => $method->MethodDetails,
-                'display' => $method->MethodName . ($method->MethodDetails ? ' - ' . $method->MethodDetails : '')
+                'name' => $method->MethodType,
+                'details' => $method->AccountDetails
             ];
         }
 
@@ -170,11 +184,13 @@ class ResortPaymentMethods {
     public static function hasActivePaymentMethods($resortId) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT COUNT(*) FROM ResortPaymentMethods 
+            "SELECT COUNT(*) FROM ResortPaymentMethods
              WHERE ResortID = :resortId AND IsActive = 1"
         );
         $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
     }
+
+
 }
