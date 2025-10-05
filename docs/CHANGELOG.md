@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.8] - 2025-10-05
+
+### Changed
+
+- **Comprehensive Facility Scheduling Refactoring:** Consolidated and enhanced the facility blocking system, achieving full feature parity with resort-level blocking within a unified "Advanced Blocking System" interface. This refactoring deprecated redundant scheduling UIs and introduced advanced blocking capabilities for individual facilities.
+  - **Deprecation of Old Scheduling UI:**
+    - Removed "Manage Schedule" buttons (resort and facility level) from `app/Views/admin/management/index.php`.
+    - Eliminated associated modals (`#scheduleResortModal`, `#scheduleFacilityModal`) and their JavaScript functions.
+  - **Enhanced Advanced Blocking System (`app/Views/admin/advanced_blocking.php`):**
+    - Implemented a tabbed interface for "Resort Blocking" and "Facility Blocking."
+    - Added "Manual Facility Date Blocking" section.
+    - Introduced "Preset Facility Blocking" with options for Weekends, Philippine Holidays, and Full Block.
+    - Updated facility selection for presets to use checkboxes for multi-select.
+    - Added "Facility Deblocking" options for date range removal and "Deblock All" for a selected facility.
+    - Included "Preset Information" and "Important Notes" side panels for facility blocking, mirroring the resort blocking tab.
+    - Corrected JavaScript placement and logic for the new UI elements, including dynamic display of holiday checkboxes and proper form handling.
+  - **Updated Controller Logic (`app/Controllers/AdminController.php`):**
+    - Enhanced `blockFacilityAvailability()` to handle submissions from the advanced blocking page.
+    - Implemented new methods: `applyFacilityPresetBlocking()`, `deblockFacilityAll()`, and `deblockFacilityByDateRange()` to manage facility presets and bulk deblocking.
+  - **Extended Model (`app/Models/BlockedFacilityAvailability.php`):**
+    - Added `deleteAllForFacility($facilityId)` and `deleteByDateRangeAndFacility($facilityId, $startDate, $endDate)` methods to support bulk operations.
+  - **Affected files:**
+    - [`app/Views/admin/management/index.php`](app/Views/admin/management/index.php)
+    - [`app/Views/admin/advanced_blocking.php`](app/Views/admin/advanced_blocking.php)
+    - [`app/Controllers/AdminController.php`](app/Controllers/AdminController.php)
+    - [`app/Models/BlockedFacilityAvailability.php`](app/Models/BlockedFacilityAvailability.php)
+
 ## [1.39.7] - 2025-10-04
 
 ### Added

@@ -51,9 +51,6 @@ require_once __DIR__ . '/../../partials/header.php';
                                 <div id="collapse<?= $resortData['resort']->resortId ?>" class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" aria-labelledby="heading<?= $resortData['resort']->resortId ?>" data-bs-parent="#resortsAccordion">
                                     <div class="accordion-body">
                                         <div class="d-flex justify-content-end mb-3">
-                                            <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#scheduleResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">
-                                                Manage Schedule
-                                            </button>
                                             <button class="btn btn-warning btn-sm edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
                                             <button class="btn btn-danger btn-sm ms-2 delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Delete Resort</button>
                                             <button type="button" class="btn btn-info btn-sm ms-2 manage-payments-btn" data-bs-toggle="modal" data-bs-target="#managePaymentsModal" data-resort-id="<?= $resortData['resort']->resortId ?>" data-resort-name="<?= htmlspecialchars($resortData['resort']->name) ?>">
@@ -87,7 +84,6 @@ require_once __DIR__ . '/../../partials/header.php';
                                                             <td><?= htmlspecialchars($facility->name) ?></td>
                                                             <td>₱<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
-                                                                <button class="btn btn-outline-secondary btn-sm schedule-facility-btn" data-bs-toggle="modal" data-bs-target="#scheduleFacilityModal" data-facility-id="<?= $facility->facilityId ?>" data-facility-name="<?= htmlspecialchars($facility->name) ?>">Schedule</button>
                                                                 <button class="btn btn-outline-primary btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>
                                                                 <button class="btn btn-outline-danger btn-sm">Delete</button>
                                                             </td>
@@ -118,85 +114,11 @@ require_once __DIR__ . '/edit_facility_modal.php';
 ?>
 
 
-<!-- Resort Schedule Modal -->
-<div class="modal fade" id="scheduleResortModal" tabindex="-1" aria-labelledby="scheduleResortModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleResortModalLabel">Manage Resort Schedule</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Facility Schedule Modal -->
-<div class="modal fade" id="scheduleFacilityModal" tabindex="-1" aria-labelledby="scheduleFacilityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleFacilityModalLabel">Manage Facility Schedule</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="blockFacilityForm" action="?controller=admin&action=blockFacilityAvailability" method="POST">
-                    <input type="hidden" id="blockFacilityId" name="facilityId">
-                    <div class="mb-3">
-                        <label for="facilityBlockDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="facilityBlockDate" name="blockDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="facilityBlockReason" class="form-label">Reason</label>
-                        <input type="text" class="form-control" id="facilityBlockReason" name="reason" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Block Date</button>
-                </form>
-                <hr>
-                <h4>Existing Blocks</h4>
-                <div id="facilityBlocksList">
-                    <!-- Blocks will be loaded here via AJAX -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <?php require_once __DIR__ . '/../../partials/footer.php'; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Schedule Modal Handler
-    var scheduleModal = document.getElementById('scheduleResortModal');
-    if(scheduleModal) {
-        scheduleModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var resortId = button.getAttribute('data-resort-id');
-            var modalBody = scheduleModal.querySelector('.modal-body');
-            modalBody.innerHTML = `
-                <h4>Block Availability</h4>
-                <form action="?controller=admin&action=blockResortAvailability" method="POST">
-                    <input type="hidden" name="resortId" value="${resortId}">
-                    <div class="mb-3">
-                        <label for="blockDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="blockDate" name="blockDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">Reason</label>
-                        <input type="text" class="form-control" id="reason" name="reason" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Block Date</button>
-                </form>
-                <hr>
-                <h4>Existing Blocks</h4>
-                <div id="resortBlocksList"><em>Loading...</em></div>
-            `;
-
-            loadResortBlocks(resortId);
-        });
-    }
 
     // Edit Resort Modal Handler
     var editResortModal = document.getElementById('editResortModal');
@@ -332,135 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Facility Schedule Modal Handler
-    var facilityScheduleModal = document.getElementById('scheduleFacilityModal');
-    if(facilityScheduleModal) {
-        facilityScheduleModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var facilityId = button.getAttribute('data-facility-id');
-            var facilityName = button.getAttribute('data-facility-name');
-
-            document.getElementById('scheduleFacilityModalLabel').textContent = 'Manage Schedule for ' + facilityName;
-            document.getElementById('blockFacilityId').value = facilityId;
-
-            loadFacilityBlocks(facilityId);
-        });
-    }
 });
-
-function loadResortBlocks(resortId) {
-    var blocksList = document.getElementById('resortBlocksList');
-    blocksList.innerHTML = '<em>Loading...</em>';
-    fetch('?controller=admin&action=getResortScheduleJson&id=' + resortId)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                return;
-            }
-            if (data.length === 0) {
-                blocksList.innerHTML = '<p>No dates have been blocked for this resort.</p>';
-                return;
-            }
-
-            let listHtml = '<ul class="list-group">';
-            data.forEach(block => {
-                listHtml += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${block.BlockDate}</strong>
-                            <small class="text-muted ms-2">${block.Reason}</small>
-                        </div>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteResortBlock(${block.BlockedAvailabilityID}, ${resortId})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </li>`;
-            });
-            listHtml += '</ul>';
-            blocksList.innerHTML = listHtml;
-        })
-        .catch(error => {
-            console.error('Error loading resort schedule:', error);
-            blocksList.innerHTML = '<p class="text-danger">Failed to load schedule. Check console for details.</p>';
-        });
-}
-
-function deleteResortBlock(blockId, resortId) {
-    if (!confirm('Are you sure you want to unblock this date?')) {
-        return;
-    }
-    fetch(`?controller=admin&action=deleteResortAvailabilityBlock&block_id=${blockId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadResortBlocks(resortId); // Refresh the list
-            } else {
-                alert('Failed to unblock date.');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting resort block:', error);
-            alert('An error occurred. Check console for details.');
-        });
-}
-
-
-function loadFacilityBlocks(facilityId) {
-    var blocksList = document.getElementById('facilityBlocksList');
-    blocksList.innerHTML = '<em>Loading...</em>';
-
-    fetch('?controller=admin&action=getFacilityScheduleJson&id=' + facilityId)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                blocksList.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                return;
-            }
-            if (data.length === 0) {
-                blocksList.innerHTML = '<p>No dates have been blocked for this facility.</p>';
-                return;
-            }
-
-            let listHtml = '<ul class="list-group">';
-            data.forEach(block => {
-                listHtml += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${block.BlockDate}</strong>
-                            <small class="text-muted ms-2">${block.Reason}</small>
-                        </div>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteFacilityBlock(${block.BlockedAvailabilityID}, ${facilityId})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </li>`;
-            });
-            listHtml += '</ul>';
-            blocksList.innerHTML = listHtml;
-        })
-        .catch(error => {
-            console.error('Error loading facility schedule:', error);
-            blocksList.innerHTML = '<p class="text-danger">Failed to load schedule. Check console for details.</p>';
-        });
-}
-
-function deleteFacilityBlock(blockId, facilityId) {
-    if (!confirm('Are you sure you want to unblock this date?')) {
-        return;
-    }
-    fetch(`?controller=admin&action=deleteFacilityAvailabilityBlock&block_id=${blockId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadFacilityBlocks(facilityId); // Refresh the list
-            } else {
-                alert('Failed to unblock date.');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting facility block:', error);
-            alert('An error occurred. Check console for details.');
-        });
-}
 
     // Manage Payments Modal Handler (for Management Page)
     var managePaymentsModal = document.getElementById('managePaymentsModal');

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Models/Facility.php';
-require_once __DIR__ . '/../Models/BlockedAvailability.php';
+
 require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
 require_once __DIR__ . '/../Models/BlockedResortAvailability.php';
@@ -364,25 +364,6 @@ class AdminController {
         exit();
     }
     
-    public function getScheduleView() {
-        if (!isset($_GET['id'])) {
-            http_response_code(400);
-            echo "Facility ID not specified.";
-            exit();
-        }
-        $facilityId = $_GET['id'];
-        $facility = Facility::findById($facilityId);
-        if (!$facility) {
-            http_response_code(404);
-            echo "Facility not found.";
-            exit();
-        }
-        $blockedSlots = BlockedAvailability::findByFacilityId($facilityId);
-        
-        // This view will be loaded into the modal
-        include __DIR__ . '/../Views/admin/facilities/schedule.php';
-    }
-
     public function deleteFacility() {
         if (!isset($_GET['id'])) {
             die('Facility ID not specified.');
@@ -395,80 +376,6 @@ class AdminController {
         } else {
             die('Failed to delete facility.');
         }
-    }
-
-    public function schedule() {
-        if (!isset($_GET['id'])) {
-            die('Facility ID not specified.');
-        }
-        $facilityId = $_GET['id'];
-
-        $facility = Facility::findById($facilityId);
-        if (!$facility) {
-            die('Facility not found.');
-        }
-
-        $blockedSlots = BlockedAvailability::findByFacilityId($facilityId);
-
-        include __DIR__ . '/../Views/admin/facilities/schedule.php';
-    }
-
-    public function blockTime() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
-            $startDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
-            $endDate = filter_input(INPUT_POST, 'blockEndDate', FILTER_UNSAFE_RAW);
-            $startTime = filter_input(INPUT_POST, 'startTime', FILTER_UNSAFE_RAW);
-            $endTime = filter_input(INPUT_POST, 'endTime', FILTER_UNSAFE_RAW);
-            $reason = filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW);
-
-            // If no end date is provided, it's a single-day block
-            if (empty($endDate)) {
-                $endDate = $startDate;
-            }
-
-            $currentDate = new DateTime($startDate);
-            $lastDate = new DateTime($endDate);
-            $success = true;
-
-            while ($currentDate <= $lastDate) {
-                $blocked = new BlockedAvailability();
-                $blocked->facilityId = $facilityId;
-                $blocked->blockDate = $currentDate->format('Y-m-d');
-                $blocked->startTime = $startTime;
-                $blocked->endTime = $endTime;
-                $blocked->reason = $reason;
-
-                if (!BlockedAvailability::create($blocked)) {
-                    $success = false;
-                    // Stop on first failure
-                    break;
-                }
-                $currentDate->modify('+1 day');
-            }
-
-            if ($success) {
-                header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&status=time_blocked');
-            } else {
-                header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&error=block_failed');
-            }
-            exit();
-        }
-    }
-
-    public function unblockTime() {
-        if (!isset($_GET['id']) || !isset($_GET['facilityId'])) {
-            die('Required parameters not specified.');
-        }
-        $blockedId = $_GET['id'];
-        $facilityId = $_GET['facilityId'];
-
-        if (BlockedAvailability::delete($blockedId)) {
-            header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&status=time_unblocked');
-        } else {
-            header('Location: ?controller=admin&action=schedule&id=' . $facilityId . '&error=unblock_failed');
-        }
-        exit();
     }
    public function uploadPhoto() {
        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_GET['id'])) {
@@ -948,10 +855,11 @@ class AdminController {
         $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
         $blockDate = filter_input(INPUT_POST, 'blockDate', FILTER_UNSAFE_RAW);
         $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
 
         if (!$facilityId || !$blockDate || empty($reason)) {
-            $_SESSION['error_message'] = "Block date and reason are required for blocking a facility.";
-            header('Location: ?controller=admin&action=management');
+            $_SESSION['error_message'] = "Facility, block date, and reason are required.";
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
             exit;
         }
 
@@ -961,7 +869,7 @@ class AdminController {
             $_SESSION['error_message'] = "Failed to block the date for the facility.";
         }
         
-        header('Location: ?controller=admin&action=management');
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit;
     }
 
@@ -1338,6 +1246,139 @@ class AdminController {
         $deletedCount = BlockedResortAvailability::deleteByDateRange($resortId, $startDate, $endDate);
 
         $_SESSION['success_message'] = "Successfully removed $deletedCount blocks within the selected date range.";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+    /**
+     * Apply preset blocking to one or more facilities
+     */
+    public function applyFacilityPresetBlocking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $facilityIds = $_POST['facility_ids'] ?? [];
+        $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
+        $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
+        $blockedCount = 0;
+
+        if (!$resortId || empty($facilityIds) || !$presetType || empty($reason)) {
+            $_SESSION['error_message'] = "Resort, at least one facility, preset type, and reason are required.";
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            exit();
+        }
+
+        foreach ($facilityIds as $facilityId) {
+            if ($presetType === 'philippine_holidays') {
+                $holidaysToBlock = $_POST['holidays'] ?? [];
+                if (empty($holidaysToBlock)) {
+                    $_SESSION['error_message'] = "Please select at least one holiday to block.";
+                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                    exit();
+                }
+                
+                require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+                $currentYear = date('Y');
+                
+                foreach ($holidaysToBlock as $monthDay) {
+                    if (HolidayHelper::isHoliday($currentYear . '-' . $monthDay)) {
+                        $dateStr = $currentYear . '-' . $monthDay;
+                        if (BlockedFacilityAvailability::create($facilityId, $dateStr, $reason)) {
+                            $blockedCount++;
+                        }
+                    }
+                }
+            } else {
+                $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
+                $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
+
+                if (!$startDate || !$endDate) {
+                    $_SESSION['error_message'] = "Start date and end date are required for this preset.";
+                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                    exit();
+                }
+
+                $currentDate = new DateTime($startDate);
+                $lastDate = new DateTime($endDate);
+
+                while ($currentDate <= $lastDate) {
+                    $shouldBlock = false;
+                    $dateStr = $currentDate->format('Y-m-d');
+                    $dayOfWeek = $currentDate->format('w');
+
+                    switch ($presetType) {
+                        case 'weekends':
+                            $shouldBlock = ($dayOfWeek == 0 || $dayOfWeek == 6);
+                            break;
+                        case 'all_dates':
+                            $shouldBlock = true;
+                            break;
+                    }
+
+                    if ($shouldBlock) {
+                        if (BlockedFacilityAvailability::create($facilityId, $dateStr, $reason)) {
+                            $blockedCount++;
+                        }
+                    }
+                    $currentDate->modify('+1 day');
+                }
+            }
+        }
+
+        $_SESSION['success_message'] = "Blocked $blockedCount dates across selected facilities successfully!";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * Deblock all dates for a specific facility
+     */
+    public function deblockFacilityAll() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $facilityId = filter_input(INPUT_POST, 'facility_id', FILTER_VALIDATE_INT);
+        if (!$resortId || !$facilityId) {
+            $_SESSION['error_message'] = "Invalid Resort or Facility ID.";
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $deletedCount = BlockedFacilityAvailability::deleteAllForFacility($facilityId);
+
+        $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the selected facility.";
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        exit();
+    }
+
+    /**
+     * Deblock dates within a specific range for a facility
+     */
+    public function deblockFacilityByDateRange() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=advancedBlocking');
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
+        $facilityId = filter_input(INPUT_POST, 'facility_id', FILTER_VALIDATE_INT);
+        $startDate = filter_input(INPUT_POST, 'start_date', FILTER_UNSAFE_RAW);
+        $endDate = filter_input(INPUT_POST, 'end_date', FILTER_UNSAFE_RAW);
+
+        if (!$resortId || !$facilityId || !$startDate || !$endDate) {
+            $_SESSION['error_message'] = "Resort ID, Facility ID, start date, and end date are required.";
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            exit();
+        }
+
+        $deletedCount = BlockedFacilityAvailability::deleteByDateRangeAndFacility($facilityId, $startDate, $endDate);
+
+        $_SESSION['success_message'] = "Successfully removed $deletedCount blocks for the facility within the selected date range.";
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit();
     }

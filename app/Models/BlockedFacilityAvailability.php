@@ -48,4 +48,25 @@ class BlockedFacilityAvailability {
         $stmt->bindValue(':id', $blockedAvailabilityId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+    public static function deleteAllForFacility($facilityId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("DELETE FROM BlockedFacilityAvailability WHERE FacilityID = :facilityId");
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    public static function deleteByDateRangeAndFacility($facilityId, $startDate, $endDate) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "DELETE FROM BlockedFacilityAvailability
+             WHERE FacilityID = :facilityId
+             AND BlockDate BETWEEN :startDate AND :endDate"
+        );
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+        $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }
