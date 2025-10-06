@@ -38,6 +38,12 @@ require_once __DIR__ . '/../partials/header.php';
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
+                            <a href="?controller=payment&action=showPendingPayments" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-credit-card"></i><br>
+                                <small>Payment Verification</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
                             <a href="?controller=admin&action=unifiedBookingManagement" class="btn btn-outline-primary w-100 mb-2">
                                 <i class="fas fa-calendar-check"></i><br>
                                 <small>Unified Booking & Payment</small>
@@ -53,12 +59,6 @@ require_once __DIR__ . '/../partials/header.php';
                             <a href="?controller=admin&action=advancedBlocking" class="btn btn-outline-warning w-100 mb-2">
                                 <i class="fas fa-ban"></i><br>
                                 <small>Advanced Blocking</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="?controller=payment&action=showPendingPayments" class="btn btn-outline-info w-100 mb-2">
-                                <i class="fas fa-credit-card"></i><br>
-                                <small>Payment Verification</small>
                             </a>
                         </div>
                     </div>
