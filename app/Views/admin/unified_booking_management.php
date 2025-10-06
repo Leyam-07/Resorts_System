@@ -442,28 +442,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.textContent = method.name + ' - ' + method.details;
                         selectElement.appendChild(option);
                     });
-                } else {
-                    // No payment methods configured
-                    const noMethodsOption = document.createElement('option');
-                    noMethodsOption.value = '';
-                    noMethodsOption.textContent = 'No online payment methods configured';
-                    selectElement.appendChild(noMethodsOption);
 
-                    // Add cash as fallback
-                    const cashOption = document.createElement('option');
-                    cashOption.value = 'Cash';
-                    cashOption.textContent = 'Cash (No online methods configured)';
-                    selectElement.appendChild(cashOption);
+                    // Add On-Site Payment option at the end
+                    const onsiteOption = document.createElement('option');
+                    onsiteOption.value = 'On-Site Payment';
+                    onsiteOption.textContent = 'On-Site Payment';
+                    selectElement.appendChild(onsiteOption);
+                } else {
+                    // No payment methods configured - just show On-Site Payment
+                    const onsiteOption = document.createElement('option');
+                    onsiteOption.value = 'On-Site Payment';
+                    onsiteOption.textContent = 'On-Site Payment';
+                    selectElement.appendChild(onsiteOption);
                 }
             })
             .catch(error => {
                 console.error('Error fetching payment methods:', error);
                 selectElement.innerHTML = '<option value="">Error loading payment methods</option>';
-                // Add cash as fallback anyway
-                const cashOption = document.createElement('option');
-                cashOption.value = 'Cash';
-                cashOption.textContent = 'Cash (Error loading online methods)';
-                selectElement.appendChild(cashOption);
+                // Add On-Site Payment option as fallback
+                const onsiteOption = document.createElement('option');
+                onsiteOption.value = 'On-Site Payment';
+                onsiteOption.textContent = 'On-Site Payment';
+                selectElement.appendChild(onsiteOption);
             });
     }
 });

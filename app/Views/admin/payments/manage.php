@@ -103,9 +103,7 @@ require_once __DIR__ . '/../../../Models/ResortPaymentMethods.php';
                                         <?= htmlspecialchars($method->MethodType) ?> - <?= htmlspecialchars($method->AccountDetails) ?>
                                     </option>
                                 <?php endforeach; ?>
-                                <?php if (empty($resortPaymentMethods)): ?>
-                                    <option value="Cash">Cash (No online methods configured)</option>
-                                <?php endif; ?>
+                                <option value="On-Site Payment">On-Site Payment</option>
                             </select>
                             <div class="form-text small">Choose from configured payment methods for this resort</div>
                         </div>
