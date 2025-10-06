@@ -97,14 +97,17 @@ class Payment {
         $paymentId = self::create($payment);
         
         if ($paymentId) {
-            // Log payment creation in audit trail
+            // Log comprehensive payment submission in audit trail
+            $formattedAmount = '₱' . number_format($amount, 2);
+            $auditDetails = "Customer submitted payment of {$formattedAmount} with reference: {$paymentReference} via {$paymentMethod} (Pending admin verification)";
+
             BookingAuditTrail::logPaymentUpdate(
                 $bookingId,
                 $_SESSION['user_id'] ?? 1,
-                'PaymentSubmitted',
-                null,
-                $amount,
-                'Customer submitted payment with reference: ' . $paymentReference
+                'Payment', // Consolidated field name
+                'No Payment Submitted',
+                'Payment Submitted (Pending)',
+                $auditDetails
             );
 
             // Update payment schedule if linked
@@ -193,33 +196,24 @@ class Payment {
             $updateStmt = $db->prepare("UPDATE Bookings SET RemainingBalance = ?, Status = ? WHERE BookingID = ?");
             $updateStmt->execute([$newBalance, $newStatus, $booking->bookingId]);
             
-            // Log all changes in audit trail
-            BookingAuditTrail::logPaymentUpdate(
-                $payment->bookingId,
-                $adminId,
-                'PaymentVerified',
-                'Pending',
-                'Verified',
-                'Admin verified payment of ₱' . number_format($payment->amount, 2)
-            );
+            // Log consolidated payment verification in audit trail
+            $verificationDetails = "Admin verified payment of ₱" . number_format($payment->amount, 2);
 
             if ($oldStatus !== $newStatus) {
-                BookingAuditTrail::logStatusChange(
-                    $payment->bookingId,
-                    $adminId,
-                    $oldStatus,
-                    $newStatus,
-                    'Status changed due to payment verification'
-                );
+                $verificationDetails .= "; Booking status changed from '$oldStatus' to '$newStatus'";
+            }
+
+            if ($booking->remainingBalance != $newBalance) {
+                $verificationDetails .= "; Balance updated from ₱" . number_format($booking->remainingBalance, 2) . " to ₱" . number_format($newBalance, 2);
             }
 
             BookingAuditTrail::logPaymentUpdate(
                 $payment->bookingId,
                 $adminId,
-                'BalanceUpdated',
-                $booking->remainingBalance,
-                $newBalance,
-                'Balance updated after payment verification'
+                'Payment',
+                'Pending Verification',
+                'Verified',
+                $verificationDetails
             );
             
             $db->commit();

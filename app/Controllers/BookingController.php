@@ -677,21 +677,13 @@ class BookingController {
 
         // Update booking with payment information AND create payment record with Phase 6 enhancements
         require_once __DIR__ . '/../Models/Payment.php';
-        
+
         // Create payment record
         $paymentResult = Payment::createFromBookingPayment($bookingId, $amountPaid, $paymentMethod, $paymentReference, $paymentProofURL);
-        
+
         if ($paymentResult['success'] && Booking::updatePaymentInfo($bookingId, $paymentProofURL, $paymentReference, $amountPaid)) {
             $paymentId = $paymentResult['paymentId'];
-            // Phase 6: Log payment update in audit trail
-            BookingAuditTrail::logPaymentUpdate(
-                $bookingId,
-                $_SESSION['user_id'],
-                'PaymentSubmission',
-                'No Payment',
-                '₱' . number_format($amountPaid, 2) . ' (Pending)',
-                'Customer submitted payment proof'
-            );
+            // Audit trail logging is now handled comprehensively in Payment::createFromBookingPayment
             
             // Phase 6: Create or update payment schedule
             $existingSchedules = PaymentSchedule::findByBookingId($bookingId);

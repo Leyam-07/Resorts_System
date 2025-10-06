@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.1] - 2025-10-06
+
+### Fixed
+
+- **Payment Audit Trail Consolidation:** Resolved fragmented audit trail entries for payment-related activities that were creating confusing, partial-information records in the Unified Booking & Payment Management page.
+  - **Payment Submission Consolidation:** Fixed issue where customer payment submissions created two separate audit entries instead of one comprehensive record. Unified the separate `PaymentSubmitted` and `PaymentSubmission` entries into a single, meaningful "Customer submitted payment" entry with complete details (amount, method, reference).
+  - **Payment Verification Consolidation:** Fixed admin payment verification creating multiple fragmented entries. Combined separate `PaymentVerified`, balance updates, and status changes into one consolidated entry showing verification details, status changes, and balance adjustments in a single audit record.
+  - **Code Changes:**
+    - Enhanced `app/Models/Payment.php` `verifyPayment()` method to create consolidated audit entries with all verification effects (payment status, booking status, balance changes).
+    - Modified `app/Controllers/BookingController.php` to remove redundant `logPaymentUpdate()` calls for payment submissions, letting Payment model handle comprehensive logging.
+  - **Audit Trail Improvements:** Payment-related audit entries now use consistent formatting with the rest of the system, eliminating confusing partial entries and providing complete, readable records of payment activities.
+  - **Testing:** Created comprehensive test scripts to validate consolidation behavior and prevent regressions.
+
+### Changed
+
+- **Audit Trail Formatting:** Standardized payment audit trail entries to use consistent field names and comprehensive descriptions, aligning with the initial booking creation pattern that consolidates multiple details into single meaningful entries.
+
 ## [1.40.0] - 2025-10-06
 
 ### Added
