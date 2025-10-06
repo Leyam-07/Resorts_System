@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.2] - 2025-10-06
+
+### Added
+
+- **Resort-Based Filtering for Pending Payments:** Implemented resort-specific filtering on the Pending Payments admin page, similar to the existing functionality in the Admin Dashboard.
+  - **Controller Modifications:** Updated `PaymentController::showPendingPayments()` to accept `resort_id` GET parameter, fetch all resorts, and pass resort filter to `Payment::getPendingPayments($resortId)`.
+  - **Session-Based Filter Persistence:** Added session storage of resort filter (`$_SESSION['pending_resort_filter']`) to maintain selection after verify/reject payment actions.
+  - **Smart Redirects:** Modified `verifyPayment()` and `rejectPayment()` methods to preserve resort filter in redirect URLs after processing payments.
+  - **UI Enhancement:** Added resort filter dropdown to `pending.php` view with "All Resorts" default option, matching Admin Dashboard styling and behavior.
+  - **Improved User Workflow:** Admins can now focus on pending payments for specific resorts while maintaining filter state throughout verification workflow.
+
+### Changed
+
+- **Payment Controller Architecture:** Enhanced `PaymentController` with resort filter session management and intelligent redirect preservation.
+
 ## [1.40.1] - 2025-10-06
 
 ### Fixed

@@ -125,10 +125,21 @@ class PaymentController {
      * Show pending payments for admin review
      */
     public function showPendingPayments() {
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+
+        // Store resort filter for maintaining filter after actions
+        if ($resortId) {
+            $_SESSION['pending_resort_filter'] = $resortId;
+        } elseif (!isset($_GET['resort_id'])) {
+            unset($_SESSION['pending_resort_filter']);
+        }
+
+        require_once __DIR__ . '/../Models/Resort.php';
+        $resorts = Resort::findAll();
+
         require_once __DIR__ . '/../Models/Payment.php';
-        
-        $pendingPayments = Payment::getPendingPayments();
-        
+        $pendingPayments = Payment::getPendingPayments($resortId);
+
         require_once __DIR__ . '/../Views/admin/payments/pending.php';
     }
 
@@ -144,13 +155,17 @@ class PaymentController {
         $paymentId = filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT);
         if (!$paymentId) {
             $_SESSION['error_message'] = "Invalid payment ID.";
-            header('Location: ?controller=payment&action=showPendingPayments');
+            $redirectUrl = '?controller=payment&action=showPendingPayments';
+            if (isset($_SESSION['pending_resort_filter'])) {
+                $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
+            }
+            header('Location: ' . $redirectUrl);
             exit();
         }
 
         require_once __DIR__ . '/../Models/Payment.php';
         require_once __DIR__ . '/../Helpers/Notification.php';
-        
+
         if (Payment::verifyPayment($paymentId, $_SESSION['user_id'])) {
             // Payment verification successful - try to send confirmation email
             $payment = Payment::findById($paymentId);
@@ -168,7 +183,11 @@ class PaymentController {
             $_SESSION['error_message'] = "Failed to verify payment.";
         }
 
-        header('Location: ?controller=payment&action=showPendingPayments');
+        $redirectUrl = '?controller=payment&action=showPendingPayments';
+        if (isset($_SESSION['pending_resort_filter'])) {
+            $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
+        }
+        header('Location: ' . $redirectUrl);
         exit();
     }
 
@@ -183,16 +202,20 @@ class PaymentController {
 
         $paymentId = filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT);
         $reason = filter_input(INPUT_POST, 'reason', FILTER_SANITIZE_STRING);
-        
+
         if (!$paymentId) {
             $_SESSION['error_message'] = "Invalid payment ID.";
-            header('Location: ?controller=payment&action=showPendingPayments');
+            $redirectUrl = '?controller=payment&action=showPendingPayments';
+            if (isset($_SESSION['pending_resort_filter'])) {
+                $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
+            }
+            header('Location: ' . $redirectUrl);
             exit();
         }
 
         require_once __DIR__ . '/../Models/Payment.php';
         require_once __DIR__ . '/../Helpers/Notification.php';
-        
+
         if (Payment::rejectPayment($paymentId, $reason)) {
             // Get payment info to send rejection notification
             $payment = Payment::findById($paymentId);
@@ -210,7 +233,11 @@ class PaymentController {
             $_SESSION['error_message'] = "Failed to reject payment.";
         }
 
-        header('Location: ?controller=payment&action=showPendingPayments');
+        $redirectUrl = '?controller=payment&action=showPendingPayments';
+        if (isset($_SESSION['pending_resort_filter'])) {
+            $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
+        }
+        header('Location: ' . $redirectUrl);
         exit();
     }
 }

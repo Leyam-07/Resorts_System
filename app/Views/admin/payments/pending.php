@@ -30,6 +30,24 @@ require_once __DIR__ . '/../../partials/header.php';
         </div>
     <?php endif; ?>
 
+    <!-- Resort Filter -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <form action="" method="GET" id="resortFilterForm">
+                <input type="hidden" name="controller" value="payment">
+                <input type="hidden" name="action" value="showPendingPayments">
+                <select name="resort_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Resorts</option>
+                    <?php foreach ($resorts as $resort): ?>
+                        <option value="<?= $resort->resortId ?>" <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == $resort->resortId) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($resort->name) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        </div>
+    </div>
+
     <?php if (empty($pendingPayments)): ?>
         <div class="alert alert-info text-center">
             <i class="fas fa-info-circle fa-2x mb-3"></i>
