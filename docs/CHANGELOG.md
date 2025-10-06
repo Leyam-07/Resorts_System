@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.3] - 2025-10-06
+
+### Enhanced
+
+- **Admin Feedback Management System:** Completely revamped the admin feedback interface (`admin/feedback`) to provide comprehensive feedback oversight for both resort experiences and facility-specific reviews.
+  - **Unified Feedback Display:** Redesigned the interface to show both resort-level feedback and facility-specific feedback in separate, clearly labeled sections for better administrator insight.
+  - **Resort-Based Filtering:** Added a resort filter dropdown that allows admins to view feedback for all resorts or filter by specific resorts, matching the functionality available in the Admin Dashboard and other admin pages.
+  - **Enhanced User Experience:** Improved the layout by placing the page title at the top, followed by the resort filter, with better vertical spacing. Replaced numeric ratings with star representations for more intuitive visual feedback.
+  - **Database Query Optimization:** Updated the `Feedback` model with efficient queries using proper JOINs (`LEFT JOIN Facilities`) to include resort-only bookings that were previously missing from the feedback list.
+  - **Separated Feedback Types:** Introduced `findAllFacilityFeedbacks()` method to handle facility-specific feedbacks independently from resort feedbacks, supporting the new two-section display approach.
+
+### Changed
+
+- **Feedback System Architecture:** Refactored the feedback retrieval logic to accommodate the dual nature of feedback (resort + facilities) with independent querying and resort-aware filtering throughout the model layer.
+
+### Fixed
+
+- **Missing Resort-Only Feedbacks:** Resolved the core issue where feedback for bookings without specific facilities was not displayed due to inappropriate INNER JOIN usage. The system now correctly shows all feedback types.
+
+### Technical
+
+- **Model Enhancements:** Updated `Feedback::findAll()` and added `Feedback::findAllFacilityFeedbacks()` to support resort filtering and proper handling of facility relationships.
+- **Controller Integration:** Modified `FeedbackController::listAllFeedback()` to process both feedback types and handle resort parameter validation.
+- **View Redesign:** Completely overhauled `app/Views/admin/feedback/index.php` with responsive layout, filtering controls, and star-rating displays for better user experience.
+
 ## [1.40.2] - 2025-10-06
 
 ### Added

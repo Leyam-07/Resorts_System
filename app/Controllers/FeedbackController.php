@@ -68,7 +68,12 @@ class FeedbackController {
             exit;
         }
 
-        $feedbacks = Feedback::findAll();
+        require_once __DIR__ . '/../Models/Resort.php';
+        $resortId = isset($_GET['resort_id']) && trim($_GET['resort_id']) !== '' ? filter_var($_GET['resort_id'], FILTER_VALIDATE_INT) : null;
+        $resorts = Resort::findAll();
+
+        $resortFeedbacks = Feedback::findAll($resortId);
+        $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortId);
 
         require_once __DIR__ . '/../Views/admin/feedback/index.php';
     }

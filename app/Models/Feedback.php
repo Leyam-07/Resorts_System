@@ -46,16 +46,67 @@ class Feedback {
         return $stmt->fetchObject('Feedback');
     }
 
-    public static function findAll() {
+    public static function findAll($resortId = null) {
         $db = self::getDB();
-        $stmt = $db->prepare(
-            "SELECT f.*, b.BookingDate, u.Username as CustomerName, fac.Name as FacilityName
-             FROM Feedback f
-             JOIN Bookings b ON f.BookingID = b.BookingID
-             JOIN Users u ON b.CustomerID = u.UserID
-             JOIN Facilities fac ON b.FacilityID = fac.FacilityID
-             ORDER BY f.CreatedAt DESC"
-        );
+        $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.Username as CustomerName,
+                         COALESCE(fac.Name, 'Overall Resort Experience') as FacilityName, r.Name as ResortName, b.ResortID
+                  FROM Feedback f
+                  JOIN Bookings b ON f.BookingID = b.BookingID
+                  JOIN Users u ON b.CustomerID = u.UserID
+                  LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
+                  JOIN Resorts r ON b.ResortID = r.ResortID";
+
+        $conditions = [];
+        $params = [];
+
+        if ($resortId !== null) {
+            $conditions[] = "b.ResortID = :resortId";
+            $params['resortId'] = $resortId;
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $query .= " ORDER BY f.CreatedAt DESC";
+
+        $stmt = $db->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function findAllFacilityFeedbacks($resortId = null) {
+        $db = self::getDB();
+        $query = "SELECT ff.FacilityFeedbackID, ff.FeedbackID, ff.FacilityID, ff.Rating, ff.Comment, ff.CreatedAt,
+                         u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID
+                  FROM FacilityFeedback ff
+                  JOIN Feedback f ON ff.FeedbackID = f.FeedbackID
+                  JOIN Bookings b ON f.BookingID = b.BookingID
+                  JOIN Users u ON b.CustomerID = u.UserID
+                  JOIN Facilities fac ON ff.FacilityID = fac.FacilityID
+                  JOIN Resorts r ON b.ResortID = r.ResortID";
+
+        $conditions = [];
+        $params = [];
+
+        if ($resortId !== null) {
+            $conditions[] = "b.ResortID = :resortId";
+            $params['resortId'] = $resortId;
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $query .= " ORDER BY ff.CreatedAt DESC";
+
+        $stmt = $db->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
