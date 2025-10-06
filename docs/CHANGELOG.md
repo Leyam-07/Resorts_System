@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.0] - 2025-10-06
+
+### Added
+
+- **Active Booking Count Badge in Customer Navigation:** Implemented real-time display of active bookings count in the customer navigation header.
+  - **Backend Implementation:** Added `getActiveBookingsCount($customerId)` method to `Booking` model that excludes 'Completed' and 'Cancelled' bookings from count.
+  - **Controller Integration:** Modified `BookingController::showMyBookings()` to filter out completed/cancelled bookings from the active bookings display.
+  - **Frontend Navigation:** Updated `app/Views/partials/header.php` for customers to display active booking count as a styled badge next to "My Bookings" link.
+  - **UI Enhancement:** Added custom CSS styling for `.booking-count-badge` class with larger font size (16px) while maintaining compact badge dimensions and professional appearance.
+  - **Role-Based Display:** Count badge appears only for customers with active bookings, showing formatted count (e.g., "3") with light background matching navigation theme.
+
+### Changed
+
 ## [1.39.9] - 2025-10-05
 
 ### Changed

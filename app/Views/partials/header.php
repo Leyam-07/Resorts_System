@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+require_once __DIR__ . '/../../../app/Models/Booking.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +17,14 @@ if (session_status() === PHP_SESSION_NONE) {
     <link href="<?= BASE_URL ?>/assets/css/fontawesome.min.css" rel="stylesheet">
     <!-- Bootstrap JS Bundle - Load in head for navbar dropdowns -->
     <script src="<?= BASE_URL ?>/assets/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        .booking-count-badge {
+            font-size: 16px !important;
+            line-height: 1;
+            padding: 0.2em 0.4em;
+        }
+    </style>
 </head>
 <body>
 
@@ -77,6 +87,7 @@ if (session_status() === PHP_SESSION_NONE) {
                            </a>
                        </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>
+                        <?php $activeBookingCount = Booking::getActiveBookingsCount($_SESSION['user_id']); ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -89,7 +100,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showMyBookings">
-                                <i class="fas fa-calendar-check"></i> My Bookings
+                                <i class="fas fa-calendar-check"></i> My Bookings<?php if ($activeBookingCount > 0): ?><span class="badge booking-count-badge bg-light text-primary fw-semibold ms-1"><?php echo $activeBookingCount; ?></span><?php endif; ?>
                             </a>
                         </li>
                     <?php endif; ?>

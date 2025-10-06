@@ -19,9 +19,9 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 <?php endif; ?>
 
-<?php if (empty($bookings)): ?>
+<?php if (empty($activeBookings)): ?>
     <div class="alert alert-info" role="alert">
-        You have no bookings yet. <a href="?controller=booking&action=showBookingForm">Make a booking now!</a>
+        You have no active bookings. <a href="?controller=booking&action=showBookingForm">Make a booking now!</a>
     </div>
 <?php else: ?>
     <div class="table-responsive">
@@ -38,7 +38,7 @@ require_once __DIR__ . '/../partials/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($bookings as $booking): ?>
+                <?php foreach ($activeBookings as $booking): ?>
                     <tr>
                         <td>
                             <strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?></strong>

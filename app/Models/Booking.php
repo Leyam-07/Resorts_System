@@ -609,6 +609,21 @@ class Booking {
     /**
      * Update remaining balance for a booking
      */
+    /**
+     * Get count of active bookings (excluding completed and cancelled) for a customer
+     */
+    public static function getActiveBookingsCount($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) as count FROM Bookings
+             WHERE CustomerID = :customerId AND Status NOT IN ('Completed', 'Cancelled')"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['count'];
+    }
+
     public static function updateRemainingBalance($bookingId, $remainingBalance) {
         $db = self::getDB();
         $stmt = $db->prepare("UPDATE Bookings SET RemainingBalance = :remainingBalance WHERE BookingID = :bookingId");

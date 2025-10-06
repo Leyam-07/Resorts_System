@@ -492,13 +492,19 @@ class BookingController {
 
         $bookings = Booking::findByCustomerId($_SESSION['user_id']);
 
-        // Check if feedback has been submitted for each completed booking
+        // Filter to exclude completed and cancelled bookings
+        $activeBookings = [];
         if ($bookings) {
             foreach ($bookings as $booking) {
-                if ($booking->Status === 'Completed') {
-                    $booking->hasFeedback = (Feedback::findByBookingId($booking->BookingID) !== false);
-                } else {
-                    $booking->hasFeedback = false;
+                // Only include bookings that are not completed or cancelled
+                if (!in_array($booking->Status, ['Completed', 'Cancelled'])) {
+                    // Check if feedback has been submitted for each completed booking (though we're filtering them out, keeping logic for potential future use)
+                    if ($booking->Status === 'Completed') {
+                        $booking->hasFeedback = (Feedback::findByBookingId($booking->BookingID) !== false);
+                    } else {
+                        $booking->hasFeedback = false;
+                    }
+                    $activeBookings[] = $booking;
                 }
             }
         }
