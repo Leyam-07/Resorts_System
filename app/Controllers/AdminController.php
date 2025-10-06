@@ -85,6 +85,10 @@ class AdminController {
             $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth, $resortId);
             $bookingHistory = Booking::getBookingHistory(10); // This could also be filtered if needed
 
+            // Get counts for dashboard buttons
+            $pendingPaymentCount = Payment::getPendingPaymentCount($resortId);
+            $activeBookingCount = Booking::getActiveBookingsCountForAdmin($resortId);
+
             include __DIR__ . '/../Views/admin/dashboard.php';
         } elseif ($_SESSION['role'] === 'Staff') {
             $this->staffDashboard($resortId, $resorts);
@@ -919,15 +923,21 @@ class AdminController {
 
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
         $status = filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW);
-        
+
         $resorts = Resort::findAll();
-        
+
         // Get bookings with payment information
         $bookings = Booking::getBookingsWithPaymentDetails($resortId, $status);
-        
-        // Get pending payment count for notification
-        $pendingPaymentCount = Payment::getPendingPaymentCount();
-        
+
+        // Get pending payment count for notification - filtered by resort
+        $pendingPaymentCount = Payment::getPendingPaymentCount($resortId);
+
+        // Get active booking count (excluding completed) for header
+        $activeBookingCount = Booking::getActiveBookingsCountForAdmin($resortId);
+
+        // For the view: get total non-completed bookings count for header (separate from filtered $bookings)
+        $totalNonCompletedBookings = Booking::getActiveBookingsCountForAdmin($resortId);
+
         require_once __DIR__ . '/../Views/admin/unified_booking_management.php';
     }
 

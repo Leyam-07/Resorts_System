@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../../../app/Models/Booking.php';
+require_once __DIR__ . '/../../../app/Models/Payment.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,9 +21,9 @@ require_once __DIR__ . '/../../../app/Models/Booking.php';
 
     <style>
         .booking-count-badge {
-            font-size: 16px !important;
+            font-size: 12px !important;
             line-height: 1;
-            padding: 0.2em 0.4em;
+            padding: 0.3em 0.6em;
         }
     </style>
 </head>
@@ -41,6 +42,11 @@ require_once __DIR__ . '/../../../app/Models/Booking.php';
             <ul class="navbar-nav ms-auto">
                 <?php if (isset($_SESSION['role'])): ?>
                     <?php if ($_SESSION['role'] === 'Admin'): ?>
+                        <?php
+                        // Calculate total counts across all resorts for navigation badges
+                        $totalPendingPayments = Payment::getPendingPaymentCount(); // No resort filter = all resorts
+                        $totalActiveBookings = Booking::getActiveBookingsCountForAdmin(); // No resort filter = all resorts
+                        ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=admin&action=dashboard">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -51,8 +57,8 @@ require_once __DIR__ . '/../../../app/Models/Booking.php';
                                 <i class="fas fa-calendar-check"></i> Booking & Payments
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
-                                <li><a class="dropdown-item" href="?controller=admin&action=unifiedBookingManagement"><i class="fas fa-calendar-check"></i> Unified Management</a></li>
-                                <li><a class="dropdown-item" href="?controller=payment&action=showPendingPayments"><i class="fas fa-credit-card"></i> Payment Verification</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=unifiedBookingManagement"><i class="fas fa-calendar-check"></i> Unified Management<?php if ($totalActiveBookings > 0): ?><span class="badge booking-count-badge bg-info text-white fw-semibold ms-1"><?php echo $totalActiveBookings; ?></span><?php endif; ?></a></li>
+                                <li><a class="dropdown-item" href="?controller=payment&action=showPendingPayments"><i class="fas fa-credit-card"></i> Payment Verification<?php if ($totalPendingPayments > 0): ?><span class="badge booking-count-badge bg-danger text-white fw-semibold ms-1"><?php echo $totalPendingPayments; ?></span><?php endif; ?></a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

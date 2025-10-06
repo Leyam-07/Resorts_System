@@ -247,10 +247,22 @@ class Payment {
     /**
      * Get count of pending payments for notification
      */
-    public static function getPendingPaymentCount() {
+    public static function getPendingPaymentCount($resortId = null) {
         $db = self::getDB();
-        $stmt = $db->prepare("SELECT COUNT(*) FROM Payments WHERE Status = 'Pending'");
-        $stmt->execute();
+        $sql = "SELECT COUNT(*) FROM Payments p
+                JOIN Bookings b ON p.BookingID = b.BookingID
+                WHERE p.Status = 'Pending'";
+
+        if ($resortId) {
+            $sql .= " AND b.ResortID = ?";
+        }
+
+        $stmt = $db->prepare($sql);
+        if ($resortId) {
+            $stmt->execute([$resortId]);
+        } else {
+            $stmt->execute();
+        }
         return $stmt->fetchColumn();
     }
 

@@ -8,14 +8,14 @@ require_once __DIR__ . '/../partials/header.php';
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3><i class="fas fa-calendar-check"></i> Unified Booking & Payment Management</h3>
+                    <h3><i class="fas fa-calendar-check"></i> Unified Booking & Payment Management (<?= $activeBookingCount ?>)</h3>
                     <div class="d-flex gap-2">
                         <?php if ($pendingPaymentCount > 0): ?>
-                            <a href="?controller=payment&action=showPendingPayments" class="btn btn-warning">
+                            <a href="?controller=payment&action=showPendingPayments<?php echo isset($_GET['resort_id']) ? '&resort_id=' . urlencode($_GET['resort_id']) : ''; ?>" class="btn btn-warning">
                                 <i class="fas fa-exclamation-circle"></i> <?= $pendingPaymentCount ?> Pending Payments
                             </a>
                         <?php endif; ?>
-                        <a href="?controller=admin&action=dashboard" class="btn btn-secondary">
+                        <a href="?controller=admin&action=dashboard<?php echo isset($_GET['resort_id']) ? '?resort_id=' . urlencode($_GET['resort_id']) : ''; ?>" class="btn btn-secondary">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     </div>

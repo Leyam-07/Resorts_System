@@ -624,6 +624,25 @@ class Booking {
         return (int)$result['count'];
     }
 
+    /**
+     * Get count of active bookings (excluding completed) filtered by resort for admin dashboard
+     */
+    public static function getActiveBookingsCountForAdmin($resortId = null) {
+        $db = self::getDB();
+        $sql = "SELECT COUNT(*) as count FROM Bookings WHERE Status != 'Completed'";
+
+        $params = [];
+        if ($resortId) {
+            $sql .= " AND ResortID = ?";
+            $params[] = $resortId;
+        }
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['count'];
+    }
+
     public static function updateRemainingBalance($bookingId, $remainingBalance) {
         $db = self::getDB();
         $stmt = $db->prepare("UPDATE Bookings SET RemainingBalance = :remainingBalance WHERE BookingID = :bookingId");

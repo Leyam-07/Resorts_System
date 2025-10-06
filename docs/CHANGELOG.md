@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.4] - 2025-10-06
+
+### Added
+
+- **Comprehensive Admin Count Display System:** Implemented a complete count visualization system across admin dashboards, individual pages, and navigation menus.
+  - **Dashboard Quick Actions Count Badges:** Added resort-filtered count badges to Payment Verification button (red, showing pending payments) and Unified Booking & Payment button (blue, showing active bookings not completed).
+  - **Individual Page Header Counts:** Implemented count displays in page headers for Payment Verification ("Pending Payments (X)") and Unified Booking Management ("Unified Booking & Payment Management (X)"), reflecting current resort filter selections.
+  - **Navigation Menu Count Badges:** Added navigation dropdown badges showing total counts across all resorts for Unified Management (blue, active bookings) and Payment Verification (red, pending payments).
+  - **Enhanced Count Logic:** Added `getActiveBookingsCountForAdmin()` method to Booking model for admin-specific count queries excluding completed bookings.
+  - **UI Optimizations:** Made count badges compact (font-size: 12px, reduced padding) to accommodate large numbers without crowding navigation elements.
+  - **Backend Integration:** Enhanced AdminController to pass resort-filtered counts to dashboard view and individual page controllers.
+
+### Enhanced
+
+- **Admin Dashboard Context-Awareness:** Quick action buttons now dynamically display counts based on selected resort filter, eliminating confusion between resort-specific vs. all-resort contexts.
+- **Navigation Efficiency:** Navigation dropdowns provide immediate visibility of system-wide pending tasks without needing to open individual pages.
+- **User Experience Consistency:** All count displays use consistent styling (badge appearance, color coding) matching dashboard design patterns.
+
+### Technical
+
+- **Count Accuracy:** Unified Management counts exclude completed bookings, Payment Verification shows all pending payments, ensuring meaningful actionable numbers.
+- **Performance Optimization:** Compact badge styling prevents UI overflow while maintaining readability for large numbers (3+ digits).
+- **Code Architecture:** Maintained separation of concerns with resort-filtered logic on dashboard vs. all-resort logic in navigation.
+
+### Changed
+
+- **Payment Model Enhancement:** No changes made to Payment model methods - existing `getPendingPaymentCount()` method already supported optional resort filtering.
+- **Unified Booking Management:** Updated page header to display count beside title when resort filter is active.
+
+### Files Updated
+
+app/Models/Booking.php
+
+- Added getActiveBookingsCountForAdmin() method
+
+app/Controllers/AdminController.php
+
+- Enhanced dashboard() and unifiedBookingManagement() with count passing
+
+app/Views/admin/dashboard.php
+
+- Added count badges to Quick Management Actions
+
+app/Views/admin/payments/pending.php
+
+- Added count in header title
+
+app/Views/admin/unified_booking_management.php
+
+- Added count in header title
+
+app/Views/partials/header.php
+
+- Added navigation dropdown badges
+- Included Payment model require
+- Optimized badge CSS for compact display
+
+Payment.php model methods leveraged (no changes needed)
+
 ## [1.40.3] - 2025-10-06
 
 ### Enhanced

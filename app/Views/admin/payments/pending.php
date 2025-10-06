@@ -5,11 +5,11 @@ require_once __DIR__ . '/../../partials/header.php';
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-clock"></i> <?= htmlspecialchars($pageTitle) ?></h1>
+        <h1><i class="fas fa-clock"></i> <?= htmlspecialchars($pageTitle) ?> (<?= count($pendingPayments) ?>)</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="?controller=admin&action=dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item active"><?= htmlspecialchars($pageTitle) ?></li>
+                <li class="breadcrumb-item active"><?= htmlspecialchars($pageTitle) ?> (<?= count($pendingPayments) ?>)</li>
             </ol>
         </nav>
     </div>
