@@ -160,7 +160,7 @@ class Booking {
              LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
              WHERE b.CustomerID = :customerId
              GROUP BY b.BookingID
-             ORDER BY b.BookingDate DESC, b.CreatedAt DESC"
+             ORDER BY b.CreatedAt DESC"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();

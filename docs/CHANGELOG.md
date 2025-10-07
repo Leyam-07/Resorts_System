@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.5] - 2025-10-07
+
+### Enhanced
+
+- **Customer My Bookings Experience:** Comprehensive improvements to the customer booking history interface for better visual clarity and information transparency.
+  - **Color Differentiation for Status Indicators:** Implemented distinct badge colors for different booking states to reduce visual confusion and improve user experience.
+    - "Feedback Submitted" badges now use blue (`bg-primary`) background to distinguish from other statuses
+    - "Booking confirmed" badges use cyan (`bg-info`) background for clear status differentiation
+  - **Complete Booking History Transparency:** Modified booking display logic to show all booking statuses including cancelled bookings, providing customers full visibility into their booking activity history.
+  - **Creation Date Visibility:** Added dedicated "Creation Date" column to show when each booking was originally created, including both date and time formatting for complete booking timeline context.
+  - **Controller Logic Update:** Updated `BookingController::showMyBookings()` to remove booking status filtering, enabling complete booking history display for transparency.
+
+### Changed
+
+- **Badge Semantic Coloring:** Changed from uniform secondary background to semantically meaningful colors (blue for feedback, cyan for confirmation) matching Bootstrap conventions.
+- **Booking Display Logic:** Removed exclusion filtering for cancelled bookings to provide complete booking history transparency.
+- **Table Column Structure:** Added creation timestamp column to provide booking chronology and timeline context.
+
+### Files Updated
+
+app/Controllers/BookingController.php
+
+- Modified showMyBookings() to include all booking statuses
+
+app/Views/booking/my_bookings.php
+
+- Added Creation Date column with formatted timestamps
+- Updated badge color classes for improved visual distinction
+
 ## [1.40.4] - 2025-10-06
 
 ### Added

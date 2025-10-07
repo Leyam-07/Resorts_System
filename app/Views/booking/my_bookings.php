@@ -28,6 +28,7 @@ require_once __DIR__ . '/../partials/header.php';
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Creation Date</th>
                     <th>Resort</th>
                     <th>Date & Time</th>
                     <th>Facilities</th>
@@ -40,6 +41,10 @@ require_once __DIR__ . '/../partials/header.php';
             <tbody>
                 <?php foreach ($activeBookings as $booking): ?>
                     <tr>
+                        <td>
+                            <div><strong><?= htmlspecialchars(date('F j, Y', strtotime($booking->CreatedAt))) ?></strong></div>
+                            <small class="text-muted"><?= htmlspecialchars(date('g:i A', strtotime($booking->CreatedAt))) ?></small>
+                        </td>
                         <td>
                             <strong><?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?></strong>
                         </td>
@@ -92,7 +97,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <div class="btn-group-vertical btn-group-sm" role="group">
                                 <?php if ($booking->Status === 'Completed'): ?>
                                     <?php if ($booking->hasFeedback): ?>
-                                        <span class="badge bg-secondary">Feedback Submitted</span>
+                                        <span class="badge bg-primary text-white">Feedback Submitted</span>
                                     <?php else: ?>
                                         <button type="button" class="btn btn-success btn-sm feedback-btn" data-bs-toggle="modal" data-bs-target="#feedbackModal" data-booking-id="<?= htmlspecialchars($booking->BookingID) ?>" data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>" data-resort-name="<?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?>">
                                             <i class="fas fa-star"></i> Leave Feedback
@@ -121,12 +126,19 @@ require_once __DIR__ . '/../partials/header.php';
                                     <?php elseif ($booking->Status === 'Pending'): ?>
                                         <span class="badge bg-warning text-dark">Payment Under Review</span>
                                     <?php endif; ?>
-                                    
+
                                     <!-- Cancel Action -->
                                     <?php if ($booking->Status === 'Pending' && $booking->RemainingBalance >= $booking->TotalAmount): ?>
                                     <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
                                         <i class="fas fa-times"></i> Cancel
                                     </a>
+                                    <?php endif; ?>
+
+                                    <!-- Placeholder for fully confirmed bookings with no actions -->
+                                    <?php if (empty($booking->RemainingBalance) || $booking->RemainingBalance <= 0): ?>
+                                        <?php if ($booking->Status === 'Confirmed'): ?>
+                                            <span class="badge bg-secondary">Booking confirmed</span>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>

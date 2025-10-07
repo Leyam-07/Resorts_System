@@ -106,7 +106,7 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showMyBookings">
-                                <i class="fas fa-calendar-check"></i> My Bookings<?php if ($activeBookingCount > 0): ?><span class="badge booking-count-badge bg-light text-primary fw-semibold ms-1"><?php echo $activeBookingCount; ?></span><?php endif; ?>
+                                <i class="fas fa-calendar-check"></i> My Bookings<?php if ($activeBookingCount > 0): ?><span class="badge booking-count-badge bg-danger text-white fw-semibold ms-1"><?php echo $activeBookingCount; ?></span><?php endif; ?>
                             </a>
                         </li>
                     <?php endif; ?>
