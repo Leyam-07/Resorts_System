@@ -175,31 +175,46 @@ require_once __DIR__ . '/../partials/header.php';
                                            <p class="text-muted mb-0">Remove existing blocks by date range or all at once</p>
                                        </div>
                                        <div class="card-body">
-                                           <form method="POST" action="?controller=admin&action=deblockByDateRange" class="mb-3">
-                                               <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
-                                               <div class="row">
-                                                   <div class="col-md-6">
-                                                       <label class="form-label">Start Date</label>
-                                                       <input type="date" class="form-control" name="start_date" required>
+                                           <!-- Deblock by Date Range Section -->
+                                           <div class="mb-4">
+                                               <h6 class="card-title mb-3 text-success"><i class="fas fa-calendar-days"></i> Deblock by Date Range</h6>
+                                               <p class="text-muted small mb-3">Remove blocks for a specific range of dates</p>
+                                               <form method="POST" action="?controller=admin&action=deblockByDateRange">
+                                                   <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                   <div class="row">
+                                                       <div class="col-md-6">
+                                                           <label class="form-label">Start Date</label>
+                                                           <input type="date" class="form-control" name="start_date" required>
+                                                       </div>
+                                                       <div class="col-md-6">
+                                                           <label class="form-label">End Date</label>
+                                                           <input type="date" class="form-control" name="end_date" required>
+                                                       </div>
                                                    </div>
-                                                   <div class="col-md-6">
-                                                       <label class="form-label">End Date</label>
-                                                       <input type="date" class="form-control" name="end_date" required>
+                                                   <div class="d-flex justify-content-start mt-3">
+                                                       <button type="submit" class="btn btn-success">
+                                                           <i class="fas fa-key"></i> Deblock Date Range
+                                                       </button>
                                                    </div>
-                                               </div>
-                                               <button type="submit" class="btn btn-success mt-2">
-                                                   <i class="fas fa-key"></i> Deblock Date Range
-                                               </button>
-                                           </form>
-                                           <hr>
-                                           <form method="POST" action="?controller=admin&action=deblockAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this resort? This action cannot be undone.');">
-                                               <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
-                                               <div class="d-grid">
-                                                   <button type="submit" class="btn btn-info">
-                                                       <i class="fas fa-globe"></i> Deblock All Dates
-                                                   </button>
-                                               </div>
-                                           </form>
+                                               </form>
+                                           </div>
+
+                                           <!-- Separator -->
+                                           <div class="border-bottom my-4"></div>
+
+                                           <!-- Remove All Blocks Section -->
+                                           <div class="mt-4">
+                                               <h6 class="card-title mb-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Remove All Blocks</h6>
+                                               <p class="text-muted small mb-3">Remove all blocked dates for this resort. This action cannot be undone.</p>
+                                               <form method="POST" action="?controller=admin&action=deblockAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this resort? This action cannot be undone.');">
+                                                   <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                   <div class="d-flex justify-content-end">
+                                                       <button type="submit" class="btn btn-warning">
+                                                           <i class="fas fa-globe"></i> Deblock All Dates
+                                                       </button>
+                                                   </div>
+                                               </form>
+                                           </div>
                                        </div>
                                    </div>
                                 </div>
@@ -365,23 +380,48 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
-                                            <hr>
-                                            <!-- Date Range Deblocking -->
-                                            <form method="POST" action="?controller=admin&action=deblockFacilityByDateRange" class="mb-3" id="deblockFacilityDateRangeForm" style="display: none;">
-                                                <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
-                                                <input type="hidden" name="facility_id" id="deblockFacilityIdDateRange">
-                                                <div class="row">
-                                                    <div class="col-md-6"><label class="form-label">Start Date</label><input type="date" class="form-control" name="start_date" required></div>
-                                                    <div class="col-md-6"><label class="form-label">End Date</label><input type="date" class="form-control" name="end_date" required></div>
-                                                </div>
-                                                <button type="submit" class="btn btn-success mt-2"><i class="fas fa-key"></i> Deblock Date Range</button>
-                                            </form>
-                                            <!-- Deblock All -->
-                                            <form method="POST" action="?controller=admin&action=deblockFacilityAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this facility?');" id="deblockFacilityAllForm" style="display: none;">
-                                                <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
-                                                <input type="hidden" name="facility_id" id="deblockFacilityIdAll">
-                                                <div class="d-grid"><button type="submit" class="btn btn-info"><i class="fas fa-globe"></i> Deblock All Dates for Selected Facility</button></div>
-                                            </form>
+                                            <!-- Date Range Deblocking Section -->
+                                            <div class="mb-4" id="deblockFacilityDateRangeContainer" style="display: none;">
+                                                <h6 class="card-title mb-3 text-success"><i class="fas fa-calendar-days"></i> Deblock by Date Range</h6>
+                                                <p class="text-muted small mb-3">Remove blocks for a specific range of dates from the selected facility</p>
+                                                <form method="POST" action="?controller=admin&action=deblockFacilityByDateRange" id="deblockFacilityDateRangeForm">
+                                                    <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                    <input type="hidden" name="facility_id" id="deblockFacilityIdDateRange">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Start Date</label>
+                                                            <input type="date" class="form-control" name="start_date" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">End Date</label>
+                                                            <input type="date" class="form-control" name="end_date" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex justify-content-start mt-3">
+                                                        <button type="submit" class="btn btn-success">
+                                                            <i class="fas fa-key"></i> Deblock Date Range
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Separator -->
+                                            <div class="border-bottom my-4" id="facilityDeblockSeparator" style="display: none;"></div>
+
+                                            <!-- Remove All Blocks Section -->
+                                            <div class="mt-4" id="deblockFacilityAllContainer" style="display: none;">
+                                                <h6 class="card-title mb-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Remove All Blocks</h6>
+                                                <p class="text-muted small mb-3">Remove all blocked dates for the selected facility. This action cannot be undone.</p>
+                                                <form method="POST" action="?controller=admin&action=deblockFacilityAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this facility?');" id="deblockFacilityAllForm">
+                                                    <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                    <input type="hidden" name="facility_id" id="deblockFacilityIdAll">
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-warning">
+                                                            <i class="fas fa-globe"></i> Deblock All Dates for Selected Facility
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -497,19 +537,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('deblockFacilitySelect')?.addEventListener('change', function() {
        const facilityId = this.value;
-       const dateRangeForm = document.getElementById('deblockFacilityDateRangeForm');
-       const deblockAllForm = document.getElementById('deblockFacilityAllForm');
+       const dateRangeContainer = document.getElementById('deblockFacilityDateRangeContainer');
+       const deblockAllContainer = document.getElementById('deblockFacilityAllContainer');
+       const separator = document.getElementById('facilityDeblockSeparator');
        const facilityIdDateRangeInput = document.getElementById('deblockFacilityIdDateRange');
        const facilityIdAllInput = document.getElementById('deblockFacilityIdAll');
 
        if (facilityId) {
            facilityIdDateRangeInput.value = facilityId;
            facilityIdAllInput.value = facilityId;
-           dateRangeForm.style.display = 'block';
-           deblockAllForm.style.display = 'block';
+           dateRangeContainer.style.display = 'block';
+           separator.style.display = 'block';
+           deblockAllContainer.style.display = 'block';
        } else {
-           dateRangeForm.style.display = 'none';
-           deblockAllForm.style.display = 'none';
+           dateRangeContainer.style.display = 'none';
+           separator.style.display = 'none';
+           deblockAllContainer.style.display = 'none';
        }
    });
 
