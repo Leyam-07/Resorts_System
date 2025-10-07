@@ -515,13 +515,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     <h6 class="fw-bold"><i class="fas fa-times-circle"></i> Payment Not Available</h6>
                     <p class="mb-2">This resort has not configured any payment methods yet.</p>
                     <p class="mb-3"><strong>Please contact the resort directly to arrange payment outside of this system.</strong></p>
-                    <div class="d-flex gap-2">
-                        <a href="tel:${adminPhone}" class="btn btn-outline-primary btn-sm" id="callResortBtn">
-                            <i class="fas fa-phone"></i> Phone
-                        </a>
-                        <a href="mailto:${adminEmail}" class="btn btn-outline-primary btn-sm" id="emailResortBtn">
-                            <i class="fas fa-envelope"></i> Email
-                        </a>
+                    <div class="mt-3">
+                        <p class="mb-1"><i class="fas fa-phone text-muted"></i> Phone: ${adminPhone}</p>
+                        <p class="mb-0"><i class="fas fa-envelope text-muted"></i> Email: ${adminEmail}</p>
                     </div>
                 </div>
             `;
