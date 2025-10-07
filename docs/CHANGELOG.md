@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.6] - 2025-10-07
+
+### Enhanced
+
+- **Advanced Blocking System UI Improvements:** Significantly enhanced the user experience for the Advanced Blocking interface with polished holiday selection and responsive date display.
+  - **Fixed Date Layout Issue:** Corrected a layout problem where date input fields would remain stacked vertically when switching from "Philippine Holidays" to "Weekends Only" or "Full Block" presets, ensuring proper horizontal layout for date range inputs.
+  - **Prominent Holiday Checkboxes:** Redesigned holiday selection checkboxes with enhanced visual prominence including light gray backgrounds, blue borders, larger touch targets, bold text labels, and professional styling to improve selection clarity.
+  - **Compact Design:** Reduced padding and margins on holiday checkbox containers, along with smaller checkbox scaling (from 1.3x to 1.1x) to create a more compact, efficient layout that shows more options without scrolling.
+  - **Clickable Container Areas:** Implemented JavaScript functionality allowing users to click anywhere within the entire holiday checkbox container to toggle selection, significantly improving usability and touch-friendliness for both desktop and mobile users.
+  - **Applied Improvements:** Enhanced styling and functionality applied consistently to both Resort Blocking and Facility Blocking sections for uniform user experience.
+
+### Files Updated
+
+app/Views/admin/advanced_blocking.php
+
+- Enhanced holiday checkbox styling and JavaScript functionality
+- Fixed date layout display logic for preset selection
+- Improved spacing and visual hierarchy of blocking options
+
 ## [1.40.5] - 2025-10-07
 
 ### Enhanced

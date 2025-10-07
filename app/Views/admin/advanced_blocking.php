@@ -93,22 +93,18 @@ require_once __DIR__ . '/../partials/header.php';
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="row" id="dateRangeContainer">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Start Date</label>
-                                                            <input type="date" class="form-control" name="start_date" min="<?= date('Y-m-d') ?>" required>
-                                                        </div>
+                                                <div class="d-flex" id="dateRangeContainer">
+                                                    <div class="mb-3 me-2 flex-fill">
+                                                        <label class="form-label">Start Date</label>
+                                                        <input type="date" class="form-control" name="start_date" min="<?= date('Y-m-d') ?>" required>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">End Date</label>
-                                                            <input type="date" class="form-control" name="end_date" min="<?= date('Y-m-d') ?>" required>
-                                                        </div>
+                                                    <div class="mb-3 ms-2 flex-fill">
+                                                        <label class="form-label">End Date</label>
+                                                        <input type="date" class="form-control" name="end_date" min="<?= date('Y-m-d') ?>" required>
                                                     </div>
                                                 </div>
 
-                                                <div id="holidayCheckboxContainer" class="mb-3" style="display: none;">
+                                                <div id="holidayCheckboxContainer" class="mb-3 d-none">
                                                     <label class="form-label">Select Holidays to Block (for the current year)</label>
                                                     <div class="row">
                                                         <?php
@@ -117,9 +113,9 @@ require_once __DIR__ . '/../partials/header.php';
                                                         ?>
                                                             <div class="col-md-6">
                                                                 <?php foreach ($chunk as $monthDay => $name): ?>
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="<?= $monthDay ?>" id="holiday_<?= str_replace('-', '', $monthDay) ?>">
-                                                                        <label class="form-check-label" for="holiday_<?= str_replace('-', '', $monthDay) ?>">
+                                                                    <div class="clickable-checkbox p-1 mb-1 bg-light border border-info rounded" onclick="toggleHolidayCheckbox(this)">
+                                                                        <input class="form-check-input border-2" type="checkbox" name="holidays[]" value="<?= $monthDay ?>" id="holiday_<?= str_replace('-', '', $monthDay) ?>" style="transform: scale(1.1);">
+                                                                        <label class="form-check-label fw-bold text-dark" for="holiday_<?= str_replace('-', '', $monthDay) ?>">
                                                                             <?= htmlspecialchars($name) ?> (<?= date("M j", strtotime(date('Y') . '-' . $monthDay)) ?>)
                                                                         </label>
                                                                     </div>
@@ -290,17 +286,17 @@ require_once __DIR__ . '/../partials/header.php';
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row" id="facilityDateRangeContainer">
-                                                    <div class="col-md-6">
+                                                <div class="d-flex" id="facilityDateRangeContainer">
+                                                    <div class="me-2 flex-fill">
                                                         <label class="form-label">Start Date</label>
                                                         <input type="date" class="form-control" name="start_date" min="<?= date('Y-m-d') ?>">
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="ms-2 flex-fill">
                                                         <label class="form-label">End Date</label>
                                                         <input type="date" class="form-control" name="end_date" min="<?= date('Y-m-d') ?>">
                                                     </div>
                                                 </div>
-                                                <div id="facilityHolidayCheckboxContainer" class="mb-3" style="display: none;">
+                                                <div id="facilityHolidayCheckboxContainer" class="mb-3 d-none">
                                                     <label class="form-label">Select Holidays to Block (for the current year)</label>
                                                     <div class="row">
                                                         <?php
@@ -309,9 +305,9 @@ require_once __DIR__ . '/../partials/header.php';
                                                         ?>
                                                             <div class="col-md-6">
                                                                 <?php foreach ($chunk as $monthDay => $name): ?>
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox" name="holidays[]" value="<?= $monthDay ?>" id="facility_holiday_<?= str_replace('-', '', $monthDay) ?>">
-                                                                        <label class="form-check-label" for="facility_holiday_<?= str_replace('-', '', $monthDay) ?>">
+                                                                    <div class="clickable-checkbox p-1 mb-1 bg-light border border-info rounded" onclick="toggleHolidayCheckbox(this)">
+                                                                        <input class="form-check-input border-2" type="checkbox" name="holidays[]" value="<?= $monthDay ?>" id="facility_holiday_<?= str_replace('-', '', $monthDay) ?>" style="transform: scale(1.1);">
+                                                                        <label class="form-check-label fw-bold text-dark" for="facility_holiday_<?= str_replace('-', '', $monthDay) ?>">
                                                                             <?= htmlspecialchars($name) ?> (<?= date("M j", strtotime(date('Y') . '-' . $monthDay)) ?>)
                                                                         </label>
                                                                     </div>
@@ -523,13 +519,13 @@ document.addEventListener('DOMContentLoaded', function() {
        const endDateInput = dateRangeContainer.querySelector('input[name="end_date"]');
 
        if (this.value === 'philippine_holidays') {
-           holidayContainer.style.display = 'block';
-           dateRangeContainer.style.display = 'none';
+           holidayContainer.classList.remove('d-none');
+           dateRangeContainer.classList.add('d-none');
            startDateInput.required = false;
            endDateInput.required = false;
        } else {
-           holidayContainer.style.display = 'none';
-           dateRangeContainer.style.display = 'block';
+           holidayContainer.classList.add('d-none');
+           dateRangeContainer.classList.remove('d-none');
            startDateInput.required = true;
            endDateInput.required = true;
        }
@@ -563,13 +559,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const endDateInput = dateRangeContainer.querySelector('input[name="end_date"]');
 
       if (this.value === 'philippine_holidays') {
-          holidayContainer.style.display = 'block';
-          dateRangeContainer.style.display = 'none';
+          holidayContainer.classList.remove('d-none');
+          dateRangeContainer.classList.add('d-none');
           startDateInput.required = false;
           endDateInput.required = false;
       } else {
-          holidayContainer.style.display = 'none';
-          dateRangeContainer.style.display = 'block';
+          holidayContainer.classList.add('d-none');
+          dateRangeContainer.classList.remove('d-none');
           startDateInput.required = true;
           endDateInput.required = true;
       }
@@ -684,6 +680,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Failed to remove block.');
                 }
             });
+    }
+
+    window.toggleHolidayCheckbox = function(container) {
+        const checkbox = container.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
     }
 });
 </script>
