@@ -202,8 +202,97 @@ class Notification {
                 continue;
             }
         }
-        
+
         return true;
+    }
+
+    /**
+     * Send payment submission confirmation to customer
+     */
+    public static function sendPaymentSubmissionConfirmation($bookingId) {
+        $booking = Booking::findById($bookingId);
+        if (!$booking) return false;
+
+        $customer = User::findById($booking->customerId);
+        if (!$customer) return false;
+
+        // Get recent payment for this booking
+        require_once __DIR__ . '/../Models/Payment.php';
+        $payments = Payment::findByBookingId($bookingId);
+        $latestPayment = end($payments); // Get the most recent payment
+
+        // Get resort information
+        require_once __DIR__ . '/../Models/Resort.php';
+        $resort = Resort::findById($booking->resortId);
+
+        // Get facilities information
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        $facilities = BookingFacilities::findByBookingId($bookingId);
+
+        $facilityList = '';
+        if (!empty($facilities)) {
+            $facilityNames = array_map(function($f) { return $f->FacilityName; }, $facilities);
+            $facilityList = '<br><strong>Additional Facilities:</strong> ' . implode(', ', $facilityNames);
+        }
+
+        $mail = self::getMailer();
+        try {
+            //Recipients
+            $mail->addAddress($customer['Email'], $customer['FirstName']);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = '🔔 Payment Submitted - Booking #' . $booking->bookingId . ' (Pending Review)';
+            $mail->Body = "
+                <h2>Payment Submitted Successfully</h2>
+                <p>Dear {$customer['FirstName']},</p>
+                <p>Your payment has been successfully submitted and is now pending administrative review.</p>
+
+                <h3>Customer Information:</h3>
+                <ul>
+                    <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
+                    <li><strong>Phone:</strong> {$customer['PhoneNumber']}</li>
+                </ul>
+
+                <h3>Booking Details:</h3>
+                <ul>
+                    <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
+                    <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
+                    <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
+                    <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
+                    <li><strong>Guests:</strong> {$booking->numberOfGuests} person" . ($booking->numberOfGuests > 1 ? 's' : '') . "</li>
+                    {$facilityList}
+                </ul>
+
+                <h3>Payment Details:</h3>
+                <ul>
+                    <li><strong>Total Booking Amount:</strong> ₱" . number_format($booking->totalAmount, 2) . "</li>
+                    <li><strong>Amount Paid This Time:</strong> ₱" . number_format($latestPayment->Amount ?? 0, 2) . "</li>
+                    <li><strong>Payment Method:</strong> " . htmlspecialchars($latestPayment->PaymentMethod ?? 'N/A') . "</li>
+                    <li><strong>Reference Number:</strong> " . htmlspecialchars($booking->paymentReference ?? $latestPayment->Reference ?? 'N/A') . "</li>
+                    <li><strong>Status:</strong> <span style='color: orange;'>Pending Review</span></li>
+                </ul>
+
+                <p><strong>What happens next?</strong></p>
+                <ul>
+                    <li>Our admin team will review your payment proof</li>
+                    <li>You will receive another email once your payment is verified or if more information is needed</li>
+                    <li>Verification typically takes 24-48 hours</li>
+                </ul>
+
+                <p>Thank you for your patience. You can check the status of your booking anytime through your account dashboard.</p>
+
+                <p><em>The Resort Management Team</em></p>";
+
+            $mail->AltBody = "Your payment for Booking #{$booking->bookingId} has been submitted and is pending review. You will be notified once it has been verified.";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            // Log error instead of halting execution
+            error_log("Payment submission confirmation email failed: {$mail->ErrorInfo}");
+            return false;
+        }
     }
 
     /**

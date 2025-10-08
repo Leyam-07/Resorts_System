@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.1] - 2025-10-08
+
+### Added
+
+- **Enhanced Payment Submission Confirmation Email:** Implemented customer information section in payment submission confirmation emails for improved user verification and communication clarity.
+  - **Customer Information Section:** Added a dedicated "Customer Information" section to the payment submission confirmation email, displaying the customer's full name and phone number (excluding email for privacy).
+  - **Improved Email Structure:** Positioned customer information at the top of the email for better visual hierarchy and immediate customer verification of their details.
+  - **Enhanced User Experience:** Customers now receive comprehensive payment submission acknowledgments with their verified contact information for record-keeping purposes.
+  - **Privacy Compliance:** Email addresses excluded from customer information section while maintaining necessary contact details for booking confirmation.
+
+### Files Updated
+
+app/Helpers/Notification.php
+
+- Modified `sendPaymentSubmissionConfirmation()` method to include customer information section
+
 ## [1.41.0] - 2025-10-08
 
 ### Changed

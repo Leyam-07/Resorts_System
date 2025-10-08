@@ -712,8 +712,9 @@ class BookingController {
             // Phase 6: Trigger lifecycle management check
             BookingLifecycleManager::processBookingAfterPayment($bookingId);
             
-            // Send notification to admin
+            // Send notifications
             $this->notifyAdminPaymentSubmission($bookingId);
+            Notification::sendPaymentSubmissionConfirmation($bookingId);
 
             $_SESSION['success_message'] = "Payment submitted successfully! Your payment is being reviewed.";
             header('Location: ?controller=booking&action=paymentSuccess&id=' . $bookingId);
