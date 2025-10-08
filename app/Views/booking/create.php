@@ -546,10 +546,23 @@ input[type="number"].form-control {
     border: 1px solid #dee2e6;
 }
 
-.facility-card:hover {
+.facility-card:hover:not(.facility-blocked) {
     transform: translateY(-5px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-color: #0d6efd;
+}
+
+.facility-card.facility-blocked {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.facility-card.facility-blocked:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #adb5bd;
 }
 
 .facility-card .card-img-top {
@@ -569,6 +582,21 @@ input[type="number"].form-control {
 .facility-card.selected {
     border-color: #0d6efd;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+/* Blocked Facility Overlay */
+.blocked-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 1px 1px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Enhanced form animations */
@@ -985,10 +1013,15 @@ document.addEventListener('DOMContentLoaded', function() {
         validateForm();
     }
 
-    function loadFacilities(resortId) {
+    function loadFacilities(resortId, date = null) {
         facilitiesContainer.innerHTML = '<div class="col-12"><div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading facilities...</div></div>';
 
-        fetch(`?controller=booking&action=getFacilitiesByResort&resort_id=${resortId}`)
+        let url = `?controller=booking&action=getFacilitiesByResort&resort_id=${resortId}`;
+        if (date) {
+            url += `&date=${date}`;
+        }
+
+        fetch(url)
             .then(response => response.json())
             .then(facilities => {
                 availableFacilities = facilities;
@@ -1008,23 +1041,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         facilities.forEach(facility => {
+            const isBlocked = facility.isBlocked;
+            const cardClasses = `card h-100 facility-card ${isBlocked ? 'facility-blocked' : ''}`;
+            const checkboxDisabled = isBlocked ? 'disabled' : '';
+            const overlay = isBlocked ? '<div class="blocked-overlay"><span class="badge bg-secondary">Unavailable</span></div>' : '';
+
             html += `
                 <div class="col-6 col-md-4 col-lg-3 mb-3">
-                    <div class="card h-100 facility-card">
-                        <img src="${facility.mainPhotoURL || 'assets/images/default-facility.jpg'}" class="card-img-top" alt="${facility.name}">
+                    <div class="${cardClasses}">
+                        <img src="${facility.mainPhotoURL || 'assets/images/default-facility.jpg'}" class="card-img-top" alt="${facility.name}" style="${isBlocked ? 'filter: grayscale(50%) opacity(0.5);' : ''}">
+                        ${overlay}
                         <div class="card-body d-flex flex-column">
                             <div class="form-check">
                                 <input class="form-check-input facility-checkbox" type="checkbox"
                                        value="${facility.facilityId}" id="facility_${facility.facilityId}"
-                                       data-price="${facility.rate}">
+                                       data-price="${facility.rate}" ${checkboxDisabled}>
                                 <label class="form-check-label" for="facility_${facility.facilityId}">
-                                    <i class="${facility.icon} me-2 text-primary"></i>
-                                    <strong>${facility.name}</strong>
+                                    <i class="${facility.icon} me-2 ${isBlocked ? 'text-muted' : 'text-primary'}"></i>
+                                    <strong class="${isBlocked ? 'text-muted' : ''}">${facility.name}</strong>
+                                    ${isBlocked ? '<small class="text-muted d-block">(Blocked)</small>' : ''}
                                 </label>
                             </div>
                             <div class="mt-2 small text-muted">
-                                <p class="mb-1">${facility.shortDescription || ''}</p>
-                                <div class="text-primary fw-bold fs-5">${facility.priceDisplay}</div>
+                                <p class="mb-1 ${isBlocked ? 'text-muted' : ''}">${facility.shortDescription || ''}</p>
+                                <div class="fw-bold fs-5 ${isBlocked ? 'text-muted' : 'text-primary'}">${facility.priceDisplay}</div>
                             </div>
                         </div>
                     </div>
@@ -1034,21 +1074,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         facilitiesContainer.innerHTML = html;
 
-        // Add event listeners to checkboxes
-        document.querySelectorAll('.facility-checkbox').forEach(checkbox => {
+        // Add event listeners to checkboxes (only for non-blocked facilities)
+        document.querySelectorAll('.facility-checkbox:not([disabled])').forEach(checkbox => {
             checkbox.addEventListener('change', handleFacilitySelection);
         });
 
-        // Add event listener to the whole card to toggle the checkbox
-        document.querySelectorAll('.facility-card').forEach(card => {
+        // Add event listener to the whole card to toggle the checkbox (only for non-blocked cards)
+        document.querySelectorAll('.facility-card:not(.facility-blocked)').forEach(card => {
             card.addEventListener('click', (event) => {
                 // Prevent the event from firing twice if the user clicks directly on the checkbox/label
                 if (event.target.classList.contains('facility-checkbox') || event.target.closest('.form-check-label')) {
                     return;
                 }
-                
+
                 const checkbox = card.querySelector('.facility-checkbox');
-                if (checkbox) {
+                if (checkbox && !checkbox.disabled) {
                     checkbox.checked = !checkbox.checked;
                     // Dispatch a change event to trigger the handler
                     checkbox.dispatchEvent(new Event('change'));
@@ -1061,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const preSelectedFacilityId = urlParams.get('facility_id');
         if (preSelectedFacilityId) {
             const facilityCheckbox = document.querySelector(`#facility_${preSelectedFacilityId}`);
-            if (facilityCheckbox) {
+            if (facilityCheckbox && !facilityCheckbox.disabled) {
                 facilityCheckbox.checked = true;
                 facilityCheckbox.dispatchEvent(new Event('change'));
             }
@@ -1141,6 +1181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeframe = timeSlotSelect.value;
 
         if (resortId && date && timeframe) {
+            loadFacilities(resortId, date); // Reload facilities with date to check blocking
             loadTimeframePricing(resortId, timeframe, date);
             updateTotalPrice();
             updateDateAvailabilityInfo(date);

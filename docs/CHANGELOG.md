@@ -2,8 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.41.2] - 2025-10-08
+
+### Fixed
+
+- **Facility Blocking Display Fix:** Resolved critical user experience issue where blocked facilities were not visibly indicated as unavailable during booking process. Customers could still select blocked facilities, only discovering they were unavailable after form submission failure.
+  - **Backend Blocking Detection:** Added `isFacilityBlockedOnDate($facilityId, $date)` method to `BlockedFacilityAvailability` model for reliable blocking status checks.
+  - **API Enhancement:** Modified `BookingController::getFacilitiesByResort()` to accept optional `date` parameter and include blocking status (`isBlocked`) in facility data responses.
+  - **Dynamic UI Updates:** Updated JavaScript logic to reload facilities when date/timeframe changes, ensuring real-time blocking status display.
+  - **Visual Blocking Indicators:** Enhanced `renderFacilities()` function with comprehensive blocked facility styling:
+    - Reduced opacity (0.7) and grayscale filtering for blocked facility images
+    - Disabled checkboxes preventing selection of blocked facilities
+    - Added "(Blocked)" text labels below blocked facility names
+    - Implemented prominent "Unavailable" overlay badges with enhanced styling (increased padding, font size, shadow)
+  - **Pointer Events Management:** Disabled card click handlers for blocked facilities to prevent selection attempts.
+  - **URL Parameter Prevention:** Enhanced pre-selection logic to skip blocked facilities when accessed via URL parameters.
+
+### Enhanced
+
+- **Facility Blocking UX:** Completely transformed blocked facility presentation with immediate visual feedback, preventing customer confusion and form submission failures.
+- **Real-time Availability Display:** Facilities now update dynamically as customers change dates, instantly reflecting current blocking status.
+- **Accessibility Improvements:** Larger, more prominent "Unavailable" badges with improved contrast and readability for better user comprehension.
+
+### Technical
+
+- **Database Query Optimization:** Introduced dedicated blocking status queries to support real-time availability checking without performance impact.
+- **Client-Side State Management:** Enhanced JavaScript state tracking to handle blocked facility interactions seamlessly across date/timeframe changes.
+- **Error Prevention:** Proactive blocking display eliminates need for post-submission error recovery and page reloads.
+
+### Files Updated
+
+app/Models/BlockedFacilityAvailability.php
+
+- Added `isFacilityBlockedOnDate()` method for blocking status detection
+
+app/Controllers/BookingController.php
+
+- Enhanced `getFacilitiesByResort()` with date parameter and blocking status inclusion
+
+app/Views/booking/create.php
+
+- Updated JavaScript for dynamic facility reloading and blocking status rendering
+- Enhanced CSS styling for blocked facility visual indicators (.facility-blocked, .blocked-overlay)
+- Improved accessibility with larger, more readable "Unavailable" badges
 
 ## [1.41.1] - 2025-10-08
 

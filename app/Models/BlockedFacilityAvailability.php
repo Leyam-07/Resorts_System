@@ -69,4 +69,16 @@ class BlockedFacilityAvailability {
         $stmt->execute();
         return $stmt->rowCount();
     }
+
+    public static function isFacilityBlockedOnDate($facilityId, $date) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) FROM BlockedFacilityAvailability
+             WHERE FacilityID = :facilityId AND BlockDate = :date"
+        );
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->bindValue(':date', $date, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
 }

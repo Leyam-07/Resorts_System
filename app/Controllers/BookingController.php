@@ -152,8 +152,9 @@ class BookingController {
 
     public function getFacilitiesByResort() {
         header('Content-Type: application/json');
-        
+
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
         if (!$resortId) {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid Resort ID']);
@@ -161,16 +162,24 @@ class BookingController {
         }
 
         $facilities = Facility::findByResortId($resortId);
-        
+
         // Add pricing information and icon to facilities for display
         // Add pricing information, icon, and full photo URL to facilities for display
+        require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
         foreach ($facilities as &$facility) {
             $facility->priceDisplay = '₱' . number_format($facility->rate, 2);
             $facility->icon = $this->getIconForFacility($facility->name);
             // Prepend BASE_URL to the mainPhotoURL for correct display
             $facility->mainPhotoURL = BASE_URL . '/' . $facility->mainPhotoURL;
+
+            // Check if facility is blocked on the provided date
+            if ($date) {
+                $facility->isBlocked = BlockedFacilityAvailability::isFacilityBlockedOnDate($facility->facilityId, $date);
+            } else {
+                $facility->isBlocked = false;
+            }
         }
-        
+
         echo json_encode($facilities);
         exit;
     }
