@@ -38,7 +38,13 @@ require_once __DIR__ . '/../partials/header.php';
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 class="text-muted">Booking Details</h6>
+                        <h6 class="text-muted mb-3">Customer Information</h6>
+                        <p><strong>Name:</strong> <?= htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']) ?></p>
+                        <p><strong>Contact Number:</strong> <?= htmlspecialchars($customer['PhoneNumber']) ?></p>
+
+                        <hr class="my-3">
+
+                        <h6 class="text-muted mb-3">Booking Details</h6>
                         <p><strong>Resort:</strong> <?= htmlspecialchars($resort->name ?? 'N/A') ?></p>
                         <p><strong>Date:</strong> <?= date('F j, Y', strtotime($booking->bookingDate)) ?></p>
                         <p><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></p>

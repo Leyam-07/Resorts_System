@@ -44,6 +44,11 @@ class Notification {
             $mail->Body    = "
                 <p>Dear {$customer['FirstName']},</p>
                 <p>Your booking has been successfully created.</p>
+                <p><strong>Customer Information:</strong></p>
+                <ul>
+                    <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
+                    <li><strong>Contact Number:</strong> {$customer['PhoneNumber']}</li>
+                </ul>
                 <p><strong>Booking Details:</strong></p>
                 <ul>
                     <li>Booking ID: {$booking->bookingId}</li>

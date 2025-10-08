@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.8] - 2025-10-08
+
+### Added
+
+- **Customer Information Display:** Enhanced booking confirmation page with comprehensive customer details for improved user experience and booking verification.
+  - **Customer Information Section:** Added a dedicated "Customer Information" section on the booking confirmation page displaying full name and contact number at the top of the booking details.
+  - **Restructured Layout:** Reorganized the left column of the confirmation card into separate "Customer Information" section (at top) and "Booking Details" section (below), separated by a visual divider for better information hierarchy.
+  - **Email Enhancement:** Updated booking confirmation email to include customer name and contact number information, ensuring consistency between web display and email notifications.
+  - **Controller Integration:** Modified `BookingController::showPaymentForm()` to retrieve and pass customer data ($customer) to the confirmation view.
+
+### Enhanced
+
+- **Booking Confirmation Experience:** Restructured the confirmation page layout to match the email structure with customer information prominently displayed at the top, improving user verification and reducing support queries about booking ownership.
+
+### Files Updated
+
+app/Views/booking/confirmation.php
+
+- Added customer information section with name and contact number
+- Restructured layout with visual separation between customer info and booking details
+
+app/Controllers/BookingController.php
+
+- Modified showPaymentForm() method to include customer data retrieval
+
+app/Helpers/Notification.php
+
+- Updated sendBookingConfirmation() method to include customer information in email
+
 ## [1.40.7] - 2025-10-08
 
 ### Added

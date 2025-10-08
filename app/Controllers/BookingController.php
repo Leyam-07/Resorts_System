@@ -603,10 +603,12 @@ class BookingController {
         require_once __DIR__ . '/../Models/ResortPaymentMethods.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
         require_once __DIR__ . '/../Models/PaymentSchedule.php';
-        
+        require_once __DIR__ . '/../Models/User.php';
+
         $resort = Resort::findById($booking->resortId);
         $paymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
         $facilities = BookingFacilities::findByBookingId($bookingId);
+        $customer = User::findById($booking->customerId);
         
         // Phase 6: Get payment schedule information for display
         $paymentSchedule = PaymentSchedule::findByBookingId($bookingId);
