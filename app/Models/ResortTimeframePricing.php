@@ -128,6 +128,24 @@ class ResortTimeframePricing {
     }
 
     /**
+     * Check if a resort has complete pricing for all timeframe types
+     * Returns true if all three timeframe types ('12_hours', '24_hours', 'overnight')
+     * have BasePrice > 0, false otherwise
+     */
+    public static function hasCompletePricing($resortId) {
+        $db = self::getDB();
+        $timeframeTypes = self::getTimeframeTypes();
+
+        foreach ($timeframeTypes as $timeframeType) {
+            $pricing = self::findByResortAndTimeframe($resortId, $timeframeType);
+            if (!$pricing || $pricing->basePrice <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Get display name for timeframe type
      */
     public static function getTimeframeDisplay($timeframeType) {

@@ -112,11 +112,19 @@ class BookingController {
         // Fetch all resorts and their facilities
         $resorts = Resort::findAll();
 
-        // Add icon and full photo URL to each resort for display
+        // Check for admin contact information (needed for pricing incomplete notice)
+        require_once __DIR__ . '/../Models/User.php';
+        $adminUsers = User::getAdminUsers();
+        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null; // Use first admin
+
+        // Add icon, full photo URL, and pricing completeness to each resort for display
+        require_once __DIR__ . '/../Models/ResortTimeframePricing.php';
         foreach ($resorts as $resort) {
             $resort->icon = $this->getIconForResort($resort->name);
             // Prepend BASE_URL to the mainPhotoURL for correct display
             $resort->mainPhotoURL = BASE_URL . '/' . $resort->mainPhotoURL;
+            // Check if resort has complete pricing
+            $resort->hasCompletePricing = ResortTimeframePricing::hasCompletePricing($resort->resortId);
         }
 
         // Check for error messages and old input from session
@@ -130,6 +138,7 @@ class BookingController {
         unset($_SESSION['error_message']);
         unset($_SESSION['old_input']);
 
+        // Pass admin contact information for pricing incomplete notice
         require_once __DIR__ . '/../Views/booking/create.php';
     }
 

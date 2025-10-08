@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.7] - 2025-10-08
+
+### Added
+
+- **Incomplete Resort Pricing Validation:** Implemented comprehensive validation for resorts with incomplete pricing setup on the New Bookings page.
+  - **Pricing Completeness Check:** Added `hasCompletePricing($resortId)` method to `ResortTimeframePricing` model that validates all three timeframe types ('12_hours', '24_hours', 'overnight') have BasePrice > 0.
+  - **User Warning System:** When customers select a resort without complete pricing, they see a prominent warning notice with admin contact information (phone and email).
+  - **Resort Dimming & Deactivation:** Incomplete resorts are automatically dimmed (opacity-50) and no longer selectable, preventing further booking progression.
+  - **Form Field Protection:** All booking form fields are disabled when an incomplete resort is selected, forcing customers to contact resort administrators for arrangements.
+  - **Notice Dismissal:** Warning notice includes a close button for dismissal, but the underlying resort restrictions remain enforced.
+  - **Controller Integration:** Enhanced `BookingController::showBookingForm()` to pass pricing completeness data and admin contact information to the view.
+  - **JavaScript State Management:** Added comprehensive client-side logic for resort validation, notice display, form field management, and automatic deselection/dimming of incomplete resorts.
+
+### Changed
+
+- **New Bookings User Experience:** Modified the resort selection flow to validate pricing completeness before allowing booking progression, improving system reliability and user guidance.
+
 ## [1.40.6] - 2025-10-07
 
 ### Enhanced

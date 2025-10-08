@@ -64,6 +64,19 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             </div>
         <?php endif; ?>
 
+        <!-- Pricing Incomplete Notice Card -->
+        <div class="row mb-4" id="pricingIncompleteNotice" style="display: none;">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <h6 class="alert-heading mb-2"><i class="fas fa-exclamation-triangle"></i> Pricing Setup Incomplete</h6>
+                    <p class="mb-2">This resort has not completed setting up prices yet. Please contact them directly to arrange your booking outside of this system.</p>
+                    <p class="mb-1"><i class="fas fa-phone text-muted me-2"></i><strong>Phone:</strong> <span id="noticePhone"></span></p>
+                    <p class="mb-0"><i class="fas fa-envelope text-muted me-2"></i><strong>Email:</strong> <span id="noticeEmail"></span></p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
         <form action="?controller=booking&action=createBooking" method="POST" id="bookingForm">
             <!-- Step 1: Enhanced Resort Selection (Required) -->
             <div class="mb-4">
@@ -625,6 +638,20 @@ input[type="number"].form-control {
 </style>
 
 <script>
+// Admin contact information (passed from PHP)
+const adminPhone = '<?= htmlspecialchars($adminContact['PhoneNumber'] ?? '') ?>';
+const adminEmail = '<?= htmlspecialchars($adminContact['Email'] ?? '') ?>';
+
+// Resort pricing completeness data (passed from PHP)
+const resortPricingData = {
+    <?php foreach ($resorts as $resort): ?>
+        '<?= $resort->resortId ?>': {
+            hasCompletePricing: <?= $resort->hasCompletePricing ? 'true' : 'false' ?>,
+            name: '<?= htmlspecialchars($resort->name) ?>'
+        },
+    <?php endforeach; ?>
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Form elements
     const resortRadios = document.querySelectorAll('input[name="resort_id"]');
@@ -633,6 +660,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const guestsInput = document.getElementById('guests');
     const facilitiesContainer = document.getElementById('facilitiesContainer');
     const submitBtn = document.getElementById('submitBtn');
+
+    // Pricing incomplete notice elements
+    const pricingIncompleteNotice = document.getElementById('pricingIncompleteNotice');
+    const noticePhone = document.getElementById('noticePhone');
+    const noticeEmail = document.getElementById('noticeEmail');
 
     // Fieldsets for steps
     const step2Fieldset = document.getElementById('step2-fieldset');
@@ -741,6 +773,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleResortChange(event) {
         const newlySelectedResortId = event ? event.target.value : selectedResortId; // Get ID from event or initial load
         if (!newlySelectedResortId) {
+            // Hide pricing incomplete notice when no resort is selected
+            pricingIncompleteNotice.style.display = 'none';
             resetFacilities();
             resetPricing();
             calendarModalBtn.disabled = true;
@@ -751,7 +785,29 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedResortId = newlySelectedResortId; // Update the global state
         highlightSelectedResort(selectedResortId);
 
-        // Enable subsequent steps
+        // Check if the selected resort has incomplete pricing
+        const resortData = resortPricingData[selectedResortId];
+        if (resortData && !resortData.hasCompletePricing) {
+            // Show pricing incomplete notice
+            noticePhone.textContent = adminPhone || 'Not available';
+            noticeEmail.textContent = adminEmail || 'Not available';
+            pricingIncompleteNotice.style.display = 'block';
+
+            // Automatically deselect the resort and dim it out
+            deselectIncompleteResort(selectedResortId);
+            resetFacilities();
+            resetPricing();
+            initializeFormState();
+            highlightSelectedResort(null); // Remove highlight
+            calendarModalBtn.disabled = true;
+            updateBookingSummaryDetails();
+            return;
+        } else {
+            // Hide the notice if a complete resort is selected
+            pricingIncompleteNotice.style.display = 'none';
+        }
+
+        // Enable subsequent steps for resorts with complete pricing
         step2Fieldset.disabled = false;
         step3Fieldset.disabled = false;
         step4Fieldset.disabled = false;
@@ -763,6 +819,22 @@ document.addEventListener('DOMContentLoaded', function() {
         loadResortDetails(selectedResortId);
         handleDateOrTimeframeChange();
         updateBookingSummaryDetails();
+    }
+
+    // Function to dim out incomplete resort options
+    function deselectIncompleteResort(resortId) {
+        const resortRadio = document.getElementById(`resort_${resortId}`);
+        const resortCard = resortRadio ? resortRadio.closest('.resort-card') : null;
+
+        if (resortCard) {
+            resortCard.classList.add('opacity-50');
+            resortCard.style.pointerEvents = 'none';
+        }
+
+        // Deselect the radio button
+        if (resortRadio) {
+            resortRadio.checked = false;
+        }
     }
 
     function highlightSelectedResort(resortId) {
