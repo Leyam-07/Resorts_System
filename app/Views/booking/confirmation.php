@@ -4,18 +4,10 @@ require_once __DIR__ . '/../partials/header.php';
 ?>
 
         <!-- Enhanced Page Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h1 class="mb-1"><i class="fas fa-check-circle text-primary"></i> <?= htmlspecialchars($pageTitle) ?></h1>
-                        <p class="text-muted mb-0">Your booking details and payment information</p>
-                    </div>
-                    <div class="d-none d-md-block">
-                        <i class="fas fa-check-circle fa-3x text-primary opacity-25"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center mb-4">
+            <i class="fas fa-check-circle fa-5x text-primary mb-3"></i>
+            <h1 class="text-primary"><?= htmlspecialchars($pageTitle) ?></h1>
+            <p class="lead text-muted">Your booking details and payment information</p>
         </div>
         
         <?php if (isset($errorMessage)): ?>
@@ -36,31 +28,52 @@ require_once __DIR__ . '/../partials/header.php';
                 <h5 class="mb-0"><i class="fas fa-receipt"></i> Booking Summary</h5>
             </div>
             <div class="card-body">
+                <!-- Customer Information Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted mb-3">Customer Information</h6>
+                        <div class="mb-2">
+                            <strong>Name:</strong> <?= htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']) ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Contact Number:</strong> <?= htmlspecialchars($customer['PhoneNumber']) ?>
+                        </div>
+                    </div>
+                </div>
+                <hr>
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 class="text-muted mb-3">Customer Information</h6>
-                        <p><strong>Name:</strong> <?= htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']) ?></p>
-                        <p><strong>Contact Number:</strong> <?= htmlspecialchars($customer['PhoneNumber']) ?></p>
-
-                        <hr class="my-3">
-
                         <h6 class="text-muted mb-3">Booking Details</h6>
-                        <p><strong>Resort:</strong> <?= htmlspecialchars($resort->name ?? 'N/A') ?></p>
-                        <p><strong>Date:</strong> <?= date('F j, Y', strtotime($booking->bookingDate)) ?></p>
-                        <p><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></p>
-                        <p><strong>Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?></p>
+                        <div class="mb-2">
+                            <strong>Booking ID:</strong> #<?= $booking->bookingId ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Resort:</strong> <?= htmlspecialchars($resort->name ?? 'N/A') ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Date:</strong> <?= date('F j, Y', strtotime($booking->bookingDate)) ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?>
+                        </div>
                         <?php if (!empty($facilities)): ?>
-                            <p><strong>Facilities:</strong>
-                                <?php foreach ($facilities as $index => $facility): ?>
-                                    <?= htmlspecialchars($facility->FacilityName) ?><?= $index < count($facilities) - 1 ? ', ' : '' ?>
-                                <?php endforeach; ?>
-                            </p>
+                            <div class="mb-2">
+                                <strong>Facilities:</strong>
+                                <ul class="mb-0">
+                                    <?php foreach ($facilities as $facility): ?>
+                                        <li><?= htmlspecialchars($facility->FacilityName) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="text-muted">Payment Information</h6>
+                        <h6 class="text-muted mb-3">Payment Information</h6>
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Total Amount:</span>
+                            <span>Total Booking Amount:</span>
                             <span class="fw-bold">₱<?= number_format($booking->totalAmount, 2) ?></span>
                         </div>
                         <?php if ($booking->remainingBalance < $booking->totalAmount): ?>
@@ -71,9 +84,30 @@ require_once __DIR__ . '/../partials/header.php';
                         <?php endif; ?>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Remaining Balance:</span>
-                            <span class="fw-bold text-danger">₱<?= number_format($booking->remainingBalance, 2) ?></span>
+                            <span class="fw-bold <?= $booking->remainingBalance > 0 ? 'text-warning' : 'text-success' ?>">
+                                ₱<?= number_format($booking->remainingBalance, 2) ?>
+                            </span>
                         </div>
-                        
+
+                        <?php if (isset($latestPayment) && !empty($latestPayment->PaymentMethod)): ?>
+                            <div class="mb-2">
+                                <strong>Payment Method:</strong> <?= htmlspecialchars($latestPayment->PaymentMethod) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($booking->paymentReference): ?>
+                            <div class="mb-2">
+                                <strong>Payment Reference:</strong> <?= htmlspecialchars($booking->paymentReference) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mb-2">
+                            <strong>Status:</strong>
+                            <span class="badge bg-<?= $booking->status == 'Confirmed' ? 'success' : 'warning' ?>">
+                                <?= htmlspecialchars($booking->status) ?>
+                            </span>
+                        </div>
+
                         <?php if ($booking->remainingBalance <= 0): ?>
                             <div class="alert alert-success mb-0">
                                 <i class="fas fa-check-circle"></i> <strong>Fully Paid</strong><br>

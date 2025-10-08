@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.0] - 2025-10-08
+
+### Changed
+
+- **Booking Confirmation Page Layout:** Revised the Booking Confirmation page layout to be similar with Payment Success.
+  - Customer Information is now on its own section (separate full-width row).
+  - Booking Details and Payment Information are on the same row (two-column layout).
+  - Added centered header with check-circle icon for consistent visual hierarchy.
+  - Enhanced formatting with div.mb-2 wrappers and bullet-point facilities list.
+  - Added Booking ID display and improved remaining balance color coding (warning for pending, success for paid).
+  - Included payment method, reference, and status fields where available for complete summary transparency.
+
 ## [1.40.9] - 2025-10-08
 
 ### Added
