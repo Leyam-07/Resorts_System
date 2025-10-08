@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Invoice Compact Layout Optimization:** Implemented significant layout improvements to the invoice PDF for single-page printing and better readability.
+  - **Reduced Margins and Spacing:** Optimized body margins from 20px to 15px, table padding from 8px to 5px, and section spacing throughout for compact single-page design.
+  - **Enhanced Font Hierarchy:** Introduced progressive font sizing (13px base, 18px h1, 15px h2) for clear visual structure while maintaining readability.
+  - **Table Cell Padding Optimization:** Reduced table cell padding from 8px to 5px and implemented consistent font sizing (12px content, 11px headers) for efficient data presentation.
+  - **Improved Line Height:** Set optimal 1.4 line height for better text flow without excessive vertical spacing.
+  - **Professional Column Layout:** Placed customer information and invoice details in side-by-side columns using CSS table layout for perfect alignment and balanced visual weight.
+  - **Enhanced Readability:** Increased font weights where appropriate while maintaining compact design for comfortable reading at small sizes.
+  - **Portrait Page Optimization:** Ensured all content fits within A4 portrait page dimensions with proper margins and spacing relationships.
+
+### Fixed
+
+- **Invoice Layout Alignment:** Resolved label alignment issues by implementing a table-cell structure for customer and invoice information sections, ensuring all labels align perfectly with their corresponding values.
+
+### Technical
+
+- **CSS Layout Refinement:** Completely revamped invoice CSS with modular, maintainable styling that prioritizes single-page printing while preserving professional appearance.
+- **Content Prioritization:** Balanced information density with readability by strategically reducing spacing in non-critical areas while maintaining clarity in data sections.
+- **Cross-Device Compatibility:** Ensured PDF rendering consistency across different viewers and print settings through careful CSS optimization.
+
+## [1.40.8] - 2025-10-08
+
+### Added
+
 - **Invoice Generation System:** Implemented a comprehensive invoice system on the Payment Success page featuring professional PDF downloads with complete booking and payment details.
   - **Invoice Display Card:** Added an "Invoice" card to the Payment Success page with clear awareness messaging and PDF generation button.
   - **Professional PDF Invoice:** Created detailed HTML invoice template using DomPDF library with resort branding, service breakdown, payment history, and formatted layouts.

@@ -795,10 +795,12 @@ class BookingController {
         require_once __DIR__ . '/../Models/Resort.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
         require_once __DIR__ . '/../Models/Payment.php';
-        
+        require_once __DIR__ . '/../Models/User.php';
+
         $resort = Resort::findById($booking->resortId);
         $facilities = BookingFacilities::findByBookingId($bookingId);
         $latestPayment = current(Payment::findByBookingId($bookingId)); // Get the most recent payment
+        $customer = User::findById($booking->customerId);
 
         require_once __DIR__ . '/../Views/booking/payment_success.php';
     }
@@ -829,26 +831,28 @@ class BookingController {
         require_once __DIR__ . '/../Models/Resort.php';
         require_once __DIR__ . '/../Models/BookingFacilities.php';
         require_once __DIR__ . '/../Models/Payment.php';
+        require_once __DIR__ . '/../Models/User.php';
 
         $resort = Resort::findById($booking->resortId);
         $facilities = BookingFacilities::findByBookingId($bookingId);
         $payments = Payment::findByBookingId($bookingId);
+        $customer = User::findById($booking->customerId);
 
         // Generate PDF invoice
-        $this->generateInvoicePDF($booking, $resort, $facilities, $payments);
+        $this->generateInvoicePDF($booking, $resort, $facilities, $payments, $customer);
     }
 
     /**
      * Generate PDF invoice using DomPDF
      */
-    private function generateInvoicePDF($booking, $resort, $facilities, $payments) {
+    private function generateInvoicePDF($booking, $resort, $facilities, $payments, $customer) {
         require_once __DIR__ . '/../../vendor/autoload.php';
 
         // Calculate paid amount
         $paidAmount = $booking->totalAmount - $booking->remainingBalance;
 
         // Build HTML content for invoice
-        $html = $this->getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount);
+        $html = $this->getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount, $customer);
 
         // Instantiate and use the dompdf class
         $options = new \Dompdf\Options();
@@ -871,7 +875,7 @@ class BookingController {
     /**
      * Get invoice HTML template
      */
-    private function getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount) {
+    private function getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount, $customer) {
         ob_start();
         ?>
         <!DOCTYPE html>
@@ -880,17 +884,23 @@ class BookingController {
             <meta charset="UTF-8">
             <title>Invoice #<?= $booking->bookingId ?></title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-                .invoice-info { margin-bottom: 30px; }
-                .invoice-info > div { margin-bottom: 10px; }
-                .details { margin-bottom: 30px; }
-                .details table { width: 100%; border-collapse: collapse; }
-                .details th, .details td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                .details th { background-color: #f5f5f5; font-weight: bold; }
-                .total { text-align: right; margin-top: 20px; padding-top: 20px; border-top: 1px solid #000; }
-                .total strong { font-size: 18px; }
-                .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #666; }
+                body { font-family: Arial, sans-serif; margin: 20px; font-size: 13px; line-height: 1.4; }
+                .header { text-align: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 25px; }
+                .header h1 { font-size: 18px; margin: 0 0 8px 0; }
+                .header h2 { font-size: 15px; margin: 0 0 8px 0; }
+                .header p { font-size: 11px; margin: 0; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; }
+                th { background-color: #f5f5f5; font-weight: bold; font-size: 11px; }
+                .section { margin-bottom: 20px; }
+                .section h3 { font-size: 13px; margin: 0 0 8px 0; padding: 0; }
+                .customer-info { display: inline-block; width: 48%; vertical-align: top; margin-bottom: 10px; }
+                .invoice-info { display: inline-block; width: 48%; vertical-align: top; margin-left: 4%; margin-bottom: 10px; }
+                .customer-info > div, .invoice-info > div { margin-bottom: 5px; font-size: 12px; }
+                .total { text-align: right; margin-top: 15px; padding-top: 15px; border-top: 1px solid #000; font-size: 12px; }
+                .total strong { font-size: 13px; }
+                .footer { margin-top: 25px; text-align: center; font-size: 11px; color: #666; }
+                .details { font-size: 12px; margin-bottom: 15px; }
             </style>
         </head>
         <body>
@@ -900,12 +910,20 @@ class BookingController {
                 <p>Integrated Digital Management System</p>
             </div>
 
-            <div class="invoice-info">
-                <div><strong>Invoice Number:</strong> #<?= $booking->bookingId ?></div>
-                <div><strong>Invoice Date:</strong> <?= date('F j, Y') ?></div>
-                <div><strong>Booking Date:</strong> <?= date('F j, Y', strtotime($booking->bookingDate)) ?></div>
-                <div><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></div>
-                <div><strong>Number of Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?></div>
+            <div style="display: table;">
+                <div style="display: table-row;">
+                    <div style="display: table-cell; padding-right: 20px; vertical-align: top;">
+                        <div><strong>Customer:</strong> <?= htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']) ?></div>
+                        <div><strong>Phone:</strong> <?= htmlspecialchars($customer['PhoneNumber'] ?? 'N/A') ?></div>
+                    </div>
+                    <div style="display: table-cell; padding-left: 20px; vertical-align: top;">
+                        <div><strong>Invoice #:</strong> <?= $booking->bookingId ?></div>
+                        <div><strong>Date:</strong> <?= date('M j, Y') ?></div>
+                        <div><strong>Booking:</strong> <?= date('M j, Y', strtotime($booking->bookingDate)) ?></div>
+                        <div><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></div>
+                        <div><strong>Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?></div>
+                    </div>
+                </div>
             </div>
 
             <div class="details">

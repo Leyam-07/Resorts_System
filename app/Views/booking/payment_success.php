@@ -56,6 +56,19 @@ require_once __DIR__ . '/../partials/header.php';
                 <h5 class="mb-0"><i class="fas fa-receipt"></i> Booking & Payment Summary</h5>
             </div>
             <div class="card-body">
+                <!-- Customer Information Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted mb-3">Customer Information</h6>
+                        <div class="mb-2">
+                            <strong>Name:</strong> <?= htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']) ?>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Contact Number:</strong> <?= htmlspecialchars($customer['PhoneNumber'] ?? 'N/A') ?>
+                        </div>
+                    </div>
+                </div>
+                <hr>
                 <div class="row">
                     <div class="col-md-6">
                         <h6 class="text-muted mb-3">Booking Details</h6>
