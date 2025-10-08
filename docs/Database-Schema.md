@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS `Payments` (
   `PaymentDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `Status` ENUM('Paid', 'Unpaid', 'Partial') NOT NULL,
   `ProofOfPaymentURL` VARCHAR(255),
+  `Reference` VARCHAR(100),
   FOREIGN KEY (`BookingID`) REFERENCES `Bookings`(`BookingID`)
 );
 ```

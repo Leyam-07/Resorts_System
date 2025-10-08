@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.40.9] - 2025-10-08
+
+### Added
+
+- **Invoice Generation System:** Implemented a comprehensive invoice system on the Payment Success page featuring professional PDF downloads with complete booking and payment details.
+  - **Invoice Display Card:** Added an "Invoice" card to the Payment Success page with clear awareness messaging and PDF generation button.
+  - **Professional PDF Invoice:** Created detailed HTML invoice template using DomPDF library with resort branding, service breakdown, payment history, and formatted layouts.
+  - **PDF Generator Integration:** Integrated DomPDF library for HTML-to-PDF conversion with proper styling and professional appearance.
+  - **Payment Reference Tracking:** Added database migration (`scripts/migrations/add_reference_to_payments.php`) to support payment reference numbers in invoices and improved Payment model to store references.
+  - **Database Schema Enhancement:** Extended Payments table with Reference column for payment identification and invoice display.
+  - **Currency Standardization:** Replaced Unicode peso symbol (₱) with text-based "PHP" currency notation for reliable PDF rendering across all systems.
+
+### Fixed
+
+- **PHP Error Resolution:** Resolved multiple critical PHP errors in the invoice generation system:
+  - Fixed undefined property `$Rate` → `$FacilityRate` in BookingFacilities queries
+  - Fixed undefined property `$CreatedAt` → `$PaymentDate` in Payment history display
+  - Fixed undefined property `$Reference` → Added proper database column and model updates
+  - Corrected array key usage from `'Rate'` to `'facilityPrice'` for consistent data retrieval
+- **PDF Character Encoding:** Resolved Unicode symbol rendering issues that caused peso symbol to display as question marks in PDF documents.
+- **Database Query Alignment:** Synchronized SQL query aliases with PHP property access for reliable data retrieval in invoice generation.
+
+### Enhanced
+
+- **Invoice Professionalism:** Professional invoice layout with resort branding, detailed service breakdown (base fees + facilities), payment history with amounts, and consistent formatting for business documentation.
+- **Data Integrity:** Improved BookingFacilities model query accuracy and Payment model storage capabilities with reference tracking.
+- **Payment System Integration:** Enhanced payment processing to store reference numbers for complete transaction documentation and invoice generation.
+- **UI Integration:** Seamlessly integrated invoice functionality into payment success workflow with prominent awareness messaging and easy PDF access.
+
+### Technical
+
+- **DomPDF Implementation:** Added Html2Pdf library integration for reliable PDF generation from HTML templates.
+- **Database Migration:** Created system for adding new payment reference column with existing data compatibility.
+- **Currency Handling:** Implemented text-based currency notation for cross-platform PDF rendering consistency.
+- **Error Resolution:** Comprehensive debugging and property synchronization across invoice generation system.
+
+### Files Updated
+
+app/Views/booking/payment_success.php
+
+- Added Invoice display card with download button
+
+app/Controllers/BookingController.php
+
+- Added generateInvoice() method and getInvoiceHTML() for PDF generation
+- Fixed undefined property references and currency display
+- Enhanced data retrieval for facility rates and payment history
+
+app/Models/Payment.php
+
+- Added reference property and storage capability
+- Updated create() method for Reference column insertion
+
+app/Models/BookingFacilities.php
+
+- Fixed query to include FacilityRate for invoice calculations
+
+docs/Database-Schema.md
+
+- Added Reference column to Payments table schema
+
+scripts/migrations/add_reference_to_payments.php
+
+- New database migration script for adding Reference column
+
+composer.json
+
+- Added dompdf library dependency for PDF generation
+
 ## [1.40.8] - 2025-10-08
 
 ### Added

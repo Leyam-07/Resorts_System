@@ -3,10 +3,43 @@ $pageTitle = "Payment Submitted Successfully";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
-        <div class="text-center mb-4">
-            <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
-            <h1 class="text-success"><?= htmlspecialchars($pageTitle) ?></h1>
-            <p class="lead text-muted">Your payment has been submitted and is being reviewed by our team.</p>
+<style>
+    .invoice-card {
+        width: auto;
+        min-width: 200px;
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        float: right;
+        margin-left: 20px;
+    }
+    @media (max-width: 768px) {
+        .invoice-card {
+            float: none;
+            margin-bottom: 20px;
+            margin-left: 0;
+        }
+    }
+</style>
+
+        <div class="position-relative">
+            <div class="text-center mb-4">
+                <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+                <h1 class="text-success"><?= htmlspecialchars($pageTitle) ?></h1>
+                <p class="lead text-muted">Your payment has been submitted and is being reviewed by our team.</p>
+            </div>
+            <div class="position-absolute top-0 end-0 me-1 mt-5">
+                <div class="alert alert-success text-center" style="min-width: 200px; padding: 20px;">
+                    <h5 class="mb-4"><strong>Invoice</strong></h5>
+                    <div>
+                        <a href="?controller=booking&action=generateInvoice&id=<?= $booking->bookingId ?>"
+                           class="btn btn-success" target="_blank">
+                            <i class="fas fa-download"></i> Generate as PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Success Message -->

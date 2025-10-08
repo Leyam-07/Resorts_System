@@ -36,7 +36,7 @@ class BookingFacilities {
     public static function findByBookingId($bookingId) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT bf.*, f.Name as FacilityName
+            "SELECT bf.*, f.Name as FacilityName, f.Rate as FacilityRate
              FROM BookingFacilities bf
              JOIN Facilities f ON bf.FacilityID = f.FacilityID
              WHERE bf.BookingID = :bookingId"

@@ -804,6 +804,189 @@ class BookingController {
     }
 
     /**
+     * Generate and download invoice as PDF
+     */
+    public function generateInvoice() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            $_SESSION['error_message'] = "Invalid booking ID.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        $booking = Booking::findById($bookingId);
+        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
+            $_SESSION['error_message'] = "You are not authorized to access this booking.";
+            header('Location: ?controller=booking&action=showMyBookings');
+            exit;
+        }
+
+        require_once __DIR__ . '/../Models/Resort.php';
+        require_once __DIR__ . '/../Models/BookingFacilities.php';
+        require_once __DIR__ . '/../Models/Payment.php';
+
+        $resort = Resort::findById($booking->resortId);
+        $facilities = BookingFacilities::findByBookingId($bookingId);
+        $payments = Payment::findByBookingId($bookingId);
+
+        // Generate PDF invoice
+        $this->generateInvoicePDF($booking, $resort, $facilities, $payments);
+    }
+
+    /**
+     * Generate PDF invoice using DomPDF
+     */
+    private function generateInvoicePDF($booking, $resort, $facilities, $payments) {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
+        // Calculate paid amount
+        $paidAmount = $booking->totalAmount - $booking->remainingBalance;
+
+        // Build HTML content for invoice
+        $html = $this->getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount);
+
+        // Instantiate and use the dompdf class
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new \Dompdf\Dompdf($options);
+
+        $dompdf->loadHtml($html);
+
+        // Setup the paper size and orientation
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF to Browser
+        $dompdf->stream('invoice_' . $booking->bookingId . '.pdf', array('Attachment' => 0));
+        exit;
+    }
+
+    /**
+     * Get invoice HTML template
+     */
+    private function getInvoiceHTML($booking, $resort, $facilities, $payments, $paidAmount) {
+        ob_start();
+        ?>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Invoice #<?= $booking->bookingId ?></title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+                .invoice-info { margin-bottom: 30px; }
+                .invoice-info > div { margin-bottom: 10px; }
+                .details { margin-bottom: 30px; }
+                .details table { width: 100%; border-collapse: collapse; }
+                .details th, .details td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                .details th { background-color: #f5f5f5; font-weight: bold; }
+                .total { text-align: right; margin-top: 20px; padding-top: 20px; border-top: 1px solid #000; }
+                .total strong { font-size: 18px; }
+                .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #666; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>INVOICE</h1>
+                <h2><?= htmlspecialchars($resort->name ?? 'Resort') ?></h2>
+                <p>Integrated Digital Management System</p>
+            </div>
+
+            <div class="invoice-info">
+                <div><strong>Invoice Number:</strong> #<?= $booking->bookingId ?></div>
+                <div><strong>Invoice Date:</strong> <?= date('F j, Y') ?></div>
+                <div><strong>Booking Date:</strong> <?= date('F j, Y', strtotime($booking->bookingDate)) ?></div>
+                <div><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></div>
+                <div><strong>Number of Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?></div>
+            </div>
+
+            <div class="details">
+                <h3>Service Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Base Resort Fee (<?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?>)</td>
+                            <td>PHP <?= number_format($booking->totalAmount - ($facilities ? array_sum(array_column($facilities, 'facilityPrice')) : 0), 2) ?></td>
+                        </tr>
+                        <?php if ($facilities): ?>
+                            <?php foreach ($facilities as $facility): ?>
+                            <tr>
+                                <td>Additional Facility: <?= htmlspecialchars($facility->FacilityName) ?></td>
+                                <td>PHP <?= number_format($facility->FacilityRate, 2) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td><strong>Total Amount</strong></td>
+                            <td><strong>PHP <?= number_format($booking->totalAmount, 2) ?></strong></td>
+                        </tr>
+                        <?php if ($paidAmount > 0): ?>
+                        <tr>
+                            <td><strong>Amount Paid</strong></td>
+                            <td><strong>PHP <?= number_format($paidAmount, 2) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Remaining Balance</strong></td>
+                            <td><strong>PHP <?= number_format($booking->remainingBalance, 2) ?></strong></td>
+                        </tr>
+                        <?php endif; ?>
+                    </tfoot>
+                </table>
+            </div>
+
+            <?php if ($payments): ?>
+            <div class="details">
+                <h3>Payment History</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($payments as $payment): ?>
+                        <tr>
+                            <td><?= date('M j, Y', strtotime($payment->PaymentDate)) ?></td>
+                            <td><?= htmlspecialchars($payment->PaymentMethod) ?></td>
+                            <td><?= htmlspecialchars($payment->Reference) ?></td>
+                            <td>PHP <?= number_format($payment->Amount, 2) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
+
+            <div class="footer">
+                <p>Thank you for your business!</p>
+                <p>This invoice was generated on <?= date('F j, Y \a\t H:i:s') ?> by the Integrated Digital Management System.</p>
+            </div>
+        </body>
+        </html>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
      * Get resort payment methods (API endpoint)
      */
     public function getPaymentMethods() {

@@ -24,14 +24,15 @@ class Payment {
     public static function create(Payment $payment) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Payments (BookingID, Amount, PaymentMethod, Status, ProofOfPaymentURL)
-             VALUES (:bookingId, :amount, :paymentMethod, :status, :proofOfPaymentURL)"
+            "INSERT INTO Payments (BookingID, Amount, PaymentMethod, Status, ProofOfPaymentURL, Reference)
+             VALUES (:bookingId, :amount, :paymentMethod, :status, :proofOfPaymentURL, :reference)"
         );
         $stmt->bindValue(':bookingId', $payment->bookingId, PDO::PARAM_INT);
         $stmt->bindValue(':amount', $payment->amount, PDO::PARAM_STR);
         $stmt->bindValue(':paymentMethod', $payment->paymentMethod, PDO::PARAM_STR);
         $stmt->bindValue(':status', $payment->status, PDO::PARAM_STR);
         $stmt->bindValue(':proofOfPaymentURL', $payment->proofOfPaymentURL, PDO::PARAM_STR);
+        $stmt->bindValue(':reference', $payment->reference ?? null, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return $db->lastInsertId();
@@ -92,8 +93,9 @@ class Payment {
         $payment->paymentMethod = $paymentMethod; // Use the provided payment method
         $payment->status = 'Pending'; // Pending admin verification
         $payment->proofOfPaymentURL = $paymentProofURL;
+        $payment->reference = $paymentReference; // Store the reference
         $payment->ScheduleID = $scheduleId;
-        
+
         $paymentId = self::create($payment);
         
         if ($paymentId) {

@@ -89,7 +89,7 @@ To prevent direct URL access to sensitive files (like database models and contro
     ```
 
 2.  **Install Dependencies:**
-    Use Composer to install the required libraries (like PHPMailer).
+    Use Composer to install the required libraries (like PHPMailer and DomPDF for invoice generation).
 
     ```bash
     composer install
@@ -172,6 +172,9 @@ php scripts/migrations/create_resort_timeframe_pricing_table.php
 php scripts/migrations/create_booking_facilities_table.php
 php scripts/migrations/create_resort_payment_methods_table.php
 php scripts/migrations/update_bookings_table_for_resort_centric.php
+
+# Invoice System & Enhanced Payment Tracking migrations (REQUIRED for v1.40.9+)
+php scripts/migrations/add_reference_to_payments.php
 
 # Phase 6: Advanced Features & Refinements migrations (REQUIRED for v1.26.1+)
 php scripts/migrations/create_payment_schedules_table.php

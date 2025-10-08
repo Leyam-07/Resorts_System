@@ -100,7 +100,7 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     $allowedActions = [
         'showBookingForm', 'createBooking', 'bookingSuccess', 'showMyBookings', 'cancelBooking',
         'getFacilitiesByResort', 'getResortPricing', 'getResortDetails', 'calculateBookingPrice', 'checkAvailability',
-        'getCalendarAvailability', 'showPaymentForm', 'submitPayment', 'paymentSuccess',
+        'getCalendarAvailability', 'showPaymentForm', 'submitPayment', 'paymentSuccess', 'generateInvoice',
         'getPaymentMethods', 'getAdvancedAvailabilityReport', 'getAvailabilitySuggestions', 'getFacilitiesForBooking'
     ];
 
