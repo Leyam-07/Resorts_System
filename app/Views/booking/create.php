@@ -184,14 +184,21 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         <div class="card-body py-2">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong class="text-primary">Base Price:</strong>
-                                    <span id="basePriceDisplay" class="fs-5 fw-bold text-success">₱0.00</span>
+                                    <div>
+                                        <strong class="text-primary">Base Price:</strong>
+                                        <span id="basePriceDisplay" class="fs-5 fw-bold text-success">₱0.00</span>
+                                    </div>
+                                    <div id="surchargeBreakdown" class="mt-2 small">
+                                        <!-- Additional surcharges will be populated here -->
+                                    </div>
                                 </div>
-                                <div id="weekendNotice" style="display: none;" class="badge bg-warning">
-                                    <i class="fas fa-calendar-week"></i> Weekend Rate
-                                </div>
-                                <div id="holidayNotice" style="display: none;" class="badge bg-info">
-                                    <i class="fas fa-star"></i> Holiday Rate
+                                <div id="pricingNotices">
+                                    <div id="weekendNotice" style="display: none;" class="badge bg-warning text-dark mb-1">
+                                        <i class="fas fa-calendar-week"></i> Weekend Rate
+                                    </div>
+                                    <div id="holidayNotice" style="display: none;" class="badge bg-info text-dark">
+                                        <i class="fas fa-star"></i> Holiday Rate
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -273,9 +280,15 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                         </div>
                         <div id="pricingBreakdown" style="display: none;">
                             <h6 class="text-muted">Pricing Details:</h6>
-                            <div class="d-flex justify-content-between mb-2 py-2">
-                                <span><i class="fas fa-clock text-muted"></i> Base Price (<span id="summaryTimeframe"></span>):</span>
-                                <span id="summaryBasePrice" class="fw-bold text-success">₱0.00</span>
+                            <div id="summaryPricingDetails">
+                                <!-- Base price and surcharges will be populated here -->
+                                <div class="d-flex justify-content-between mb-2 py-2">
+                                    <span><i class="fas fa-clock text-muted"></i> Base Price (<span id="summaryTimeframe"></span>):</span>
+                                    <span id="summaryBasePrice" class="fw-bold text-success">₱0.00</span>
+                                </div>
+                                <div id="summarySurchargeBreakdown">
+                                    <!-- Surcharge breakdown will be populated here -->
+                                </div>
                             </div>
                             <div id="facilityPricing">
                                 <!-- Facility prices will be populated here -->
@@ -775,6 +788,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // State tracking
     let currentBasePrice = 0;
+    let currentPricingData = null; // Store current pricing data
     let availableFacilities = [];
     let selectedFacilities = [];
     let calendarData = {};
@@ -1207,12 +1221,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (resortId && date && timeframe) {
+            // Clear previous pricing data when date/timeframe changes
+            currentPricingData = null;
             loadFacilities(resortId, date); // Reload facilities with date to check blocking
             loadTimeframePricing(resortId, timeframe, date);
             updateTotalPrice();
             updateDateAvailabilityInfo(date);
         } else {
             resetPricing();
+            currentPricingData = null; // Clear pricing data
             if (dateAvailabilityInfo) {
                 dateAvailabilityInfo.style.display = 'none';
             }
@@ -1271,10 +1288,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Advance to step 3 (Date) if pricing is successfully loaded
                 advanceToStep(3);
                 currentBasePrice = pricing.basePrice;
+                currentPricingData = pricing; // Store pricing data globally for summary
                 basePriceDisplay.textContent = pricing.basePriceDisplay;
                 summaryTimeframe.textContent = pricing.timeframeDisplay;
                 summaryBasePrice.textContent = pricing.basePriceDisplay;
 
+                // Display detailed surcharge breakdown
+                const surchargeBreakdown = document.getElementById('surchargeBreakdown');
+                if (pricing.appliedSurcharges && pricing.appliedSurcharges.length > 0) {
+                    let surchargeHtml = '<small class="text-muted">Additional Charges:</small>';
+                    pricing.appliedSurcharges.forEach(surcharge => {
+                        const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' :
+                                        surcharge.type === 'holiday' ? 'fa-star' : 'fa-plus';
+                        const badgeClass = surcharge.type === 'weekend' ? 'text-warning' :
+                                         surcharge.type === 'holiday' ? 'text-info' : 'text-primary';
+
+                        surchargeHtml += `
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small ps-3 ${badgeClass}">
+                                    <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
+                                </span>
+                                <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                            </div>
+                        `;
+                    });
+                    surchargeBreakdown.innerHTML = surchargeHtml;
+                } else {
+                    surchargeBreakdown.innerHTML = '<small class="text-muted">No additional charges</small>';
+                }
+
+                // Show/hide pricing notices (keep for visual indicator)
                 if (pricing.isWeekend) {
                     weekendNotice.style.display = 'block';
                 } else {
@@ -1344,13 +1387,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             facilityPricing.innerHTML = facilityHtml;
 
+            // Update summary surcharge breakdown if we have current pricing data
+            updateSummarySurchargeBreakdown();
+
             pricingBreakdown.style.display = 'block';
             noPricingMessage.style.display = 'none';
-            
+
             updateTotalPrice();
         } else {
             pricingBreakdown.style.display = 'none';
             noPricingMessage.style.display = 'block';
+        }
+    }
+
+    function updateSummarySurchargeBreakdown() {
+        const summarySurchargeBreakdown = document.getElementById('summarySurchargeBreakdown');
+
+        if (currentPricingData && currentPricingData.appliedSurcharges && currentPricingData.appliedSurcharges.length > 0) {
+            let surchargeHtml = '<small class="text-muted">Additional Charges:</small>';
+            currentPricingData.appliedSurcharges.forEach(surcharge => {
+                const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' :
+                                surcharge.type === 'holiday' ? 'fa-star' : 'fa-plus';
+                const badgeClass = surcharge.type === 'weekend' ? 'text-warning' :
+                                 surcharge.type === 'holiday' ? 'text-info' : 'text-primary';
+
+                surchargeHtml += `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small ps-3 ${badgeClass}">
+                            <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
+                        </span>
+                        <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            summarySurchargeBreakdown.innerHTML = surchargeHtml;
+        } else {
+            summarySurchargeBreakdown.innerHTML = '<small class="text-muted">No additional charges</small>';
         }
     }
 

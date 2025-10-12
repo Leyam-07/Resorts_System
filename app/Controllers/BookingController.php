@@ -187,11 +187,11 @@ class BookingController {
      */
     public function getResortPricing() {
         header('Content-Type: application/json');
-        
+
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
         $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
         $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
-        
+
         if (!$resortId || !$timeframe || !$date) {
             http_response_code(400);
             echo json_encode(['error' => 'Missing required parameters']);
@@ -199,31 +199,61 @@ class BookingController {
         }
 
         require_once __DIR__ . '/../Models/ResortTimeframePricing.php';
-        
-        $basePrice = ResortTimeframePricing::calculatePrice($resortId, $timeframe, $date);
+
+        $totalPrice = ResortTimeframePricing::calculatePrice($resortId, $timeframe, $date);
         $pricing = ResortTimeframePricing::findByResortAndTimeframe($resortId, $timeframe);
-        
+
+        if (!$pricing) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Pricing not found']);
+            exit;
+        }
+
+        // Calculate which surcharges apply
+        $dayOfWeek = date('w', strtotime($date));
+        $isWeekend = ($dayOfWeek == 0 || $dayOfWeek == 6);
+
+        require_once __DIR__ . '/../Helpers/HolidayHelper.php';
+        $isHoliday = HolidayHelper::isHoliday($date);
+
+        $appliedSurcharges = [];
+        $totalSurcharges = 0;
+
+        if ($isWeekend && $pricing->weekendSurcharge > 0) {
+            $appliedSurcharges[] = [
+                'type' => 'weekend',
+                'amount' => $pricing->weekendSurcharge,
+                'display' => '+ ₱' . number_format($pricing->weekendSurcharge, 2) . ' Weekend Surcharge'
+            ];
+            $totalSurcharges += $pricing->weekendSurcharge;
+        }
+
+        if ($isHoliday && $pricing->holidaySurcharge > 0) {
+            $appliedSurcharges[] = [
+                'type' => 'holiday',
+                'amount' => $pricing->holidaySurcharge,
+                'display' => '+ ₱' . number_format($pricing->holidaySurcharge, 2) . ' Holiday Surcharge'
+            ];
+            $totalSurcharges += $pricing->holidaySurcharge;
+        }
+
         $response = [
-            'basePrice' => $basePrice,
-            'basePriceDisplay' => '₱' . number_format($basePrice, 2),
-            'timeframeDisplay' => ResortTimeframePricing::getTimeframeDisplay($timeframe)
+            'basePrice' => $pricing->basePrice,
+            'basePriceDisplay' => '₱' . number_format($pricing->basePrice, 2),
+            'totalPrice' => $totalPrice,
+            'totalPriceDisplay' => '₱' . number_format($totalPrice, 2),
+            'appliedSurcharges' => $appliedSurcharges,
+            'totalSurcharges' => $totalSurcharges,
+            'timeframeDisplay' => ResortTimeframePricing::getTimeframeDisplay($timeframe),
+            'isWeekend' => $isWeekend,
+            'isHoliday' => $isHoliday
         ];
 
         if ($pricing) {
             $response['weekendSurcharge'] = $pricing->weekendSurcharge;
             $response['holidaySurcharge'] = $pricing->holidaySurcharge;
-            
-            // Check if current date is weekend
-            $dayOfWeek = date('w', strtotime($date));
-            $isWeekend = ($dayOfWeek == 0 || $dayOfWeek == 6);
-            $response['isWeekend'] = $isWeekend;
-
-            // Check if current date is a holiday
-            require_once __DIR__ . '/../Helpers/HolidayHelper.php';
-            $isHoliday = HolidayHelper::isHoliday($date);
-            $response['isHoliday'] = $isHoliday;
         }
-        
+
         echo json_encode($response);
         exit;
     }
