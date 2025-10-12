@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.8] - 2025-10-12
+
+### Changed
+
+- **Booking Form UI/UX:** Overhauled the "Select Date" section on the New Booking page, replacing the previous input/button combination with a modern, fully clickable card interface. This aligns its design with the other card-based selections on the page for a more consistent and intuitive user experience.
+
+### Fixed
+
+- **JavaScript Stability:** Resolved a series of `TypeError: Cannot set properties of null` exceptions on the New Booking page. These errors were caused by scripts referencing element IDs that were removed during recent UI refactoring. All event listeners and element selectors have been updated to target the new card-based components.
+- **Form Usability:** Corrected a UI flaw where the "Select Timeframe" and "Select Date" cards were interactive before a resort was chosen. These sections are now visually dimmed and disabled until their preceding steps are completed, properly guiding the user through the booking workflow.
+
+### Technical
+
+- **DOM Manipulation:** Refactored JavaScript to use class-based selectors (`.date-card`) instead of IDs for UI components that were changed. Replaced `.disabled` property manipulation with CSS class toggles (`opacity-50`, `pe-none`) for better visual state management.
+
+### Files Updated
+
+app/Views/booking/create.php
+
+## [1.41.7] - 2025-10-12
+
+### Fixed
+
+- **Base Price Calculation Fix:** Resolved critical pricing display issue on the New Booking page where weekend and holiday pricing was showing as direct total price instead of displaying base price with separate surcharge amounts.
+  - **Backend Pricing Logic:** Modified `BookingController::getResortPricing()` to return actual base price from database table instead of calculated total, and added new `appliedSurcharges` array with formatted surcharge details (type, amount, display text).
+  - **Frontend Pricing Display:** Updated JavaScript `loadTimeframePricing()` function to handle new API response format and display surcharges with proper "+" indicators, color-coded types (warning for weekend, info for holiday), and formatted amounts.
+  - **UI Enhancement:** Added surcharge breakdown section in timerframe card showing individual charges (e.g., "+ ₱200 Weekend Surcharge") and enhanced booking summary section with consistent pricing display.
+  - **Pricing Clearance:** Added pricing data reset when date/timeframe changes to prevent cached data corruption and ensure accurate real-time updates.
+  - **User Experience:** Display now correctly shows Base Price: ₱X.XX + Weekend Surcharge: + ₱Y.YY + Holiday Surcharge: + ₱Z.ZZ = Total instead of showing total as base price.
+
+### Technical
+
+- **API Response Enhancement:** Modified pricing endpoint to return structured surcharge data with type classification and formatted display strings.
+- **Client-Side State Management:** Improved JavaScript pricing handling with concurrent-purchaser-style display updates and global pricing data caching.
+- **Data Integrity:** Implemented pricing data clearing on user selections to prevent stale data displaying incorrect surcharges.
+
+### Files Updated
+
+app/Controllers/BookingController.php
+app/Views/booking/create.php
+
 ## [1.41.6] - 2025-10-12
 
 ### Changed
@@ -1027,32 +1068,6 @@ Payment.php model methods leveraged (no changes needed)
 ### Changed
 
 - **Database Connection Management:** Migrated from per-model database connections to globally managed singleton pattern for consistent transaction handling.
-
----
-
-## [1.41.7] - 2025-10-12
-
-### Fixed
-
-- **Base Price Calculation Fix:** Resolved critical pricing display issue on the New Booking page where weekend and holiday pricing was showing as direct total price instead of displaying base price with separate surcharge amounts.
-  - **Backend Pricing Logic:** Modified `BookingController::getResortPricing()` to return actual base price from database table instead of calculated total, and added new `appliedSurcharges` array with formatted surcharge details (type, amount, display text).
-  - **Frontend Pricing Display:** Updated JavaScript `loadTimeframePricing()` function to handle new API response format and display surcharges with proper "+" indicators, color-coded types (warning for weekend, info for holiday), and formatted amounts.
-  - **UI Enhancement:** Added surcharge breakdown section in timerframe card showing individual charges (e.g., "+ ₱200 Weekend Surcharge") and enhanced booking summary section with consistent pricing display.
-  - **Pricing Clearance:** Added pricing data reset when date/timeframe changes to prevent cached data corruption and ensure accurate real-time updates.
-  - **User Experience:** Display now correctly shows Base Price: ₱X.XX + Weekend Surcharge: + ₱Y.YY + Holiday Surcharge: + ₱Z.ZZ = Total instead of showing total as base price.
-
-### Technical
-
-- **API Response Enhancement:** Modified pricing endpoint to return structured surcharge data with type classification and formatted display strings.
-- **Client-Side State Management:** Improved JavaScript pricing handling with concurrent-purchaser-style display updates and global pricing data caching.
-- **Data Integrity:** Implemented pricing data clearing on user selections to prevent stale data displaying incorrect surcharges.
-
-### Files Updated
-
-app/Controllers/BookingController.php
-app/Views/booking/create.php
-
-## [Unreleased]
 
 ## [1.28.1] - 2025-09-27
 

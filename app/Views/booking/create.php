@@ -213,29 +213,35 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <label for="date" class="form-label fw-bold">
                     <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
                 </label>
-                <div class="input-group">
-                    <input type="date" class="form-control" id="date" name="booking_date"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['bookingDate'] ?? '') ?>"
-                           min="<?= date('Y-m-d') ?>" required>
-                    <button type="button" class="btn btn-primary" id="calendarModalBtn" disabled>
-                        <i class="fas fa-calendar-check"></i> Browse Available Dates
-                    </button>
+                <div class="row g-3">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card date-card h-100 bg-primary-subtle">
+                            <div class="card-body text-center clickable-card">
+                                <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                                <h6 class="card-title text-primary fw-bold mb-1">Navigate Calendar</h6>
+                                <p class="card-text small text-muted mb-0">Click to browse and select your date</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-text">
-                    <i class="fas fa-info-circle"></i> Use "Browse Available Dates" for real-time availability with color-coded calendar view, or select directly above.
+                    <i class="fas fa-info-circle"></i> Use the calendar modal to select your preferred date with real-time availability
                 </div>
                 <div id="dateAvailabilityInfo" class="mt-2" style="display: none;">
                     <div class="alert alert-info mb-0">
                         <small><span id="selectedDateInfo"></span></small>
                     </div>
                 </div>
+                <!-- Hidden date input for form submission -->
+                <input type="hidden" id="date" name="booking_date"
+                       value="<?= htmlspecialchars($_SESSION['old_input']['bookingDate'] ?? '') ?>">
             </div>
             </fieldset>
 
 
 
-            <!-- Step 5: Enhanced Facility Selection -->
-            <fieldset id="step5-fieldset">
+            <!-- Step 4: Enhanced Facility Selection -->
+            <fieldset id="step4-fieldset">
             <div class="mb-4">
                 <label class="form-label fw-bold">
                     <i class="fas fa-swimming-pool text-primary"></i> Additional Facilities
@@ -596,6 +602,25 @@ input[type="number"].form-control {
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
 
+/* Enhanced Date Cards */
+.date-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.date-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.date-card.selected {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
 /* Enhanced Facility Cards */
 .facility-card {
     transition: all 0.3s ease;
@@ -740,6 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form elements
     const resortRadios = document.querySelectorAll('input[name="resort_id"]');
     const timeframeRadios = document.querySelectorAll('input[name="timeframe"]');
+    const timeframeSelectionContainer = document.getElementById('timeframe-selection-container');
     const dateInput = document.getElementById('date');
     const facilitiesContainer = document.getElementById('facilitiesContainer');
     const submitBtn = document.getElementById('submitBtn');
@@ -753,7 +779,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const step2Fieldset = document.getElementById('step2-fieldset');
     const step3Fieldset = document.getElementById('step3-fieldset');
     const step4Fieldset = document.getElementById('step4-fieldset');
-    const step5Fieldset = document.getElementById('step5-fieldset');
 
     // Display elements
     const timeframePricing = document.getElementById('timeframePricing');
@@ -773,7 +798,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const summaryTimeframeText = document.getElementById('summaryTimeframeText');
 
     // Enhanced UI elements
-    const calendarModalBtn = document.getElementById('calendarModalBtn');
+    const dateCard = document.querySelector('.date-card');
     const calendarModal = new bootstrap.Modal(document.getElementById('calendarModal'));
     const calendarMonth = document.getElementById('calendarMonth');
     const calendarGrid = document.getElementById('calendarGrid');
@@ -807,7 +832,9 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.addEventListener('change', handleDateOrTimeframeChange);
 
     // Enhanced calendar modal events
-    calendarModalBtn.addEventListener('click', openCalendarModal);
+    if (dateCard) {
+        dateCard.addEventListener('click', openCalendarModal);
+    }
     calendarMonth.addEventListener('change', loadCalendarData);
     selectDateBtn.addEventListener('click', selectCalendarDate);
 
@@ -815,7 +842,12 @@ document.addEventListener('DOMContentLoaded', function() {
         step2Fieldset.disabled = true;
         step3Fieldset.disabled = true;
         step4Fieldset.disabled = true;
-        step5Fieldset.disabled = true;
+        if (timeframeSelectionContainer) {
+            timeframeSelectionContainer.classList.add('opacity-50', 'pe-none');
+        }
+        if (dateCard) {
+            dateCard.classList.add('opacity-50', 'pe-none');
+        }
     }
     
     initializeFormState();
@@ -875,7 +907,9 @@ document.addEventListener('DOMContentLoaded', function() {
             pricingIncompleteNotice.style.display = 'none';
             resetFacilities();
             resetPricing();
-            calendarModalBtn.disabled = true;
+            if (dateCard) {
+                dateCard.classList.add('opacity-50', 'pe-none');
+            }
             initializeFormState(); // Disable steps if resort is deselected
             return;
         }
@@ -897,7 +931,9 @@ document.addEventListener('DOMContentLoaded', function() {
             resetPricing();
             initializeFormState();
             highlightSelectedResort(null); // Remove highlight
-            calendarModalBtn.disabled = true;
+            if (dateCard) {
+                dateCard.classList.add('opacity-50', 'pe-none');
+            }
             updateBookingSummaryDetails();
             return;
         } else {
@@ -907,12 +943,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Enable subsequent steps for resorts with complete pricing
         step2Fieldset.disabled = false;
+        if (timeframeSelectionContainer) {
+            timeframeSelectionContainer.classList.remove('opacity-50', 'pe-none');
+        }
         step3Fieldset.disabled = false;
         step4Fieldset.disabled = false;
-        step5Fieldset.disabled = false;
 
         advanceToStep(2);
-        calendarModalBtn.disabled = false;
+        if (dateCard) {
+            dateCard.classList.remove('opacity-50', 'pe-none');
+        }
         loadFacilities(selectedResortId);
         loadResortDetails(selectedResortId);
         handleDateOrTimeframeChange();
@@ -1215,9 +1255,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Enable calendar modal button if both resort and timeframe are selected
         if (selectedResortId && selectedTimeframe) {
-            calendarModalBtn.disabled = false;
+            if (dateCard) {
+                dateCard.classList.remove('opacity-50', 'pe-none');
+            }
         } else {
-            calendarModalBtn.disabled = true;
+            if (dateCard) {
+                dateCard.classList.add('opacity-50', 'pe-none');
+            }
         }
 
         if (resortId && date && timeframe) {
