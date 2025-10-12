@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.6] - 2025-10-12
+
+### Changed
+
+- **Card-Based Timeframe Selection:** Converted the "Select Timeframe" section on the New Booking page from a dropdown menu to a modern card-based interface with three option cards: "12 Hours", "24 Hours", and "Overnight". This improves user experience and maintains consistency with other form sections.
+  - Added check-in/check-out time indicators on each card:
+    - 12 Hours: Check In 7:00 AM, Check Out 5:00 PM
+    - 24 Hours: Check In 7:00 AM, Check Out 5:00 AM (next day)
+    - Overnight: Check In 7:00 PM, Check Out 5:00 AM (next day)
+  - Implemented visual selection feedback with hover effects and blue highlighting
+  - Refactored JavaScript to use `selectedTimeframe` variable instead of dropdown element references
+  - Maintained progressive step validation and calendar modal integration
+  - Enhanced mobile responsiveness with proper card stacking
+
+### Technical
+
+- **JavaScript Code Quality:** Completely refactored timeframe selection logic to remove all `timeSlotSelect` variable references and implement state-based timeframe tracking
+- **UI Consistency:** Aligned timeframe cards with existing resort and facility card selection interfaces, including hover animations and selection states
+- **Form State Management:** Updated step indicators, validation logic, and API calls to work seamlessly with the new card-based selection system
+
+### Files Updated
+
+app/Views/booking/create.php
+
 ## [1.41.5] - 2025-10-12
 
 ### Fixed

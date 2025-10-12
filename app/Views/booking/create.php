@@ -114,23 +114,67 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             <!-- Step 2: Enhanced Timeframe Selection (Required) -->
             <fieldset id="step2-fieldset">
             <div class="mb-4">
-                <label for="timeSlotType" class="form-label fw-bold">
+                <label class="form-label fw-bold">
                     <i class="fas fa-clock text-primary"></i> Select Timeframe <span class="text-danger">*</span>
                 </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-time"></i></span>
-                    <select class="form-select" id="timeSlotType" name="timeframe" required>
-                        <option value="" disabled selected>Choose your timeframe...</option>
-                        <option value="12_hours" <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == '12_hours') ? 'selected' : '' ?>>
-                            ☀️ 12 Hours (7:00 AM - 5:00 PM)
-                        </option>
-                        <option value="24_hours" <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == '24_hours') ? 'selected' : '' ?>>
-                            🕐 24 Hours (7:00 AM - 5:00 AM next day)
-                        </option>
-                        <option value="overnight" <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == 'overnight') ? 'selected' : '' ?>>
-                            🌙 Overnight (7:00 PM - 5:00 AM)
-                        </option>
-                    </select>
+                <div class="row g-3" id="timeframe-selection-container">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card timeframe-card h-100 bg-warning-subtle">
+                            <label for="timeframe_12_hours" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_12_hours" value="12_hours"
+                                       <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == '12_hours') ? 'checked' : '' ?> required>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-sun text-warning me-2"></i>
+                                        12 Hours
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
+                                        <div><strong>Check Out:</strong> 5:00 PM</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card timeframe-card h-100 bg-info-subtle">
+                            <label for="timeframe_24_hours" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_24_hours" value="24_hours"
+                                       <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == '24_hours') ? 'checked' : '' ?>>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-clock text-info me-2"></i>
+                                        24 Hours
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
+                                        <div><strong>Check Out:</strong> 5:00 AM (next day)</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="card timeframe-card h-100 bg-dark-subtle">
+                            <label for="timeframe_overnight" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_overnight" value="overnight"
+                                       <?= (isset($_SESSION['old_input']['timeSlotType']) && $_SESSION['old_input']['timeSlotType'] == 'overnight') ? 'checked' : '' ?>>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-moon text-secondary me-2"></i>
+                                        Overnight
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 PM</div>
+                                        <div><strong>Check Out:</strong> 5:00 AM (next day)</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-text">
                     <i class="fas fa-info-circle"></i> Select your preferred timeframe to enable date browsing and see pricing
@@ -511,6 +555,34 @@ input[type="number"].form-control {
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
 
+/* Enhanced Timeframe Cards */
+.timeframe-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.timeframe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.timeframe-card .form-check-input {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 1.2em;
+    height: 1.2em;
+    z-index: 10;
+}
+
+.timeframe-card.selected {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
 /* Enhanced Facility Cards */
 .facility-card {
     transition: all 0.3s ease;
@@ -654,8 +726,8 @@ const resortPricingData = {
 document.addEventListener('DOMContentLoaded', function() {
     // Form elements
     const resortRadios = document.querySelectorAll('input[name="resort_id"]');
+    const timeframeRadios = document.querySelectorAll('input[name="timeframe"]');
     const dateInput = document.getElementById('date');
-    const timeSlotSelect = document.getElementById('timeSlotType');
     const facilitiesContainer = document.getElementById('facilitiesContainer');
     const submitBtn = document.getElementById('submitBtn');
 
@@ -709,13 +781,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedCalendarDate = null;
     let currentStep = 1;
     let selectedResortId = null; // Track selected resort ID
+    let selectedTimeframe = null; // Track selected timeframe
 
     // Event listeners
     resortRadios.forEach(radio => {
         radio.addEventListener('change', handleResortChange);
     });
+    timeframeRadios.forEach(radio => {
+        radio.addEventListener('change', handleTimeframeChange);
+    });
     dateInput.addEventListener('change', handleDateOrTimeframeChange);
-    timeSlotSelect.addEventListener('change', handleDateOrTimeframeChange);
 
     // Enhanced calendar modal events
     calendarModalBtn.addEventListener('click', openCalendarModal);
@@ -759,6 +834,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (step > currentStep) {
             currentStep = step;
             updateStepIndicators();
+        }
+    }
+
+    function handleTimeframeChange(event) {
+        selectedTimeframe = event.target.value;
+        highlightSelectedTimeframe(selectedTimeframe);
+        handleDateOrTimeframeChange();
+        advanceToStep(3); // Advance to Date step when timeframe is selected
+    }
+
+    function highlightSelectedTimeframe(timeframe) {
+        document.querySelectorAll('.timeframe-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        const selectedCard = document.querySelector(`input[name="timeframe"][value="${timeframe}"]`).closest('.timeframe-card');
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
         }
     }
 
@@ -841,18 +933,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enhanced calendar functionality
     function openCalendarModal() {
-        if (!selectedResortId || !timeSlotSelect.value) {
+        if (!selectedResortId || !selectedTimeframe) {
             alert('Please select a resort and timeframe first');
             return;
         }
-        
+
         calendarModal.show();
         loadCalendarData();
     }
 
     function loadCalendarData() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
-        const timeframe = timeSlotSelect.value;
+        const timeframe = selectedTimeframe;
         const month = calendarMonth.value;
 
         if (!resortId || !timeframe) return;
@@ -1105,10 +1197,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleDateOrTimeframeChange() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
-        const timeframe = timeSlotSelect.value;
+        const timeframe = selectedTimeframe;
 
         // Enable calendar modal button if both resort and timeframe are selected
-        if (selectedResortId && timeSlotSelect.value) {
+        if (selectedResortId && selectedTimeframe) {
             calendarModalBtn.disabled = false;
         } else {
             calendarModalBtn.disabled = true;
@@ -1134,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function checkAvailability() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
-        const timeframe = timeSlotSelect.value;
+        const timeframe = selectedTimeframe;
         const facilityIds = selectedFacilities.map(f => f.id);
 
         if (!resortId || !date || !timeframe) {
@@ -1206,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotalPrice() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
-        const timeframe = timeSlotSelect.value;
+        const timeframe = selectedTimeframe;
         const date = dateInput.value;
         const facilityIds = selectedFacilities.map(f => f.id);
 
@@ -1264,7 +1356,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateForm() {
         const resortValid = selectedResortId !== null; // Check if a resort is selected
-        const timeframeValid = timeSlotSelect.value;
+        const timeframeValid = selectedTimeframe;
         const dateValid = dateInput.value;
         const facilitiesSelected = selectedFacilities.length > 0;
 
@@ -1363,7 +1455,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        const timeframeValue = timeSlotSelect.options[timeSlotSelect.selectedIndex]?.text.trim().split('(')[0].trim() || 'N/A';
+        // Map timeframe values to display names
+        const timeframeDisplayNames = {
+            '12_hours': '12 Hours',
+            '24_hours': '24 Hours',
+            'overnight': 'Overnight'
+        };
+        const timeframeValue = selectedTimeframe ? timeframeDisplayNames[selectedTimeframe] || 'N/A' : 'N/A';
         const dateValue = dateInput.value
             ? new Date(dateInput.value + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
             : 'N/A';
