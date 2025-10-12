@@ -110,7 +110,6 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Resort</th>
                                         <th>Facilities</th>
                                         <th>Total</th>
-                                        <th>Guests</th>
                                         <th>Booking Status</th>
                                         <th>Payment Status</th>
                                         <th>Actions</th>
@@ -127,7 +126,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <?php if (!empty($booking->FacilityNames)): ?>
                                                     <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
                                                 <?php else: ?>
-                                                    <span class="text-muted small">Resort only</span>
+                                                    <span class="badge bg-secondary">Resort only</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
@@ -140,7 +139,6 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
                                                 <span class="badge
                                                     <?php
@@ -201,7 +199,6 @@ require_once __DIR__ . '/../partials/header.php';
                                         <th>Resort</th>
                                         <th>Facilities</th>
                                         <th>Total</th>
-                                        <th>Guests</th>
                                         <th>Status</th>
                                         <th>Payment Status</th>
                                         <th>Actions</th>
@@ -218,7 +215,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <?php if (!empty($booking->FacilityNames)): ?>
                                                     <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
                                                 <?php else: ?>
-                                                    <span class="text-muted small">Resort only</span>
+                                                    <span class="badge bg-secondary">Resort only</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
@@ -231,7 +228,6 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                             <td>
                                                 <span class="badge
                                                     <?php
@@ -305,7 +301,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <?php if (!empty($booking->FacilityNames)): ?>
                                                     <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
                                                 <?php else: ?>
-                                                    <span class="text-muted small">Resort only</span>
+                                                    <span class="badge bg-secondary">Resort only</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>

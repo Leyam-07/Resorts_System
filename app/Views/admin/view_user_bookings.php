@@ -19,7 +19,6 @@ if (empty($bookings)): ?>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Total</th>
-                <th>Guests</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -46,7 +45,6 @@ if (empty($bookings)): ?>
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
-                    <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                     <td>
                         <?php
                             $statusColors = [

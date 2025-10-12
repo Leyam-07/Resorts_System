@@ -103,7 +103,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <?php if (!empty($booking->FacilityNames)): ?>
                                                     <span class="badge bg-info"><?= htmlspecialchars($booking->FacilityNames) ?></span>
                                                 <?php else: ?>
-                                                    <span class="text-muted small">Resort only</span>
+                                                    <span class="badge bg-secondary">Resort only</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>

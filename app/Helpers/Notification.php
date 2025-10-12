@@ -54,7 +54,7 @@ class Notification {
                     <li>Booking ID: {$booking->bookingId}</li>
                     <li>Date: {$booking->bookingDate}</li>
                     <li>Time: " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-                    <li>Guests: {$booking->numberOfGuests}</li>
+
                 </ul>
                 <p>Thank you for choosing our resort!</p>";
             $mail->AltBody = 'Your booking has been successfully created. Booking ID: ' . $booking->bookingId;
@@ -176,7 +176,7 @@ class Notification {
                         <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
                         <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
                         <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-                        <li><strong>Guests:</strong> {$booking->numberOfGuests} person" . ($booking->numberOfGuests > 1 ? 's' : '') . "</li>
+
                         <li>{$facilityList}</li>
                     </ul>
                     
@@ -260,7 +260,7 @@ class Notification {
                     <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
                     <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
                     <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-                    <li><strong>Guests:</strong> {$booking->numberOfGuests} person" . ($booking->numberOfGuests > 1 ? 's' : '') . "</li>
+
                     {$facilityList}
                 </ul>
 

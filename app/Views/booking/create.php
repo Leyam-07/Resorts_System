@@ -42,14 +42,10 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                     <div class="col step-indicator" id="step4">
                         <div class="step-circle">4</div>
-                        <small>Guests</small>
+                        <small>Facilities</small>
                     </div>
                     <div class="col step-indicator" id="step5">
                         <div class="step-circle">5</div>
-                        <small>Facilities</small>
-                    </div>
-                    <div class="col step-indicator" id="step6">
-                        <div class="step-circle">6</div>
                         <small>Summary</small>
                     </div>
                 </div>
@@ -185,29 +181,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             </div>
             </fieldset>
 
-            <!-- Step 4: Enhanced Number of Guests (Required) -->
-            <fieldset id="step4-fieldset">
-            <div class="mb-4">
-                <label for="guests" class="form-label fw-bold">
-                    <i class="fas fa-users text-primary"></i> Number of Guests <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                    <input type="number" class="form-control" id="guests" name="number_of_guests"
-                           value="<?= htmlspecialchars($_SESSION['old_input']['numberOfGuests'] ?? '') ?>"
-                           placeholder="Enter number of guests" min="1" required>
-                    <span class="input-group-text" id="guest_capacity_display">/ 0</span>
-                </div>
-                <div class="form-text">
-                    <i class="fas fa-info-circle"></i> <span id="guestCapacityNote">Ensure the number doesn't exceed resort capacity</span>
-                </div>
-                <div id="guestCapacityWarning" class="mt-2" style="display: none;">
-                    <div class="alert alert-warning mb-0">
-                        <small><i class="fas fa-exclamation-triangle"></i> <span id="capacityWarningText"></span></small>
-                    </div>
-                </div>
-            </div>
-            </fieldset>
+
 
             <!-- Step 5: Enhanced Facility Selection -->
             <fieldset id="step5-fieldset">
@@ -250,10 +224,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                     <span><i class="fas fa-calendar-alt text-muted me-2"></i>Date:</span>
                                     <strong id="summaryDate" class="text-end">N/A</strong>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span><i class="fas fa-users text-muted me-2"></i>Guests:</span>
-                                    <strong id="summaryGuests" class="text-end">N/A</strong>
-                                </li>
+
                             </ul>
                         </div>
                         <div id="pricingBreakdown" style="display: none;">
@@ -685,7 +656,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const resortRadios = document.querySelectorAll('input[name="resort_id"]');
     const dateInput = document.getElementById('date');
     const timeSlotSelect = document.getElementById('timeSlotType');
-    const guestsInput = document.getElementById('guests');
     const facilitiesContainer = document.getElementById('facilitiesContainer');
     const submitBtn = document.getElementById('submitBtn');
 
@@ -715,7 +685,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const bookingDetails = document.getElementById('bookingDetails');
     const summaryResort = document.getElementById('summaryResort');
     const summaryDate = document.getElementById('summaryDate');
-    const summaryGuests = document.getElementById('summaryGuests');
     const summaryTimeframeText = document.getElementById('summaryTimeframeText');
 
     // Enhanced UI elements
@@ -728,9 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectDateBtn = document.getElementById('selectDateBtn');
     const dateAvailabilityInfo = document.getElementById('dateAvailabilityInfo');
     const selectedDateInfo = document.getElementById('selectedDateInfo');
-    const guestCapacityWarning = document.getElementById('guestCapacityWarning');
-    const capacityWarningText = document.getElementById('capacityWarningText');
-    const guestCapacityDisplay = document.getElementById('guest_capacity_display');
 
     // Step indicators
     const stepIndicators = document.querySelectorAll('.step-indicator');
@@ -742,7 +708,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let calendarData = {};
     let selectedCalendarDate = null;
     let currentStep = 1;
-    let resortCapacity = 0;
     let selectedResortId = null; // Track selected resort ID
 
     // Event listeners
@@ -751,8 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     dateInput.addEventListener('change', handleDateOrTimeframeChange);
     timeSlotSelect.addEventListener('change', handleDateOrTimeframeChange);
-    guestsInput.addEventListener('input', handleGuestsChange);
-    
+
     // Enhanced calendar modal events
     calendarModalBtn.addEventListener('click', openCalendarModal);
     calendarMonth.addEventListener('change', loadCalendarData);
@@ -913,9 +877,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderCalendar(month) {
         const [year, monthNum] = month.split('-');
         const firstDay = new Date(year, monthNum - 1, 1);
-        
+
         let html = '';
-        
+
         // Add day headers
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         dayNames.forEach(day => {
@@ -926,19 +890,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const startOfMonth = new Date(Date.UTC(parseInt(year), parseInt(monthNum) - 1, 1));
         const startCalendarDate = new Date(startOfMonth);
         startCalendarDate.setUTCDate(startCalendarDate.getUTCDate() - startOfMonth.getUTCDay());
-        
+
         // Generate 6 weeks (42 days) for the calendar
         for (let i = 0; i < 42; i++) {
             const currentCalendarDate = new Date(startCalendarDate);
             currentCalendarDate.setUTCDate(startCalendarDate.getUTCDate() + i);
-            
+
             const dateStr = currentCalendarDate.toISOString().split('T')[0];
             const dayNum = currentCalendarDate.getUTCDate();
             const isCurrentMonth = currentCalendarDate.getUTCMonth() === startOfMonth.getUTCMonth();
-            
+
             let dayClass = 'calendar-day';
             let dayData = calendarData[dateStr];
-            
+
             if (!isCurrentMonth) {
                 dayClass += ' disabled text-muted';
             } else if (dayData) {
@@ -951,9 +915,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const dayName = currentCalendarDate.toLocaleDateString('en-US', {weekday: 'long'});
-            
+
+            // Remove onclick attribute, use event delegation instead
             html += `
-                <div class="${dayClass}" data-date="${dateStr}" title="${dayName}, ${dayNum}" ${dayData && dayData.available && isCurrentMonth ? 'onclick="selectDate(\'' + dateStr + '\')"' : ''}>
+                <div class="${dayClass}" data-date="${dateStr}" title="${dayName}, ${dayNum}">
                     <div class="day-number">${dayNum}</div>
                     <div class="day-status">${dayData ? dayData.statusText : ''}</div>
                 </div>
@@ -961,22 +926,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         calendarGrid.innerHTML = html;
+
+        // Add event delegation for calendar day clicks
+        calendarGrid.addEventListener('click', function(e) {
+            const dayElement = e.target.closest('.calendar-day');
+            if (!dayElement || dayElement.classList.contains('calendar-day-header')) return;
+
+            const dateStr = dayElement.dataset.date;
+            if (dateStr && !dayElement.classList.contains('disabled')) {
+                // Remove previous selection
+                document.querySelectorAll('.calendar-day.selected').forEach(day => {
+                    day.classList.remove('selected');
+                });
+
+                // Select new date
+                dayElement.classList.add('selected');
+                selectedCalendarDate = dateStr;
+                selectDateBtn.disabled = false;
+
+                // Update select button text
+                selectDateBtn.innerHTML = '<i class="fas fa-check"></i> Select';
+            }
+        }, true); // Use capture to ensure it works
     }
 
-    window.selectDate = function(dateStr) {
-        // Remove previous selection
-        document.querySelectorAll('.calendar-day.selected').forEach(day => {
-            day.classList.remove('selected');
-        });
-        
-        // Select new date
-        const dayElement = document.querySelector(`[data-date="${dateStr}"]`);
-        if (dayElement && !dayElement.classList.contains('disabled')) {
-            dayElement.classList.add('selected');
-            selectedCalendarDate = dateStr;
-            selectDateBtn.disabled = false;
-        }
-    };
+    // Old selectDate function removed in favor of event delegation
 
     function selectCalendarDate() {
         if (selectedCalendarDate) {
@@ -984,33 +958,6 @@ document.addEventListener('DOMContentLoaded', function() {
             calendarModal.hide();
             handleDateOrTimeframeChange();
         }
-    }
-
-    // Enhanced guest handling
-    function handleGuestsChange() {
-        const numberOfGuests = parseInt(guestsInput.value) || 0;
-        
-        if (resortCapacity > 0 && numberOfGuests > resortCapacity) {
-            guestsInput.value = resortCapacity;
-            guestCapacityWarning.style.display = 'block';
-            capacityWarningText.textContent = `Number of guests cannot exceed the resort capacity of ${resortCapacity}.`;
-
-            // Add shake effect for visual feedback
-            guestsInput.classList.add('shake');
-            guestCapacityWarning.classList.add('shake');
-            
-            // Remove the class after the animation ends to allow re-triggering
-            setTimeout(() => {
-                guestsInput.classList.remove('shake');
-                guestCapacityWarning.classList.remove('shake');
-            }, 820); // Match animation duration
-        } else {
-            guestCapacityWarning.style.display = 'none';
-        }
-
-        validateGuestCapacity();
-        updateBookingSummaryDetails();
-        validateForm();
     }
 
     function loadFacilities(resortId, date = null) {
@@ -1126,10 +1073,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Advance to step 6 if facilities are selected
         if (selectedFacilities.length > 0) {
-            advanceToStep(6);
+        advanceToStep(5);
         }
 
-        validateGuestCapacity();
         updatePricingDisplay();
         updateBookingSummaryDetails();
         validateForm();
@@ -1147,38 +1093,26 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 console.log('API response data:', data);
-                if (data.capacity !== undefined) {
-                    resortCapacity = data.capacity;
-                    // guestsInput.max = resortCapacity; // Removed to allow manual override and provide feedback
-                    guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
-                    // Update the help text with maximum capacity
-                    document.getElementById('guestCapacityNote').textContent = `Ensure the number doesn't exceed resort capacity - ${resortCapacity} maximum.`;
-                    console.log('Capacity updated to:', resortCapacity);
-                } else {
-                    console.error('No capacity in response data');
-                }
+                // Capacity no longer used for guest validation
             })
             .catch(error => {
                 console.error('Error fetching resort details:', error);
-                // Set a fallback capacity to test
-                resortCapacity = 10; // Fallback for testing
-                guestCapacityDisplay.textContent = `/ ${resortCapacity}`;
-                // Update the help text with fallback capacity
-                document.getElementById('guestCapacityNote').textContent = `Ensure the number doesn't exceed resort capacity - ${resortCapacity} maximum.`;
-                console.log('Using fallback capacity:', resortCapacity);
             });
     }
 
-    function validateGuestCapacity() {
-        // This function is now a placeholder and can be removed or repurposed.
-        // For now, it will always return true as capacity is handled at the resort level.
-        return true;
-    }
+
 
     function handleDateOrTimeframeChange() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
         const timeframe = timeSlotSelect.value;
+
+        // Enable calendar modal button if both resort and timeframe are selected
+        if (selectedResortId && timeSlotSelect.value) {
+            calendarModalBtn.disabled = false;
+        } else {
+            calendarModalBtn.disabled = true;
+        }
 
         if (resortId && date && timeframe) {
             loadFacilities(resortId, date); // Reload facilities with date to check blocking
@@ -1201,14 +1135,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const resortId = selectedResortId; // Use the globally tracked selectedResortId
         const date = dateInput.value;
         const timeframe = timeSlotSelect.value;
-        const guests = guestsInput.value || 1;
         const facilityIds = selectedFacilities.map(f => f.id);
-        
+
         if (!resortId || !date || !timeframe) {
             return;
         }
 
-        let url = `?controller=booking&action=checkAvailability&resort_id=${resortId}&date=${date}&timeframe=${timeframe}&number_of_guests=${guests}`;
+        let url = `?controller=booking&action=checkAvailability&resort_id=${resortId}&date=${date}&timeframe=${timeframe}`;
         facilityIds.forEach(id => {
             url += `&facility_ids[]=${id}`;
         });
@@ -1217,8 +1150,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const availabilityResultDiv = document.getElementById('dateAvailabilityInfo');
+                const detailed = selectedDateInfo ? selectedDateInfo.textContent.trim() : '';
+
                 if (data.available) {
-                    availabilityResultDiv.innerHTML = `<div class="alert alert-success mb-0"><small>This date is available!</small></div>`;
+                    availabilityResultDiv.innerHTML = `<div class="alert alert-info mb-0"><small>${detailed}</small></div>`;
                     submitBtn.disabled = false;
                 } else {
                     let errorMessage = 'This date is not available.';
@@ -1331,14 +1266,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const resortValid = selectedResortId !== null; // Check if a resort is selected
         const timeframeValid = timeSlotSelect.value;
         const dateValid = dateInput.value;
-        const guestsValid = guestsInput.value && parseInt(guestsInput.value) > 0;
-        const capacityValid = validateGuestCapacity();
         const facilitiesSelected = selectedFacilities.length > 0;
 
-        const isValid = resortValid && timeframeValid && dateValid && guestsValid && capacityValid;
+        const isValid = resortValid && timeframeValid && dateValid;
 
         submitBtn.disabled = !isValid;
-        
+
         if (isValid) {
             submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Booking';
             submitBtn.classList.remove('btn-secondary');
@@ -1350,10 +1283,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Update step indicators based on sequential completion
-        updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid, facilitiesSelected);
+        updateStepProgress(resortValid, timeframeValid, dateValid, facilitiesSelected);
     }
 
-    function updateStepProgress(resortValid, timeframeValid, dateValid, guestsValid, facilitiesSelected) {
+    function updateStepProgress(resortValid, timeframeValid, dateValid, facilitiesSelected) {
         // Reset all steps first
         stepIndicators.forEach((indicator, index) => {
             indicator.classList.remove('active', 'completed');
@@ -1362,27 +1295,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Sequential step progression for required steps
         if (resortValid) {
             markStepCompleted(1);
-            
+
             if (timeframeValid) {
                 markStepCompleted(2);
-                
+
                 if (dateValid) {
                     markStepCompleted(3);
-                    
-                    // Step 6 (Summary) becomes green when summary is displayed (after date selection)
-                    markStepCompleted(6);
+
+                    // Step 5 (Summary) becomes green when summary is displayed (after date selection)
+                    markStepCompleted(5);
                 }
             }
         }
 
-        // Step 4 (Guests) - independent validation
-        if (guestsValid) {
-            markStepCompleted(4);
-        }
-        
-        // Step 5 (Facilities) - independent validation, turns green when facilities are selected
+        // Step 4 (Facilities) - independent validation, turns green when facilities are selected
         if (facilitiesSelected) {
-            markStepCompleted(5);
+            markStepCompleted(4);
         }
     }
 
@@ -1439,12 +1367,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateValue = dateInput.value
             ? new Date(dateInput.value + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
             : 'N/A';
-        const guestsValue = guestsInput.value || 'N/A';
 
         summaryResort.textContent = resortName;
         summaryTimeframeText.textContent = timeframeValue;
         summaryDate.textContent = dateValue;
-        summaryGuests.textContent = guestsValue;
 
         // Show the details section if a resort is selected
         if (selectedResortId) { // Check against selectedResortId

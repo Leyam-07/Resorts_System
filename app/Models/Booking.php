@@ -12,7 +12,6 @@ class Booking {
     public $facilityId; // This will be deprecated in favor of multiple facilities
     public $bookingDate;
     public $timeSlotType;
-    public $numberOfGuests;
     public $status; // e.g., 'Pending', 'Confirmed', 'Cancelled', 'Completed'
     public $totalAmount;
     public $paymentProofURL;
@@ -37,15 +36,14 @@ class Booking {
     public static function create(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Bookings (CustomerID, ResortID, FacilityID, BookingDate, TimeSlotType, NumberOfGuests, Status, TotalAmount, PaymentProofURL, PaymentReference, RemainingBalance)
-             VALUES (:customerId, :resortId, :facilityId, :bookingDate, :timeSlotType, :numberOfGuests, :status, :totalAmount, :paymentProofURL, :paymentReference, :remainingBalance)"
+            "INSERT INTO Bookings (CustomerID, ResortID, FacilityID, BookingDate, TimeSlotType, Status, TotalAmount, PaymentProofURL, PaymentReference, RemainingBalance)
+             VALUES (:customerId, :resortId, :facilityId, :bookingDate, :timeSlotType, :status, :totalAmount, :paymentProofURL, :paymentReference, :remainingBalance)"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
         $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
         $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
-        $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
         $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
         $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
@@ -61,7 +59,7 @@ class Booking {
     /**
      * Create a new resort-centric booking with multiple facilities
      */
-    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds = []) {
+    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $facilityIds = []) {
         $db = self::getDB();
         
         // Start transaction
@@ -91,7 +89,6 @@ class Booking {
             $booking->facilityId = null; // Will be deprecated
             $booking->bookingDate = $bookingDate;
             $booking->timeSlotType = $timeSlotType;
-            $booking->numberOfGuests = $numberOfGuests;
             $booking->status = 'Pending';
             $booking->totalAmount = $totalAmount;
             $booking->paymentProofURL = null;
@@ -137,7 +134,7 @@ class Booking {
             $booking->facilityId = $data['FacilityID'];
             $booking->bookingDate = $data['BookingDate'];
             $booking->timeSlotType = $data['TimeSlotType'];
-            $booking->numberOfGuests = $data['NumberOfGuests'];
+
             $booking->status = $data['Status'];
             $booking->totalAmount = $data['TotalAmount'];
             $booking->paymentProofURL = $data['PaymentProofURL'];
@@ -276,7 +273,7 @@ class Booking {
         $stmt = $db->prepare(
             "UPDATE Bookings
              SET CustomerID = :customerId, ResortID = :resortId, FacilityID = :facilityId, BookingDate = :bookingDate,
-                 TimeSlotType = :timeSlotType, NumberOfGuests = :numberOfGuests, Status = :status,
+                 TimeSlotType = :timeSlotType, Status = :status,
                  TotalAmount = :totalAmount, PaymentProofURL = :paymentProofURL, PaymentReference = :paymentReference,
                  RemainingBalance = :remainingBalance
              WHERE BookingID = :bookingId"
@@ -286,7 +283,6 @@ class Booking {
         $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
         $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
         $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
-        $stmt->bindValue(':numberOfGuests', $booking->numberOfGuests, PDO::PARAM_INT);
         $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
         $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
         $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);

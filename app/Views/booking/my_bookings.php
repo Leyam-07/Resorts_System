@@ -32,7 +32,6 @@ require_once __DIR__ . '/../partials/header.php';
                     <th>Resort</th>
                     <th>Date & Time</th>
                     <th>Facilities</th>
-                    <th>Guests</th>
                     <th>Total Price</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -65,12 +64,10 @@ require_once __DIR__ . '/../partials/header.php';
                             <?php if (!empty($booking->FacilityNames)): ?>
                                 <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
                             <?php else: ?>
-                                <span class="text-muted small">Resort access only</span>
+                                <span class="badge bg-secondary">Resort access only</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <span class="badge bg-secondary"><?= htmlspecialchars($booking->NumberOfGuests) ?> guest(s)</span>
-                        </td>
+
                         <td>
                             <?php if (!empty($booking->TotalAmount)): ?>
                                 <strong class="text-success">₱<?= number_format($booking->TotalAmount, 2) ?></strong>

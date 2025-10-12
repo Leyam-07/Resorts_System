@@ -17,8 +17,6 @@ class ValidationHelper {
             'resort_id' => 'required|integer|min:1',
             'booking_date' => 'required|date',
             'timeframe' => 'required|in:12_hours,overnight,24_hours',
-            'number_of_guests' => 'required|integer|min:1',
-            'facility_ids' => 'array'
         ];
 
         $customMessages = [
@@ -28,41 +26,31 @@ class ValidationHelper {
             'booking_date.date' => 'Please provide a valid date',
             'timeframe.required' => 'Please select a time slot',
             'timeframe.in' => 'Please select a valid time slot option',
-            'number_of_guests.required' => 'Please specify number of guests',
-            'number_of_guests.min' => 'At least 1 guest is required',
             'facility_ids.array' => 'Invalid facility selection format'
         ];
 
         $result = ErrorHandler::validateInput($data, $rules, $customMessages);
-        
+
         // Additional custom validations
         if ($result['valid']) {
-            // Validate guest capacity against the selected resort
-            require_once __DIR__ . '/../Models/Resort.php';
-            $resort = Resort::findById($result['data']['resort_id']);
-            if ($resort && $result['data']['number_of_guests'] > $resort->capacity) {
-                $result['valid'] = false;
-                $result['errors']['number_of_guests'][] = 'Number of guests exceeds the resort capacity of ' . $resort->capacity;
-            }
-
             // Validate booking date is not in the past
             $bookingDate = new DateTime($result['data']['booking_date']);
             $today = new DateTime('today');
-            
+
             if ($bookingDate < $today) {
                 $result['valid'] = false;
                 $result['errors']['booking_date'][] = 'Cannot book dates in the past';
             }
-            
+
             // Validate booking date is not more than 1 year in future
             $maxDate = clone $today;
             $maxDate->modify('+1 year');
-            
+
             if ($bookingDate > $maxDate) {
                 $result['valid'] = false;
                 $result['errors']['booking_date'][] = 'Cannot book more than 1 year in advance';
             }
-            
+
             // Validate facility IDs if provided
             if (!empty($result['data']['facility_ids'])) {
                 foreach ($result['data']['facility_ids'] as $facilityId) {

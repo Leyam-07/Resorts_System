@@ -5,6 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.5] - 2025-10-12
+
+### Fixed
+
+- **Guest Functionality Cleanup Completion:** Resolved all remaining references to the deprecated `NumberOfGuests` field that was removed via database migration.
+  - **View Template Corrections:** Fixed critical runtime errors in payment success and booking confirmation views caused by undefined `$booking->numberOfGuests` properties. Removed hardcoded guest displays that would crash after migration execution.
+  - **Email Template Cleanup:** Eliminated `numberOfGuests` references from booking confirmation and cancellation email templates in `Notification.php` helper to prevent email sending failures.
+  - **Controller Logic Updates:** Removed obsolete guest-related parameters from `AdvancedAvailabilityChecker` methods (`checkAvailabilityDetailed`, `checkFacilitiesAvailability`) that used capacity-based filtering logic no longer applicable.
+  - **Method Signature Corrections:** Fixed incorrect parameter passing in `AdvancedAvailabilityChecker::generateOptimizationSuggestions()` method call to `suggestComplementaryFacilities()` that was still passing a deprecated `$numberOfGuests` parameter.
+  - **Model Audit Trail Refinement:** Updated `BookingAuditTrail` logging to remove guest count formatting from booking creation summaries, ensuring consistent audit message structure.
+  - **Form Validation Cleanup:** Eliminated `validateGuestCapacity()` function and guest-related validation comments from booking creation form, simplifying the reservation workflow.
+  - **Documentation Synchronization:** Updated `Database-Schema.md` to remove abandoned `NumberOfGuests` column from database schema documentation, maintaining accuracy after migration.
+  - **Email Notification Fixes:** Cleaned `BookingController` notification methods to remove undefined property access that caused booking confirmation emails to fail silently.
+
+### Technical
+
+- **Runtime Stability:** Eliminated undefined property errors that previously caused page crashes during booking confirmation and payment completion workflows.
+- **Data Consistency:** Ensured complete removal of guest counting logic across all application layers (frontend, backend, email systems, audit trails).
+- **System Reliability:** Resolved concurrent issues where booking payments, confirmations, and email notifications would fail due to outdated property references.
+- **Codebase Health:** Performed comprehensive cleanup of legacy guest capacity validation and display logic, simplifying codebase maintenance.
+
+### Files Updated
+
+app/Views/booking/payment_success.php
+app/Views/booking/confirmation.php
+app/Controllers/BookingController.php
+app/Helpers/Notification.php
+app/Models/AdvancedAvailabilityChecker.php
+app/Models/BookingAuditTrail.php
+app/Views/booking/create.php
+docs/Database-Schema.md
+
+## [1.41.4] - 2025-10-12
+
+### Removed
+
+- **NumberOfGuests Field Removal:** Complete removal of guest counting field from the Integrated Digital Management System as per client requirements. System now operates without enforcing guest capacity limits, simplifying the booking flow for resorts serving 1-10 guests maximum.
+  - **Database Migration:** Executed `scripts/migrations/remove_numberofguests_from_bookings.php` to drop NumberOfGuests column from Bookings table
+  - **Backend Refactoring:** Removed all guest-related properties, validation, and method parameters from:
+    - Booking.php model (guest property, SQL references, method signatures)
+    - BookingLifecycleManager.php (guest assignments in data flow)
+    - BookingController.php (removed guest parameters and validation)
+    - ValidationHelper.php (guest validation rules)
+  - **Frontend Cleanup:** Updated booking creation interface to remove guest input fields:
+    - Removed guest number input from booking/create.php
+    - Simplified 6-step booking flow to 5 steps (removed guest selection step)
+    - Updated step indicators to reflect streamlined process
+    - Removed all JavaScript guest validation logic and form handling
+  - **Admin Dashboard Updates:** Removed guest columns from all booking management tables:
+    - dashboard.php (admin main dashboard booking tables)
+    - staff_dashboard.php (staff operational view)
+    - view_user_bookings.php (user-specific booking display)
+  - **Impact:** System maintains simplified booking flow without capacity enforcement, allowing resorts to manage guest limits through operational practices rather than technical restrictions
+
+### Changed
+
+- **Booking Flow Simplification:** Streamlined customer booking experience by removing mandatory guest count requirement, reducing form friction and enabling faster reservations
+- **System Architecture:** Eliminated guest capacity validation logic throughout the application stack, providing resort operators greater operational flexibility
+
+### Technical
+
+- **Database Schema:** Permanent removal of guest counting capability from underlying data structure
+- **Application Logic:** Complete refactoring of booking creation and management workflows to exclude guest capacity considerations
+- **User Experience:** Simplified booking interface with reduced required fields and fewer decision points
+
+### Files Updated
+
+scripts/migrations/remove_numberofguests_from_bookings.php
+app/Models/Booking.php
+app/Models/BookingLifecycleManager.php
+app/Controllers/BookingController.php
+app/Helpers/ValidationHelper.php
+app/Views/booking/create.php
+app/Views/admin/dashboard.php
+app/Views/admin/staff_dashboard.php
+app/Views/admin/view_user_bookings.php
+
 ## [1.41.3] - 2025-10-12
 
 ### Changed

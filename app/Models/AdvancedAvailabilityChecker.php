@@ -32,7 +32,7 @@ class AdvancedAvailabilityChecker {
     /**
      * Comprehensive availability check with detailed conflict analysis
      */
-    public static function checkAvailabilityDetailed($resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds = [], $excludeBookingId = null) {
+    public static function checkAvailabilityDetailed($resortId, $bookingDate, $timeSlotType, $facilityIds = [], $excludeBookingId = null) {
         $result = [
             'available' => false,
             'conflicts' => [],
@@ -69,7 +69,7 @@ class AdvancedAvailabilityChecker {
 
         // 4. Facility-specific availability check
         if (!empty($facilityIds)) {
-            $facilityCheck = self::checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $numberOfGuests, $excludeBookingId);
+            $facilityCheck = self::checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $excludeBookingId);
             if (!$facilityCheck['available']) {
                 $result['conflicts'] = array_merge($result['conflicts'], $facilityCheck['conflicts']);
                 $result['alternative_facilities'] = $facilityCheck['alternative_facilities'];
@@ -80,14 +80,14 @@ class AdvancedAvailabilityChecker {
         // 5. Advanced conflict resolution suggestions
         if (!empty($result['conflicts'])) {
             $result['suggestions'] = self::generateConflictResolutionSuggestions(
-                $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds, $result
+                $resortId, $bookingDate, $timeSlotType, $facilityIds, $result
             );
         }
 
         // 6. Resource optimization suggestions
         if (empty($result['conflicts'])) {
             $result['optimization_suggestions'] = self::generateOptimizationSuggestions(
-                $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds
+                $resortId, $bookingDate, $timeSlotType, $facilityIds
             );
         }
 
@@ -205,7 +205,7 @@ class AdvancedAvailabilityChecker {
     /**
      * Check facility-specific availability
      */
-    private static function checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $numberOfGuests, $excludeBookingId = null) {
+    private static function checkFacilitiesAvailability($facilityIds, $bookingDate, $timeSlotType, $excludeBookingId = null) {
         $result = [
             'available' => true,
             'conflicts' => [],
@@ -265,7 +265,7 @@ class AdvancedAvailabilityChecker {
     /**
      * Generate conflict resolution suggestions
      */
-    private static function generateConflictResolutionSuggestions($resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds, $conflicts) {
+    private static function generateConflictResolutionSuggestions($resortId, $bookingDate, $timeSlotType, $facilityIds, $conflicts) {
         $suggestions = [];
 
         // If there are timeframe conflicts, suggest alternative timeframes
@@ -300,12 +300,12 @@ class AdvancedAvailabilityChecker {
     /**
      * Generate optimization suggestions for successful bookings
      */
-    private static function generateOptimizationSuggestions($resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds) {
+    private static function generateOptimizationSuggestions($resortId, $bookingDate, $timeSlotType, $facilityIds) {
         $suggestions = [];
 
         // Suggest additional facilities that might enhance the experience
         if (!empty($facilityIds)) {
-            $additionalFacilities = self::suggestComplementaryFacilities($resortId, $facilityIds, $numberOfGuests);
+            $additionalFacilities = self::suggestComplementaryFacilities($resortId, $facilityIds);
             if (!empty($additionalFacilities)) {
                 $suggestions[] = [
                     'type' => 'complementary_facilities',
@@ -449,22 +449,22 @@ class AdvancedAvailabilityChecker {
     /**
      * Suggest complementary facilities
      */
-    private static function suggestComplementaryFacilities($resortId, $selectedFacilityIds, $numberOfGuests) {
+    private static function suggestComplementaryFacilities($resortId, $selectedFacilityIds) {
         $db = self::getDB();
-        
+
         // Get facilities not already selected
         $placeholders = rtrim(str_repeat('?,', count($selectedFacilityIds)), ',');
-        $sql = "SELECT * FROM Facilities 
-                WHERE ResortID = ? AND Capacity >= ? 
+        $sql = "SELECT * FROM Facilities
+                WHERE ResortID = ?
                 AND FacilityID NOT IN ($placeholders)
                 ORDER BY Rate ASC";
-        
-        $params = [$resortId, $numberOfGuests, ...$selectedFacilityIds];
-        
+
+        $params = [$resortId, ...$selectedFacilityIds];
+
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
         $facilities = $stmt->fetchAll(PDO::FETCH_OBJ);
-        
+
         $suggestions = [];
         foreach ($facilities as $facility) {
             $suggestions[] = [
@@ -475,7 +475,7 @@ class AdvancedAvailabilityChecker {
                 'benefit' => 'Additional amenity for enhanced experience'
             ];
         }
-        
+
         return array_slice($suggestions, 0, 3);
     }
 

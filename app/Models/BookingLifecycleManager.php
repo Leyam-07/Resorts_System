@@ -127,7 +127,7 @@ class BookingLifecycleManager {
             $booking->facilityId = $data['FacilityID'];
             $booking->bookingDate = $data['BookingDate'];
             $booking->timeSlotType = $data['TimeSlotType'];
-            $booking->numberOfGuests = $data['NumberOfGuests'];
+
             $booking->status = $data['Status'];
             $booking->totalAmount = $data['TotalAmount'];
             $booking->paymentProofURL = $data['PaymentProofURL'];
@@ -168,7 +168,6 @@ class BookingLifecycleManager {
             $booking->facilityId = $data['FacilityID'];
             $booking->bookingDate = $data['BookingDate'];
             $booking->timeSlotType = $data['TimeSlotType'];
-            $booking->numberOfGuests = $data['NumberOfGuests'];
             $booking->status = $data['Status'];
             $booking->totalAmount = $data['TotalAmount'];
             $booking->paymentProofURL = $data['PaymentProofURL'];

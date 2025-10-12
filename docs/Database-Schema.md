@@ -91,7 +91,6 @@ CREATE TABLE IF NOT EXISTS `Bookings` (
   `ResortID` INT,
   `BookingDate` DATE NOT NULL,
   `TimeSlotType` ENUM('12_hours', '24_hours', 'overnight') NOT NULL,
-  `NumberOfGuests` INT,
   `TotalAmount` DECIMAL(10, 2),
   `PaymentProofURL` VARCHAR(255),
   `PaymentReference` VARCHAR(100),

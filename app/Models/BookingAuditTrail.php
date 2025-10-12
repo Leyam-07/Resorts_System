@@ -30,11 +30,10 @@ class BookingAuditTrail {
     public static function logBookingCreation($bookingId, $userId, $bookingData) {
         // Consolidate booking data into a single, readable summary
         $summary = sprintf(
-            "Resort ID: %s, Date: %s, Time: %s, Guests: %d, Total: %.2f",
+            "Resort ID: %s, Date: %s, Time: %s, Total: %.2f",
             $bookingData['resortId'] ?? 'N/A',
             $bookingData['bookingDate'] ?? 'N/A',
             $bookingData['timeSlotType'] ?? 'N/A',
-            $bookingData['numberOfGuests'] ?? 0,
             $bookingData['totalAmount'] ?? 0.00
         );
 

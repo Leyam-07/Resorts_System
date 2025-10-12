@@ -56,9 +56,7 @@ require_once __DIR__ . '/../partials/header.php';
                         <div class="mb-2">
                             <strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?>
                         </div>
-                        <div class="mb-2">
-                            <strong>Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?>
-                        </div>
+
                         <?php if (!empty($facilities)): ?>
                             <div class="mb-2">
                                 <strong>Facilities:</strong>

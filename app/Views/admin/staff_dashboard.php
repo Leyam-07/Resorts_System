@@ -45,7 +45,6 @@ require_once __DIR__ . '/../partials/header.php';
                                 <th>Time</th>
                                 <th>Customer</th>
                                 <th>Facility</th>
-                                <th>Guests</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -55,7 +54,6 @@ require_once __DIR__ . '/../partials/header.php';
                                     <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
                                     <td><?= htmlspecialchars($booking->FacilityName) ?></td>
-                                    <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                     <td>
                                         <span class="badge bg-success">
                                             <?= htmlspecialchars($booking->Status) ?>
@@ -81,7 +79,6 @@ require_once __DIR__ . '/../partials/header.php';
                                 <th>Time</th>
                                 <th>Customer</th>
                                 <th>Facility</th>
-                                <th>Guests</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -92,7 +89,6 @@ require_once __DIR__ . '/../partials/header.php';
                                     <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
                                     <td><?= htmlspecialchars($booking->FacilityName) ?></td>
-                                    <td><?= htmlspecialchars($booking->NumberOfGuests) ?></td>
                                     <td>
                                         <span class="badge bg-success">
                                             <?= htmlspecialchars($booking->Status) ?>

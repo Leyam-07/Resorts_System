@@ -55,7 +55,6 @@ class BookingController {
         $resortId = $validatedData['resort_id'];
         $bookingDate = $validatedData['booking_date'];
         $timeSlotType = $validatedData['timeframe'];
-        $numberOfGuests = $validatedData['number_of_guests'];
         $facilityIds = $validatedData['facility_ids'] ?? [];
         $customerId = $_SESSION['user_id'];
 
@@ -69,7 +68,7 @@ class BookingController {
 
         // 5. Create resort-centric booking with Phase 6 enhancements
         $totalAmount = Booking::calculateBookingTotal($resortId, $timeSlotType, $bookingDate, $facilityIds);
-        $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $numberOfGuests, $facilityIds);
+        $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $facilityIds);
 
         if ($bookingId) {
             // Phase 6: Log booking creation in audit trail
@@ -77,7 +76,6 @@ class BookingController {
                 'resortId' => $resortId,
                 'bookingDate' => $bookingDate,
                 'timeSlotType' => $timeSlotType,
-                'numberOfGuests' => $numberOfGuests,
                 'totalAmount' => $totalAmount
             ];
             BookingAuditTrail::logBookingCreation($bookingId, $customerId, $bookingData);
@@ -291,26 +289,21 @@ class BookingController {
             $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
             $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
             $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_SANITIZE_STRING);
-            $numberOfGuests = filter_input(INPUT_GET, 'number_of_guests', FILTER_VALIDATE_INT) ?? 1;
             $facilityIds = filter_input(INPUT_GET, 'facility_ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-            
+
             // Enhanced validation
             if (!$resortId || $resortId <= 0) {
                 throw new InvalidArgumentException('Valid resort ID is required');
             }
-            
+
             if (!$date || !$this->isValidDate($date)) {
                 throw new InvalidArgumentException('Valid date is required');
             }
-            
+
             if (!$timeframe || !in_array($timeframe, ['12_hours', 'overnight', '24_hours'])) {
                 throw new InvalidArgumentException('Valid timeframe is required');
             }
-            
-            if ($numberOfGuests <= 0 || $numberOfGuests > 100) {
-                throw new InvalidArgumentException('Number of guests must be between 1 and 100');
-            }
-            
+
             // Sanitize facility IDs
             $sanitizedFacilityIds = [];
             if (is_array($facilityIds)) {
@@ -321,15 +314,17 @@ class BookingController {
                     }
                 }
             }
-            
-            // Use advanced availability checker for detailed analysis
-            $availabilityResult = AdvancedAvailabilityChecker::checkAvailabilityDetailed(
-                $resortId,
-                $date,
-                $timeframe,
-                $numberOfGuests,
-                $sanitizedFacilityIds
-            );
+
+            // Check basic availability (resort + timeframe + facilities)
+            $available = Booking::isResortTimeframeAvailable($resortId, $date, $timeframe, $sanitizedFacilityIds);
+
+            $availabilityResult = [
+                'available' => $available,
+                'suggestions' => [],
+                'alternative_dates' => [],
+                'alternative_facilities' => [],
+                'optimization_suggestions' => []
+            ];
             
             echo json_encode([
                 'success' => true,
@@ -931,7 +926,7 @@ class BookingController {
                         <div><strong>Date:</strong> <?= date('M j, Y') ?></div>
                         <div><strong>Booking:</strong> <?= date('M j, Y', strtotime($booking->bookingDate)) ?></div>
                         <div><strong>Timeframe:</strong> <?= htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) ?></div>
-                        <div><strong>Guests:</strong> <?= $booking->numberOfGuests ?> person<?= $booking->numberOfGuests > 1 ? 's' : '' ?></div>
+
                     </div>
                 </div>
             </div>
@@ -1111,21 +1106,21 @@ class BookingController {
             $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
             $date = filter_input(INPUT_GET, 'date', FILTER_UNSAFE_RAW);
             $timeframe = filter_input(INPUT_GET, 'timeframe', FILTER_UNSAFE_RAW);
-            $numberOfGuests = filter_input(INPUT_GET, 'number_of_guests', FILTER_VALIDATE_INT) ?? 1;
             $facilityIds = $_GET['facility_ids'] ?? [];
-            
+
             if (!$resortId || !$date || !$timeframe) {
                 throw new InvalidArgumentException('Missing required parameters');
             }
-            
-            // Get detailed availability analysis
-            $result = AdvancedAvailabilityChecker::checkAvailabilityDetailed(
-                $resortId,
-                $date,
-                $timeframe,
-                $numberOfGuests,
-                is_array($facilityIds) ? $facilityIds : []
-            );
+
+            // Check basic availability (resort + timeframe + facilities)
+            $available = Booking::isResortTimeframeAvailable($resortId, $date, $timeframe, is_array($facilityIds) ? $facilityIds : []);
+
+            $result = [
+                'suggestions' => [],
+                'alternative_dates' => [],
+                'alternative_facilities' => [],
+                'optimization_suggestions' => []
+            ];
             
             echo json_encode([
                 'success' => true,
