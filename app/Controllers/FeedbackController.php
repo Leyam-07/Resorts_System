@@ -62,7 +62,7 @@ class FeedbackController {
     }
     
     public function listAllFeedback() {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
+        if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['Admin', 'Staff'])) {
             $_SESSION['error_message'] = "You are not authorized to view this page.";
             header('Location: index.php');
             exit;

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.3] - 2025-10-12
+
+### Changed
+
+- **Staff Side RBAC Modifications:** Refined role-based access control for Staff users to align with business requirements.
+  - **Removed** Staff access to "Preview Customer View" feature completely - removed navigation link and enforced Admin-only access via URL
+  - **Added** Staff access to "View Feedback" page with identical functionality to Admin side (read-only resort-filterable feedback display)
+  - Updated Staff navigation to include "Dashboard" and "View Feedback" links only
+
+### Added
+
+- **Staff Feedback Access:** Staff users can now access and review customer feedback across all resorts using the same interface as Admin, supporting operation oversight without management privileges
+
+### Files Updated
+
+app/Views/partials/header.php
+app/Controllers/AdminController.php
+app/Controllers/FeedbackController.php
+
 ## [1.41.2] - 2025-10-08
 
 ### Fixed

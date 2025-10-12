@@ -81,15 +81,15 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                                 <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
                             </ul>
                         </li>
-                   <?php elseif ($_SESSION['role'] === 'Staff'): ?>
+                    <?php elseif ($_SESSION['role'] === 'Staff'): ?>
                        <li class="nav-item">
                            <a class="nav-link" href="?controller=admin&action=dashboard">
                                <i class="fas fa-tachometer-alt"></i> Dashboard
                            </a>
                        </li>
                        <li class="nav-item">
-                           <a class="nav-link" href="?controller=admin&action=previewFacilities">
-                               <i class="fas fa-eye"></i> Preview Customer View
+                           <a class="nav-link" href="?controller=feedback&action=listAllFeedback">
+                               <i class="fas fa-comments"></i> View Feedback
                            </a>
                        </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>

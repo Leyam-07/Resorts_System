@@ -450,6 +450,11 @@ class AdminController {
    }
 
    public function previewFacilities() {
+       if ($_SESSION['role'] !== 'Admin') {
+           http_response_code(403);
+           require_once __DIR__ . '/../Views/errors/403.php';
+           exit();
+       }
        // This action is for admins/staff to see the customer view
        // We can reuse the logic from the UserController's dashboard
        $resorts = Resort::findAll();
