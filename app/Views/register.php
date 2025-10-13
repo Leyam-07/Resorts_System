@@ -84,6 +84,7 @@
                     </form>
                     <div class="mt-3 text-center">
                         <p>Already have an account? <a href="?action=login">Login here</a></p>
+                        <p class="mt-2">Or, <a href="?">continue as a guest</a> to preview the site.</p>
                     </div>
                 </div>
             </div>
