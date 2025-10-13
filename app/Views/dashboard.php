@@ -1,6 +1,10 @@
 <?php
 $pageTitle = "Dashboard";
-require_once __DIR__ . '/partials/header.php';
+if (isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/partials/header.php';
+} else {
+    require_once __DIR__ . '/partials/guest_header.php';
+}
 ?>
 
 <div class="container mt-5">
@@ -8,10 +12,20 @@ require_once __DIR__ . '/partials/header.php';
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h3>
+                    <h3><?php if (isset($_SESSION['user_id'])): ?>
+                            Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!
+                        <?php else: ?>
+                            Welcome, Guest!
+                        <?php endif; ?></h3>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Customer Dashboard</h5>
+                    <h5 class="card-title">
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            Customer Dashboard
+                        <?php else: ?>
+                            Browse Our Resorts
+                        <?php endif; ?>
+                    </h5>
                     <p class="card-text">Browse our resorts and book your next getaway.</p>
                 </div>
             </div>

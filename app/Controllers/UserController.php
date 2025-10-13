@@ -232,10 +232,10 @@ class UserController {
     }
 
     public function profile() {
-        
         if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?action=login');
-            exit();
+            // Show guest-friendly profile page
+            include __DIR__ . '/../Views/profile_guest.php';
+            return;
         }
 
         $userId = $_SESSION['user_id'];

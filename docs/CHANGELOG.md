@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.0] - 2025-10-13
+
+### Added
+
+- **Comprehensive Guest View Implementation:** Introduced a "Guest View" for non-logged-in users, providing a non-interactive preview of the customer experience to encourage registration.
+  - **Public Dashboard:** The main dashboard is now the default landing page, allowing guests to browse resorts and view details in modals without logging in.
+  - **Guest-Specific Navigation:** Created a new guest header with a familiar navigation layout but with "Login" and "Register" calls-to-action.
+  - **Non-Interactive Page Previews:**
+    - The "New Reservation" page now displays a disabled, data-populated version of the booking form, demonstrating the booking process.
+    - "My Bookings," "My Reservations," and "My Profile" pages now mimic the structure of the logged-in versions but display an empty state, prompting users to sign up.
+  - **Conditional UI:** The main router (`public/index.php`) and controllers (`UserController`, `BookingController`) were updated to seamlessly serve the appropriate views based on login status.
+  - **Modal Adjustments:** JavaScript for modals was updated to hide action buttons (e.g., "Book Now") for guest users.
+
 ## [1.42.0] - 2025-10-13
 
 ### Changed

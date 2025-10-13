@@ -11,11 +11,11 @@ ErrorHandler::initialize();
 session_start();
 
 
-// If not logged in and no specific action, show login page
-if (!isset($_SESSION['user_id']) && !isset($_GET['action'])) {
+// If not logged in and no specific action, show the guest dashboard
+if (!isset($_SESSION['user_id']) && !isset($_GET['controller']) && !isset($_GET['action'])) {
     require_once __DIR__ . '/../app/Controllers/UserController.php';
     $userController = new UserController();
-    $userController->login();
+    $userController->dashboard();
     exit();
 }
 
@@ -57,18 +57,21 @@ if (in_array($actionName, ['login', 'showRegisterForm', 'register', 'showAdminRe
 
 
 if ($controllerName === 'dashboard' && $actionName === 'index') {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: index.php?action=login');
-        exit();
-    }
-
-    // Route based on role
-    if (in_array($_SESSION['role'], ['Admin', 'Staff'])) {
-        require_once __DIR__ . '/../app/Controllers/AdminController.php';
-        $adminController = new AdminController();
-        $adminController->dashboard();
-        exit();
-    } else { // Default to customer dashboard
+    if (isset($_SESSION['user_id'])) {
+        // Route based on role for logged-in users
+        if (in_array($_SESSION['role'], ['Admin', 'Staff'])) {
+            require_once __DIR__ . '/../app/Controllers/AdminController.php';
+            $adminController = new AdminController();
+            $adminController->dashboard();
+            exit();
+        } else { // Default to customer dashboard
+            require_once __DIR__ . '/../app/Controllers/UserController.php';
+            $userController = new UserController();
+            $userController->dashboard();
+            exit();
+        }
+    } else {
+        // Guest user, show customer dashboard
         require_once __DIR__ . '/../app/Controllers/UserController.php';
         $userController = new UserController();
         $userController->dashboard();

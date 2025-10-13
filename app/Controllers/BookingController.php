@@ -96,8 +96,22 @@ class BookingController {
 
     public function showBookingForm() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ?controller=user&action=login');
-            exit;
+            // For guests, we still need to fetch resorts to display them
+            $resorts = Resort::findAll();
+            require_once __DIR__ . '/../Models/User.php';
+            $adminUsers = User::getAdminUsers();
+            $adminContact = !empty($adminUsers) ? $adminUsers[0] : null;
+
+            // Add necessary properties for the view
+            require_once __DIR__ . '/../Models/ResortTimeframePricing.php';
+            foreach ($resorts as $resort) {
+                $resort->icon = $this->getIconForResort($resort->name);
+                $resort->mainPhotoURL = BASE_URL . '/' . $resort->mainPhotoURL;
+                $resort->hasCompletePricing = ResortTimeframePricing::hasCompletePricing($resort->resortId);
+            }
+
+            include __DIR__ . '/../Views/booking/create_guest.php';
+            return;
         }
 
         // Role-based access control: Only allow Customers to see this form
@@ -529,8 +543,9 @@ class BookingController {
 
     public function showMyBookings() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ?controller=user&action=login');
-            exit;
+            // Show guest-friendly my bookings page
+            include __DIR__ . '/../Views/booking/my_bookings_guest.php';
+            return;
         }
 
         $bookings = Booking::findConfirmedByCustomerId($_SESSION['user_id']);
@@ -551,8 +566,9 @@ class BookingController {
 
     public function showMyReservations() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ?controller=user&action=login');
-            exit;
+            // Show guest-friendly my reservations page
+            include __DIR__ . '/../Views/booking/my_reservations_guest.php';
+            return;
         }
 
         $bookings = Booking::findPendingAndCancelledByCustomerId($_SESSION['user_id']);
