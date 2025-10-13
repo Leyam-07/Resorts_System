@@ -91,7 +91,7 @@ require_once __DIR__ . '/../partials/header.php';
                         <td>
                             <div class="btn-group-vertical btn-group-sm" role="group">
                                     <!-- Payment Actions -->
-                                    <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                    <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0 && $booking->Status !== 'Cancelled'): ?>
                                         <button type="button" class="btn btn-primary btn-sm mb-1 payment-modal-btn"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#paymentModal"
@@ -119,7 +119,7 @@ require_once __DIR__ . '/../partials/header.php';
                                     <?php endif; ?>
 
                                     <?php if ($booking->Status === 'Cancelled'): ?>
-                                    <span class="text-muted small">Cancelled</span>
+                                    <span class="badge bg-secondary">Reservation Cancelled</span>
                                     <?php endif; ?>
                             </div>
                         </td>

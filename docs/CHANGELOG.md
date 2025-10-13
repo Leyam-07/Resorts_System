@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.0] - 2025-10-13
+
+### Changed
+
+- **Cancelled Booking Display on "My Reservations" Page:** Enhanced the user experience for customers viewing their cancelled reservations.
+  - **Payment Button Removal:** The "Submit Payment" button has been completely removed for bookings with `Status` of 'Cancelled', as payment is not applicable for cancelled reservations.
+  - **Action Label Enhancement:** Changed the generic text span for cancelled bookings from "Cancelled" to a more descriptive styled badge using "Reservation Cancelled" with Bootstrap's `bg-secondary` class for better visual consistency and professionalism.
+  - **Payment Modal Logic:** Updated the condition for showing the payment modal button to exclude cancelled bookings, preventing accidental payment attempts for invalid reservations.
+
 ## [1.41.9] - 2025-10-13
 
 ### Changed
