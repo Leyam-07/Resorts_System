@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.9] - 2025-10-13
+
+### Changed
+
+- **Customer Booking Management:** Overhauled the customer booking interface for better clarity and user experience.
+  - **"My Bookings" Page:** This page has been split into two distinct sections:
+    - **"My Reservations":** Displays pending and canceled bookings, with a navigation counter for pending reservations.
+    - **"My Bookings":** Now exclusively shows confirmed and completed bookings, with a navigation counter for confirmed bookings.
+  - **Renamed "New Booking":** The "New Booking" page and navigation link have been renamed to "New Reservation" for consistency.
+- **Booking Cancellation:** The booking cancellation logic has been updated. Instead of deleting the booking record, the status is now set to "Cancelled," ensuring the record is preserved for transparency on the "My Reservations" page. The redirection after cancellation now correctly returns the user to the "My Reservations" page.
+
+### Fixed
+
+- **Payment Modal:** Fixed a critical bug where the payment modal on the "My Reservations" page was not loading correctly. The necessary JavaScript for handling the modal has been added to the `my_reservations.php` view.
+- **Booking Confirmation Redirect:** Corrected the redirection link on the booking confirmation page to point to "My Reservations" instead of "My Bookings."
+
 ## [1.41.8] - 2025-10-12
 
 ### Changed

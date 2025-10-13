@@ -533,24 +533,42 @@ class BookingController {
             exit;
         }
 
-        $bookings = Booking::findByCustomerId($_SESSION['user_id']);
+        $bookings = Booking::findConfirmedByCustomerId($_SESSION['user_id']);
 
-        // Keep all bookings for transparency including completed and cancelled ones
         $activeBookings = [];
         if ($bookings) {
             foreach ($bookings as $booking) {
-                // Set hasFeedback flag for all bookings
                 $booking->hasFeedback = (Feedback::findByBookingId($booking->BookingID) !== false);
-
                 $activeBookings[] = $booking;
             }
         }
 
-        // Get admin contact information for fallback contact buttons
         $adminUsers = User::getAdminUsers();
-        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null; // Use first admin
+        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null;
 
         require_once __DIR__ . '/../Views/booking/my_bookings.php';
+    }
+
+    public function showMyReservations() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ?controller=user&action=login');
+            exit;
+        }
+
+        $bookings = Booking::findPendingAndCancelledByCustomerId($_SESSION['user_id']);
+
+        $activeBookings = [];
+        if ($bookings) {
+            foreach ($bookings as $booking) {
+                $booking->hasFeedback = (Feedback::findByBookingId($booking->BookingID) !== false);
+                $activeBookings[] = $booking;
+            }
+        }
+
+        $adminUsers = User::getAdminUsers();
+        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null;
+
+        require_once __DIR__ . '/../Views/booking/my_reservations.php';
     }
 
     public function cancelBooking() {
@@ -589,7 +607,7 @@ class BookingController {
             exit;
         }
 
-        if (Booking::delete($bookingId)) {
+        if (Booking::updateStatus($bookingId, 'Cancelled')) {
             // Send cancellation email
             Notification::sendBookingCancellation($booking);
             
@@ -598,7 +616,7 @@ class BookingController {
             $_SESSION['error_message'] = "Failed to cancel the booking. Please try again.";
         }
 
-        header('Location: ?controller=booking&action=showMyBookings');
+        header('Location: ?controller=booking&action=showMyReservations');
         exit;
     }
 

@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "My Bookings";
+$pageTitle = "My Reservations";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
@@ -21,7 +21,7 @@ require_once __DIR__ . '/../partials/header.php';
 
 <?php if (empty($activeBookings)): ?>
     <div class="alert alert-info" role="alert">
-        You have no confirmed bookings. Check <a href="?controller=booking&action=showMyReservations">My Reservations</a> for pending bookings or <a href="?controller=booking&action=showBookingForm">make a new booking</a>!
+        You have no pending reservations. <a href="?controller=booking&action=showBookingForm">Make a booking now!</a>
     </div>
 <?php else: ?>
     <div class="table-responsive">
@@ -82,9 +82,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <?php
                                 $statusColors = [
                                     'Pending' => 'bg-warning text-dark',
-                                    'Confirmed' => 'bg-success',
                                     'Cancelled' => 'bg-danger',
-                                    'Completed' => 'bg-primary'
                                 ];
                                 $statusClass = $statusColors[$booking->Status] ?? 'bg-secondary';
                             ?>
@@ -92,17 +90,6 @@ require_once __DIR__ . '/../partials/header.php';
                         </td>
                         <td>
                             <div class="btn-group-vertical btn-group-sm" role="group">
-                                <?php if ($booking->Status === 'Completed'): ?>
-                                    <?php if ($booking->hasFeedback): ?>
-                                        <span class="badge bg-primary text-white">Feedback Submitted</span>
-                                    <?php else: ?>
-                                        <button type="button" class="btn btn-success btn-sm feedback-btn" data-bs-toggle="modal" data-bs-target="#feedbackModal" data-booking-id="<?= htmlspecialchars($booking->BookingID) ?>" data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>" data-resort-name="<?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?>">
-                                            <i class="fas fa-star"></i> Leave Feedback
-                                        </button>
-                                    <?php endif; ?>
-                                <?php elseif ($booking->Status === 'Cancelled'): ?>
-                                    <span class="text-muted small">No actions available</span>
-                                <?php else: ?>
                                     <!-- Payment Actions -->
                                     <?php if (!empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
                                         <button type="button" class="btn btn-primary btn-sm mb-1 payment-modal-btn"
@@ -131,13 +118,9 @@ require_once __DIR__ . '/../partials/header.php';
                                     </a>
                                     <?php endif; ?>
 
-                                    <!-- Placeholder for fully confirmed bookings with no actions -->
-                                    <?php if (empty($booking->RemainingBalance) || $booking->RemainingBalance <= 0): ?>
-                                        <?php if ($booking->Status === 'Confirmed'): ?>
-                                            <span class="badge bg-secondary">Booking confirmed</span>
-                                        <?php endif; ?>
+                                    <?php if ($booking->Status === 'Cancelled'): ?>
+                                    <span class="text-muted small">Cancelled</span>
                                     <?php endif; ?>
-                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -147,50 +130,6 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
     <a href="?" class="btn btn-secondary mt-3">Back to Dashboard</a>
 <?php endif; ?>
-
-<!-- Feedback Modal -->
-<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="feedbackModalLabel">Leave Feedback</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Your feedback is important to us. Please rate your experience for your booking at <strong id="modalResortName"></strong> on <strong id="modalBookingDate"></strong>.</p>
-                <form id="feedbackForm" action="?controller=feedback&action=submitFeedback" method="POST">
-                    <input type="hidden" name="bookingId" id="modalBookingId">
-                    
-                    <!-- Resort Feedback -->
-                    <div class="feedback-section mb-4 p-3 border rounded bg-light">
-                        <h5>Resort Feedback</h5>
-                        <div class="mb-3">
-                            <label for="resort_rating" class="form-label"><strong>Rating (1 to 5)</strong></label>
-                            <div class="rating-stars">
-                                <?php for ($i = 5; $i >= 1; $i--): ?>
-                                    <input type="radio" id="resort_star<?= $i ?>" name="resort_rating" value="<?= $i ?>" required>
-                                    <label for="resort_star<?= $i ?>">&starf;</label>
-                                <?php endfor; ?>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="resort_comment" class="form-label"><strong>Comments (Optional)</strong></label>
-                            <textarea class="form-control" id="resort_comment" name="resort_comment" rows="3" placeholder="Tell us more about your experience at the resort..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Facility Feedback Section (Dynamically Populated) -->
-                    <div id="facilityFeedbackSection">
-                        <!-- Facility feedback forms will be inserted here -->
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -352,91 +291,9 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
-<style>
-    .rating-stars {
-        display: inline-block;
-        direction: rtl;
-        font-size: 2.5rem;
-    }
-    .rating-stars input[type="radio"] {
-        display: none;
-    }
-    .rating-stars label {
-        color: #ddd;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .rating-stars input[type="radio"]:checked ~ label,
-    .rating-stars label:hover,
-    .rating-stars label:hover ~ label {
-        color: #ffc107;
-    }
-</style>
-
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>
 <script>
-// Admin contact information
-const adminPhone = '<?= htmlspecialchars($adminContact['PhoneNumber'] ?? '') ?>';
-const adminEmail = '<?= htmlspecialchars($adminContact['Email'] ?? '') ?>';
-
 document.addEventListener('DOMContentLoaded', function () {
-    // Feedback Modal Handler
-    var feedbackModal = document.getElementById('feedbackModal');
-    feedbackModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var bookingId = button.getAttribute('data-booking-id');
-        var bookingDate = button.getAttribute('data-booking-date');
-        var resortName = button.getAttribute('data-resort-name');
-
-        var modalBookingDate = feedbackModal.querySelector('#modalBookingDate');
-        var modalBookingIdInput = feedbackModal.querySelector('#modalBookingId');
-        var modalResortName = feedbackModal.querySelector('#modalResortName');
-        var facilityFeedbackSection = feedbackModal.querySelector('#facilityFeedbackSection');
-
-        modalBookingDate.textContent = bookingDate;
-        modalBookingIdInput.value = bookingId;
-        modalResortName.textContent = resortName;
-
-        // Clear previous facility feedback forms
-        facilityFeedbackSection.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-
-        // Fetch and display facility feedback forms
-        fetch('?controller=booking&action=getFacilitiesForBooking&booking_id=' + bookingId)
-            .then(response => response.json())
-            .then(facilities => {
-                facilityFeedbackSection.innerHTML = ''; // Clear spinner
-                if (facilities.length > 0) {
-                    var facilityHtml = '<h5>Optional Facilities Feedback</h5>';
-                    facilities.forEach(facility => {
-                        facilityHtml += `
-                            <div class="feedback-section mb-3 p-3 border rounded">
-                                <h6>${facility.Name}</h6>
-                                <input type="hidden" name="facilities[${facility.FacilityID}][id]" value="${facility.FacilityID}">
-                                <div class="mb-3">
-                                    <label for="facility_rating_${facility.FacilityID}" class="form-label"><strong>Rating (1 to 5)</strong></label>
-                                    <div class="rating-stars">
-                                        <input type="radio" id="facility_star_${facility.FacilityID}_5" name="facilities[${facility.FacilityID}][rating]" value="5" required><label for="facility_star_${facility.FacilityID}_5">&starf;</label>
-                                        <input type="radio" id="facility_star_${facility.FacilityID}_4" name="facilities[${facility.FacilityID}][rating]" value="4" required><label for="facility_star_${facility.FacilityID}_4">&starf;</label>
-                                        <input type="radio" id="facility_star_${facility.FacilityID}_3" name="facilities[${facility.FacilityID}][rating]" value="3" required><label for="facility_star_${facility.FacilityID}_3">&starf;</label>
-                                        <input type="radio" id="facility_star_${facility.FacilityID}_2" name="facilities[${facility.FacilityID}][rating]" value="2" required><label for="facility_star_${facility.FacilityID}_2">&starf;</label>
-                                        <input type="radio" id="facility_star_${facility.FacilityID}_1" name="facilities[${facility.FacilityID}][rating]" value="1" required><label for="facility_star_${facility.FacilityID}_1">&starf;</label>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="facility_comment_${facility.FacilityID}" class="form-label"><strong>Comments (Optional)</strong></label>
-                                    <textarea class="form-control" id="facility_comment_${facility.FacilityID}" name="facilities[${facility.FacilityID}][comment]" rows="2" placeholder="Feedback for ${facility.Name}..."></textarea>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    facilityFeedbackSection.innerHTML = facilityHtml;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching facilities:', error);
-                facilityFeedbackSection.innerHTML = '<div class="alert alert-warning">Could not load facilities for feedback.</div>';
-            });
-    });
-
     // Payment Modal Handler
     var paymentModal = document.getElementById('paymentModal');
     paymentModal.addEventListener('show.bs.modal', function (event) {
@@ -512,10 +369,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <h6 class="fw-bold"><i class="fas fa-times-circle"></i> Payment Not Available</h6>
                     <p class="mb-2">This resort has not configured any payment methods yet.</p>
                     <p class="mb-3"><strong>Please contact the resort directly to arrange payment outside of this system.</strong></p>
-                    <div class="mt-3">
-                        <p class="mb-1"><i class="fas fa-phone text-muted"></i> Phone: ${adminPhone}</p>
-                        <p class="mb-0"><i class="fas fa-envelope text-muted"></i> Email: ${adminEmail}</p>
-                    </div>
                 </div>
             `;
 
@@ -781,58 +634,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
-
-// Add some CSS styles for the modal
-document.head.insertAdjacentHTML('beforeend', `
-<style>
-.payment-method-card {
-    transition: all 0.2s ease-in-out;
-    position: relative; /* Needed for absolute positioning of radio button */
-}
-.payment-method-card.border-primary {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
-}
-.payment-method-card .form-check-input {
-    width: 1.5em; /* Make radio button larger */
-    height: 1.5em; /* Make radio button larger */
-    border-color: #0d6efd; /* Add border color */
-}
-.payment-method-card .form-check-input:checked {
-    background-color: #0d6efd; /* Highlight background when checked */
-    border-color: #0d6efd;
-}
-.payment-method-card:hover {
-    background-color: #e9ecef; /* Subtle hover effect for the card */
-}
-.upload-area {
-    transition: all 0.3s ease;
-    background-color: #f8f9fa;
-    border-color: #dee2e6 !important;
-    cursor: pointer;
-}
-
-.upload-area:hover, .upload-area.dragover {
-    background-color: #e3f2fd;
-    border-color: #0d6efd !important;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.pulse {
-    animation: pulse 2s infinite;
-}
-
-.form-control:focus, .form-select:focus {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
-}
-</style>
-`);
 </script>
-
-<?php require_once __DIR__ . '/../partials/footer.php'; ?>

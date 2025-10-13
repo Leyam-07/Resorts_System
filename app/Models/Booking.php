@@ -164,6 +164,42 @@ class Booking {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public static function findPendingAndCancelledByCustomerId($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT b.*, r.Name as ResortName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+             FROM Bookings b
+             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+             WHERE b.CustomerID = :customerId AND b.Status IN ('Pending', 'Cancelled')
+             GROUP BY b.BookingID
+             ORDER BY b.CreatedAt DESC"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function findConfirmedByCustomerId($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT b.*, r.Name as ResortName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+             FROM Bookings b
+             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+             WHERE b.CustomerID = :customerId AND b.Status IN ('Confirmed', 'Completed')
+             GROUP BY b.BookingID
+             ORDER BY b.CreatedAt DESC"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public static function findTodaysBookings($resortId = null) {
         $db = self::getDB();
         $today = date('Y-m-d');
@@ -608,11 +644,23 @@ class Booking {
     /**
      * Get count of active bookings (excluding completed and cancelled) for a customer
      */
-    public static function getActiveBookingsCount($customerId) {
+    public static function getConfirmedBookingsCount($customerId) {
         $db = self::getDB();
         $stmt = $db->prepare(
             "SELECT COUNT(*) as count FROM Bookings
-             WHERE CustomerID = :customerId AND Status NOT IN ('Completed', 'Cancelled')"
+             WHERE CustomerID = :customerId AND Status = 'Confirmed'"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['count'];
+    }
+
+    public static function getPendingBookingsCount($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) as count FROM Bookings
+             WHERE CustomerID = :customerId AND Status = 'Pending'"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();

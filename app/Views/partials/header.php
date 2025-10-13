@@ -93,7 +93,10 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                            </a>
                        </li>
                     <?php elseif ($_SESSION['role'] === 'Customer'): ?>
-                        <?php $activeBookingCount = Booking::getActiveBookingsCount($_SESSION['user_id']); ?>
+                        <?php 
+                            $confirmedBookingCount = Booking::getConfirmedBookingsCount($_SESSION['user_id']);
+                            $pendingBookingCount = Booking::getPendingBookingsCount($_SESSION['user_id']);
+                        ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -101,12 +104,17 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showBookingForm">
-                                <i class="fas fa-plus-circle"></i> New Booking
+                                <i class="fas fa-plus-circle"></i> New Reservation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=booking&action=showMyReservations">
+                                <i class="fas fa-clock"></i> My Reservations<?php if ($pendingBookingCount > 0): ?><span class="badge booking-count-badge bg-warning text-dark fw-semibold ms-1"><?php echo $pendingBookingCount; ?></span><?php endif; ?>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showMyBookings">
-                                <i class="fas fa-calendar-check"></i> My Bookings<?php if ($activeBookingCount > 0): ?><span class="badge booking-count-badge bg-danger text-white fw-semibold ms-1"><?php echo $activeBookingCount; ?></span><?php endif; ?>
+                                <i class="fas fa-calendar-check"></i> My Bookings<?php if ($confirmedBookingCount > 0): ?><span class="badge booking-count-badge bg-success text-white fw-semibold ms-1"><?php echo $confirmedBookingCount; ?></span><?php endif; ?>
                             </a>
                         </li>
                     <?php endif; ?>

@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "New Booking";
+$pageTitle = "New Reservation";
 require_once __DIR__ . '/../partials/header.php';
 
 // Get pre-selected resort ID and facility ID from URL if available
@@ -13,7 +13,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
         <div class="d-flex align-items-center justify-content-between">
             <div>
                 <h1 class="mb-1"><i class="fas fa-calendar-plus text-primary"></i> <?= htmlspecialchars($pageTitle) ?></h1>
-                <p class="text-muted mb-0">Follow the steps below to create your resort booking</p>
+                <p class="text-muted mb-0">Follow the steps below to create your resort reservation</p>
             </div>
             <div class="d-none d-md-block">
                 <i class="fas fa-swimming-pool fa-3x text-primary opacity-25"></i>

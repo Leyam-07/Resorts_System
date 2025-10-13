@@ -116,7 +116,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <i class="fas fa-info-circle"></i> <strong>Payment Required</strong><br>
                                 You can pay the full amount or make a partial payment.
                                 <div class="mt-2">
-                                    <a href="?controller=booking&action=showMyBookings" class="btn btn-outline-primary btn-sm">
+                                    <a href="?controller=booking&action=showMyReservations" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-arrow-right"></i> Proceed to Submit Payment
                                     </a>
                                 </div>
