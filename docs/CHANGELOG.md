@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.0] - 2025-10-13
+
+### Enhanced
+
+- **Guest View UI/UX Refinements:** Implemented a series of visual and functional improvements to the "Guest View" to ensure a more consistent and polished user experience.
+  - **"New Reservation" Page Overhaul:**
+    - **Visual Parity:** The guest-facing "New Reservation" page now perfectly mimics the layout of the logged-in version, including all booking steps (Timeframe, Date, Facilities) in a disabled state.
+    - **Styling Consistency:** Corrected the styling of resort cards, step-indicator circles, and dimmed the "Timeframe" and "Date" selection cards to match the interactive version's look and feel.
+    - **Standardized Login Prompt:** Replaced the custom overlay prompt with the standard alert message ("Please login or register...") found on other guest pages for a consistent look.
+  - **Dashboard Modal Usability:** Added a "Close" button to the footer of the "View Details" modals for both resorts and facilities on the guest dashboard, providing a clear and expected action for non-logged-in users.
+
 ## [1.43.0] - 2025-10-13
 
 ### Added

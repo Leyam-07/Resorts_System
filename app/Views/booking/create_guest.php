@@ -8,57 +8,84 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 ?>
 
 <style>
-    .disabled-overlay {
+    /* Enhanced Resort Cards */
+    .resort-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
         position: relative;
     }
-    .disabled-overlay::after {
-        content: '';
+
+    .resort-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #0d6efd;
+    }
+
+    .resort-card .card-img-top {
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .resort-card .form-check-input {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.5);
+        top: 10px;
+        left: 10px;
+        width: 1.5em;
+        height: 1.5em;
         z-index: 10;
     }
-    .login-prompt {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 11;
-        background: rgba(0, 0, 0, 0.7);
+
+    .resort-card.selected {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    }
+    /* Step Indicators */
+    .step-indicator {
+        transition: all 0.3s ease;
+    }
+
+    .step-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 5px;
+        transition: all 0.3s ease;
+    }
+
+    .step-indicator.active .step-circle {
+        background-color: #0d6efd;
         color: white;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
+        transform: scale(1.1);
     }
 </style>
 
-<div class="disabled-overlay">
-    <div class="login-prompt">
-        <h3>Login to Book</h3>
-        <p>You must be logged in to make a reservation.</p>
-        <a href="?action=login" class="btn btn-primary">Login</a>
-        <a href="?action=showRegisterForm" class="btn btn-secondary">Register</a>
-    </div>
-
-    <fieldset disabled>
-        <!-- Paste the content of create.php here, from the "Enhanced Page Header" comment down to the </form> tag -->
-        <!-- Enhanced Page Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h1 class="mb-1"><i class="fas fa-calendar-plus text-primary"></i> <?= htmlspecialchars($pageTitle) ?></h1>
-                        <p class="text-muted mb-0">Follow the steps below to create your resort reservation</p>
-                    </div>
-                    <div class="d-none d-md-block">
-                        <i class="fas fa-swimming-pool fa-3x text-primary opacity-25"></i>
-                    </div>
+<fieldset disabled>
+    <!-- Paste the content of create.php here, from the "Enhanced Page Header" comment down to the </form> tag -->
+    <!-- Enhanced Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="mb-1"><i class="fas fa-calendar-plus text-primary"></i> <?= htmlspecialchars($pageTitle) ?></h1>
+                    <p class="text-muted mb-0">Follow the steps below to create your resort reservation</p>
+                </div>
+                <div class="d-none d-md-block">
+                    <i class="fas fa-swimming-pool fa-3x text-primary opacity-25"></i>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="alert alert-info" role="alert">
+        Please <a href="?action=login">login</a> or <a href="?action=showRegisterForm">register</a> to create a new reservation.
+    </div>
 
         <!-- Progressive Step Indicators -->
         <div class="row mb-4">
@@ -127,8 +154,103 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </div>
             </div>
 
-            <!-- All other steps from create.php would go here, but are omitted for brevity in this example -->
-            <!-- Step 6: Enhanced Booking Summary -->
+            <!-- Step 2: Enhanced Timeframe Selection (Required) -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    <i class="fas fa-clock text-primary"></i> Select Timeframe <span class="text-danger">*</span>
+                </label>
+                <div class="row g-3 opacity-50 pe-none" id="timeframe-selection-container">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card timeframe-card h-100 bg-warning-subtle">
+                            <label for="timeframe_12_hours" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_12_hours" value="12_hours" required>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-sun text-warning me-2"></i>
+                                        12 Hours
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
+                                        <div><strong>Check Out:</strong> 5:00 PM</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card timeframe-card h-100 bg-info-subtle">
+                            <label for="timeframe_24_hours" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_24_hours" value="24_hours">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-clock text-info me-2"></i>
+                                        24 Hours
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
+                                        <div><strong>Check Out:</strong> 5:00 AM (next day)</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="card timeframe-card h-100 bg-dark-subtle">
+                            <label for="timeframe_overnight" class="form-check-label w-100 mb-0">
+                                <input type="radio" class="form-check-input timeframe-radio" name="timeframe"
+                                       id="timeframe_overnight" value="overnight">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-moon text-secondary me-2"></i>
+                                        Overnight
+                                    </h5>
+                                    <div class="small text-muted">
+                                        <div class="mb-1"><strong>Check In:</strong> 7:00 PM</div>
+                                        <div><strong>Check Out:</strong> 5:00 AM (next day)</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Enhanced Date Selection (Required) -->
+            <div class="mb-4">
+                <label for="date" class="form-label fw-bold">
+                    <i class="fas fa-calendar-alt text-primary"></i> Select Date <span class="text-danger">*</span>
+                </label>
+                <div class="row g-3 opacity-50 pe-none">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card date-card h-100 bg-primary-subtle">
+                            <div class="card-body text-center clickable-card">
+                                <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                                <h6 class="card-title text-primary fw-bold mb-1">Navigate Calendar</h6>
+                                <p class="card-text small text-muted mb-0">Click to browse and select your date</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Enhanced Facility Selection -->
+            <div class="mb-4">
+                 <label class="form-label fw-bold">
+                     <i class="fas fa-swimming-pool text-primary"></i> Additional Facilities
+                     <span class="text-muted">(Optional)</span>
+                 </label>
+                 <div id="facilitiesContainer" class="row">
+                     <div class="col-12">
+                         <div class="alert alert-secondary text-center" id="noFacilitiesMessage">
+                             <i class="fas fa-info-circle"></i> Please select a resort first to view available facilities
+                         </div>
+                     </div>
+                 </div>
+            </div>
+
+            <!-- Step 5: Enhanced Booking Summary -->
             <div class="mb-4">
                 <div class="card border-primary shadow-sm">
                     <div class="card-header bg-primary text-white">
@@ -150,8 +272,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 </button>
             </div>
         </form>
-    </fieldset>
-</div>
+</fieldset>
 
 <?php 
 require_once __DIR__ . '/../partials/footer.php'; 
