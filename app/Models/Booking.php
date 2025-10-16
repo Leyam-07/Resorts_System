@@ -669,11 +669,11 @@ class Booking {
     }
 
     /**
-     * Get count of active bookings (excluding completed) filtered by resort for admin dashboard
+     * Get count of active bookings (excluding completed and cancelled) filtered by resort for admin dashboard
      */
     public static function getActiveBookingsCountForAdmin($resortId = null) {
         $db = self::getDB();
-        $sql = "SELECT COUNT(*) as count FROM Bookings WHERE Status != 'Completed'";
+        $sql = "SELECT COUNT(*) as count FROM Bookings WHERE Status IN ('Pending', 'Confirmed')";
 
         $params = [];
         if ($resortId) {
