@@ -10,6 +10,7 @@ require_once __DIR__ . '/../Models/PaymentSchedule.php';
 require_once __DIR__ . '/../Models/BookingLifecycleManager.php';
 require_once __DIR__ . '/../Helpers/ValidationHelper.php';
 require_once __DIR__ . '/../Helpers/Database.php';
+require_once __DIR__ . '/../Helpers/AsyncHelper.php';
 
 class BookingController {
 
@@ -81,7 +82,7 @@ class BookingController {
             BookingAuditTrail::logBookingCreation($bookingId, $customerId, $bookingData);
             
             // Send booking confirmation email (before payment)
-            Notification::sendBookingConfirmation($bookingId);
+            AsyncHelper::triggerEmailWorker('booking_confirmation', $bookingId);
 
             // Redirect to payment submission instead of success page
             header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
@@ -623,7 +624,7 @@ class BookingController {
 
         if (Booking::updateStatus($bookingId, 'Cancelled')) {
             // Send cancellation email
-            Notification::sendBookingCancellation($booking);
+            AsyncHelper::triggerEmailWorker('booking_cancellation', $bookingId);
             
             $_SESSION['success_message'] = "Booking successfully cancelled.";
         } else {
@@ -779,8 +780,7 @@ class BookingController {
             BookingLifecycleManager::processBookingAfterPayment($bookingId);
             
             // Send notifications
-            $this->notifyAdminPaymentSubmission($bookingId);
-            Notification::sendPaymentSubmissionConfirmation($bookingId);
+            AsyncHelper::triggerEmailWorker('payment_submission', $bookingId);
 
             $_SESSION['success_message'] = "Payment submitted successfully! Your payment is being reviewed.";
             header('Location: ?controller=booking&action=paymentSuccess&id=' . $bookingId);
@@ -823,19 +823,6 @@ class BookingController {
         }
 
         return false;
-    }
-
-    /**
-     * Notify admin of payment submission
-     */
-    private function notifyAdminPaymentSubmission($bookingId) {
-        // Get booking and customer information
-        $booking = Booking::findById($bookingId);
-        require_once __DIR__ . '/../Models/User.php';
-        $customer = User::findById($booking->customerId);
-        
-        // Send email notification to admin
-        Notification::sendPaymentSubmissionNotification($bookingId, $customer);
     }
 
     /**

@@ -4,6 +4,8 @@ require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Models/Booking.php';
 require_once __DIR__ . '/../Models/User.php';
 
+require_once __DIR__ . '/../Helpers/AsyncHelper.php';
+
 class PaymentController {
 
     public function __construct() {
@@ -170,12 +172,7 @@ class PaymentController {
             // Payment verification successful - try to send confirmation email
             $payment = Payment::findById($paymentId);
             if ($payment) {
-                try {
-                    Notification::sendPaymentVerificationConfirmation($payment->bookingId, true);
-                } catch (Exception $e) {
-                    // Log email failure but don't fail the payment verification
-                    error_log("Payment verification email failed: " . $e->getMessage());
-                }
+                AsyncHelper::triggerEmailWorker('payment_verified', $payment->bookingId);
             }
 
             $_SESSION['success_message'] = "Payment verified successfully!";
@@ -220,12 +217,7 @@ class PaymentController {
             // Get payment info to send rejection notification
             $payment = Payment::findById($paymentId);
             if ($payment) {
-                try {
-                    Notification::sendPaymentVerificationConfirmation($payment->bookingId, false);
-                } catch (Exception $e) {
-                    // Log email failure but don't fail the payment rejection
-                    error_log("Payment rejection email failed: " . $e->getMessage());
-                }
+                AsyncHelper::triggerEmailWorker('payment_rejected', $payment->bookingId);
             }
 
             $_SESSION['success_message'] = "Payment rejected.";

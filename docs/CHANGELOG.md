@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.5] - 2025-10-16
+
+### Fixed
+
+- **Payment Submission Delay:** Resolved a critical performance issue where submitting a payment proof would cause the system to hang for two minutes or more. The delay was caused by sending emails synchronously, which blocked the user's request.
+
+### Changed
+
+- **Asynchronous Email System:** Refactored the entire notification system to send all emails asynchronously.
+  - **Background Worker:** Created a centralized background worker script (`scripts/send_email_worker.php`) to handle all email sending, ensuring user-facing actions are no longer delayed by network latency from the mail server.
+  - **Controller Integration:** Updated `BookingController`, `PaymentController`, and `UserController` to trigger the background worker for all email events (e.g., booking creation, payment verification, user registration) instead of sending them directly.
+  - **Improved Responsiveness:** All user actions that trigger an email are now instantaneous, significantly improving the overall application performance and user experience.
+
 ## [1.42.4] - 2025-10-16
 
 ### Fixed

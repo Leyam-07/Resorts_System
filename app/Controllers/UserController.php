@@ -8,6 +8,8 @@ require_once __DIR__ . '/../Models/Feedback.php';
 require_once __DIR__ . '/../Models/Resort.php';
 require_once __DIR__ . '/../Helpers/ValidationHelper.php';
 
+require_once __DIR__ . '/../Helpers/AsyncHelper.php';
+
 class UserController {
 
    public function dashboard() {
@@ -139,8 +141,7 @@ class UserController {
                 // Find the new user to get their details
                 $newUser = User::findByUsername($validatedData['username']);
                 if ($newUser) {
-                    // Send welcome email
-                    Notification::sendWelcomeEmail($newUser['UserID']);
+                    AsyncHelper::triggerEmailWorker('welcome_email', $newUser['UserID']);
                 }
                 // Redirect to login page on success
                 header('Location: index.php?action=login&registration=success');
