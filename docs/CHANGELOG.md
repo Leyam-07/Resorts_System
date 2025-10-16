@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.0] - 2025-10-16
+
+### Security
+
+- **Admin Deletion Safeguards:** Implemented critical security enhancements to the user management system to prevent administrators from deleting other admin accounts or their own account.
+  - **Controller Logic:** Added validation in `AdminController` to check the role of the user being deleted and to check if the user is deleting themselves.
+  - **User Feedback:** Implemented user-facing error messages on the "Manage Users" page to inform administrators why a deletion was denied.
+
 ## [1.44.0] - 2025-10-13
 
 ### Enhanced

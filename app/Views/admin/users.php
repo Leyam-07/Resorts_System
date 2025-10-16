@@ -11,6 +11,21 @@ require_once __DIR__ . '/../partials/header.php';
 ?>
 
 <h2><?= htmlspecialchars($pageTitle) ?></h2>
+
+<?php if (isset($_GET['error'])): ?>
+    <div class="alert alert-danger">
+        <?php
+        if ($_GET['error'] === 'cannot_delete_self') {
+            echo "You cannot delete your own account.";
+        } elseif ($_GET['error'] === 'cannot_delete_admin') {
+            echo "You cannot delete another Admin user.";
+        } else {
+            echo "An unknown error occurred.";
+        }
+        ?>
+    </div>
+<?php endif; ?>
+
     <table class="table">
         <thead>
             <tr>

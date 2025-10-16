@@ -229,6 +229,19 @@ class AdminController {
         }
         $userId = $_GET['id'];
 
+        // Prevent admin from deleting themselves
+        if ($userId == $_SESSION['user_id']) {
+            header('Location: ?controller=admin&action=users&error=cannot_delete_self');
+            exit();
+        }
+
+        // Prevent admins from deleting other admins
+        $userToDelete = $this->userModel->findById($userId);
+        if ($userToDelete && $userToDelete['Role'] === 'Admin') {
+            header('Location: ?controller=admin&action=users&error=cannot_delete_admin');
+            exit();
+        }
+
         if ($this->userModel->delete($userId)) {
             header('Location: ?controller=admin&action=users&status=user_deleted');
             exit();
