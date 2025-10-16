@@ -265,10 +265,10 @@ require_once __DIR__ . '/../partials/header.php';
                             </div>
                             <div class="mt-2 d-flex gap-2 flex-wrap">
                                 <button type="button" class="btn btn-success btn-sm" id="payFullBtn">
-                                    <i class="fas fa-money-bill"></i> Pay Full Amount
+                                    <i class="fas fa-money-bill"></i> Full Amount
                                 </button>
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="payHalfBtn">
-                                    <i class="fas fa-percentage"></i> Pay 50%
+                                    <i class="fas fa-percentage"></i> Half Amount
                                 </button>
                             </div>
                         </div>
