@@ -346,11 +346,11 @@ class Booking {
     public static function getTimeSlotDisplay($timeSlotType) {
         switch ($timeSlotType) {
             case '12_hours':
-                return '7:00 AM - 5:00 PM (12 hrs)';
+                return 'Check In: 7:00 AM Check Out: 5:00 PM (12 hrs)';
             case 'overnight':
-                return '7:00 PM - 5:00 AM (Overnight)';
+                return 'Check In: 7:00 AM Check Out: 5:00 AM Next Day (Overnight)';
             case '24_hours':
-                return '7:00 AM - 5:00 AM (24 hrs)';
+                return 'Check In: 7:00 PM Check Out: 5:00 AM (24 hrs)';
             default:
                 return 'N/A';
         }

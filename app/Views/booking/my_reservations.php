@@ -52,9 +52,9 @@ require_once __DIR__ . '/../partials/header.php';
                             <small class="text-muted">
                                 <?php
                                     $timeSlotDisplay = [
-                                        '12_hours' => '12 Hours (7:00 AM - 5:00 PM)',
-                                        '24_hours' => '24 Hours (7:00 AM - 5:00 AM next day)',
-                                        'overnight' => 'Overnight (7:00 PM - 5:00 AM)'
+                                        '12_hours' => '12 Hours - Check In: 7:00 AM Check Out: 5:00 PM',
+                                        '24_hours' => '24 Hours - Check In: 7:00 AM Check Out: 5:00 AM Next Day',
+                                        'overnight' => 'Overnight - Check In: 7:00 PM Check Out: 5:00 AM'
                                     ];
                                     echo htmlspecialchars($timeSlotDisplay[$booking->TimeSlotType] ?? 'N/A');
                                 ?>

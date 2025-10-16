@@ -151,11 +151,11 @@ class ResortTimeframePricing {
     public static function getTimeframeDisplay($timeframeType) {
         switch ($timeframeType) {
             case '12_hours':
-                return '12 Hours (7:00 AM - 5:00 PM)';
+                return '12 Hours - Check In: 7:00 AM Check Out: 5:00 PM';
             case '24_hours':
-                return '24 Hours (7:00 AM - 5:00 AM next day)';
+                return '24 Hours - Check In: 7:00 AM Check Out: 5:00 AM Next Day';
             case 'overnight':
-                return 'Overnight (7:00 PM - 5:00 AM)';
+                return 'Overnight - Check In: 7:00 PM Check Out: 5:00 AM';
             default:
                 return 'Unknown';
         }
