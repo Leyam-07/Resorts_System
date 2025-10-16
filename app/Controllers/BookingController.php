@@ -233,15 +233,6 @@ class BookingController {
         $appliedSurcharges = [];
         $totalSurcharges = 0;
 
-        if ($isWeekend && $pricing->weekendSurcharge > 0) {
-            $appliedSurcharges[] = [
-                'type' => 'weekend',
-                'amount' => $pricing->weekendSurcharge,
-                'display' => '+ ₱' . number_format($pricing->weekendSurcharge, 2) . ' Weekend Surcharge'
-            ];
-            $totalSurcharges += $pricing->weekendSurcharge;
-        }
-
         if ($isHoliday && $pricing->holidaySurcharge > 0) {
             $appliedSurcharges[] = [
                 'type' => 'holiday',
@@ -249,6 +240,13 @@ class BookingController {
                 'display' => '+ ₱' . number_format($pricing->holidaySurcharge, 2) . ' Holiday Surcharge'
             ];
             $totalSurcharges += $pricing->holidaySurcharge;
+        } elseif ($isWeekend && $pricing->weekendSurcharge > 0) {
+            $appliedSurcharges[] = [
+                'type' => 'weekend',
+                'amount' => $pricing->weekendSurcharge,
+                'display' => '+ ₱' . number_format($pricing->weekendSurcharge, 2) . ' Weekend Surcharge'
+            ];
+            $totalSurcharges += $pricing->weekendSurcharge;
         }
 
         $response = [

@@ -1362,16 +1362,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Show/hide pricing notices (keep for visual indicator)
-                if (pricing.isWeekend) {
+                if (pricing.isHoliday) {
+                    holidayNotice.style.display = 'block';
+                    weekendNotice.style.display = 'none'; // Ensure weekend is hidden if it's a holiday
+                } else if (pricing.isWeekend) {
+                    holidayNotice.style.display = 'none';
                     weekendNotice.style.display = 'block';
                 } else {
+                    holidayNotice.style.display = 'none';
                     weekendNotice.style.display = 'none';
-                }
-
-                if (pricing.isHoliday) {
-                   holidayNotice.style.display = 'block';
-                } else {
-                   holidayNotice.style.display = 'none';
                 }
 
                 timeframePricing.style.display = 'block';

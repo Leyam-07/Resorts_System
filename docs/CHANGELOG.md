@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.45.0] - 2025-10-16
+## [1.42.4] - 2025-10-16
+
+### Fixed
+
+- **Holiday & Weekend Rate Stacking:** Resolved a critical pricing issue where holiday and weekend surcharges were incorrectly stacked on dates that were both a holiday and a weekend. The system now correctly prioritizes holiday rates.
+  - **Backend Logic:** Updated `ResortTimeframePricing::calculatePrice()` to use an `if-else` structure, ensuring only the holiday surcharge is applied if a date is a holiday.
+  - **API Response:** Corrected the `BookingController::getResortPricing()` method to reflect this priority, preventing the API from sending both surcharges to the frontend.
+  - **Frontend Display:** Fixed the JavaScript in the booking form (`create.php`) to ensure only the "Holiday Rate" badge is displayed when applicable, removing the stacked "Weekend Rate" badge.
+
+## [1.42.3] - 2025-10-16
 
 ### Security
 
@@ -13,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Controller Logic:** Added validation in `AdminController` to check the role of the user being deleted and to check if the user is deleting themselves.
   - **User Feedback:** Implemented user-facing error messages on the "Manage Users" page to inform administrators why a deletion was denied.
 
-## [1.44.0] - 2025-10-13
+## [1.42.2] - 2025-10-13
 
 ### Enhanced
 
@@ -24,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Standardized Login Prompt:** Replaced the custom overlay prompt with the standard alert message ("Please login or register...") found on other guest pages for a consistent look.
   - **Dashboard Modal Usability:** Added a "Close" button to the footer of the "View Details" modals for both resorts and facilities on the guest dashboard, providing a clear and expected action for non-logged-in users.
 
-## [1.43.0] - 2025-10-13
+## [1.42.1] - 2025-10-13
 
 ### Added
 

@@ -105,16 +105,16 @@ class ResortTimeframePricing {
 
         $totalPrice = $pricing->basePrice;
 
-        // Check if it's a weekend (Saturday = 6, Sunday = 0)
-        $dayOfWeek = date('w', strtotime($bookingDate));
-        if ($dayOfWeek == 0 || $dayOfWeek == 6) {
-            $totalPrice += $pricing->weekendSurcharge;
-        }
-
-        // Check if it's a holiday
+        // Check if it's a holiday, which takes precedence
         require_once __DIR__ . '/../Helpers/HolidayHelper.php';
         if (HolidayHelper::isHoliday($bookingDate)) {
             $totalPrice += $pricing->holidaySurcharge;
+        } else {
+            // If not a holiday, check if it's a weekend (Saturday = 6, Sunday = 0)
+            $dayOfWeek = date('w', strtotime($bookingDate));
+            if ($dayOfWeek == 0 || $dayOfWeek == 6) {
+                $totalPrice += $pricing->weekendSurcharge;
+            }
         }
 
         return $totalPrice;
