@@ -22,6 +22,10 @@ class BlockedFacilityAvailability {
     }
 
     public static function create($facilityId, $blockDate, $reason) {
+        if (self::isBlocked($facilityId, $blockDate)) {
+            return false;
+        }
+
         $db = self::getDB();
         $stmt = $db->prepare(
             "INSERT INTO BlockedFacilityAvailability (FacilityID, BlockDate, Reason)
@@ -68,6 +72,15 @@ class BlockedFacilityAvailability {
         $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->rowCount();
+    }
+
+    public static function isBlocked($facilityId, $blockDate) {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM BlockedFacilityAvailability WHERE FacilityID = :facilityId AND BlockDate = :blockDate");
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->bindValue(':blockDate', $blockDate, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
     public static function isFacilityBlockedOnDate($facilityId, $date) {

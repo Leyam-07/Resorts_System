@@ -828,9 +828,11 @@ class AdminController {
             exit;
         }
 
-        BlockedResortAvailability::create($resortId, $blockDate, $reason);
-        
-        $_SESSION['success_message'] = "Successfully blocked the date: " . htmlspecialchars($blockDate);
+        if (BlockedResortAvailability::create($resortId, $blockDate, $reason)) {
+            $_SESSION['success_message'] = "Successfully blocked the date: " . htmlspecialchars($blockDate);
+        } else {
+            $_SESSION['error_message'] = "Failed to block the date. It may already be blocked.";
+        }
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit;
     }
@@ -891,7 +893,7 @@ class AdminController {
         if (BlockedFacilityAvailability::create($facilityId, $blockDate, $reason)) {
             $_SESSION['success_message'] = "Successfully blocked the date for the facility.";
         } else {
-            $_SESSION['error_message'] = "Failed to block the date for the facility.";
+            $_SESSION['error_message'] = "Failed to block the date for the facility. It may already be blocked.";
         }
         
         $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
@@ -1167,6 +1169,7 @@ class AdminController {
         $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
         $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
         $blockedCount = 0;
+        $skippedCount = 0;
 
         if (!$resortId || !$presetType || empty($reason)) {
             $_SESSION['error_message'] = "Resort, preset type, and reason are required.";
@@ -1191,6 +1194,8 @@ class AdminController {
                     $dateStr = $currentYear . '-' . $monthDay;
                     if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
                         $blockedCount++;
+                    } else {
+                        $skippedCount++;
                     }
                 }
             }
@@ -1224,13 +1229,19 @@ class AdminController {
                 if ($shouldBlock) {
                     if (BlockedResortAvailability::create($resortId, $dateStr, $reason)) {
                         $blockedCount++;
+                    } else {
+                        $skippedCount++;
                     }
                 }
                 $currentDate->modify('+1 day');
             }
         }
 
-        $_SESSION['success_message'] = "Blocked $blockedCount dates successfully!";
+        $message = "Blocked $blockedCount dates successfully.";
+        if ($skippedCount > 0) {
+            $message .= " Skipped $skippedCount dates that were already blocked.";
+        }
+        $_SESSION['success_message'] = $message;
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit();
     }
@@ -1253,7 +1264,11 @@ class AdminController {
 
         $deletedCount = BlockedResortAvailability::deleteAllForResort($resortId);
 
-        $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the resort.";
+        if ($deletedCount > 0) {
+            $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the resort.";
+        } else {
+            $_SESSION['success_message'] = "No blocks were found to remove for this resort.";
+        }
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit();
     }
@@ -1279,7 +1294,11 @@ class AdminController {
 
         $deletedCount = BlockedResortAvailability::deleteByDateRange($resortId, $startDate, $endDate);
 
-        $_SESSION['success_message'] = "Successfully removed $deletedCount blocks within the selected date range.";
+        if ($deletedCount > 0) {
+            $_SESSION['success_message'] = "Successfully removed $deletedCount blocks within the selected date range.";
+        } else {
+            $_SESSION['success_message'] = "No blocks were found to remove within the selected date range.";
+        }
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
         exit();
     }
@@ -1297,6 +1316,7 @@ class AdminController {
         $presetType = filter_input(INPUT_POST, 'preset_type', FILTER_UNSAFE_RAW);
         $reason = trim(filter_input(INPUT_POST, 'reason', FILTER_UNSAFE_RAW));
         $blockedCount = 0;
+        $skippedCount = 0;
 
         if (!$resortId || empty($facilityIds) || !$presetType || empty($reason)) {
             $_SESSION['error_message'] = "Resort, at least one facility, preset type, and reason are required.";
@@ -1323,6 +1343,8 @@ class AdminController {
                         $dateStr = $currentYear . '-' . $monthDay;
                         if (BlockedFacilityAvailability::create($facilityId, $dateStr, $reason)) {
                             $blockedCount++;
+                        } else {
+                            $skippedCount++;
                         }
                     }
                 }
@@ -1357,6 +1379,8 @@ class AdminController {
                     if ($shouldBlock) {
                         if (BlockedFacilityAvailability::create($facilityId, $dateStr, $reason)) {
                             $blockedCount++;
+                        } else {
+                            $skippedCount++;
                         }
                     }
                     $currentDate->modify('+1 day');
@@ -1364,7 +1388,11 @@ class AdminController {
             }
         }
 
-        $_SESSION['success_message'] = "Blocked $blockedCount dates across selected facilities successfully!";
+        $message = "Blocked $blockedCount dates across selected facilities successfully.";
+        if ($skippedCount > 0) {
+            $message .= " Skipped $skippedCount dates that were already blocked.";
+        }
+        $_SESSION['success_message'] = $message;
         $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();
@@ -1390,7 +1418,11 @@ class AdminController {
 
         $deletedCount = BlockedFacilityAvailability::deleteAllForFacility($facilityId);
 
-        $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the selected facility.";
+        if ($deletedCount > 0) {
+            $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the selected facility.";
+        } else {
+            $_SESSION['success_message'] = "No blocks were found to remove for the selected facility.";
+        }
         $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();
@@ -1419,7 +1451,11 @@ class AdminController {
 
         $deletedCount = BlockedFacilityAvailability::deleteByDateRangeAndFacility($facilityId, $startDate, $endDate);
 
-        $_SESSION['success_message'] = "Successfully removed $deletedCount blocks for the facility within the selected date range.";
+        if ($deletedCount > 0) {
+            $_SESSION['success_message'] = "Successfully removed $deletedCount blocks for the facility within the selected date range.";
+        } else {
+            $_SESSION['success_message'] = "No blocks were found to remove for the facility within the selected date range.";
+        }
         $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
         header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();

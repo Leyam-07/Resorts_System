@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.7] - 2025-10-17
+
+### Fixed
+
+- **Duplicate Date Blocking:** Resolved a critical bug in the "Advanced Blocking System" where administrators could block the same date multiple times for the same resort or facility. The system now validates for existing blocks before creating a new one.
+
+### Enhanced
+
+- **Blocking System User Experience:** Implemented comprehensive feedback improvements for the date blocking and deblocking system.
+  - **Clearer Feedback:** The system now provides explicit success or error messages for all blocking actions.
+  - **Informative Bulk Operations:** Preset blocking actions (e.g., blocking a date range) now report a detailed summary, including the number of dates successfully blocked and the number of dates skipped because they were already blocked.
+  - **Descriptive Deblocking:** Deblocking actions now confirm how many blocks were removed or inform the user if no blocks were found to remove.
+  - **Dismissible Alerts:** All feedback messages now feature a close icon, allowing users to dismiss them.
+
 ## [1.42.6] - 2025-10-17
 
 ### Fixed

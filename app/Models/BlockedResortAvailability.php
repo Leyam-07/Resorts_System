@@ -22,6 +22,10 @@ class BlockedResortAvailability {
     }
 
     public static function create($resortId, $blockDate, $reason) {
+        if (self::isBlocked($resortId, $blockDate)) {
+            return false; // Indicate that the date is already blocked
+        }
+
         $db = self::getDB();
         $stmt = $db->prepare(
             "INSERT INTO BlockedResortAvailability (ResortID, BlockDate, Reason)
@@ -32,6 +36,15 @@ class BlockedResortAvailability {
         $stmt->bindValue(':reason', $reason, PDO::PARAM_STR);
         
         return $stmt->execute();
+    }
+
+    public static function isBlocked($resortId, $blockDate) {
+        $db = self::getDB();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = :resortId AND BlockDate = :blockDate");
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->bindValue(':blockDate', $blockDate, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
     public static function findByResortId($resortId) {
