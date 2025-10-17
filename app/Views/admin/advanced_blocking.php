@@ -43,16 +43,17 @@ require_once __DIR__ . '/../partials/header.php';
                 <?php if (!empty($_GET['resort_id'])):
                     $selectedResortId = $_GET['resort_id'];
                     $facilities = Facility::findByResortId($selectedResortId);
+                $activeTab = $_GET['tab'] ?? 'resort-blocking';
                 ?>
                 <div class="card-body">
                     <ul class="nav nav-tabs" id="blockingTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="resort-blocking-tab" data-bs-toggle="tab" data-bs-target="#resort-blocking" type="button" role="tab">
+                            <button class="nav-link <?= $activeTab === 'resort-blocking' ? 'active' : '' ?>" id="resort-blocking-tab" data-bs-toggle="tab" data-bs-target="#resort-blocking" type="button" role="tab">
                                 <i class="fas fa-building"></i> Resort Blocking
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="facility-blocking-tab" data-bs-toggle="tab" data-bs-target="#facility-blocking" type="button" role="tab">
+                            <button class="nav-link <?= $activeTab === 'facility-blocking' ? 'active' : '' ?>" id="facility-blocking-tab" data-bs-toggle="tab" data-bs-target="#facility-blocking" type="button" role="tab">
                                 <i class="fas fa-swimming-pool"></i> Facility Blocking
                             </button>
                         </li>
@@ -60,7 +61,7 @@ require_once __DIR__ . '/../partials/header.php';
 
                     <div class="tab-content" id="blockingTabsContent">
                         <!-- Resort Blocking Pane -->
-                        <div class="tab-pane fade show active" id="resort-blocking" role="tabpanel">
+                        <div class="tab-pane fade <?= $activeTab === 'resort-blocking' ? 'show active' : '' ?>" id="resort-blocking" role="tabpanel">
                             <div class="row mt-3">
                                 <!-- Preset Blocking Options -->
                                 <div class="col-lg-8">
@@ -240,7 +241,7 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
 
                         <!-- Facility Blocking Pane -->
-                        <div class="tab-pane fade" id="facility-blocking" role="tabpanel">
+                        <div class="tab-pane fade <?= $activeTab === 'facility-blocking' ? 'show active' : '' ?>" id="facility-blocking" role="tabpanel">
                             <div class="row mt-3">
                                 <div class="col-lg-8">
                                     <!-- Preset Facility Blocking -->
@@ -252,6 +253,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <div class="card-body">
                                             <form method="POST" action="?controller=admin&action=applyFacilityPresetBlocking">
                                                 <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                <input type="hidden" name="tab" value="facility-blocking">
                                                 <div class="mb-3">
                                                     <label class="form-label">Select Facilities (multiple allowed)</label>
                                                      <div class="row">
@@ -332,6 +334,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <div class="card-body">
                                             <form id="blockFacilityForm" action="?controller=admin&action=blockFacilityAvailability" method="POST">
                                                 <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                <input type="hidden" name="tab" value="facility-blocking">
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -382,6 +385,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <p class="text-muted small mb-3">Remove blocks for a specific range of dates from the selected facility</p>
                                                 <form method="POST" action="?controller=admin&action=deblockFacilityByDateRange" id="deblockFacilityDateRangeForm">
                                                     <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                    <input type="hidden" name="tab" value="facility-blocking">
                                                     <input type="hidden" name="facility_id" id="deblockFacilityIdDateRange">
                                                     <div class="row">
                                                         <div class="col-md-6">
@@ -410,6 +414,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 <p class="text-muted small mb-3">Remove all blocked dates for the selected facility. This action cannot be undone.</p>
                                                 <form method="POST" action="?controller=admin&action=deblockFacilityAll" onsubmit="return confirm('Are you sure you want to remove ALL blocks for this facility?');" id="deblockFacilityAllForm">
                                                     <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
+                                                    <input type="hidden" name="tab" value="facility-blocking">
                                                     <input type="hidden" name="facility_id" id="deblockFacilityIdAll">
                                                     <div class="d-flex justify-content-end">
                                                         <button type="submit" class="btn btn-warning">
@@ -456,8 +461,8 @@ require_once __DIR__ . '/../partials/header.php';
                                     </button>
                                 </div>
                                 <div class="card-body">
-                                    <div id="resortBlocksList" class="display-area"></div>
-                                    <div id="facilityBlocksList" class="display-area" style="display: none;"></div>
+                                    <div id="resortBlocksList" class="display-area" style="<?= $activeTab === 'resort-blocking' ? '' : 'display: none;' ?>"></div>
+                                    <div id="facilityBlocksList" class="display-area" style="<?= $activeTab === 'facility-blocking' ? '' : 'display: none;' ?>"></div>
                                 </div>
                             </div>
                         </div>
@@ -487,7 +492,8 @@ document.addEventListener('DOMContentLoaded', function() {
         loadResortBlocks(resortId);
         loadAllFacilityBlocks(resortId); // Load facility blocks on page load
     }
-    
+
+    // Handle tab persistence
     document.getElementById('refreshBlocksBtn')?.addEventListener('click', function() {
         const resortId = this.getAttribute('data-resort-id');
         const activeTab = document.querySelector('#blockingTabs .nav-link.active').id;

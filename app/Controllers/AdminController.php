@@ -883,7 +883,8 @@ class AdminController {
 
         if (!$facilityId || !$blockDate || empty($reason)) {
             $_SESSION['error_message'] = "Facility, block date, and reason are required.";
-            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
             exit;
         }
 
@@ -893,7 +894,8 @@ class AdminController {
             $_SESSION['error_message'] = "Failed to block the date for the facility.";
         }
         
-        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit;
     }
 
@@ -1298,7 +1300,8 @@ class AdminController {
 
         if (!$resortId || empty($facilityIds) || !$presetType || empty($reason)) {
             $_SESSION['error_message'] = "Resort, at least one facility, preset type, and reason are required.";
-            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
             exit();
         }
 
@@ -1307,7 +1310,8 @@ class AdminController {
                 $holidaysToBlock = $_POST['holidays'] ?? [];
                 if (empty($holidaysToBlock)) {
                     $_SESSION['error_message'] = "Please select at least one holiday to block.";
-                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                    $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
                     exit();
                 }
                 
@@ -1328,7 +1332,8 @@ class AdminController {
 
                 if (!$startDate || !$endDate) {
                     $_SESSION['error_message'] = "Start date and end date are required for this preset.";
-                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+                    $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+                    header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
                     exit();
                 }
 
@@ -1360,7 +1365,8 @@ class AdminController {
         }
 
         $_SESSION['success_message'] = "Blocked $blockedCount dates across selected facilities successfully!";
-        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();
     }
 
@@ -1377,14 +1383,16 @@ class AdminController {
         $facilityId = filter_input(INPUT_POST, 'facility_id', FILTER_VALIDATE_INT);
         if (!$resortId || !$facilityId) {
             $_SESSION['error_message'] = "Invalid Resort or Facility ID.";
-            header('Location: ?controller=admin&action=advancedBlocking');
+            $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+            header('Location: ?controller=admin&action=advancedBlocking' . '&tab=' . $tab);
             exit();
         }
 
         $deletedCount = BlockedFacilityAvailability::deleteAllForFacility($facilityId);
 
         $_SESSION['success_message'] = "Successfully removed all $deletedCount blocks for the selected facility.";
-        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();
     }
 
@@ -1404,14 +1412,16 @@ class AdminController {
 
         if (!$resortId || !$facilityId || !$startDate || !$endDate) {
             $_SESSION['error_message'] = "Resort ID, Facility ID, start date, and end date are required.";
-            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+            $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+            header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
             exit();
         }
 
         $deletedCount = BlockedFacilityAvailability::deleteByDateRangeAndFacility($facilityId, $startDate, $endDate);
 
         $_SESSION['success_message'] = "Successfully removed $deletedCount blocks for the facility within the selected date range.";
-        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId);
+        $tab = filter_input(INPUT_POST, 'tab', FILTER_UNSAFE_RAW);
+        header('Location: ?controller=admin&action=advancedBlocking&resort_id=' . $resortId . '&tab=' . $tab);
         exit();
     }
 

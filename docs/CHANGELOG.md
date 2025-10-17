@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.6] - 2025-10-17
+
+### Fixed
+
+- **Advanced Blocking UI State:** Resolved two user experience issues in the "Advanced Blocking System" where the UI state was not preserved across page reloads.
+  - **Tab Persistence:** The active tab (e.g., "Facility Blocking") is now correctly retained after any form submission, preventing the interface from resetting to the default tab.
+  - **Content Display:** The "Current Blocked Dates" section now correctly displays the content corresponding to the active tab on page load, eliminating the need for users to switch tabs back and forth to see the correct information.
+
 ## [1.42.5] - 2025-10-16
 
 ### Fixed
