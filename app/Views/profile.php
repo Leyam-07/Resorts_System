@@ -5,10 +5,10 @@ require_once __DIR__ . '/partials/header.php';
 
 <h2><?= htmlspecialchars($pageTitle) ?></h2>
         <?php if (isset($_GET['status']) && $_GET['status'] === 'updated'): ?>
-            <div class="alert alert-success">Profile updated successfully!</div>
+            <div class="alert alert-success alert-dismissible fade show">Profile updated successfully!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         <?php endif; ?>
         <?php if (isset($_GET['error']) && $_GET['error'] === 'password_mismatch'): ?>
-            <div class="alert alert-danger">Passwords do not match.</div>
+            <div class="alert alert-danger alert-dismissible fade show">Passwords do not match.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         <?php endif; ?>
         <form action="?controller=user&action=profile" method="POST">
             <div style="max-height: 78vh; overflow-y: auto; padding-right: 15px;">

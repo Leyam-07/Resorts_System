@@ -41,7 +41,7 @@
                             }
                         }
                         if (!empty($errorMsg)) {
-                            echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
+                            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">' . $errorMsg . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                         }
                     ?>
                     <!-- Registration Form -->

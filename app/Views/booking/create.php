@@ -54,8 +54,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     </div>
 </div>
         <?php if (isset($_SESSION['error_message'])): ?>
-            <div class="alert alert-danger" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= htmlspecialchars($_SESSION['error_message']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 <?php unset($_SESSION['error_message']); ?>
             </div>
         <?php endif; ?>

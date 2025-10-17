@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.8] - 2025-10-17
+
+### Enhanced
+
+- **Alert Dismissibility:** Added close icons to all alert messages throughout the application using Bootstrap 5 dismissible alert components.
+  - **User Interface Alerts:** Updated 8 user-facing views (`register.php`, `booking/create.php`, `booking/my_reservations.php`, `booking/success.php`, `booking/payment_success.php`, `booking/confirmation.php`, `profile.php`, `login.php`) to include dismissible functionality for success and error messages.
+  - **Admin Interface Verification:** Confirmed existing admin views (`advanced_blocking.php`, `payments/pending.php`, `management/index.php`) already had proper dismissible alerts implemented.
+  - **Consistent Implementation:** All alerts now use the standard Bootstrap 5 structure with `alert-dismissible fade show` classes and `<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`
+  - **Improved User Experience:** Users can now dismiss alert messages across the entire application, providing better control over their interface and reducing visual clutter.
+
 ## [1.42.7] - 2025-10-17
 
 ### Fixed

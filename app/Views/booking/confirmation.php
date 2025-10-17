@@ -11,14 +11,16 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
         
         <?php if (isset($errorMessage)): ?>
-            <div class="alert alert-danger" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= htmlspecialchars($errorMessage) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
         <?php if (isset($successMessage)): ?>
-            <div class="alert alert-success" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?= htmlspecialchars($successMessage) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
@@ -107,12 +109,13 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
 
                         <?php if ($booking->remainingBalance <= 0): ?>
-                            <div class="alert alert-success mb-0">
+                            <div class="alert alert-success alert-dismissible fade show mb-0">
                                 <i class="fas fa-check-circle"></i> <strong>Fully Paid</strong><br>
                                 This booking has been paid in full.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php else: ?>
-                            <div class="alert alert-info mb-0">
+                            <div class="alert alert-info alert-dismissible fade show mb-0">
                                 <i class="fas fa-info-circle"></i> <strong>Payment Required</strong><br>
                                 You can pay the full amount or make a partial payment.
                                 <div class="mt-2">
@@ -120,6 +123,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <i class="fas fa-arrow-right"></i> Proceed to Submit Payment
                                     </a>
                                 </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php endif; ?>
                     </div>

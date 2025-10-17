@@ -44,8 +44,9 @@ require_once __DIR__ . '/../partials/header.php';
 
         <!-- Success Message -->
         <?php if (isset($_SESSION['success_message'])): ?>
-            <div class="alert alert-success" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-info-circle"></i> <?= htmlspecialchars($_SESSION['success_message']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 <?php unset($_SESSION['success_message']); ?>
             </div>
         <?php endif; ?>
@@ -193,15 +194,17 @@ require_once __DIR__ . '/../partials/header.php';
 
         <!-- Payment Status Alert -->
         <?php if ($booking->remainingBalance > 0): ?>
-            <div class="alert alert-warning">
+            <div class="alert alert-warning alert-dismissible fade show">
                 <h6><i class="fas fa-exclamation-triangle"></i> Partial Payment Received</h6>
                 <p class="mb-2">You still have a remaining balance of <strong>₱<?= number_format($booking->remainingBalance, 2) ?></strong>.</p>
                 <p class="mb-0">You can make additional payments anytime before your booking date.</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php else: ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible fade show">
                 <h6><i class="fas fa-check-circle"></i> Full Payment Complete!</h6>
                 <p class="mb-0">Your booking has been paid in full. Once verified, your booking will be confirmed.</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 

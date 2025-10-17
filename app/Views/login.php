@@ -18,13 +18,13 @@
                     <hr>
                     <?php
                         if (isset($_GET['error']) && $_GET['error'] == 'invalid_credentials') {
-                            echo '<div class="alert alert-danger" role="alert">Invalid username or password.</div>';
+                            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">Invalid username or password.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                         }
                         if (isset($_GET['registration']) && $_GET['registration'] == 'success') {
-                            echo '<div class="alert alert-success" role="alert">Registration successful! You can now log in.</div>';
+                            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Registration successful! You can now log in.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                         }
                         if (isset($_GET['logout']) && $_GET['logout'] == 'success') {
-                            echo '<div class="alert alert-success" role="alert">You have been logged out successfully.</div>';
+                            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">You have been logged out successfully.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                         }
                     ?>
                     <!-- Login Form -->
