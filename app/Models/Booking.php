@@ -59,29 +59,13 @@ class Booking {
     /**
      * Create a new resort-centric booking with multiple facilities
      */
-    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $facilityIds = []) {
+    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $totalAmount, $facilityIds = []) {
         $db = self::getDB();
         
         // Start transaction
         $db->beginTransaction();
         
         try {
-            // Calculate total price
-            $basePrice = ResortTimeframePricing::calculatePrice($resortId, $timeSlotType, $bookingDate);
-            $facilityPrice = 0;
-            
-            if (!empty($facilityIds)) {
-                require_once __DIR__ . '/Facility.php';
-                foreach ($facilityIds as $facilityId) {
-                    $facility = Facility::findById($facilityId);
-                    if ($facility) {
-                        $facilityPrice += $facility->rate;
-                    }
-                }
-            }
-            
-            $totalAmount = $basePrice + $facilityPrice;
-            
             // Create booking record
             $booking = new Booking();
             $booking->customerId = $customerId;

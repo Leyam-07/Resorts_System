@@ -69,7 +69,7 @@ class BookingController {
 
         // 5. Create resort-centric booking with Phase 6 enhancements
         $totalAmount = Booking::calculateBookingTotal($resortId, $timeSlotType, $bookingDate, $facilityIds);
-        $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $facilityIds);
+        $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $totalAmount, $facilityIds);
 
         if ($bookingId) {
             // Phase 6: Log booking creation in audit trail

@@ -17,6 +17,7 @@ class ValidationHelper {
             'resort_id' => 'required|integer|min:1',
             'booking_date' => 'required|date',
             'timeframe' => 'required|in:12_hours,overnight,24_hours',
+            'facility_ids' => 'array'
         ];
 
         $customMessages = [

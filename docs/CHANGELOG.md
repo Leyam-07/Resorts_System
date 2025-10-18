@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.9] - 2025-10-18
+
+### Fixed
+
+- **Facility Selection on New Bookings:** Resolved a critical bug where selected additional facilities were not being saved with new reservations, and their cost was not included in the total amount.
+  - **Root Cause:** The `ValidationHelper::validateBookingData()` method was missing a validation rule for `facility_ids`. This caused the validation system to strip the facility data from the request before it could be processed by the `BookingController`.
+  - **Solution:** Added the `'facility_ids' => 'array'` rule to the validation array in `app/Helpers/ValidationHelper.php`, ensuring that the array of selected facilities is correctly processed and saved with the booking.
+
+### Files Updated
+
+- `app/Helpers/ValidationHelper.php`
+
 ## [1.42.8] - 2025-10-17
 
 ### Enhanced

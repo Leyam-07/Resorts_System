@@ -20,12 +20,11 @@ class BookingFacilities {
     public static function create(BookingFacilities $bookingFacility) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO BookingFacilities (BookingID, FacilityID, FacilityPrice)
-             VALUES (:bookingId, :facilityId, :facilityPrice)"
+            "INSERT INTO BookingFacilities (BookingID, FacilityID)
+             VALUES (:bookingId, :facilityId)"
         );
         $stmt->bindValue(':bookingId', $bookingFacility->bookingId, PDO::PARAM_INT);
         $stmt->bindValue(':facilityId', $bookingFacility->facilityId, PDO::PARAM_INT);
-        $stmt->bindValue(':facilityPrice', $bookingFacility->facilityPrice, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return $db->lastInsertId();
@@ -70,22 +69,11 @@ class BookingFacilities {
 
         $db = self::getDB();
         
-        // First, get the current prices for all facilities
-        $facilityPrices = [];
+        // Insert each facility
         foreach ($facilityIds as $facilityId) {
-            require_once __DIR__ . '/Facility.php';
-            $facility = Facility::findById($facilityId);
-            if ($facility) {
-                $facilityPrices[$facilityId] = $facility->rate;
-            }
-        }
-
-        // Insert each facility with its current price
-        foreach ($facilityPrices as $facilityId => $price) {
             $bookingFacility = new BookingFacilities();
             $bookingFacility->bookingId = $bookingId;
             $bookingFacility->facilityId = $facilityId;
-            $bookingFacility->facilityPrice = $price;
             
             if (!self::create($bookingFacility)) {
                 return false; // Failed to add facility
@@ -100,7 +88,7 @@ class BookingFacilities {
      */
     public static function calculateTotalFacilityCost($bookingId) {
         $db = self::getDB();
-        $stmt = $db->prepare("SELECT SUM(FacilityPrice) as TotalCost FROM BookingFacilities WHERE BookingID = :bookingId");
+        $stmt = $db->prepare("SELECT SUM(f.Rate) as TotalCost FROM BookingFacilities bf JOIN Facilities f ON bf.FacilityID = f.FacilityID WHERE bf.BookingID = :bookingId");
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
