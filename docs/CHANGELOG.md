@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.0] - 2025-10-18
+
+### Enhanced
+
+- **Payment Modal Clarity:** Improved the "Submit Payment" modal on the "My Bookings" and "My Reservations" pages by including a list of selected facilities in the "Booking Summary" section.
+  - **Facility Display:** The modal now clearly lists all facilities included in the booking, providing customers with a complete summary before they submit payment.
+  - **Consistent Styling:** The facility badge styling in the modal now matches the rest of the application, with "Resort access only" appearing with a secondary background for better visual consistency.
+
+### Files Updated
+
+- `app/Views/booking/my_bookings.php`
+- `app/Views/booking/my_reservations.php`
+
 ## [1.42.9] - 2025-10-18
 
 ### Fixed

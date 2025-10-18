@@ -112,7 +112,8 @@ require_once __DIR__ . '/../partials/header.php';
                                                 data-booking-date="<?= htmlspecialchars(date('F j, Y', strtotime($booking->BookingDate))) ?>"
                                                 data-total-amount="<?= htmlspecialchars($booking->TotalAmount) ?>"
                                                 data-remaining-balance="<?= htmlspecialchars($booking->RemainingBalance) ?>"
-                                                data-resort-name="<?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?>">
+                                                data-resort-name="<?= htmlspecialchars($booking->ResortName ?? 'Unknown Resort') ?>"
+                                                data-facility-names="<?= htmlspecialchars($booking->FacilityNames ?? 'Resort access only') ?>">
                                             <i class="fas fa-credit-card"></i>
                                             <?php if ($booking->RemainingBalance < $booking->TotalAmount): ?>
                                                 Complete Payment
@@ -216,6 +217,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <h6 class="text-muted">Booking Details</h6>
                                 <p><strong>Date:</strong> <span id="paymentBookingDate"></span></p>
                                 <p><strong>Status:</strong> <span class="badge bg-warning text-dark">Pending</span></p>
+                                <p><strong>Facilities:</strong> <span id="paymentFacilityNames" class="badge bg-info text-dark"></span></p>
                             </div>
                             <div class="col-md-6">
                                 <h6 class="text-muted">Payment Information</h6>
@@ -446,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var totalAmount = parseFloat(button.getAttribute('data-total-amount'));
         var remainingBalance = parseFloat(button.getAttribute('data-remaining-balance'));
         var resortName = button.getAttribute('data-resort-name');
+        var facilityNames = button.getAttribute('data-facility-names');
 
         // Populate modal data
         document.getElementById('paymentBookingId').value = bookingId;
@@ -453,6 +456,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('paymentTotalAmount').textContent = '₱' + totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         document.getElementById('paymentRemainingBalance').textContent = '₱' + remainingBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         document.getElementById('paymentResortName').textContent = resortName;
+
+        // Handle facility names display and styling
+        var facilityBadge = document.getElementById('paymentFacilityNames');
+        facilityBadge.textContent = facilityNames;
+        facilityBadge.classList.remove('bg-info', 'text-dark', 'bg-secondary'); // Reset classes
+
+        if (facilityNames === 'Resort access only') {
+            facilityBadge.classList.add('bg-secondary');
+        } else {
+            facilityBadge.classList.add('bg-info', 'text-dark');
+        }
 
         // Set input constraints
         var amountInput = document.getElementById('modalAmountPaid');
