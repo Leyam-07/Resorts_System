@@ -195,7 +195,7 @@ class Booking {
                 LEFT JOIN Users u ON b.CustomerID = u.UserID
                 LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
                 LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
-                WHERE b.BookingDate = :today";
+                WHERE b.BookingDate = :today AND b.Status IN ('Confirmed', 'Pending')";
 
         if ($resortId) {
             $sql .= " AND b.ResortID = :resortId";

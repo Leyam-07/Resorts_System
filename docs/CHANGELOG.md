@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.1] - 2025-10-18
+
+### Fixed
+
+- **Staff Dashboard Display:** Resolved a critical bug where "Today's Bookings" and "Upcoming Bookings" on the Staff Dashboard were not displaying correctly, showing as empty even when bookings existed.
+  - **Data Fetching:** Corrected the database query in `app/Models/Booking.php` to properly filter today's bookings by 'Confirmed' and 'Pending' statuses, ensuring relevant bookings are shown.
+  - **Display Logic:** Fixed the view in to use the correct data properties for displaying time slots (`TimeSlotType`) and facility names (`FacilityNames`), resolving incorrect data rendering.
+
+### Enhanced
+
+- **Staff Dashboard UI/UX:** Significantly improved the styling and consistency of the Staff Dashboard based on user feedback and alignment with existing application styles.
+  - **Consistent Styling:** Aligned the table layout, status badge colors, and facility display with the `my_bookings.php` view for a more professional and consistent user experience.
+  - **Improved Readability:** Centered the "Status" column and implemented appropriate badges for facilities (`bg-info`) and booking statuses (`bg-success`, `bg-warning`), making the interface more intuitive.
+
+### Files Updated
+
+- `app/Models/Booking.php`
+- `app/Views/admin/staff_dashboard.php`
+
 ## [1.43.0] - 2025-10-18
 
 ### Enhanced

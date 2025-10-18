@@ -40,22 +40,44 @@ require_once __DIR__ . '/../partials/header.php';
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
-                        <thead class="table-info">
+                        <thead>
                             <tr>
                                 <th>Time</th>
                                 <th>Customer</th>
-                                <th>Facility</th>
-                                <th>Status</th>
+                                <th>Facilities</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($todaysBookings as $booking): ?>
+                                <?php
+                                $statusColors = [
+                                    'Pending' => 'bg-warning text-dark',
+                                    'Confirmed' => 'bg-success',
+                                    'Cancelled' => 'bg-danger',
+                                    'Completed' => 'bg-primary'
+                                ];
+                                $statusClass = $statusColors[$booking->Status] ?? 'bg-secondary';
+
+                                $timeSlotDisplay = [
+                                    '12_hours' => '12 Hours (7:00 AM - 5:00 PM)',
+                                    'overnight' => 'Overnight (7:00 PM - 5:00 AM)',
+                                    '24_hours' => '24 Hours (7:00 AM - 5:00 AM)'
+                                ];
+                                $timeDisplay = $timeSlotDisplay[$booking->TimeSlotType] ?? 'N/A';
+                                ?>
                                 <tr>
-                                    <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
+                                    <td><?= htmlspecialchars($timeDisplay) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
-                                    <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                                     <td>
-                                        <span class="badge bg-success">
+                                        <?php if (!empty($booking->FacilityNames)): ?>
+                                            <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">Resort access only</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge <?= $statusClass ?>">
                                             <?= htmlspecialchars($booking->Status) ?>
                                         </span>
                                     </td>
@@ -73,24 +95,46 @@ require_once __DIR__ . '/../partials/header.php';
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
-                        <thead class="table-info">
+                        <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Customer</th>
-                                <th>Facility</th>
-                                <th>Status</th>
+                                <th>Facilities</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($upcomingBookings as $booking): ?>
+                                <?php
+                                $statusColors = [
+                                    'Pending' => 'bg-warning text-dark',
+                                    'Confirmed' => 'bg-success',
+                                    'Cancelled' => 'bg-danger',
+                                    'Completed' => 'bg-primary'
+                                ];
+                                $statusClass = $statusColors[$booking->Status] ?? 'bg-secondary';
+
+                                $timeSlotDisplay = [
+                                    '12_hours' => '12 Hours (7:00 AM - 5:00 PM)',
+                                    'overnight' => 'Overnight (7:00 PM - 5:00 AM)',
+                                    '24_hours' => '24 Hours (7:00 AM - 5:00 AM)'
+                                ];
+                                $timeDisplay = $timeSlotDisplay[$booking->TimeSlotType] ?? 'N/A';
+                                ?>
                                 <tr>
                                     <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
-                                    <td><?= htmlspecialchars(date('g:i A', strtotime($booking->StartTime))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking->EndTime))) ?></td>
+                                    <td><?= htmlspecialchars($timeDisplay) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
-                                    <td><?= htmlspecialchars($booking->FacilityName) ?></td>
                                     <td>
-                                        <span class="badge bg-success">
+                                        <?php if (!empty($booking->FacilityNames)): ?>
+                                            <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">Resort access only</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge <?= $statusClass ?>">
                                             <?= htmlspecialchars($booking->Status) ?>
                                         </span>
                                     </td>
