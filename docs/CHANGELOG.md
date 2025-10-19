@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.6] - 2025-10-19
+
+### Enhanced
+
+- **Resort Creation Workflow:** Transformed the "Add Resort" process into a modern, asynchronous workflow. After successfully adding a resort, a confirmation modal now appears, prompting the admin to proceed directly to the pricing management page for the new resort. This replaces the old, disruptive page-reload confirmation.
+- **Consistent Deletion Feedback:** Standardized the feedback mechanism for deleting resorts across all admin interfaces. Deleting a resort from any management page now reliably displays a session-based success or error message, eliminating user confusion.
+
+### Fixed
+
+- **Missing Deletion Feedback:** Resolved a bug where no visual confirmation was shown after deleting a resort from the `resorts/index.php` page. The system now uses consistent session-based alerts for all deletion actions.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Controllers/ResortController.php`
+- `app/Views/admin/resorts/index.php`
+- `app/Views/admin/resorts/resort_modals.php`
+
 ## [1.43.5] - 2025-10-19
 
 ### Fixed

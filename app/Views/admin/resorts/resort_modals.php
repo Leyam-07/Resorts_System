@@ -122,8 +122,65 @@ if (!defined('APP_LOADED')) {
         </div>
     </div>
 </div>
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Resort Created Successfully</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>To make this resort available for booking, the next step is to configure its pricing.</p>
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> Customers will not be able to book this resort until its pricing has been set up.
+                </div>
+                <p>Do you want to proceed to pricing management now?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Later</button>
+                <a id="proceedToPricingBtn" href="#" class="btn btn-primary">Proceed to Pricing</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const addResortForm = document.getElementById('addResortForm');
+    const addResortModal = new bootstrap.Modal(document.getElementById('addResortModal'));
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+
+    addResortForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(addResortForm);
+
+        fetch('?controller=admin&action=storeResort', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addResortModal.hide();
+                const proceedBtn = document.getElementById('proceedToPricingBtn');
+                proceedBtn.href = `?controller=admin&action=pricingManagement&resort_id=${data.resortId}`;
+                successModal.show();
+                
+                // Optional: Reload the page when the success modal is closed to show the new resort in the list
+                document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+                    window.location.reload();
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        });
+    });
+
     const editResortModal = document.getElementById('editResortModal');
     if(editResortModal) {
         editResortModal.addEventListener('show.bs.modal', function (event) {

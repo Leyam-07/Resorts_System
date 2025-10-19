@@ -74,21 +74,25 @@ class ResortController {
     public function destroy() {
         $resortId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         if (!$resortId) {
-            die('Invalid Resort ID.');
+            $_SESSION['error_message'] = "Invalid Resort ID.";
+            header('Location: ?controller=resort&action=index');
+            exit();
         }
 
         // Check for dependent facilities before deleting
         $facilities = Facility::findByResortId($resortId);
         if (!empty($facilities)) {
-            header('Location: ?controller=resort&action=index&error=delete_has_facilities');
+            $_SESSION['error_message'] = "Cannot delete resort. It has associated facilities.";
+            header('Location: ?controller=resort&action=index');
             exit();
         }
 
         if (Resort::delete($resortId)) {
-            header('Location: ?controller=resort&action=index&status=resort_deleted');
+            $_SESSION['success_message'] = "Resort deleted successfully!";
         } else {
-            header('Location: ?controller=resort&action=index&error=delete_failed');
+            $_SESSION['error_message'] = "Failed to delete resort.";
         }
+        header('Location: ?controller=resort&action=index');
         exit();
     }
     

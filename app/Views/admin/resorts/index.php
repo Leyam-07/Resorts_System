@@ -21,14 +21,20 @@ require_once __DIR__ . '/../../partials/header.php';
                     </button>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($_GET['status']) && $_GET['status'] == 'resort_added'): ?>
-                        <div class="alert alert-success">Resort added successfully!</div>
-                    <?php elseif (isset($_GET['status']) && $_GET['status'] == 'resort_updated'): ?>
-                        <div class="alert alert-success">Resort updated successfully!</div>
-                    <?php elseif (isset($_GET['status']) && $_GET['status'] == 'resort_deleted'): ?>
-                        <div class="alert alert-success">Resort deleted successfully!</div>
-                    <?php elseif (isset($_GET['error']) && $_GET['error'] == 'delete_has_facilities'): ?>
-                        <div class="alert alert-danger">Cannot delete resort. It has associated facilities.</div>
+                    <?php if (isset($_SESSION['success_message'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?= htmlspecialchars($_SESSION['success_message']) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php unset($_SESSION['success_message']); ?>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['error_message'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?= htmlspecialchars($_SESSION['error_message']) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php unset($_SESSION['error_message']); ?>
                     <?php endif; ?>
 
                     <div class="table-responsive">

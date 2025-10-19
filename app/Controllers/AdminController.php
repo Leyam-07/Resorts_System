@@ -504,11 +504,14 @@ class AdminController {
     // Resort Management Logic (Moved from ResortController)
     public function storeResort() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            header('Content-Type: application/json');
+            $response = ['success' => false];
+
             $validation = ValidationHelper::validateResortData($_POST);
 
             if (!$validation['valid']) {
-                $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
-                header('Location: ?controller=admin&action=management&error=validation_failed');
+                $response['message'] = implode(', ', array_merge(...array_values($validation['errors'])));
+                echo json_encode($response);
                 exit;
             }
 
@@ -525,17 +528,18 @@ class AdminController {
             if ($resortId) {
                 $photoURLs = $this->handlePhotoUpload('photos');
                 if (!empty($photoURLs)) {
-                    // Set the first photo as the main photo
                     Resort::setMainPhoto($resortId, $photoURLs[0]);
-                    // Add all photos to the gallery
                     foreach ($photoURLs as $url) {
                         Resort::addPhoto($resortId, $url);
                     }
                 }
-                header('Location: ?controller=admin&action=management&status=resort_added&active_resort_id=' . $resortId);
+                $response['success'] = true;
+                $response['message'] = 'Resort added successfully!';
+                $response['resortId'] = $resortId;
             } else {
-                header('Location: ?controller=admin&action=management&error=add_failed');
+                $response['message'] = 'Failed to add resort.';
             }
+            echo json_encode($response);
             exit();
         }
     }
@@ -583,21 +587,27 @@ class AdminController {
     public function destroyResort() {
         $resortId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         if (!$resortId) {
-            die('Invalid Resort ID.');
+            $_SESSION['error_message'] = "Invalid Resort ID provided.";
+            header('Location: ?controller=admin&action=management');
+            exit();
         }
 
         // Check for dependent facilities before deleting
         $facilities = Facility::findByResortId($resortId);
         if (!empty($facilities)) {
-            header('Location: ?controller=admin&action=management&error=delete_has_facilities&active_resort_id=' . $resortId);
+            $_SESSION['error_message'] = "Cannot delete resort. It has associated facilities.";
+            header('Location: ?controller=admin&action=management&active_resort_id=' . $resortId);
             exit();
         }
 
         if (Resort::delete($resortId)) {
-            header('Location: ?controller=admin&action=management&status=resort_deleted');
+            $_SESSION['success_message'] = "Resort deleted successfully.";
         } else {
-            header('Location: ?controller=admin&action=management&error=delete_failed');
+            $_SESSION['error_message'] = "Failed to delete resort.";
         }
+        
+        // Redirect back to the main management page, which will now show the session message
+        header('Location: ?controller=admin&action=management');
         exit();
     }
 
