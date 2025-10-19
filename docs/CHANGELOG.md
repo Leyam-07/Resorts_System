@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.7] - 2025-10-19
+
+### Enhanced
+
+- **Admin UI/UX:** Improved the visual organization of the "Manage Resorts" page by color-coding the action buttons. "Pricing Management" is now green, "Advanced Blocking" is yellow, "Edit Resort" is blue, and "Add Facility" is teal, making the interface more intuitive.
+
+### Changed
+
+- The "Add New Resort" button color was changed to teal to match the "Add Facility" button for consistency.
+
+### Files Updated
+
+- `app/Views/admin/management/index.php`
+
 ## [1.43.6] - 2025-10-19
 
 ### Enhanced

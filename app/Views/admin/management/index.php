@@ -26,7 +26,7 @@ require_once __DIR__ . '/../../partials/header.php';
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage Resort</h3>
-                    <button class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addResortModal">
+                                         <button class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addResortModal">
                         <i class="fas fa-plus"></i> Add New Resort
                     </button>
                 </div>
@@ -55,12 +55,14 @@ require_once __DIR__ . '/../../partials/header.php';
                                 <div id="collapse<?= $resortData['resort']->resortId ?>" class="accordion-collapse collapse <?= $isExpanded ? 'show' : '' ?>" aria-labelledby="heading<?= $resortData['resort']->resortId ?>" data-bs-parent="#resortsAccordion">
                                     <div class="accordion-body">
                                         <div class="d-flex justify-content-end mb-3">
-                                            <button class="btn btn-warning btn-sm edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
+                                            <a href="?controller=admin&action=pricingManagement&resort_id=<?= $resortData['resort']->resortId ?>" class="btn btn-success btn-sm">Pricing Management</a>
+                                            <a href="?controller=admin&action=advancedBlocking&resort_id=<?= $resortData['resort']->resortId ?>" class="btn btn-warning btn-sm ms-2">Advanced Blocking</a>
+                                            <button class="btn btn-info btn-sm ms-2 edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
                                             <button class="btn btn-danger btn-sm ms-2 delete-resort-btn" data-bs-toggle="modal" data-bs-target="#deleteResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Delete Resort</button>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <h5 class="mb-0">Facilities</h5>
-                                            <button class="btn btn-success btn-sm add-facility-btn" data-bs-toggle="modal" data-bs-target="#addFacilityModal" data-resort-id="<?= $resortData['resort']->resortId ?>">
+                                            <button class="btn btn-primary btn-sm add-facility-btn" data-bs-toggle="modal" data-bs-target="#addFacilityModal" data-resort-id="<?= $resortData['resort']->resortId ?>">
                                                 <i class="fas fa-plus"></i> Add Facility
                                             </button>
                                         </div>
@@ -85,8 +87,8 @@ require_once __DIR__ . '/../../partials/header.php';
                                                             <td><?= htmlspecialchars($facility->name) ?></td>
                                                             <td>₱<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
-                                                                <button class="btn btn-outline-primary btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>
-                                                                <button class="btn btn-outline-danger btn-sm delete-facility-btn" data-bs-toggle="modal" data-bs-target="#deleteFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Delete</button>
+                                                                <button class="btn btn-info btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>
+                                                                <button class="btn btn-danger btn-sm delete-facility-btn" data-bs-toggle="modal" data-bs-target="#deleteFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Delete</button>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
