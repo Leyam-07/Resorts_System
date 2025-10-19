@@ -45,6 +45,15 @@ class BookingFacilities {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public static function findByFacilityId($facilityId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT * FROM BookingFacilities WHERE FacilityID = :facilityId"
+        );
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
     public static function deleteByBookingId($bookingId) {
         $db = self::getDB();
         $stmt = $db->prepare("DELETE FROM BookingFacilities WHERE BookingID = :bookingId");

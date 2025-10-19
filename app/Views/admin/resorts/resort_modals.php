@@ -111,7 +111,9 @@ if (!defined('APP_LOADED')) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this resort? This action cannot be undone and may fail if facilities are associated with it.</p>
+                Are you sure you want to delete this resort? This action cannot be undone.
+                <br><br>
+                <strong class="text-danger">Note:</strong> This will fail if the resort has any associated facilities.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

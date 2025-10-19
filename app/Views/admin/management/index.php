@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../partials/header.php';
     <!-- Message Alerts -->
     <?php if (isset($_SESSION['success_message'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['success_message']) ?>
+            <?= htmlspecialchars($_SESSION['success_message']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php unset($_SESSION['success_message']); ?>
@@ -15,7 +15,7 @@ require_once __DIR__ . '/../../partials/header.php';
 
     <?php if (isset($_SESSION['error_message'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['error_message']) ?>
+            <?= htmlspecialchars($_SESSION['error_message']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php unset($_SESSION['error_message']); ?>
@@ -82,7 +82,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                                             <td>₱<?= htmlspecialchars(number_format($facility->rate, 2)) ?></td>
                                                             <td>
                                                                 <button class="btn btn-outline-primary btn-sm edit-facility-btn" data-bs-toggle="modal" data-bs-target="#editFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Edit</button>
-                                                                <button class="btn btn-outline-danger btn-sm">Delete</button>
+                                                                <button class="btn btn-outline-danger btn-sm delete-facility-btn" data-bs-toggle="modal" data-bs-target="#deleteFacilityModal" data-facility-id="<?= $facility->facilityId ?>">Delete</button>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -116,6 +116,17 @@ require_once __DIR__ . '/edit_facility_modal.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Delete Facility Modal Handler
+    var deleteFacilityModal = document.getElementById('deleteFacilityModal');
+    if(deleteFacilityModal) {
+        deleteFacilityModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var facilityId = button.getAttribute('data-facility-id');
+            var confirmBtn = document.getElementById('confirmDeleteFacilityBtn');
+            confirmBtn.href = '?controller=admin&action=deleteFacility&id=' + facilityId;
+        });
+    }
 
     // Edit Resort Modal Handler
     var editResortModal = document.getElementById('editResortModal');

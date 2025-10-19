@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.3] - 2025-10-19
+
+### Fixed
+
+- **Facility Deletion Functionality:** Resolved a critical bug where the "Delete" button for resort facilities on the admin management page was non-functional.
+- **Fatal Error on Deletion:** Fixed a `Call to undefined method BookingFacilities::findByFacilityId()` error that occurred during facility deletion by implementing the missing dependency-checking method in the `BookingFacilities` model.
+
+### Enhanced
+
+- **Data Integrity:** Implemented a dependency check in the `AdminController` to prevent the deletion of facilities that are associated with existing bookings, ensuring data integrity.
+- **UI/UX Consistency:** Standardized all user-facing feedback messages (e.g., "Facility added," "Resort deleted") for resort and facility management actions. The UI now provides a consistent, clean appearance by removing icons and standardizing the text.
+- **Modal Consistency:** The "Delete Resort" modal was updated to match the style of the "Delete Facility" modal, now including a consistent warning note about dependencies.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/management/index.php`
+- `app/Views/admin/management/facility_modals.php`
+- `app/Models/BookingFacilities.php`
+- `app/Views/admin/resorts/resort_modals.php`
+
 ## [1.43.2] - 2025-10-19
 
 ### Removed

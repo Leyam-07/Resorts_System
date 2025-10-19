@@ -315,9 +315,11 @@ class AdminController {
                         Facility::addPhoto($facilityId, $url);
                     }
                 }
-                header('Location: ?controller=admin&action=management&status=facility_added');
+                $_SESSION['success_message'] = "Facility added successfully.";
+                header('Location: ?controller=admin&action=management');
             } else {
-                header('Location: ?controller=admin&action=management&error=add_failed');
+                $_SESSION['error_message'] = "Failed to add facility.";
+                header('Location: ?controller=admin&action=management');
             }
             exit();
         }
@@ -354,9 +356,11 @@ class AdminController {
             }
 
             if (Facility::update($facility)) {
-                header('Location: ?controller=admin&action=management&status=facility_updated');
+                $_SESSION['success_message'] = "Facility updated successfully.";
+                header('Location: ?controller=admin&action=management');
             } else {
-                header('Location: ?controller=admin&action=management&error=update_failed');
+                $_SESSION['error_message'] = "Failed to update facility.";
+                header('Location: ?controller=admin&action=management');
             }
             exit();
         }
@@ -383,16 +387,27 @@ class AdminController {
     
     public function deleteFacility() {
         if (!isset($_GET['id'])) {
-            die('Facility ID not specified.');
+            $_SESSION['error_message'] = "Facility ID not specified.";
+            header('Location: ?controller=admin&action=management');
+            exit();
         }
-        $facilityId = $_GET['id'];
+        $facilityId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+        // Check for dependencies: existing bookings
+        $bookings = BookingFacilities::findByFacilityId($facilityId);
+        if (!empty($bookings)) {
+            $_SESSION['error_message'] = "Cannot delete facility. It is associated with one or more bookings.";
+            header('Location: ?controller=admin&action=management');
+            exit();
+        }
 
         if (Facility::delete($facilityId)) {
-            header('Location: ?controller=admin&action=facilities&status=facility_deleted');
-            exit();
+            $_SESSION['success_message'] = "Facility deleted successfully.";
         } else {
-            die('Failed to delete facility.');
+            $_SESSION['error_message'] = "Failed to delete facility.";
         }
+        header('Location: ?controller=admin&action=management');
+        exit();
     }
    public function uploadPhoto() {
        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_GET['id'])) {
