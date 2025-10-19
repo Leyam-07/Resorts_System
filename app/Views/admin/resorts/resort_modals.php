@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     photosHtml += `
                                         <div class="col-md-4 mb-3">
                                             <div class="card">
-                                                <img src="${photo.PhotoURL}" class="card-img-top" alt="Resort Photo">
+                                                <img src="${window.BASE_URL}/${photo.PhotoURL}" class="card-img-top" alt="Resort Photo">
                                                 <div class="card-body text-center">
                                                     <a href="?controller=admin&action=deleteResortPhoto&photo_id=${photo.PhotoID}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                                                     ${photo.PhotoURL !== data.mainPhotoURL ? `<a href="?controller=admin&action=setMainResortPhoto&resort_id=${data.resortId}&photo_id=${photo.PhotoID}" class="btn btn-sm btn-secondary">Set as Main</a>` : '<span class="badge bg-success">Main Photo</span>'}

@@ -26,6 +26,9 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
             padding: 0.3em 0.6em;
         }
     </style>
+    <script>
+        window.BASE_URL = '<?= BASE_URL ?>';
+    </script>
 </head>
 <body>
 

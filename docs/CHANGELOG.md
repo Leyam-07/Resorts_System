@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.8] - 2025-10-19
+
+### Fixed
+
+- **Resort Image Display:** Resolved a critical bug where resort images in the "Edit Resort" modal were not displaying correctly. The issue was caused by using relative image paths on the client-side without a proper base URL. The fix ensures all image paths are absolute, guaranteeing they load correctly regardless of the page URL or server port.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+- `app/Views/admin/resorts/resort_modals.php`
+
 ## [1.43.7] - 2025-10-19
 
 ### Enhanced
