@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="?controller=admin&action=editFacility" method="POST" id="editFacilityForm">
+                <form action="?controller=admin&action=editFacility" method="POST" id="editFacilityForm" enctype="multipart/form-data">
                     <input type="hidden" id="editFacilityId" name="facilityId">
                     <div class="mb-3">
                         <label for="editFacilityName" class="form-label">Facility Name</label>

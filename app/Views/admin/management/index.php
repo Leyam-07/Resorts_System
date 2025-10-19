@@ -41,14 +41,18 @@ require_once __DIR__ . '/../../partials/header.php';
                         </div>
                     <?php else: ?>
                     <div class="accordion" id="resortsAccordion">
-                        <?php foreach ($resortsWithFacilities as $index => $resortData): ?>
+                        <?php
+                        $activeResortId = $_GET['active_resort_id'] ?? ($resortsWithFacilities[0]['resort']->resortId ?? null);
+                        foreach ($resortsWithFacilities as $index => $resortData):
+                            $isExpanded = $resortData['resort']->resortId == $activeResortId;
+                        ?>
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="heading<?= $resortData['resort']->resortId ?>">
-                                    <button class="accordion-button <?= $index > 0 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $resortData['resort']->resortId ?>" aria-expanded="<?= $index === 0 ? 'true' : 'false' ?>" aria-controls="collapse<?= $resortData['resort']->resortId ?>">
+                                    <button class="accordion-button <?= !$isExpanded ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $resortData['resort']->resortId ?>" aria-expanded="<?= $isExpanded ? 'true' : 'false' ?>" aria-controls="collapse<?= $resortData['resort']->resortId ?>">
                                         <strong><?= htmlspecialchars($resortData['resort']->name) ?></strong>
                                     </button>
                                 </h2>
-                                <div id="collapse<?= $resortData['resort']->resortId ?>" class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" aria-labelledby="heading<?= $resortData['resort']->resortId ?>" data-bs-parent="#resortsAccordion">
+                                <div id="collapse<?= $resortData['resort']->resortId ?>" class="accordion-collapse collapse <?= $isExpanded ? 'show' : '' ?>" aria-labelledby="heading<?= $resortData['resort']->resortId ?>" data-bs-parent="#resortsAccordion">
                                     <div class="accordion-body">
                                         <div class="d-flex justify-content-end mb-3">
                                             <button class="btn btn-warning btn-sm edit-resort-btn" data-bs-toggle="modal" data-bs-target="#editResortModal" data-resort-id="<?= $resortData['resort']->resortId ?>">Edit Resort</button>
@@ -224,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('editFacilityId').value = data.facilityId;
                     document.getElementById('editFacilityName').value = data.name;
                     document.getElementById('editFacilityRate').value = data.rate;
+                    document.getElementById('editFacilityResortId').value = data.resortId;
                     document.getElementById('editFacilityShortDescription').value = data.shortDescription || '';
                     document.getElementById('editFacilityFullDescription').value = data.fullDescription || '';
 

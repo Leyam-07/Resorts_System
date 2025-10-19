@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.5] - 2025-10-19
+
+### Fixed
+
+- **Accordion State Persistence:** Resolved a user experience issue on the "Manage Resorts" page where the accordion would always default to the first resort after any modification. The system now correctly remembers and reopens the last active accordion item after a page reload.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/management/index.php`
+- `app/Views/admin/management/edit_facility_modal.php`
+
 ## [1.43.4] - 2025-10-19
 
 ### Fixed

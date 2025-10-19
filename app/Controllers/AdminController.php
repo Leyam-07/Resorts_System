@@ -316,10 +316,10 @@ class AdminController {
                     }
                 }
                 $_SESSION['success_message'] = "Facility added successfully.";
-                header('Location: ?controller=admin&action=management');
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $validatedData['resort_id']);
             } else {
                 $_SESSION['error_message'] = "Failed to add facility.";
-                header('Location: ?controller=admin&action=management');
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $validatedData['resort_id']);
             }
             exit();
         }
@@ -355,12 +355,13 @@ class AdminController {
                 }
             }
 
+            $facility_data = Facility::findById($facilityId);
             if (Facility::update($facility)) {
                 $_SESSION['success_message'] = "Facility updated successfully.";
-                header('Location: ?controller=admin&action=management');
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
             } else {
                 $_SESSION['error_message'] = "Failed to update facility.";
-                header('Location: ?controller=admin&action=management');
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
             }
             exit();
         }
@@ -393,11 +394,12 @@ class AdminController {
         }
         $facilityId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
+        $facility_data = Facility::findById($facilityId);
         // Check for dependencies: existing bookings
         $bookings = BookingFacilities::findByFacilityId($facilityId);
         if (!empty($bookings)) {
             $_SESSION['error_message'] = "Cannot delete facility. It is associated with one or more bookings.";
-            header('Location: ?controller=admin&action=management');
+            header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
             exit();
         }
 
@@ -406,7 +408,7 @@ class AdminController {
         } else {
             $_SESSION['error_message'] = "Failed to delete facility.";
         }
-        header('Location: ?controller=admin&action=management');
+        header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
         exit();
     }
    public function uploadPhoto() {
@@ -530,7 +532,7 @@ class AdminController {
                         Resort::addPhoto($resortId, $url);
                     }
                 }
-                header('Location: ?controller=admin&action=management&status=resort_added');
+                header('Location: ?controller=admin&action=management&status=resort_added&active_resort_id=' . $resortId);
             } else {
                 header('Location: ?controller=admin&action=management&error=add_failed');
             }
@@ -570,9 +572,9 @@ class AdminController {
             }
             
             if (Resort::update($resort)) {
-                header('Location: ?controller=admin&action=management&status=resort_updated');
+                header('Location: ?controller=admin&action=management&status=resort_updated&active_resort_id=' . $resortId);
             } else {
-                header('Location: ?controller=admin&action=management&error=update_failed');
+                header('Location: ?controller=admin&action=management&error=update_failed&active_resort_id=' . $resortId);
             }
             exit();
         }
@@ -587,7 +589,7 @@ class AdminController {
         // Check for dependent facilities before deleting
         $facilities = Facility::findByResortId($resortId);
         if (!empty($facilities)) {
-            header('Location: ?controller=admin&action=management&error=delete_has_facilities');
+            header('Location: ?controller=admin&action=management&error=delete_has_facilities&active_resort_id=' . $resortId);
             exit();
         }
 
