@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.4] - 2025-10-19
+
+### Fixed
+
+- **Application Error Page:** Resolved a critical issue where the error page (`public/error.php`) displayed a blank white screen instead of a proper error message. The `BASE_URL` constant was not defined, causing a fatal PHP error and preventing the stylesheet from loading. The file is now self-sufficient and renders correctly.
+
+### Files Updated
+
+- `public/error.php`
+
 ## [1.43.3] - 2025-10-19
 
 ### Fixed
