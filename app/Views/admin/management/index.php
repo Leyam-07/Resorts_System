@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('editFacilityId').value = data.facilityId;
                     document.getElementById('editFacilityName').value = data.name;
                     document.getElementById('editFacilityRate').value = data.rate;
-                    document.getElementById('editFacilityResortId').value = data.resortId;
+                    document.getElementById('editFacilityResortId').value = data.resortId; // Ensure this hidden field is populated
                     document.getElementById('editFacilityShortDescription').value = data.shortDescription || '';
                     document.getElementById('editFacilityFullDescription').value = data.fullDescription || '';
 

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.9] - 2025-10-19
+
+### Fixed
+
+- **Facility Edit Modal Data Loss:** Resolved a critical issue in the "Edit Facility" modal where description fields were blank and images were not displayed.
+  - **Root Cause:** A combination of incorrect form field `name` attributes (`description` instead of `full_description`), a missing `resort_id` for context, and incomplete data population via JavaScript.
+  - **Solution:** Corrected form field names, added the required hidden `resort_id` field, and updated both the controller and JavaScript to ensure all facility data is correctly fetched, displayed, and saved.
+
+### Changed
+
+- The `editFacility` method in `AdminController.php` was hardened to ensure a `resort_id` is always available for redirection after updates.
+- The JavaScript in `app/Views/admin/management/index.php` was updated to populate all form fields in the edit modal, including the descriptions and hidden `resort_id`.
+- Form `name` attributes in `app/Views/admin/management/edit_facility_modal.php` were corrected to align with the database schema.
+
+### Files Updated
+
+- `app/Views/admin/management/edit_facility_modal.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/management/index.php`
+
 ## [1.43.8] - 2025-10-19
 
 ### Fixed

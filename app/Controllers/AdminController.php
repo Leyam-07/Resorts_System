@@ -355,13 +355,15 @@ class AdminController {
                 }
             }
 
-            $facility_data = Facility::findById($facilityId);
+            // Always retrieve resortId for the redirect, whether from the form or the database
+            $resortId = $validatedData['resort_id'] ?? Facility::findById($facilityId)->resortId;
+
             if (Facility::update($facility)) {
                 $_SESSION['success_message'] = "Facility updated successfully.";
-                header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $resortId);
             } else {
                 $_SESSION['error_message'] = "Failed to update facility.";
-                header('Location: ?controller=admin&action=management&active_resort_id=' . $facility_data->resortId);
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $resortId);
             }
             exit();
         }
