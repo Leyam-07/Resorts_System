@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.2] - 2025-10-19
+
+### Removed
+
+- **Deprecated Resort Capacity Feature:** Completely removed the resort-level capacity field from the system as per client requirements. This includes:
+  - **Database Schema:** Dropped the `Capacity` column from the `Resorts` table via migration script `scripts/migrations/remove_capacity_from_resorts.php`.
+  - **Admin UI:** Removed capacity input fields from both "Add Resort" and "Edit Resort" modals in `app/Views/admin/resorts/resort_modals.php`.
+  - **Customer UI:** Eliminated capacity display from resort details modal in `app/Views/partials/footer.php`.
+  - **Code Cleanup:** Purged all capacity-related logic from models, controllers, and views to fully deprecate the feature.
+  - **Scripts:** Deleted deprecated script `scripts/check_resort_capacity.php`.
+  - **Impact:** System now operates without enforcing resort capacity limits, allowing operators to manage usage through operational practices rather than technical restrictions.
+
+### Files Updated
+
+- `docs/Database-Schema.md` - Updated schema to remove Capacity column
+- `app/Views/admin/resorts/resort_modals.php` - Removed capacity fields
+- `app/Views/partials/footer.php` - Removed capacity display
+- `scripts/check_resort_capacity.php` - Deleted deprecated script
+
 ## [1.43.1] - 2025-10-18
 
 ### Fixed

@@ -256,7 +256,6 @@ class ValidationHelper {
         $rules = [
             'name' => 'required|sanitize|min:2|max:100',
             'address' => 'required|sanitize|min:5|max:255',
-            'capacity' => 'required|integer|min:1|max:1000',
             'contactPerson' => 'required|sanitize|min:2|max:100',
             'shortDescription' => 'sanitize|max:255',
             'fullDescription' => 'sanitize|max:5000'
@@ -269,10 +268,6 @@ class ValidationHelper {
             'address.required' => 'Address is required',
             'address.min' => 'Address must be at least 5 characters',
             'address.max' => 'Address cannot exceed 255 characters',
-            'capacity.required' => 'Capacity is required',
-            'capacity.integer' => 'Capacity must be a whole number',
-            'capacity.min' => 'Capacity must be at least 1',
-            'capacity.max' => 'Capacity cannot exceed 1000',
             'contactPerson.required' => 'Contact person is required',
             'shortDescription.max' => 'Short description cannot exceed 255 characters',
             'fullDescription.max' => 'Full description cannot exceed 5000 characters'

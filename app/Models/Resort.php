@@ -7,7 +7,6 @@ class Resort {
     public $contactPerson;
     public $shortDescription;
     public $fullDescription;
-    public $capacity;
     public $mainPhotoURL;
     public $photos = [];
 
@@ -29,17 +28,16 @@ class Resort {
     public static function create(Resort $resort) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Resorts (Name, Address, ContactPerson, ShortDescription, FullDescription, Capacity, MainPhotoURL)
-             VALUES (:name, :address, :contactPerson, :shortDescription, :fullDescription, :capacity, :mainPhotoURL)"
+            "INSERT INTO Resorts (Name, Address, ContactPerson, ShortDescription, FullDescription, MainPhotoURL)
+             VALUES (:name, :address, :contactPerson, :shortDescription, :fullDescription, :mainPhotoURL)"
         );
         $stmt->bindValue(':name', $resort->name, PDO::PARAM_STR);
         $stmt->bindValue(':address', $resort->address, PDO::PARAM_STR);
         $stmt->bindValue(':contactPerson', $resort->contactPerson, PDO::PARAM_STR);
         $stmt->bindValue(':shortDescription', $resort->shortDescription, PDO::PARAM_STR);
         $stmt->bindValue(':fullDescription', $resort->fullDescription, PDO::PARAM_STR);
-        $stmt->bindValue(':capacity', $resort->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':mainPhotoURL', $resort->mainPhotoURL, PDO::PARAM_STR);
-        
+
         if ($stmt->execute()) {
             return $db->lastInsertId();
         }
@@ -61,7 +59,6 @@ class Resort {
             $resort->contactPerson = $data['ContactPerson'];
             $resort->shortDescription = $data['ShortDescription'];
             $resort->fullDescription = $data['FullDescription'];
-            $resort->capacity = $data['Capacity'];
             $resort->mainPhotoURL = $data['MainPhotoURL'];
             $resort->photos = self::getPhotos($id);
             return $resort;
@@ -81,7 +78,6 @@ class Resort {
             $resort->contactPerson = $data['ContactPerson'];
             $resort->shortDescription = $data['ShortDescription'];
             $resort->fullDescription = $data['FullDescription'];
-            $resort->capacity = $data['Capacity'];
             $resort->mainPhotoURL = $data['MainPhotoURL'];
             $resorts[] = $resort;
         }
@@ -136,7 +132,7 @@ class Resort {
         $stmt = $db->prepare(
             "UPDATE Resorts
              SET Name = :name, Address = :address, ContactPerson = :contactPerson,
-                 ShortDescription = :shortDescription, FullDescription = :fullDescription, Capacity = :capacity, MainPhotoURL = :mainPhotoURL
+                 ShortDescription = :shortDescription, FullDescription = :fullDescription, MainPhotoURL = :mainPhotoURL
              WHERE ResortID = :id"
         );
         $stmt->bindValue(':name', $resort->name, PDO::PARAM_STR);
@@ -144,10 +140,9 @@ class Resort {
         $stmt->bindValue(':contactPerson', $resort->contactPerson, PDO::PARAM_STR);
         $stmt->bindValue(':shortDescription', $resort->shortDescription, PDO::PARAM_STR);
         $stmt->bindValue(':fullDescription', $resort->fullDescription, PDO::PARAM_STR);
-        $stmt->bindValue(':capacity', $resort->capacity, PDO::PARAM_INT);
         $stmt->bindValue(':mainPhotoURL', $resort->mainPhotoURL, PDO::PARAM_STR);
         $stmt->bindValue(':id', $resort->resortId, PDO::PARAM_INT);
-        
+
         return $stmt->execute();
     }
 

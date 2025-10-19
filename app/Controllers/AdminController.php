@@ -502,7 +502,6 @@ class AdminController {
             $resort->contactPerson = $validatedData['contactPerson'];
             $resort->shortDescription = $validatedData['shortDescription'];
             $resort->fullDescription = $validatedData['fullDescription'];
-            $resort->capacity = $validatedData['capacity'];
             
             $resortId = Resort::create($resort);
 
@@ -546,7 +545,6 @@ class AdminController {
             $resort->contactPerson = $validatedData['contactPerson'];
             $resort->shortDescription = $validatedData['shortDescription'];
             $resort->fullDescription = $validatedData['fullDescription'];
-            $resort->capacity = $validatedData['capacity'];
             
             // Handle new photo uploads
             $newPhotoURLs = $this->handlePhotoUpload('photos', 'resorts');

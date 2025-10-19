@@ -26,10 +26,6 @@ if (!defined('APP_LOADED')) {
                         <input type="text" class="form-control" id="address" name="address" required>
                     </div>
                     <div class="mb-3">
-                        <label for="capacity" class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="contactPerson" class="form-label">Contact Person</label>
                         <input type="text" class="form-control" id="contactPerson" name="contactPerson" required>
                     </div>
@@ -74,10 +70,6 @@ if (!defined('APP_LOADED')) {
                     <div class="mb-3">
                         <label for="editAddress" class="form-label">Address</label>
                         <input type="text" class="form-control" id="editAddress" name="address" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editCapacity" class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="editCapacity" name="capacity" min="1" required>
                     </div>
                     <div class="mb-3">
                         <label for="editContactPerson" class="form-label">Contact Person</label>
@@ -156,7 +148,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             form.querySelector('#editResortId').value = data.resortId;
                             form.querySelector('#editName').value = data.name;
                             form.querySelector('#editAddress').value = data.address;
-                            form.querySelector('#editCapacity').value = data.capacity;
                             form.querySelector('#editContactPerson').value = data.contactPerson;
                             form.querySelector('#editShortDescription').value = data.shortDescription || '';
                             form.querySelector('#editFullDescription').value = data.fullDescription || '';

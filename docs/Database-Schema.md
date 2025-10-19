@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS `Resorts` (
   `ContactPerson` VARCHAR(255),
   `ShortDescription` TEXT,
   `FullDescription` TEXT,
-  `Capacity` INT NOT NULL DEFAULT 25,
   `MainPhotoURL` VARCHAR(255)
 );
 ```
