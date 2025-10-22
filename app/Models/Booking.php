@@ -380,43 +380,50 @@ class Booking {
     }
 
     /**
+     * Get all booked timeframes for a specific resort and date.
+     */
+    public static function getBookedTimeframesForDate($resortId, $bookingDate, $excludeBookingId = null) {
+        $db = self::getDB();
+        $sql = "SELECT TimeSlotType FROM Bookings
+                WHERE ResortID = ?
+                AND BookingDate = ?
+                AND Status IN ('Pending', 'Confirmed')";
+        
+        $params = [$resortId, $bookingDate];
+
+        if ($excludeBookingId) {
+            $sql .= " AND BookingID != ?";
+            $params[] = $excludeBookingId;
+        }
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
      * Check if a resort + timeframe combination is available (for resort-centric booking)
      */
     public static function isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds = [], $excludeBookingId = null) {
-        $db = self::getDB();
-    
         // 1. Check for resort-level blocks for the entire day
         $blockSql = "SELECT COUNT(*) FROM BlockedResortAvailability WHERE ResortID = ? AND BlockDate = ?";
-        $blockStmt = $db->prepare($blockSql);
+        $blockStmt = self::getDB()->prepare($blockSql);
         $blockStmt->execute([$resortId, $bookingDate]);
         if ($blockStmt->fetchColumn() > 0) {
             return false; // Resort is blocked for this date
         }
     
-        // 2. New logic: Check if there is ANY booking for the resort on the given date.
-        $bookingSql = "SELECT COUNT(*) FROM Bookings
-                       WHERE ResortID = ?
-                       AND BookingDate = ?
-                       AND Status IN ('Pending', 'Confirmed')";
-        
-        $bookingParams = [$resortId, $bookingDate];
-    
-        if ($excludeBookingId) {
-            $bookingSql .= " AND BookingID != ?";
-            $bookingParams[] = $excludeBookingId;
-        }
-    
-        $bookingStmt = $db->prepare($bookingSql);
-        $bookingStmt->execute($bookingParams);
-        if ($bookingStmt->fetchColumn() > 0) {
-            return false; // A booking already exists for this resort on this day.
+        // 2. Check for timeframe availability
+        $availableTimeframes = self::getAvailableTimeframesForDate($resortId, $bookingDate, $excludeBookingId);
+        if (!in_array($timeSlotType, $availableTimeframes)) {
+            return false; // The requested timeframe is not available
         }
     
         // 3. If facilities are selected, check their individual availability (for blocks)
         if (!empty($facilityIds)) {
             foreach ($facilityIds as $facilityId) {
                 $facilityBlockSql = "SELECT COUNT(*) FROM BlockedFacilityAvailability WHERE FacilityID = ? AND BlockDate = ?";
-                $facilityBlockStmt = $db->prepare($facilityBlockSql);
+                $facilityBlockStmt = self::getDB()->prepare($facilityBlockSql);
                 $facilityBlockStmt->execute([$facilityId, $bookingDate]);
                 if ($facilityBlockStmt->fetchColumn() > 0) {
                     return false; // A required facility is specifically blocked.
@@ -425,6 +432,38 @@ class Booking {
         }
     
         return true; // Available
+    }
+
+    /**
+     * Get the actually available timeframes for a date, considering conflicts.
+     */
+    public static function getAvailableTimeframesForDate($resortId, $date, $excludeBookingId = null) {
+        $bookedTimeframes = self::getBookedTimeframesForDate($resortId, $date, $excludeBookingId);
+        
+        $allTimeframes = ['12_hours', 'overnight', '24_hours'];
+
+        if (empty($bookedTimeframes)) {
+            return $allTimeframes;
+        }
+        
+        $available = $allTimeframes;
+
+        // If a 24-hour slot is booked, nothing else is available
+        if (in_array('24_hours', $bookedTimeframes)) {
+            return [];
+        }
+
+        // If a 12-hour slot is booked, 24-hour is unavailable
+        if (in_array('12_hours', $bookedTimeframes)) {
+            $available = array_diff($available, ['12_hours', '24_hours']);
+        }
+        
+        // If an overnight slot is booked, 24-hour is unavailable
+        if (in_array('overnight', $bookedTimeframes)) {
+            $available = array_diff($available, ['overnight', '24_hours']);
+        }
+
+        return array_values($available); // Return re-indexed array
     }
 
     /**

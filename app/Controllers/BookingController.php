@@ -453,23 +453,28 @@ class BookingController {
             $resortBlocked = $this->isDateBlocked($resortId, $dateStr, 'resort');
             
             // Get existing bookings count
-            $bookingCount = $this->getBookingCountForDate($resortId, $dateStr, $timeframe);
-            
-            $status = $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $isHoliday, $bookingCount);
+            // New logic: Get all booked timeframes for the day
+            // New, corrected logic: Use the authoritative model function
+            $bookedTimeframes = Booking::getBookedTimeframesForDate($resortId, $dateStr);
+            $availableTimeframes = Booking::getAvailableTimeframesForDate($resortId, $dateStr);
+            $bookingCount = count($bookedTimeframes);
+
+            $status = $this->getDayStatus($isAvailable, $resortBlocked, $isPast, $isWeekend, $isHoliday, $bookedTimeframes, $availableTimeframes);
             
             $statusText = '';
             switch ($status) {
                 case 'available': $statusText = 'Available'; break;
                 case 'weekend': $statusText = 'Weekend'; break;
                 case 'holiday': $statusText = 'Holiday'; break;
-                case 'booked': $statusText = 'Booked'; break;
+                case 'partially_booked': $statusText = 'Partially Booked'; break;
+                case 'fully_booked': $statusText = 'Fully Booked'; break;
                 case 'blocked': $statusText = 'Blocked'; break;
                 case 'unavailable': $statusText = 'Taken'; break;
                 case 'past': $statusText = 'Past'; break;
             }
 
             $availability[$dateStr] = [
-                'available' => ($status === 'available' || $status === 'weekend' || $status === 'holiday'),
+                'available' => ($status === 'available' || $status === 'weekend' || $status === 'holiday' || $status === 'partially_booked'),
                 'isWeekend' => $isWeekend,
                 'isHoliday' => $isHoliday,
                 'isToday' => $isToday,
@@ -477,7 +482,9 @@ class BookingController {
                 'isBlocked' => $resortBlocked,
                 'bookingCount' => $bookingCount,
                 'status' => $status,
-                'statusText' => $statusText
+                'statusText' => $statusText,
+                'bookedTimeframes' => $bookedTimeframes,
+                'availableTimeframes' => $availableTimeframes
             ];
             
             $currentDate->modify('+1 day');
@@ -510,9 +517,8 @@ class BookingController {
     /**
      * Helper method to get booking count for a specific date
      */
-    private function getBookingCountForDate($resortId, $date, $timeframe) {
+    private function getBookingCountForDate($resortId, $date) {
         $db = Database::getInstance();
-        // Updated logic: Count all bookings for the date, regardless of timeframe.
         $stmt = $db->prepare("
             SELECT COUNT(*) FROM Bookings
             WHERE ResortID = :resortId
@@ -528,12 +534,23 @@ class BookingController {
     /**
      * Helper method to determine day status for calendar
      */
-    private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $isHoliday, $bookingCount) {
+    private function getDayStatus($isAvailable, $isBlocked, $isPast, $isWeekend, $isHoliday, $bookedTimeframes, $availableTimeframes) {
         if ($isPast) return 'past';
         if ($isBlocked) return 'blocked';
-        if ($bookingCount > 0) return 'booked';
-        if (!$isAvailable) return 'unavailable';
-        if ($isHoliday) return 'holiday'; // Prioritize holiday over weekend
+        
+        $allTimeframesCount = 3; // ['12_hours', 'overnight', '24_hours']
+        $availableCount = count($availableTimeframes);
+        
+        if ($availableCount === 0) {
+            return 'fully_booked';
+        }
+        
+        if ($availableCount > 0 && $availableCount < $allTimeframesCount) {
+            return 'partially_booked';
+        }
+        
+        // If fully available...
+        if ($isHoliday) return 'holiday';
         if ($isWeekend) return 'weekend';
         return 'available';
     }

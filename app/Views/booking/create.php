@@ -351,8 +351,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                             <span class="badge bg-success">Available</span>
                             <span class="badge bg-warning">Weekend</span>
                             <span class="badge bg-info">Holiday</span>
-                            <span class="badge bg-primary">Booked</span>
-                            <span class="badge bg-danger">Taken</span>
+                            <span class="badge bg-primary">Partially Booked</span>
+                            <span class="badge bg-danger">Fully Booked</span>
                             <span class="badge bg-secondary">Blocked</span>
                         </div>
                     </div>
@@ -491,10 +491,16 @@ input[type="number"].form-control {
     color: #721c24;
 }
 
-.calendar-day.booked {
+.calendar-day.partially_booked {
    background-color: #dbe4ff;
    border-color: #0d6efd;
    color: #0a58ca;
+}
+
+.calendar-day.fully_booked {
+   background-color: #f8d7da;
+   border-color: #dc3545;
+   color: #721c24;
 }
 
 .calendar-day.blocked {
@@ -531,15 +537,16 @@ input[type="number"].form-control {
 }
 
 .calendar-day .day-number {
-    font-size: 1em;
+    font-size: 1.1em;
     font-weight: bold;
 }
 
 .calendar-day .day-status {
-    font-size: 0.55em;
+    font-size: 0.65em;
     text-transform: uppercase;
     margin-top: 1px;
     font-weight: 500;
+    line-height: 1.1;
 }
 
 /* Enhanced Resort Cards */
@@ -601,6 +608,18 @@ input[type="number"].form-control {
 .timeframe-card.selected {
     border-color: #0d6efd;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+.timeframe-card.timeframe-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #e9ecef !important;
+    border-color: #dee2e6;
+}
+
+.timeframe-card.timeframe-disabled:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 /* Enhanced Date Cards */
@@ -1053,21 +1072,39 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isCurrentMonth) {
                 dayClass += ' disabled text-muted';
             } else if (dayData) {
-                // Use the backend status directly - no frontend weekend calculation
+                // Use the backend status directly
                 dayClass += ` ${dayData.status}`;
-                if (!dayData.available) dayClass += ' disabled';
+                if (!dayData.available) {
+                    dayClass += ' disabled';
+                }
             } else {
-                // No data for this date
-                dayClass += ' disabled';
+                dayClass += ' disabled'; // No data for this date
             }
 
-            const dayName = currentCalendarDate.toLocaleDateString('en-US', {weekday: 'long'});
+            const dayName = currentCalendarDate.toLocaleDateString('en-US', { weekday: 'long' });
 
-            // Remove onclick attribute, use event delegation instead
+            // Tooltip for partially booked days
+            let tooltipContent = '';
+            if (dayData && dayData.status === 'partially_booked' && dayData.availableTimeframes.length > 0) {
+                const timeframeLabels = {
+                    '12_hours': '12 Hours',
+                    'overnight': 'Overnight',
+                    '24_hours': '24 Hours'
+                };
+                const availableLabels = dayData.availableTimeframes.map(tf => timeframeLabels[tf] || tf);
+                const tooltipTitle = `Available:<br>${availableLabels.join(', ')}`;
+                tooltipContent = `data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top" title="${tooltipTitle}"`;
+            }
+
+            let statusText = dayData ? dayData.statusText : '';
+            if (statusText === 'Partially Booked' || statusText === 'Fully Booked') {
+                statusText = statusText.replace(' ', '<br>');
+            }
+
             html += `
-                <div class="${dayClass}" data-date="${dateStr}" title="${dayName}, ${dayNum}">
+                <div class="${dayClass}" data-date="${dateStr}" ${tooltipContent}>
                     <div class="day-number">${dayNum}</div>
-                    <div class="day-status">${dayData ? dayData.statusText : ''}</div>
+                    <div class="day-status">${statusText}</div>
                 </div>
             `;
         }
@@ -1081,20 +1118,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const dateStr = dayElement.dataset.date;
             if (dateStr && !dayElement.classList.contains('disabled')) {
-                // Remove previous selection
                 document.querySelectorAll('.calendar-day.selected').forEach(day => {
                     day.classList.remove('selected');
                 });
 
-                // Select new date
                 dayElement.classList.add('selected');
                 selectedCalendarDate = dateStr;
                 selectDateBtn.disabled = false;
-
-                // Update select button text
                 selectDateBtn.innerHTML = '<i class="fas fa-check"></i> Select';
             }
-        }, true); // Use capture to ensure it works
+        }, true);
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
     }
 
     // Old selectDate function removed in favor of event delegation
@@ -1103,7 +1142,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedCalendarDate) {
             dateInput.value = selectedCalendarDate;
             calendarModal.hide();
+
+            // New logic: auto-select timeframe if partially booked
+            const dayData = calendarData[selectedCalendarDate];
+            updateTimeframeStates(dayData);
+
             handleDateOrTimeframeChange();
+        }
+    }
+
+    function updateTimeframeStates(dayData) {
+        // First, reset all timeframes to default state
+        timeframeRadios.forEach(radio => {
+            radio.disabled = false;
+            radio.closest('.timeframe-card').classList.remove('timeframe-disabled');
+        });
+
+        if (dayData && dayData.status === 'partially_booked' && dayData.availableTimeframes.length > 0) {
+            const available = dayData.availableTimeframes[0]; // Assuming only one is available
+
+            // Disable all others and auto-select the available one
+            timeframeRadios.forEach(radio => {
+                const card = radio.closest('.timeframe-card');
+                if (radio.value === available) {
+                    radio.checked = true;
+                    // Manually trigger the change handler for the newly selected radio
+                    handleTimeframeChange({ target: radio });
+                } else {
+                    radio.disabled = true;
+                    card.classList.add('timeframe-disabled');
+                }
+            });
         }
     }
 

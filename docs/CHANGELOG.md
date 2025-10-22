@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.5] - 2025-10-22
+
+### Enhanced
+
+- **Flexible Same-Day Bookings:** Overhauled the booking availability logic to allow for more flexible same-day reservations. The system now correctly permits non-conflicting timeframes (e.g., "12 Hours" and "Overnight") to be booked on the same day for the same resort.
+- **Availability Calendar UI:** Significantly improved the user experience of the "Availability Calendar" on the new reservation page.
+  - **Clearer Statuses:** The calendar now visually distinguishes between "Available," "Partially Booked," and "Fully Booked" days with clear labels and colors.
+  - **Informative Tooltips:** When hovering over a "Partially Booked" day, a user-friendly tooltip now appears, clearly indicating which specific timeframes are still available for booking (e.g., "Available: <br> Overnight").
+  - **Improved Readability:** Increased the font size of calendar day labels and adjusted the layout to ensure "Partially Booked" and "Fully Booked" text wraps to two lines for maximum readability.
+- **Smart Timeframe Selection:** Implemented an intelligent UI enhancement where selecting a "Partially Booked" date from the calendar automatically selects the only available timeframe and dims the unavailable options, streamlining the booking process.
+
+### Changed
+
+- **Booking Logic:** The core availability check in `app/Models/Booking.php` was refactored to analyze conflicts based on `TimeSlotType`, rather than blocking an entire day after a single booking. A new `getAvailableTimeframesForDate()` method was added to centralize this business logic.
+- **Controller & API:** The `getCalendarAvailability` method in `app/Controllers/BookingController.php` was updated to provide more detailed availability data to the frontend, including lists of booked and available timeframes.
+- **Frontend JavaScript:** The calendar rendering logic in `app/Views/booking/create.php` was completely updated to handle the new detailed data, display appropriate statuses, and manage the new auto-selection and tooltip features.
+
+### Files Updated
+
+- `app/Models/Booking.php`
+- `app/Controllers/BookingController.php`
+- `app/Views/booking/create.php`
+
 ## [1.44.4] - 2025-10-22
 
 ### Enhanced
