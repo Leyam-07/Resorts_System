@@ -19,7 +19,7 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
     <!-- Bootstrap JS Bundle - Load in head for navbar dropdowns -->
     <script src="<?= BASE_URL ?>/assets/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js - Added for dashboard graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="<?= BASE_URL ?>/assets/js/chart.min.js"></script>
 
 
     <style>

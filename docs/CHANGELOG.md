@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.1] - 2025-10-22
+
+### Changed
+
+- **Offline Functionality:** Chart.js is now fully offline. The library has been downloaded and is now served locally from instead of a CDN, ensuring the dashboard visualizations work without an internet connection.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+- `assets/js/chart.min.js`
+
 ## [1.44.0] - 2025-10-22
 
 ### Enhanced
@@ -16,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `app/Controllers/AdminController.php`
 - `app/Models/Payment.php`
-- - `app/Views/partials/header.php`
+- `app/Views/partials/header.php`
 
 ## [1.43.10] - 2025-10-22
 
