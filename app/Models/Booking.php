@@ -18,6 +18,7 @@ class Booking {
     public $paymentReference;
     public $remainingBalance;
     public $createdAt;
+    public $expiresAt;
 
     private static $db;
 
@@ -36,8 +37,8 @@ class Booking {
     public static function create(Booking $booking) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Bookings (CustomerID, ResortID, FacilityID, BookingDate, TimeSlotType, Status, TotalAmount, PaymentProofURL, PaymentReference, RemainingBalance)
-             VALUES (:customerId, :resortId, :facilityId, :bookingDate, :timeSlotType, :status, :totalAmount, :paymentProofURL, :paymentReference, :remainingBalance)"
+            "INSERT INTO Bookings (CustomerID, ResortID, FacilityID, BookingDate, TimeSlotType, Status, TotalAmount, PaymentProofURL, PaymentReference, RemainingBalance, ExpiresAt)
+             VALUES (:customerId, :resortId, :facilityId, :bookingDate, :timeSlotType, :status, :totalAmount, :paymentProofURL, :paymentReference, :remainingBalance, :expiresAt)"
         );
         $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
         $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
@@ -49,6 +50,7 @@ class Booking {
         $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
         $stmt->bindValue(':paymentReference', $booking->paymentReference, PDO::PARAM_STR);
         $stmt->bindValue(':remainingBalance', $booking->remainingBalance, PDO::PARAM_STR);
+        $stmt->bindValue(':expiresAt', $booking->expiresAt, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return $db->lastInsertId();
@@ -78,6 +80,11 @@ class Booking {
             $booking->paymentProofURL = null;
             $booking->paymentReference = null;
             $booking->remainingBalance = $totalAmount;
+            
+            // Create a DateTime object in UTC to ensure correct expiration time across timezones
+            $dt = new DateTime("now", new DateTimeZone('UTC'));
+            $dt->add(new DateInterval('PT3H'));
+            $booking->expiresAt = $dt->format('Y-m-d H:i:s');
             
             $bookingId = self::create($booking);
             
@@ -125,6 +132,7 @@ class Booking {
             $booking->paymentReference = $data['PaymentReference'];
             $booking->remainingBalance = $data['RemainingBalance'];
             $booking->createdAt = $data['CreatedAt'];
+            $booking->expiresAt = $data['ExpiresAt'];
             return $booking;
         }
         return null;
@@ -270,20 +278,21 @@ class Booking {
              SET CustomerID = :customerId, ResortID = :resortId, FacilityID = :facilityId, BookingDate = :bookingDate,
                  TimeSlotType = :timeSlotType, Status = :status,
                  TotalAmount = :totalAmount, PaymentProofURL = :paymentProofURL, PaymentReference = :paymentReference,
-                 RemainingBalance = :remainingBalance
+                 RemainingBalance = :remainingBalance, ExpiresAt = :expiresAt
              WHERE BookingID = :bookingId"
-        );
-        $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
-        $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
-        $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
-        $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
-        $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
-        $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
-        $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
-        $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
-        $stmt->bindValue(':paymentReference', $booking->paymentReference, PDO::PARAM_STR);
-        $stmt->bindValue(':remainingBalance', $booking->remainingBalance, PDO::PARAM_STR);
-        $stmt->bindValue(':bookingId', $booking->bookingId, PDO::PARAM_INT);
+    );
+    $stmt->bindValue(':customerId', $booking->customerId, PDO::PARAM_INT);
+    $stmt->bindValue(':resortId', $booking->resortId, PDO::PARAM_INT);
+    $stmt->bindValue(':facilityId', $booking->facilityId, PDO::PARAM_INT);
+    $stmt->bindValue(':bookingDate', $booking->bookingDate, PDO::PARAM_STR);
+    $stmt->bindValue(':timeSlotType', $booking->timeSlotType, PDO::PARAM_STR);
+    $stmt->bindValue(':status', $booking->status, PDO::PARAM_STR);
+    $stmt->bindValue(':totalAmount', $booking->totalAmount, PDO::PARAM_STR);
+    $stmt->bindValue(':paymentProofURL', $booking->paymentProofURL, PDO::PARAM_STR);
+    $stmt->bindValue(':paymentReference', $booking->paymentReference, PDO::PARAM_STR);
+    $stmt->bindValue(':remainingBalance', $booking->remainingBalance, PDO::PARAM_STR);
+    $stmt->bindValue(':expiresAt', $booking->expiresAt, PDO::PARAM_STR);
+    $stmt->bindValue(':bookingId', $booking->bookingId, PDO::PARAM_INT);
         
         return $stmt->execute();
     }
@@ -455,6 +464,13 @@ class Booking {
         $stmt->bindValue(':status', $newStatus, PDO::PARAM_STR);
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
 
+        return $stmt->execute();
+    }
+
+    public static function clearExpiration($bookingId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("UPDATE Bookings SET ExpiresAt = NULL WHERE BookingID = :bookingId");
+        $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
         return $stmt->execute();
     }
 

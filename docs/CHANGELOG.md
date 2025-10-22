@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.3] - 2025-10-22
+
+### Added
+
+- **Reservation Expiration Timer:** Implemented a new feature where newly created reservations automatically expire if no payment is submitted within a 3-hour window.
+  - **Countdown Timer:** The "My Reservations" page now displays a live countdown timer for pending bookings, clearly showing the time remaining.
+  - **Expiration Warning:** The booking confirmation page now includes a prominent warning, informing the user of the 3-hour payment deadline and the exact expiration time in their local timezone.
+  - **Backend Cancellation Logic:** Created a new script (`scripts/cancel_expired_bookings.php`) to automatically find and cancel expired bookings that have no associated payments.
+
+### Changed
+
+- **Database Schema:** Added a new `ExpiresAt` column to the `Bookings` table to track the expiration timestamp.
+- **Booking Model:** The `Booking` model now sets the `ExpiresAt` timestamp for 3 hours in the future (in UTC) upon the creation of a new reservation.
+- **Payment Model:** The `Payment` model was updated to clear the `ExpiresAt` timestamp as soon as any payment is made, securing the reservation.
+
+### Enhanced
+
+- **Reservation Status Display:** The "Time Left" column on the "My Reservations" page was improved to provide better user feedback. It now displays a "Secured" badge for bookings with a payment, "Expired" for lapsed bookings, and "N/A" for cancelled ones, instead of being blank.
+
+### Fixed
+
+- **Timezone Discrepancy:** Resolved a critical bug where the countdown timer was inaccurate due to a timezone mismatch. The expiration time is now calculated and stored in UTC and converted to the user's local timezone for display, ensuring accuracy.
+
+### Files Updated
+
+- `scripts/migrations/add_expires_at_to_bookings.php`
+- `app/Models/Booking.php`
+- `scripts/cancel_expired_bookings.php`
+- `app/Models/Payment.php`
+- `app/Views/booking/my_reservations.php`
+- `app/Views/booking/confirmation.php`
+
 ## [1.44.2] - 2025-10-22
 
 ### Added

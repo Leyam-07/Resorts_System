@@ -36,6 +36,7 @@ require_once __DIR__ . '/../partials/header.php';
                     <th>Facilities</th>
                     <th>Total Price</th>
                     <th>Status</th>
+                    <th>Time Left</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -89,6 +90,30 @@ require_once __DIR__ . '/../partials/header.php';
                                 $statusClass = $statusColors[$booking->Status] ?? 'bg-secondary';
                             ?>
                             <span class="badge <?= $statusClass ?>"><?= htmlspecialchars($booking->Status) ?></span>
+                        </td>
+                        <td>
+                            <?php
+                                // Case 1: Timer should be running.
+                                if ($booking->Status === 'Pending' && !empty($booking->ExpiresAt) && new DateTime($booking->ExpiresAt) > new DateTime()) {
+                                    echo '<div class="countdown-timer" data-expires-at="' . htmlspecialchars($booking->ExpiresAt) . '"></div>';
+                                }
+                                // Case 2: Payment submitted, reservation is secured from expiring.
+                                elseif ($booking->Status === 'Pending' && empty($booking->ExpiresAt)) {
+                                    echo '<span class="badge bg-success">Secured</span>';
+                                }
+                                // Case 3: Timer has expired (JS will also handle this, but good for server-side).
+                                elseif ($booking->Status === 'Pending' && !empty($booking->ExpiresAt) && new DateTime($booking->ExpiresAt) <= new DateTime()) {
+                                    echo '<span class="badge bg-danger">Expired</span>';
+                                }
+                                // Case 4: Booking is cancelled.
+                                elseif ($booking->Status === 'Cancelled') {
+                                    echo '<span class="badge bg-secondary">N/A</span>';
+                                }
+                                // Fallback
+                                else {
+                                    echo '-';
+                                }
+                            ?>
                         </td>
                         <td>
                             <div class="btn-group-vertical btn-group-sm" role="group">
@@ -649,5 +674,46 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 3000);
         }
     }
+
+    // Countdown Timer Logic
+    function initializeCountdown() {
+        const timers = document.querySelectorAll('.countdown-timer');
+        timers.forEach(timer => {
+            const expiresAt = new Date(timer.dataset.expiresAt + 'Z').getTime(); // Assume UTC
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = expiresAt - now;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    timer.innerHTML = '<span class="badge bg-danger">Expired</span>';
+                    // Optionally, find the associated row and update its status visually or reload
+                    // For example, disable the payment button
+                    const row = timer.closest('tr');
+                    if (row) {
+                        const paymentButton = row.querySelector('.payment-modal-btn');
+                        if (paymentButton) {
+                            paymentButton.disabled = true;
+                            paymentButton.innerHTML = '<i class="fas fa-credit-card"></i> Expired';
+                        }
+                         const cancelButton = row.querySelector('a[href*="cancelBooking"]');
+                        if (cancelButton) {
+                            cancelButton.remove();
+                        }
+                    }
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timer.innerHTML = `<span class="badge bg-info text-dark">${hours}h ${minutes}m ${seconds}s</span>`;
+            }, 1000);
+        });
+    }
+
+    initializeCountdown();
 });
 </script>

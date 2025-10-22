@@ -117,6 +117,11 @@ class Payment {
                 PaymentSchedule::markAsPaid($scheduleId, $paymentId);
             }
 
+            // Clear the expiration time now that a payment has been made
+            require_once __DIR__ . '/Booking.php';
+            Booking::clearExpiration($bookingId);
+
+
             return ['success' => true, 'paymentId' => $paymentId];
         }
 

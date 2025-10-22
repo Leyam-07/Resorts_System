@@ -115,16 +115,38 @@ require_once __DIR__ . '/../partials/header.php';
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php else: ?>
-                            <div class="alert alert-info alert-dismissible fade show mb-0">
-                                <i class="fas fa-info-circle"></i> <strong>Payment Required</strong><br>
-                                You can pay the full amount or make a partial payment.
-                                <div class="mt-2">
-                                    <a href="?controller=booking&action=showMyReservations" class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-arrow-right"></i> Proceed to Submit Payment
-                                    </a>
+                            <?php if ($booking->status == 'Pending' && !empty($booking->expiresAt) && new DateTime($booking->expiresAt) > new DateTime()): ?>
+                                <div class="alert alert-warning alert-dismissible fade show mb-0">
+                                    <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Action Required: Payment Needed</h6>
+                                    <p class="mb-1">To secure your reservation, please submit a payment. This reservation will be automatically cancelled if no payment is received by <strong><?php
+                                        try {
+                                            $expiresAtUTC = new DateTime($booking->expiresAt, new DateTimeZone('UTC'));
+                                            $expiresAtUTC->setTimezone(new DateTimeZone('Asia/Shanghai'));
+                                            echo htmlspecialchars($expiresAtUTC->format('F j, Y, g:i A'));
+                                        } catch (Exception $e) {
+                                            // Fallback for safety
+                                            echo htmlspecialchars(date('F j, Y, g-i A', strtotime($booking->expiresAt)));
+                                        }
+                                    ?></strong>.</p>
+                                    <div class="mt-2">
+                                        <a href="?controller=booking&action=showMyReservations" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-credit-card"></i> Submit Payment
+                                        </a>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                            <?php else: ?>
+                                <div class="alert alert-info alert-dismissible fade show mb-0">
+                                    <i class="fas fa-info-circle"></i> <strong>Payment Required</strong><br>
+                                    A payment has been submitted and is under review, or you can make an additional payment.
+                                    <div class="mt-2">
+                                        <a href="?controller=booking&action=showMyReservations" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-arrow-right"></i> View Reservations
+                                        </a>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
