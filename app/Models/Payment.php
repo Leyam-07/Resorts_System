@@ -465,4 +465,37 @@ class Payment {
         
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Get total verified income for a specific month and year.
+     */
+    public static function getMonthlyIncome($year, $month, $resortId = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT SUM(p.Amount) as TotalIncome
+                FROM Payments p";
+
+        $params = [
+            ':year' => $year,
+            ':month' => $month
+        ];
+
+        if ($resortId) {
+            $sql .= " JOIN Bookings b ON p.BookingID = b.BookingID";
+        }
+                
+        $sql .= " WHERE YEAR(p.PaymentDate) = :year AND MONTH(p.PaymentDate) = :month
+                AND p.Status IN ('Verified', 'Paid')"; // 'Verified' is the new standard, 'Paid' for legacy if any
+
+        if ($resortId) {
+            $sql .= " AND b.ResortID = :resortId";
+            $params[':resortId'] = $resortId;
+        }
+
+        $stmt = $db->prepare($sql);
+        
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['TotalIncome'] ?? 0;
+    }
 }

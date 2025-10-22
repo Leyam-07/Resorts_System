@@ -82,7 +82,7 @@ class AdminController {
             // Get financial and history data
             $currentMonth = date('m');
             $currentYear = date('Y');
-            $monthlyIncome = Booking::getMonthlyIncome($currentYear, $currentMonth, $resortId);
+            $monthlyIncome = Payment::getMonthlyIncome($currentYear, $currentMonth, $resortId);
             $bookingHistory = Booking::getBookingHistory(10); // This could also be filtered if needed
 
             // Get counts for dashboard buttons

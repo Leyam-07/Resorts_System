@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.10] - 2025-10-22
+
+### Fixed
+
+- **Admin Dashboard Monthly Income Accuracy:** Resolved a critical bug where the "Monthly Income" statistic on the Admin Dashboard was incorrect. The calculation was based on `booking dates` instead of actual `payment dates`. The logic has been moved to the `Payment` model and now sums only verified payments based on their `PaymentDate`, ensuring financial reports are accurate.
+
+### Files Updated
+
+- `app/Models/Payment.php`
+- `app/Controllers/AdminController.php`
+- `app/Models/Booking.php`
+
 ## [1.43.9] - 2025-10-19
 
 ### Fixed

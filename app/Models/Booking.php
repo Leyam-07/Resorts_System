@@ -242,31 +242,6 @@ class Booking {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
-    public static function getMonthlyIncome($year, $month, $resortId = null) {
-        $db = self::getDB();
-        
-        $sql = "SELECT SUM(p.Amount) as TotalIncome
-                FROM Payments p
-                JOIN Bookings b ON p.BookingID = b.BookingID
-                WHERE YEAR(b.BookingDate) = :year AND MONTH(b.BookingDate) = :month
-                AND p.Status IN ('Paid', 'Partial')";
-
-        if ($resortId) {
-            $sql .= " AND b.ResortID = :resortId";
-        }
-
-        $stmt = $db->prepare($sql);
-        
-        $stmt->bindValue(':year', $year, PDO::PARAM_INT);
-        $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-        if ($resortId) {
-            $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
-        }
-        
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['TotalIncome'] ?? 0;
-    }
 
     public static function getBookingHistory($limit = 10) {
         $db = self::getDB();
