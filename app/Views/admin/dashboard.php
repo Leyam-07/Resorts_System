@@ -82,7 +82,12 @@ require_once __DIR__ . '/../partials/header.php';
     <div class="row d-flex align-items-stretch">
         <div class="col-md-3">
             <div class="card text-white bg-primary mb-3 h-100">
-                <div class="card-header">Monthly Income</div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Monthly Income</span>
+                    <a href="?controller=admin&action=incomeAnalytics<?php echo isset($_GET['resort_id']) ? '&resort_id=' . urlencode($_GET['resort_id']) : ''; ?>" class="btn btn-sm btn-light">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </a>
+                </div>
                 <div class="card-body d-flex flex-column">
                     <h4 class="card-title">₱<?= number_format($monthlyIncome, 2) ?></h4>
                     <p class="card-text">Income for <?= date('F Y') ?></p>
