@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.2] - 2025-10-22
+
+### Added
+
+- **Income Analytics Page:** Implemented a new "Income Analytics" page for administrators, providing detailed financial reports with visualizations.
+  - **Backend:** Added a new `incomeAnalytics()` method to the `AdminController` and `getMonthlyIncomeForYear()` to the `Payment` model.
+  - **Frontend:** Created a new view at `app/Views/admin/income_analytics.php` featuring interactive charts for monthly and daily income.
+  - **UI/UX:** Includes filters for resort, year, and month. The layout was refined to emphasize the daily income chart and ensure all visual elements are correctly aligned and sized.
+  - **Navigation:** Added a link to the new page in the admin navigation bar for easy access.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Models/Payment.php`
+- `app/Views/admin/income_analytics.php`
+- `app/Views/partials/header.php`
+
 ## [1.44.1] - 2025-10-22
 
 ### Changed

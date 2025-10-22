@@ -543,5 +543,47 @@ class Payment {
 
         return $dailyData;
     }
+    
+    /**
+     * Get monthly income for a specific year, prepared for charting.
+     */
+    public static function getMonthlyIncomeForYear($year, $resortId = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT
+                    MONTH(p.PaymentDate) as Month,
+                    SUM(p.Amount) as MonthlyIncome
+                FROM Payments p";
+
+        $params = [':year' => $year];
+
+        if ($resortId) {
+            $sql .= " JOIN Bookings b ON p.BookingID = b.BookingID";
+        }
+                
+        $sql .= " WHERE YEAR(p.PaymentDate) = :year
+                AND p.Status IN ('Verified', 'Paid')";
+
+        if ($resortId) {
+            $sql .= " AND b.ResortID = :resortId";
+            $params[':resortId'] = $resortId;
+        }
+        
+        $sql .= " GROUP BY MONTH(p.PaymentDate) ORDER BY MONTH(p.PaymentDate)";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        
+        // Initialize an array for all months of the year with 0 income
+        $monthlyData = array_fill(1, 12, 0);
+
+        // Fill in the income for the months that have it
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($results as $row) {
+            $monthlyData[(int)$row['Month']] = (float)$row['MonthlyIncome'];
+        }
+
+        return $monthlyData;
+    }
 
 }

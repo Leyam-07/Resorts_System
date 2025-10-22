@@ -133,6 +133,30 @@ class AdminController {
         include __DIR__ . '/../Views/admin/staff_dashboard.php';
     }
 
+    public function incomeAnalytics() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
+        $year = filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT) ?? date('Y');
+        $month = filter_input(INPUT_GET, 'month', FILTER_VALIDATE_INT) ?? date('m');
+
+        $resorts = Resort::findAll();
+        
+        // Data for the whole year
+        $yearlyIncomeData = Payment::getMonthlyIncomeForYear($year, $resortId);
+
+        // Data for the selected month
+        $dailyIncomeData = Payment::getDailyIncomeForMonth($year, $month, $resortId);
+        $totalMonthlyIncome = array_sum($dailyIncomeData);
+
+        $pageTitle = "Income Analytics";
+        require_once __DIR__ . '/../Views/admin/income_analytics.php';
+    }
+
     public function users() {
         $users = $this->userModel->findAll();
         include __DIR__ . '/../Views/admin/users.php';
