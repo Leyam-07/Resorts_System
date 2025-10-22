@@ -38,12 +38,40 @@ class Notification {
         try {
             //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
+
+            // Expiration logic
+            $expirationWarning = '';
+            if (!empty($booking->expiresAt) && new DateTime($booking->expiresAt) > new DateTime()) {
+                try {
+                    $expiresAtUTC = new DateTime($booking->expiresAt, new DateTimeZone('UTC'));
+                    $expiresAtUTC->setTimezone(new DateTimeZone('Asia/Shanghai')); // Convert to local timezone
+                    $expirationTime = htmlspecialchars($expiresAtUTC->format('F j, Y, g:i A'));
+                    
+                    // Construct payment URL
+                    $paymentUrl = rtrim(BASE_URL, '/') . '/?controller=booking&action=showPaymentForm&id=' . $booking->bookingId;
+
+                    $expirationWarning = "
+                        <div style='border: 1px solid #ffc107; background-color: #fff3cd; padding: 15px; margin-top: 20px; border-radius: 5px;'>
+                            <h4 style='color: #664d03; margin-top: 0;'>Action Required: Secure Your Booking</h4>
+                            <p>To secure your reservation, a payment must be submitted. This booking will automatically expire if no payment is received within <strong>3 hours</strong>.</p>
+                            <p><strong>Your reservation will expire on:</strong> {$expirationTime}</p>
+                            <p style='margin-top: 15px;'><a href='{$paymentUrl}' style='background-color: #0d6efd; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>Submit Payment Now</a></p>
+                        </div>";
+                } catch (Exception $e) {
+                    // Fallback if date conversion fails
+                    $expirationWarning = "<p><strong>Note:</strong> Your booking will expire soon if payment is not made.</p>";
+                }
+            }
+
             // Content
             $mail->isHTML(true);
-            $mail->Subject = 'Booking Confirmation';
+            $mail->Subject = 'Booking Confirmation - Action Required';
             $mail->Body    = "
                 <p>Dear {$customer['FirstName']},</p>
-                <p>Your booking has been successfully created.</p>
+                <p>Your booking has been successfully created and is pending payment.</p>
+                
+                {$expirationWarning}
+
                 <p><strong>Customer Information:</strong></p>
                 <ul>
                     <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
@@ -54,10 +82,9 @@ class Notification {
                     <li>Booking ID: {$booking->bookingId}</li>
                     <li>Date: {$booking->bookingDate}</li>
                     <li>Time: " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-
                 </ul>
                 <p>Thank you for choosing our resort!</p>";
-            $mail->AltBody = 'Your booking has been successfully created. Booking ID: ' . $booking->bookingId;
+            $mail->AltBody = 'Your booking has been created and requires payment. Booking ID: ' . $booking->bookingId;
 
             $mail->send();
             return true;
@@ -368,4 +395,34 @@ class Notification {
             return false;
         }
     }
+    public static function sendBookingExpiredNotification($bookingId) {
+        $booking = Booking::findById($bookingId);
+        if (!$booking) return false;
+
+        $customer = User::findById($booking->customerId);
+        if (!$customer) return false;
+
+        $mail = self::getMailer();
+        try {
+            //Recipients
+            $mail->addAddress($customer['Email'], $customer['FirstName']);
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Booking Expired Due to Non-Payment';
+            $mail->Body    = "
+                <p>Dear {$customer['FirstName']},</p>
+                <p>We're writing to inform you that your booking (#{$booking->bookingId}) for {$booking->bookingDate} has expired.</p>
+                <p>The reservation was automatically cancelled because payment was not received within the 3-hour window.</p>
+                <p>If you are still interested, you will need to create a new booking. Please note that the same time slot may no longer be available.</p>
+                <p>We hope to see you again soon.</p>";
+            $mail->AltBody = 'Your booking #' . $booking->bookingId . ' has expired due to non-payment.';
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("Expired booking notification could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            return false;
+        }
+    }
+
 }

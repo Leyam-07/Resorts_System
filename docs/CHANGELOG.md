@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.4] - 2025-10-22
+
+### Enhanced
+
+- **Reservation Expiration Notifications:** Overhauled the notification system to align with the new 3-hour booking expiration feature.
+  - **Confirmation Email:** The initial booking confirmation email now includes a prominent warning about the 3-hour payment deadline, the exact expiration time, and a direct link to submit payment.
+  - **Expiration Email:** Created a new, dedicated email that is sent when a booking is automatically cancelled due to non-payment, providing a clear explanation to the user.
+  - **On-Page View:** Updated the `confirmation.php` view to mirror the email content, ensuring a consistent user experience.
+
+### Files Updated
+
+- `app/Helpers/Notification.php`
+- `scripts/cancel_expired_bookings.php`
+- `app/Views/booking/confirmation.php`
+
 ## [1.44.3] - 2025-10-22
 
 ### Added

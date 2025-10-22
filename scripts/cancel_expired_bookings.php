@@ -4,6 +4,7 @@ require_once __DIR__ . '/../app/Helpers/Database.php';
 require_once __DIR__ . '/../app/Models/Booking.php';
 require_once __DIR__ . '/../app/Models/Payment.php';
 require_once __DIR__ . '/../app/Models/BookingAuditTrail.php';
+require_once __DIR__ . '/../app/Helpers/Notification.php';
 
 function cancelExpiredBookings() {
     $db = Database::getInstance();
@@ -40,6 +41,9 @@ function cancelExpiredBookings() {
         // No payment made, so cancel the booking
         if (Booking::updateStatus($booking->BookingID, 'Cancelled')) {
             echo "Booking #{$booking->BookingID} has been automatically cancelled due to expiration.\n";
+
+            // Send expiration email
+            Notification::sendBookingExpiredNotification($booking->BookingID);
             
             // Log the cancellation in the audit trail
             BookingAuditTrail::logStatusChange(
@@ -47,7 +51,7 @@ function cancelExpiredBookings() {
                 0, // System user
                 'Pending',
                 'Cancelled',
-                'Booking automatically cancelled after 3-hour payment window expired.'
+"Booking automatically cancelled after 3-hour payment window expired."
             );
         } else {
             error_log("Failed to automatically cancel expired booking #{$booking->BookingID}");
