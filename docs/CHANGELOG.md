@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.0] - 2025-10-22
+
+### Enhanced
+
+- **Admin Dashboard Financial Visualization:** Added a new bar graph to the "Monthly Income" card on the Admin Dashboard. This provides a clear, at-a-glance visualization of daily income throughout the current month, improving financial oversight.
+- **UI/UX:** The layout of the Admin Dashboard has been improved by ensuring the "Monthly Income" and "Today's Bookings" cards have a consistent height, creating a more professional and balanced appearance.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Models/Payment.php`
+- - `app/Views/partials/header.php`
+
 ## [1.43.10] - 2025-10-22
 
 ### Fixed

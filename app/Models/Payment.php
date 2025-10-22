@@ -498,4 +498,50 @@ class Payment {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['TotalIncome'] ?? 0;
     }
+    /**
+     * Get daily income for a specific month and year, prepared for charting.
+     */
+    public static function getDailyIncomeForMonth($year, $month, $resortId = null) {
+        $db = self::getDB();
+        
+        $sql = "SELECT 
+                    DAY(p.PaymentDate) as Day,
+                    SUM(p.Amount) as DailyIncome
+                FROM Payments p";
+
+        $params = [
+            ':year' => $year,
+            ':month' => $month
+        ];
+
+        if ($resortId) {
+            $sql .= " JOIN Bookings b ON p.BookingID = b.BookingID";
+        }
+                
+        $sql .= " WHERE YEAR(p.PaymentDate) = :year AND MONTH(p.PaymentDate) = :month
+                AND p.Status IN ('Verified', 'Paid')";
+
+        if ($resortId) {
+            $sql .= " AND b.ResortID = :resortId";
+            $params[':resortId'] = $resortId;
+        }
+        
+        $sql .= " GROUP BY DAY(p.PaymentDate) ORDER BY DAY(p.PaymentDate)";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        
+        // Initialize an array for all days of the month with 0 income
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $dailyData = array_fill(1, $daysInMonth, 0);
+
+        // Fill in the income for the days that have it
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($results as $row) {
+            $dailyData[(int)$row['Day']] = (float)$row['DailyIncome'];
+        }
+
+        return $dailyData;
+    }
+
 }

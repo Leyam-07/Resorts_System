@@ -79,18 +79,21 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-flex align-items-stretch">
         <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
+            <div class="card text-white bg-primary mb-3 h-100">
                 <div class="card-header">Monthly Income</div>
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
                     <h4 class="card-title">₱<?= number_format($monthlyIncome, 2) ?></h4>
                     <p class="card-text">Income for <?= date('F Y') ?></p>
+                    <div class="mt-auto">
+                        <canvas id="monthlyIncomeChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-9">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header">
                     <h3 class="card-title">Admin Dashboard</h3>
                 </div>
@@ -327,5 +330,74 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
+    
+    // Prepare data from PHP
+    const dailyData = <?= json_encode(array_values($dailyIncomeData)) ?>;
+    const labels = <?= json_encode(array_keys($dailyIncomeData)) ?>;
+    
+    const monthlyIncomeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Daily Income',
+                data: dailyData,
+                backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                borderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // Hide legend for a cleaner look
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'white',
+                        callback: function(value, index, values) {
+                            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP', notation: 'compact' }).format(value);
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.2)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'white'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
