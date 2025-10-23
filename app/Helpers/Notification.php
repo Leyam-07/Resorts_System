@@ -57,7 +57,6 @@ class Notification {
                             <h4 style='color: #664d03; margin-top: 0;'>Action Required: Secure Your Booking</h4>
                             <p>To secure your reservation, a payment must be submitted. This booking will automatically expire if no payment is received within <strong>3 hours</strong>.</p>
                             <p><strong>Your reservation will expire on:</strong> {$expirationTime}</p>
-                            <p style='margin-top: 15px;'><a href='{$paymentUrl}' style='background-color: #0d6efd; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>Submit Payment Now</a></p>
                         </div>";
                 } catch (Exception $e) {
                     // Fallback if date conversion fails
@@ -359,14 +358,14 @@ class Notification {
             
             if ($isVerified) {
                 // Payment verified - booking confirmed
-                $mail->Subject = '✅ Payment Verified - Booking Confirmed #' . $booking->bookingId;
+                $mail->Subject = 'Payment Verified - Booking Confirmed #' . $booking->bookingId;
                 $statusMessage = ($booking->remainingBalance <= 0) ? 'fully confirmed' : 'partially confirmed';
                 $nextSteps = ($booking->remainingBalance > 0) ?
                     "<p><strong>Remaining Balance:</strong> ₱" . number_format($booking->remainingBalance, 2) . " - Please complete payment before your visit.</p>" :
                     "<p>Your booking is fully paid and confirmed!</p>";
                 
                 $mail->Body = "
-                    <h2>🎉 Payment Verified!</h2>
+                    <h2>Payment Verified!</h2>
                     <p>Dear {$customer['FirstName']},</p>
                     <p>Great news! Your payment has been verified and your booking is now {$statusMessage}.</p>
                     
@@ -384,7 +383,7 @@ class Notification {
                     <p><em>The Resort Management Team</em></p>";
             } else {
                 // Payment rejected
-                $mail->Subject = '❌ Payment Issue - Booking #' . $booking->bookingId;
+                $mail->Subject = 'Payment Issue - Booking #' . $booking->bookingId;
                 $mail->Body = "
                     <h2>Payment Verification Issue</h2>
                     <p>Dear {$customer['FirstName']},</p>
