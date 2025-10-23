@@ -5,6 +5,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+require_once __DIR__ . '/../../config/app.php'; // Ensure BASE_URL is defined
 require_once __DIR__ . '/../../config/mail.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Models/Booking.php';
