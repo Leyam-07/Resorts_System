@@ -33,13 +33,16 @@ error_log("Processing email job: Type='{$emailType}', ID='{$id}'");
 
 try {
     switch ($emailType) {
-        case 'payment_submission':
+        case 'payment_submission_admin':
             $booking = Booking::findById($id);
             if (!$booking) throw new Exception("Booking not found for ID: {$id}");
             $customer = User::findById($booking->customerId);
             if (!$customer) throw new Exception("Customer not found for Booking ID: {$id}");
             
             Notification::sendPaymentSubmissionNotification($id, $customer);
+            break;
+
+        case 'payment_submission_customer':
             Notification::sendPaymentSubmissionConfirmation($id);
             break;
 

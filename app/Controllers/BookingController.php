@@ -796,7 +796,8 @@ class BookingController {
             BookingLifecycleManager::processBookingAfterPayment($bookingId);
             
             // Send notifications
-            AsyncHelper::triggerEmailWorker('payment_submission', $bookingId);
+            AsyncHelper::triggerEmailWorker('payment_submission_admin', $bookingId);
+            AsyncHelper::triggerEmailWorker('payment_submission_customer', $bookingId);
 
             $_SESSION['success_message'] = "Payment submitted successfully! Your payment is being reviewed.";
             header('Location: ?controller=booking&action=paymentSuccess&id=' . $bookingId);

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.6] - 2025-10-23
+
+### Fixed
+
+- **Email Notification System:** Resolved a series of critical issues with the email notification system to ensure reliable delivery and correct content.
+  - **Booking Confirmation Emails:** Fixed a fatal error where "Booking Confirmation" emails were not sent because the background worker script did not have access to the `BASE_URL` constant. The application configuration is now context-aware.
+  - **Email Content and Encoding:** Corrected improper character encoding that caused symbols (e.g., 🔔) to appear as `ðŸ””`. Also fixed an issue where the customer's phone number was missing from admin notifications.
+  - **Duplicate & Bounced Emails:** Addressed an issue where duplicate emails were sent and subsequently bounced from a non-existent `admin@gmail.com` test account. The system now intelligently reroutes emails intended for this specific test address to the system's sender email, allowing for safe testing without generating bounce errors.
+
+### Changed
+
+- **Asynchronous Email Logic:** Refactored the email worker to handle admin and customer payment notifications as separate, distinct tasks (`payment_submission_admin`, `payment_submission_customer`), preventing duplicate emails from being sent for a single event.
+
+### Files Updated
+
+- `config/app.php`
+- `app/Helpers/Notification.php`
+- `scripts/send_email_worker.php`
+- `app/Controllers/BookingController.php`
+
 ## [1.44.5] - 2025-10-22
 
 ### Enhanced

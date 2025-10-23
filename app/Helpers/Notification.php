@@ -23,6 +23,7 @@ class Notification {
         $mail->SMTPSecure = MAIL_SMTPSECURE;
         $mail->Port       = MAIL_PORT;
         $mail->Timeout    = 5; // 5 second timeout to prevent hanging
+        $mail->CharSet = 'UTF-8';
         // Sender
         $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
         return $mail;
@@ -180,12 +181,26 @@ class Notification {
         
         foreach ($admins as $admin) {
             try {
+                $recipientEmail = $admin['Email'];
+                $recipientName = $admin['FirstName'];
+
+                if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
+                    error_log("Skipping invalid admin email address: " . ($recipientEmail ?? 'not set'));
+                    continue;
+                }
+
+                // Special handling for the placeholder admin email for testing purposes
+                if ($recipientEmail === 'admin@gmail.com') {
+                    $recipientEmail = MAIL_FROM; // Redirect to the system's sender address
+                    error_log("Redirecting placeholder admin email to system sender: " . MAIL_FROM);
+                }
+                
                 $mail->clearAddresses(); // Clear previous addresses
-                $mail->addAddress($admin['Email'], $admin['FirstName']);
+                $mail->addAddress($recipientEmail, $recipientName);
                 
                 // Content
                 $mail->isHTML(true);
-                $mail->Subject = '🔔 Payment Submitted - Booking #' . $booking->bookingId;
+                $mail->Subject = 'Payment Submitted - Booking #' . $booking->bookingId;
                 $mail->Body = "
                     <h2>Payment Proof Submitted</h2>
                     <p>Dear Admin,</p>
@@ -195,7 +210,7 @@ class Notification {
                     <ul>
                         <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
                         <li><strong>Email:</strong> {$customer['Email']}</li>
-                        <li><strong>Phone:</strong> " . ($customer['Phone'] ?? 'N/A') . "</li>
+                        <li><strong>Phone:</strong> " . ($customer['PhoneNumber'] ?? 'N/A') . "</li>
                     </ul>
                     
                     <h3>Booking Details:</h3>
@@ -270,7 +285,7 @@ class Notification {
 
             // Content
             $mail->isHTML(true);
-            $mail->Subject = '🔔 Payment Submitted - Booking #' . $booking->bookingId . ' (Pending Review)';
+            $mail->Subject = 'Payment Submitted - Booking #' . $booking->bookingId . ' (Pending Review)';
             $mail->Body = "
                 <h2>Payment Submitted Successfully</h2>
                 <p>Dear {$customer['FirstName']},</p>
