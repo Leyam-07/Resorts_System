@@ -586,6 +586,9 @@ class BookingController {
             return;
         }
 
+        // Automatically cancel expired bookings before displaying them
+        $this->cancelExpiredBookingsForUser($_SESSION['user_id']);
+
         $bookings = Booking::findPendingAndCancelledByCustomerId($_SESSION['user_id']);
 
         $activeBookings = [];
@@ -1282,6 +1285,57 @@ class BookingController {
             header('Location: ?controller=booking&action=create');
         }
         exit();
+    }
+
+    /**
+     * Cancel expired bookings for a specific user
+     */
+    private function cancelExpiredBookingsForUser($userId) {
+        $db = Database::getInstance();
+        $now = date('Y-m-d H:i:s');
+
+        // Find pending bookings for the user that have expired
+        $stmt = $db->prepare(
+            "SELECT * FROM Bookings
+             WHERE CustomerID = :userId
+             AND Status = 'Pending'
+             AND ExpiresAt IS NOT NULL
+             AND ExpiresAt < :now"
+        );
+        $stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $stmt->bindValue(':now', $now, \PDO::PARAM_STR);
+        $stmt->execute();
+        $expiredBookings = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        if (empty($expiredBookings)) {
+            return;
+        }
+
+        foreach ($expiredBookings as $booking) {
+            require_once __DIR__ . '/../Models/Payment.php';
+            $totalPaid = Payment::getTotalPaidAmount($booking->BookingID);
+
+            if ($totalPaid > 0) {
+                // If a payment was made, just clear the expiration
+                Booking::clearExpiration($booking->BookingID);
+                continue;
+            }
+
+            // No payment made, so cancel the booking
+            if (Booking::updateStatus($booking->BookingID, 'Cancelled')) {
+                // Asynchronously send expiration email
+                AsyncHelper::triggerEmailWorker('booking_expired', $booking->BookingID);
+                
+                // Log the cancellation in the audit trail
+                BookingAuditTrail::logStatusChange(
+                    $booking->BookingID,
+                    1, // System user ID
+                    'Pending',
+                    'Cancelled',
+                    "Booking automatically cancelled after 3-hour payment window expired."
+                );
+            }
+        }
     }
     public function getFacilitiesForBooking() {
         header('Content-Type: application/json');

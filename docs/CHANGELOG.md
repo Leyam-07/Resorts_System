@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.7] - 2025-10-24
+
+### Fixed
+
+- **Reservation Expiration System:** Resolved a critical issue where pending reservations were not automatically canceled after the 3-hour payment window expired.
+  - **Root Cause:** The background script (`scripts/cancel_expired_bookings.php`) responsible for handling expirations was not being executed by a server scheduler (cron job).
+  - **Solution:** Integrated the expiration logic directly into the user-facing application. The system now checks for and cancels a user's expired reservations whenever they visit the "My Reservations" page. This ensures timely status updates without relying on an external scheduler.
+  - **Notification Integration:** Updated the asynchronous email worker to correctly send "Booking Expired" notifications upon automatic cancellation.
+- **Database Integrity Crash:** Fixed a subsequent fatal error (`SQLSTATE[23000]: Integrity constraint violation`) that occurred when the new expiration logic attempted to log an audit trail entry with an invalid `UserID` of `0`.
+  - **Correction:** The system now correctly uses a `UserID` of `1` for automated system actions, aligning with existing conventions and satisfying the database foreign key constraint.
+
+### Changed
+
+- **Expiration Logic:** Shifted the responsibility for handling expired bookings from a non-operational background script to a real-time check within the `BookingController`.
+
+### Files Updated
+
+- `app/Controllers/BookingController.php`
+- `scripts/send_email_worker.php`
+
 ## [1.44.6] - 2025-10-23
 
 ### Fixed

@@ -68,6 +68,10 @@ try {
             Notification::sendWelcomeEmail($id);
             break;
 
+        case 'booking_expired':
+            Notification::sendBookingExpiredNotification($id);
+            break;
+
         default:
             throw new Exception("Unknown email type: {$emailType}");
     }
