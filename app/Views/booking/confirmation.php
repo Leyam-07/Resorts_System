@@ -115,7 +115,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php else: ?>
-                            <div class="alert alert-warning alert-dismissible fade show mb-0">
+                            <div class="alert alert-warning fade show mb-0">
                                 <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Action Required: Secure Your Booking</h6>
                                 <p class="mb-1">To secure your reservation, a payment must be submitted. This booking will automatically expire if no payment is received within <strong>3 hours</strong>.</p>
                                 <?php if (!empty($booking->expiresAt)): ?>
@@ -134,7 +134,6 @@ require_once __DIR__ . '/../partials/header.php';
                                         <i class="fas fa-credit-card"></i> Submit Payment Now
                                     </a>
                                 </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php endif; ?>
                     </div>

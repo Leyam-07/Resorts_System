@@ -733,7 +733,7 @@ class BookingController {
 
         if (!$bookingId || !$amountPaid || !$paymentReference || !$paymentMethod) {
             $_SESSION['error_message'] = "All fields are required, including payment method.";
-            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            header('Location: ?controller=booking&action=showMyReservations');
             exit;
         }
 
@@ -747,7 +747,7 @@ class BookingController {
         // Validate payment amount
         if ($amountPaid <= 0 || $amountPaid > $booking->remainingBalance) {
             $_SESSION['error_message'] = "Invalid payment amount. Please enter an amount between ₱1 and ₱" . number_format($booking->remainingBalance, 2);
-            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            header('Location: ?controller=booking&action=showMyReservations');
             exit;
         }
 
@@ -757,12 +757,12 @@ class BookingController {
             $paymentProofURL = $this->handlePaymentProofUpload($_FILES['payment_proof'], $bookingId);
             if (!$paymentProofURL) {
                 $_SESSION['error_message'] = "Failed to upload payment proof. Please try again.";
-                header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+                header('Location: ?controller=booking&action=showMyReservations');
                 exit;
             }
         } else {
             $_SESSION['error_message'] = "Payment proof is required.";
-            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            header('Location: ?controller=booking&action=showMyReservations');
             exit;
         }
 
@@ -806,7 +806,7 @@ class BookingController {
             header('Location: ?controller=booking&action=paymentSuccess&id=' . $bookingId);
         } else {
             $_SESSION['error_message'] = "Failed to submit payment. Please try again.";
-            header('Location: ?controller=booking&action=showPaymentForm&id=' . $bookingId);
+            header('Location: ?controller=booking&action=showMyReservations');
         }
         exit;
     }

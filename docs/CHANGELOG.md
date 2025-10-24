@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.8] - 2025-10-24
+
+### Fixed
+
+- **Payment Submission Redirection:** Resolved a user experience issue where a failed payment submission on the "My Reservations" page would incorrectly redirect the user to the "Booking Confirmation" page.
+  - **Root Cause:** The `submitPayment` action in the `BookingController` was redirecting to the `showPaymentForm` action on error, which is designed for the initial booking flow.
+  - **Solution:** Modified all error-handling redirects within the `submitPayment` function in `app/Controllers/BookingController.php` to point to `?controller=booking&action=showMyReservations`. This ensures users are returned to the correct page to see the error message and retry the payment.
+
+### Files Updated
+
+- `app/Controllers/BookingController.php`
+
 ## [1.44.7] - 2025-10-24
 
 ### Fixed
