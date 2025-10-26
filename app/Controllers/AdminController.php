@@ -17,6 +17,7 @@ require_once __DIR__ . '/../Models/BookingLifecycleManager.php';
 require_once __DIR__ . '/../Models/BookingAuditTrail.php';
 require_once __DIR__ . '/../Models/PaymentSchedule.php';
 require_once __DIR__ . '/../Helpers/ValidationHelper.php';
+require_once __DIR__ . '/../Models/EmailTemplate.php';
 
 class AdminController {
     private $db;
@@ -1902,6 +1903,51 @@ class AdminController {
         }
 
         header('Location: ?controller=admin&action=unifiedBookingManagement');
+        exit();
+    }
+    public function emailTemplates() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $customTemplatesData = EmailTemplate::getAllTemplates();
+        $customTemplates = [];
+        foreach ($customTemplatesData as $template) {
+            $customTemplates[$template['TemplateType']] = $template;
+        }
+
+        $defaultTemplates = EmailTemplate::getDefaults();
+
+        require_once __DIR__ . '/../Views/admin/email_templates.php';
+    }
+
+    public function updateEmailTemplate() {
+        if ($_SESSION['role'] !== 'Admin' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+
+        $templateId = filter_input(INPUT_POST, 'templateId', FILTER_VALIDATE_INT);
+        $subject = filter_input(INPUT_POST, 'subject', FILTER_UNSAFE_RAW);
+        $body = $_POST['body']; // Not filtering to allow HTML
+        $useCustom = filter_input(INPUT_POST, 'template_choice', FILTER_UNSAFE_RAW) === 'custom';
+
+        if (!$templateId || !$subject || !$body) {
+            $_SESSION['error_message'] = "All fields are required when saving a custom template.";
+            header('Location: ?controller=admin&action=emailTemplates');
+            exit();
+        }
+
+        $templateModel = new EmailTemplate();
+        if ($templateModel->updateTemplate($templateId, $subject, $body, $useCustom)) {
+            $_SESSION['success_message'] = "Email template updated successfully.";
+        } else {
+            $_SESSION['error_message'] = "Failed to update email template.";
+        }
+
+        header('Location: ?controller=admin&action=emailTemplates');
         exit();
     }
 }

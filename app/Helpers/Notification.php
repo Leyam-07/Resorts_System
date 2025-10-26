@@ -9,8 +9,16 @@ require_once __DIR__ . '/../../config/app.php'; // Ensure BASE_URL is defined
 require_once __DIR__ . '/../../config/mail.php';
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Models/Booking.php';
+require_once __DIR__ . '/../Models/EmailTemplate.php';
 
 class Notification {
+
+    private static function replacePlaceholders($content, $data) {
+        foreach ($data as $key => $value) {
+            $content = str_replace('{{' . $key . '}}', $value, $content);
+        }
+        return $content;
+    }
 
     private static function getMailer() {
         $mail = new PHPMailer(true);
@@ -36,63 +44,47 @@ class Notification {
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
+        $template = EmailTemplate::getTemplate('booking_confirmation');
+        $isCustomTemplate = $template && $template['UseCustom'];
+
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
 
-            // Expiration logic
             $expirationWarning = '';
+            $expirationTime = 'N/A';
             if (!empty($booking->expiresAt) && new DateTime($booking->expiresAt) > new DateTime()) {
                 try {
                     $expiresAtUTC = new DateTime($booking->expiresAt, new DateTimeZone('UTC'));
-                    $expiresAtUTC->setTimezone(new DateTimeZone('Asia/Shanghai')); // Convert to local timezone
+                    $expiresAtUTC->setTimezone(new DateTimeZone('Asia/Shanghai'));
                     $expirationTime = htmlspecialchars($expiresAtUTC->format('F j, Y, g:i A'));
-                    
-                    // Construct payment URL
-                    $paymentUrl = rtrim(BASE_URL, '/') . '/?controller=booking&action=showPaymentForm&id=' . $booking->bookingId;
-
-                    $expirationWarning = "
-                        <div style='border: 1px solid #ffc107; background-color: #fff3cd; padding: 15px; margin-top: 20px; border-radius: 5px;'>
-                            <h4 style='color: #664d03; margin-top: 0;'>Action Required: Secure Your Booking</h4>
-                            <p>To secure your reservation, a payment must be submitted. This booking will automatically expire if no payment is received within <strong>3 hours</strong>.</p>
-                            <p><strong>Your reservation will expire on:</strong> {$expirationTime}</p>
-                        </div>";
-                } catch (Exception $e) {
-                    // Fallback if date conversion fails
-                    $expirationWarning = "<p><strong>Note:</strong> Your booking will expire soon if payment is not made.</p>";
-                }
+                } catch (Exception $e) { /* Ignore date conversion errors */ }
             }
 
-            // Content
+            require_once __DIR__ . '/../Models/Resort.php';
+            $resort = Resort::findById($booking->resortId);
+
+            $placeholders = [
+                'customer_name' => htmlspecialchars($customer['FirstName']),
+                'booking_id' => $booking->bookingId,
+                'booking_date' => date('F j, Y', strtotime($booking->bookingDate)),
+                'timeslot' => htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)),
+                'resort_name' => $resort ? htmlspecialchars($resort->name) : 'our resort',
+                'expiration_time' => $expirationTime
+            ];
+
             $mail->isHTML(true);
-            $mail->Subject = 'Booking Confirmation - Action Required';
-            $mail->Body    = "
-                <p>Dear {$customer['FirstName']},</p>
-                <p>Your booking has been successfully created and is pending payment.</p>
-                
-                {$expirationWarning}
 
-                <p><strong>Customer Information:</strong></p>
-                <ul>
-                    <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
-                    <li><strong>Contact Number:</strong> {$customer['PhoneNumber']}</li>
-                </ul>
-                <p><strong>Booking Details:</strong></p>
-                <ul>
-                    <li>Booking ID: {$booking->bookingId}</li>
-                    <li>Date: {$booking->bookingDate}</li>
-                    <li>Time: " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-                </ul>
-                <p>Thank you for choosing our resort!</p>";
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('booking_confirmation');
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
+
             $mail->AltBody = 'Your booking has been created and requires payment. Booking ID: ' . $booking->bookingId;
-
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Log error instead of halting execution
             error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
-            return false; // Indicate failure but don't stop the booking process
+            return false;
         }
     }
 
@@ -102,24 +94,31 @@ class Notification {
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
+        $template = EmailTemplate::getTemplate('booking_cancellation');
+        $isCustomTemplate = $template && $template['UseCustom'];
+
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'Booking Cancellation';
-            $mail->Body    = "
-                <p>Dear {$customer['FirstName']},</p>
-                <p>Your booking for {$booking->bookingDate} (" . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . ") has been cancelled.</p>
-                <p>If you did not request this cancellation, please contact us immediately.</p>
-                <p>We hope to see you again soon.</p>";
-            $mail->AltBody = 'Your booking for ' . $booking->bookingDate . ' has been cancelled.';
 
+            $placeholders = [
+                'customer_name' => htmlspecialchars($customer['FirstName']),
+                'booking_id' => $booking->bookingId,
+                'booking_date' => date('F j, Y', strtotime($booking->bookingDate)),
+                'timeslot' => htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType))
+            ];
+
+            $mail->isHTML(true);
+            
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('booking_cancellation');
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
+
+            $mail->AltBody = 'Your booking for ' . $booking->bookingDate . ' has been cancelled.';
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Log error: "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"
+            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
             return false;
         }
     }
@@ -128,24 +127,28 @@ class Notification {
         $user = User::findById($userId);
         if (!$user) return false;
 
+        $template = EmailTemplate::getTemplate('welcome_email');
+        $isCustomTemplate = $template && $template['UseCustom'];
+
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($user['Email'], $user['FirstName']);
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'Welcome to Our Resort System!';
-            $mail->Body    = "
-                <p>Dear {$user['FirstName']},</p>
-                <p>Thank you for registering an account with us. We're excited to have you!</p>
-                <p>You can now browse facilities and make bookings at your convenience.</p>
-                <p>Best regards,<br>The Resort Team</p>";
-            $mail->AltBody = 'Welcome to Our Resort System! Thank you for registering.';
+            
+            $placeholders = [
+                'customer_name' => htmlspecialchars($user['FirstName'])
+            ];
 
+            $mail->isHTML(true);
+
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('welcome_email');
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
+            
+            $mail->AltBody = 'Welcome to Our Resort System! Thank you for registering.';
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Log error: "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"
+            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
             return false;
         }
     }
@@ -157,94 +160,44 @@ class Notification {
         $booking = Booking::findById($bookingId);
         if (!$booking) return false;
 
-        // Get resort and admin information
+        $template = EmailTemplate::getTemplate('payment_submission_admin');
+        $isCustomTemplate = $template && $template['UseCustom'];
+
         require_once __DIR__ . '/../Models/Resort.php';
-        require_once __DIR__ . '/../Models/BookingFacilities.php';
-
         $resort = Resort::findById($booking->resortId);
-        $facilities = BookingFacilities::findByBookingId($bookingId);
-
-        // Get admin users for notifications
         $admins = User::getAdminUsers();
-
-        $facilityList = '';
-        if (!empty($facilities)) {
-            $facilityNames = array_map(function($f) { return $f->FacilityName; }, $facilities);
-            $facilityList = 'Facilities: ' . implode(', ', $facilityNames) . '<br>';
-        }
-
-        $paidAmount = $booking->totalAmount - $booking->remainingBalance;
-        $paymentStatus = ($booking->remainingBalance <= 0) ? 'Full Payment' : 'Partial Payment';
-
         $mail = self::getMailer();
-        
+
+        $placeholders = [
+            'customer_name' => htmlspecialchars($customer['FirstName'] . ' ' . $customer['LastName']),
+            'booking_id' => $booking->bookingId,
+            'resort_name' => $resort ? htmlspecialchars($resort->name) : 'N/A',
+            'booking_date' => date('F j, Y', strtotime($booking->bookingDate)),
+            'payment_reference' => htmlspecialchars($booking->paymentReference ?? 'N/A')
+        ];
+
         foreach ($admins as $admin) {
             try {
                 $recipientEmail = $admin['Email'];
-                $recipientName = $admin['FirstName'];
+                if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) continue;
 
-                if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
-                    error_log("Skipping invalid admin email address: " . ($recipientEmail ?? 'not set'));
-                    continue;
-                }
-
-                // Special handling for the placeholder admin email for testing purposes
-                if ($recipientEmail === 'admin@gmail.com') {
-                    $recipientEmail = MAIL_FROM; // Redirect to the system's sender address
-                    error_log("Redirecting placeholder admin email to system sender: " . MAIL_FROM);
-                }
-                
-                $mail->clearAddresses(); // Clear previous addresses
-                $mail->addAddress($recipientEmail, $recipientName);
-                
-                // Content
+                $mail->clearAddresses();
+                $mail->addAddress($recipientEmail, $admin['FirstName']);
                 $mail->isHTML(true);
-                $mail->Subject = 'Payment Submitted - Booking #' . $booking->bookingId;
-                $mail->Body = "
-                    <h2>Payment Proof Submitted</h2>
-                    <p>Dear Admin,</p>
-                    <p>A customer has submitted payment proof for review.</p>
-                    
-                    <h3>Customer Information:</h3>
-                    <ul>
-                        <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
-                        <li><strong>Email:</strong> {$customer['Email']}</li>
-                        <li><strong>Phone:</strong> " . ($customer['PhoneNumber'] ?? 'N/A') . "</li>
-                    </ul>
-                    
-                    <h3>Booking Details:</h3>
-                    <ul>
-                        <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
-                        <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
-                        <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
-                        <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
 
-                        <li>{$facilityList}</li>
-                    </ul>
-                    
-                    <h3>Payment Information:</h3>
-                    <ul>
-                        <li><strong>Total Booking Amount:</strong> ₱" . number_format($booking->totalAmount, 2) . "</li>
-                        <li><strong>Amount Paid:</strong> ₱" . number_format($paidAmount, 2) . "</li>
-                        <li><strong>Remaining Balance:</strong> ₱" . number_format($booking->remainingBalance, 2) . "</li>
-                        <li><strong>Payment Status:</strong> {$paymentStatus}</li>
-                        <li><strong>Reference Number:</strong> " . htmlspecialchars($booking->paymentReference ?? 'N/A') . "</li>
-                    </ul>
-                    
-                    <p><strong>⚠️ Action Required:</strong> Please review and verify the payment proof through the admin dashboard.</p>
-                    <p>The customer is waiting for confirmation to finalize their booking.</p>
-                    
-                    <p><em>Resort Management System</em></p>";
+                $placeholders['admin_name'] = htmlspecialchars($admin['FirstName']);
+
+                $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('payment_submission_admin');
+                $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+                $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
                 
-                $mail->AltBody = "Payment submitted for Booking #{$booking->bookingId} by {$customer['FirstName']} {$customer['LastName']}. Amount: ₱" . number_format($paidAmount, 2) . ". Ref: " . ($booking->paymentReference ?? 'N/A');
-
+                $mail->AltBody = "Payment submitted for Booking #{$booking->bookingId}. Please verify.";
                 $mail->send();
             } catch (Exception $e) {
-                // Log error for this admin but continue with others
+                error_log("Admin notification failed for {$admin['Email']}: {$mail->ErrorInfo}");
                 continue;
             }
         }
-
         return true;
     }
 
@@ -258,80 +211,28 @@ class Notification {
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
-        // Get recent payment for this booking
-        require_once __DIR__ . '/../Models/Payment.php';
-        $payments = Payment::findByBookingId($bookingId);
-        $latestPayment = end($payments); // Get the most recent payment
-
-        // Get resort information
-        require_once __DIR__ . '/../Models/Resort.php';
-        $resort = Resort::findById($booking->resortId);
-
-        // Get facilities information
-        require_once __DIR__ . '/../Models/BookingFacilities.php';
-        $facilities = BookingFacilities::findByBookingId($bookingId);
-
-        $facilityList = '';
-        if (!empty($facilities)) {
-            $facilityNames = array_map(function($f) { return $f->FacilityName; }, $facilities);
-            $facilityList = '<br><strong>Additional Facilities:</strong> ' . implode(', ', $facilityNames);
-        }
+        $template = EmailTemplate::getTemplate('payment_submission_customer');
+        $isCustomTemplate = $template && $template['UseCustom'];
 
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
 
-            // Content
+            $placeholders = [
+                'customer_name' => htmlspecialchars($customer['FirstName']),
+                'booking_id' => $booking->bookingId
+            ];
+
             $mail->isHTML(true);
-            $mail->Subject = 'Payment Submitted - Booking #' . $booking->bookingId . ' (Pending Review)';
-            $mail->Body = "
-                <h2>Payment Submitted Successfully</h2>
-                <p>Dear {$customer['FirstName']},</p>
-                <p>Your payment has been successfully submitted and is now pending administrative review.</p>
 
-                <h3>Customer Information:</h3>
-                <ul>
-                    <li><strong>Name:</strong> {$customer['FirstName']} {$customer['LastName']}</li>
-                    <li><strong>Phone:</strong> {$customer['PhoneNumber']}</li>
-                </ul>
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('payment_submission_customer');
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
 
-                <h3>Booking Details:</h3>
-                <ul>
-                    <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
-                    <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
-                    <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
-                    <li><strong>Timeframe:</strong> " . htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType)) . "</li>
-
-                    {$facilityList}
-                </ul>
-
-                <h3>Payment Details:</h3>
-                <ul>
-                    <li><strong>Total Booking Amount:</strong> ₱" . number_format($booking->totalAmount, 2) . "</li>
-                    <li><strong>Amount Paid This Time:</strong> ₱" . number_format($latestPayment->Amount ?? 0, 2) . "</li>
-                    <li><strong>Payment Method:</strong> " . htmlspecialchars($latestPayment->PaymentMethod ?? 'N/A') . "</li>
-                    <li><strong>Reference Number:</strong> " . htmlspecialchars($booking->paymentReference ?? $latestPayment->Reference ?? 'N/A') . "</li>
-                    <li><strong>Status:</strong> <span style='color: orange;'>Pending Review</span></li>
-                </ul>
-
-                <p><strong>What happens next?</strong></p>
-                <ul>
-                    <li>Our admin team will review your payment proof</li>
-                    <li>You will receive another email once your payment is verified or if more information is needed</li>
-                    <li>Verification typically takes 24-48 hours</li>
-                </ul>
-
-                <p>Thank you for your patience. You can check the status of your booking anytime through your account dashboard.</p>
-
-                <p><em>The Resort Management Team</em></p>";
-
-            $mail->AltBody = "Your payment for Booking #{$booking->bookingId} has been submitted and is pending review. You will be notified once it has been verified.";
-
+            $mail->AltBody = "Your payment for Booking #{$booking->bookingId} has been submitted and is pending review.";
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Log error instead of halting execution
             error_log("Payment submission confirmation email failed: {$mail->ErrorInfo}");
             return false;
         }
@@ -347,66 +248,31 @@ class Notification {
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
-        // Get resort information
-        require_once __DIR__ . '/../Models/Resort.php';
-        $resort = Resort::findById($booking->resortId);
+        $templateType = $isVerified ? 'payment_verified' : 'payment_rejected';
+        $template = EmailTemplate::getTemplate($templateType);
+        $isCustomTemplate = $template && $template['UseCustom'];
 
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
-            
-            if ($isVerified) {
-                // Payment verified - booking confirmed
-                $mail->Subject = 'Payment Verified - Booking Confirmed #' . $booking->bookingId;
-                $statusMessage = ($booking->remainingBalance <= 0) ? 'fully confirmed' : 'partially confirmed';
-                $nextSteps = ($booking->remainingBalance > 0) ?
-                    "<p><strong>Remaining Balance:</strong> ₱" . number_format($booking->remainingBalance, 2) . " - Please complete payment before your visit.</p>" :
-                    "<p>Your booking is fully paid and confirmed!</p>";
-                
-                $mail->Body = "
-                    <h2>Payment Verified!</h2>
-                    <p>Dear {$customer['FirstName']},</p>
-                    <p>Great news! Your payment has been verified and your booking is now {$statusMessage}.</p>
-                    
-                    <h3>Booking Details:</h3>
-                    <ul>
-                        <li><strong>Booking ID:</strong> #{$booking->bookingId}</li>
-                        <li><strong>Resort:</strong> " . htmlspecialchars($resort->name ?? 'N/A') . "</li>
-                        <li><strong>Date:</strong> " . date('F j, Y', strtotime($booking->bookingDate)) . "</li>
-                        <li><strong>Status:</strong> <span style='color: green;'>Confirmed</span></li>
-                    </ul>
-                    
-                    {$nextSteps}
-                    
-                    <p>We look forward to welcoming you to our resort!</p>
-                    <p><em>The Resort Management Team</em></p>";
-            } else {
-                // Payment rejected
-                $mail->Subject = 'Payment Issue - Booking #' . $booking->bookingId;
-                $mail->Body = "
-                    <h2>Payment Verification Issue</h2>
-                    <p>Dear {$customer['FirstName']},</p>
-                    <p>We were unable to verify your recent payment submission for booking #{$booking->bookingId}.</p>
-                    
-                    <p><strong>Please:</strong></p>
-                    <ul>
-                        <li>Check your payment proof image is clear and readable</li>
-                        <li>Ensure the reference number is correct</li>
-                        <li>Resubmit your payment proof through your account</li>
-                    </ul>
-                    
-                    <p>If you need assistance, please contact us directly.</p>
-                    <p><em>The Resort Management Team</em></p>";
-            }
 
-            $mail->AltBody = $isVerified ?
-                "Payment verified! Booking #{$booking->bookingId} is confirmed." :
-                "Payment verification failed for booking #{$booking->bookingId}. Please resubmit.";
+            $placeholders = [
+                'customer_name' => htmlspecialchars($customer['FirstName']),
+                'booking_id' => $booking->bookingId,
+                'remaining_balance' => number_format($booking->remainingBalance, 2)
+            ];
 
+            $mail->isHTML(true);
+
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate($templateType);
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
+
+            $mail->AltBody = $isVerified ? "Payment verified! Booking #{$booking->bookingId} is confirmed." : "Payment verification failed for booking #{$booking->bookingId}.";
             $mail->send();
             return true;
         } catch (Exception $e) {
+            error_log("Payment verification email failed: {$mail->ErrorInfo}");
             return false;
         }
     }
@@ -417,21 +283,26 @@ class Notification {
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
+        $template = EmailTemplate::getTemplate('booking_expired');
+        $isCustomTemplate = $template && $template['UseCustom'];
+
         $mail = self::getMailer();
         try {
-            //Recipients
             $mail->addAddress($customer['Email'], $customer['FirstName']);
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'Booking Expired Due to Non-Payment';
-            $mail->Body    = "
-                <p>Dear {$customer['FirstName']},</p>
-                <p>We're writing to inform you that your booking (#{$booking->bookingId}) for {$booking->bookingDate} has expired.</p>
-                <p>The reservation was automatically cancelled because payment was not received within the 3-hour window.</p>
-                <p>If you are still interested, you will need to create a new booking. Please note that the same time slot may no longer be available.</p>
-                <p>We hope to see you again soon.</p>";
-            $mail->AltBody = 'Your booking #' . $booking->bookingId . ' has expired due to non-payment.';
 
+            $placeholders = [
+                'customer_name' => htmlspecialchars($customer['FirstName']),
+                'booking_id' => $booking->bookingId,
+                'booking_date' => date('F j, Y', strtotime($booking->bookingDate))
+            ];
+
+            $mail->isHTML(true);
+
+            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('booking_expired');
+            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
+            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
+
+            $mail->AltBody = 'Your booking #' . $booking->bookingId . ' has expired due to non-payment.';
             $mail->send();
             return true;
         } catch (Exception $e) {

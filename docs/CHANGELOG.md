@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.9] - 2025-10-26
+
+### Added
+
+- **Custom Email Template Management:** Implemented a comprehensive system for administrators to customize all automated email notifications.
+  - **Admin Interface:** Created a new "Email Templates" page in the admin panel with an accordion view for each notification type.
+  - **UI/UX:** Each template now has a "Default" (read-only) and "Custom" (editable) tab. Administrators can use radio buttons to select which template version to use.
+  - **Backend:** A new `EmailTemplates` table and `EmailTemplate` model were created. The `Notification` helper was refactored to dynamically use either the custom or default template based on the admin's selection.
+
+### Changed
+
+- **Email Content Centralization:** All default email content is now centralized in the `EmailTemplate` model, removing hardcoded strings from the `Notification` helper and improving maintainability.
+
+### Fixed
+
+- **Controller Visibility Error:** Resolved a fatal error (`Call to private method`) by changing the `getDefaults()` method in the `EmailTemplate` model from `private` to `public`, allowing the `AdminController` to access it.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Models/EmailTemplate.php`
+- `app/Views/admin/email_templates.php`
+- `app/Helpers/Notification.php`
+- `app/Views/partials/header.php`
+- `scripts/migrations/create_email_templates_table.php`
+- `scripts/migrations/add_usecustom_to_email_templates.php`
+- `scripts/seed_email_templates.php`
+
 ## [1.44.8] - 2025-10-24
 
 ### Fixed
