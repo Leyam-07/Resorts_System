@@ -35,7 +35,6 @@
                             <select class="form-select" id="add-role" name="role">
                                 <option value="Customer">Customer</option>
                                 <option value="Staff">Staff</option>
-                                <option value="Admin">Admin</option>
                             </select>
                         </div>
                         <div class="mb-3">

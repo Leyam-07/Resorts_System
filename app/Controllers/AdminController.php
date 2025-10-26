@@ -174,7 +174,12 @@ class AdminController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
-
+ 
+            if ($role === 'Admin') {
+                header('Location: ?controller=admin&action=users&error=cannot_create_admin');
+                exit();
+            }
+            
             if ($password !== $confirmPassword) {
                 header('Location: ?controller=admin&action=addUser&error=password_mismatch');
                 exit();
@@ -203,7 +208,13 @@ class AdminController {
             die('User ID not specified.');
         }
         $userId = $_GET['id'];
-
+ 
+        $userToEdit = $this->userModel->findById($userId);
+        if ($userToEdit && $userToEdit['Role'] === 'Admin' && $userId != $_SESSION['user_id']) {
+            header('Location: ?controller=admin&action=users&error=cannot_edit_admin');
+            exit();
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Handle the form submission
             $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);

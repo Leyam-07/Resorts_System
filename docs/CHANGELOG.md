@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.10] - 2025-10-26
+
+### Security
+
+- **Admin Role Protection:** Implemented security enhancements to prevent administrators from creating or editing other admin accounts.
+  - **Backend:** Added validation in `AdminController` to block attempts to create users with the 'Admin' role and to prevent edits on other admin profiles.
+  - **Frontend:** The "Edit" button on the "Manage Users" page is now disabled for other admin accounts, aligning the UI with the new security restrictions.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/users.php`
+
 ## [1.44.9] - 2025-10-26
 
 ### Added

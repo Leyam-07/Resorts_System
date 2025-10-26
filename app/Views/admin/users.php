@@ -19,6 +19,10 @@ require_once __DIR__ . '/../partials/header.php';
             echo "You cannot delete your own account.";
         } elseif ($_GET['error'] === 'cannot_delete_admin') {
             echo "You cannot delete another Admin user.";
+        } elseif ($_GET['error'] === 'cannot_create_admin') {
+            echo "You cannot create another Admin user.";
+        } elseif ($_GET['error'] === 'cannot_edit_admin') {
+            echo "You cannot edit another Admin user.";
         } else {
             echo "An unknown error occurred.";
         }
@@ -57,7 +61,11 @@ require_once __DIR__ . '/../partials/header.php';
                     <?php else: ?>
                         <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
+                    <?php if ($user['Role'] === 'Admin' && $user['UserID'] != $_SESSION['user_id']): ?>
+                       <button type="button" class="btn btn-sm btn-primary" disabled>Edit</button>
+                    <?php else: ?>
+                       <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
+                    <?php endif; ?>
                     <?php if (isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']): ?>
                         <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
                     <?php else: ?>
