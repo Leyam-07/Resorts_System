@@ -450,7 +450,7 @@ class BookingController {
             
             $statusText = '';
             switch ($status) {
-                case 'available': $statusText = 'Available'; break;
+                case 'available': $statusText = 'Weekday'; break;
                 case 'weekend': $statusText = 'Weekend'; break;
                 case 'holiday': $statusText = 'Holiday'; break;
                 case 'partially_booked': $statusText = 'Partially Booked'; break;

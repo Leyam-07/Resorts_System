@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.3] - 2025-10-26
+
+### Changed
+
+- **Calendar UI Clarity:** Improved the user experience of the Availability Calendar.
+  - Renamed the "Available" status label to "Weekday" to reduce confusion.
+  - Adjusted the legend badge colors to use lighter shades, matching the calendar's visual style.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+- `app/Controllers/BookingController.php`
+
 ## [1.45.2] - 2025-10-26
 
 ### Enhanced

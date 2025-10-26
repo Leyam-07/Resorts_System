@@ -360,12 +360,12 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     </div>
                     <div class="legend text-center mb-2">
                         <div class="d-flex flex-wrap gap-1 justify-content-center">
-                            <span class="badge bg-success">Available</span>
-                            <span class="badge bg-warning">Weekend</span>
-                            <span class="badge bg-info">Holiday</span>
-                            <span class="badge bg-primary">Partially Booked</span>
-                            <span class="badge bg-danger">Fully Booked</span>
-                            <span class="badge bg-secondary">Blocked</span>
+                            <span class="badge bg-success-subtle text-success-emphasis">Weekday</span>
+                            <span class="badge bg-warning-subtle text-warning-emphasis">Weekend</span>
+                            <span class="badge bg-info-subtle text-info-emphasis">Holiday</span>
+                            <span class="badge bg-primary-subtle text-primary-emphasis">Partially Booked</span>
+                            <span class="badge bg-danger-subtle text-danger-emphasis">Fully Booked</span>
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis">Blocked</span>
                         </div>
                     </div>
                     <div id="calendarGrid" class="calendar-grid">
