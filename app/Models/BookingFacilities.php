@@ -165,7 +165,7 @@ class BookingFacilities {
     public static function getFacilitiesForBooking($bookingId) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "SELECT f.FacilityID, f.Name
+            "SELECT f.FacilityID, f.Name, f.shortDescription, f.fullDescription
              FROM BookingFacilities bf
              JOIN Facilities f ON bf.FacilityID = f.FacilityID
              WHERE bf.BookingID = :bookingId"

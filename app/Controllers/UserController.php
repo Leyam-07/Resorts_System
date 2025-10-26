@@ -28,6 +28,9 @@ class UserController {
 
        if ($facility) {
            header('Content-Type: application/json');
+           // Format descriptions for display
+           $facility->shortDescription = nl2br(htmlspecialchars($facility->shortDescription));
+           $facility->fullDescription = nl2br(htmlspecialchars($facility->fullDescription));
            echo json_encode($facility);
        } else {
            http_response_code(404);
@@ -66,6 +69,9 @@ class UserController {
 
        if ($resort) {
            header('Content-Type: application/json');
+           // Format descriptions for display
+           $resort->shortDescription = nl2br(htmlspecialchars($resort->shortDescription));
+           $resort->fullDescription = nl2br(htmlspecialchars($resort->fullDescription));
            echo json_encode($resort);
        } else {
            http_response_code(404);
@@ -85,6 +91,11 @@ class UserController {
 
        if ($facilities) {
            header('Content-Type: application/json');
+           // Format descriptions for display
+           foreach ($facilities as $facility) {
+               $facility->shortDescription = nl2br(htmlspecialchars($facility->shortDescription));
+               $facility->fullDescription = nl2br(htmlspecialchars($facility->fullDescription));
+           }
            echo json_encode($facilities);
        } else {
            http_response_code(404);

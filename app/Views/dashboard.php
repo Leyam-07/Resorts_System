@@ -44,7 +44,7 @@ if (isset($_SESSION['user_id'])) {
                         <img src="<?= $resort->mainPhotoURL ? BASE_URL . '/' . htmlspecialchars($resort->mainPhotoURL) : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= htmlspecialchars($resort->name) ?>" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($resort->name) ?></h5>
-                            <p class="card-text"><?= htmlspecialchars($resort->shortDescription) ?></p>
+                            <p class="card-text"><?= nl2br(htmlspecialchars($resort->shortDescription)) ?></p>
                         </div>
                         <div class="card-footer">
                             <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#resortModal" data-resort-id="<?= $resort->resortId ?>">

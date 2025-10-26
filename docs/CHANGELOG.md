@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.44.11] - 2025-10-26
+## [1.45.1] - 2025-10-26
+
+### Fixed
+
+- **Description Formatting:** Fixed a UI bug where line breaks in resort and facility descriptions were not being rendered on customer-facing pages. The system now correctly converts newline characters to HTML `<br>` tags, preserving the original formatting.
+
+### Files Updated
+
+- `app/Views/dashboard.php`
+- `app/Views/booking/create.php`
+- `app/Views/booking/create_guest.php`
+- `app/Views/admin/facilities/preview.php`
+- `app/Controllers/UserController.php`
+- `app/Controllers/BookingController.php`
+- `app/Models/BookingFacilities.php`
+
+## [1.45.0] - 2025-10-26
 
 ### Fixed
 

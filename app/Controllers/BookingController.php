@@ -286,7 +286,9 @@ class BookingController {
         if ($resort) {
             echo json_encode([
                 'resort_id' => $resort->resortId,
-                'name' => $resort->name
+                'name' => $resort->name,
+                'shortDescription' => nl2br(htmlspecialchars($resort->shortDescription)),
+                'fullDescription' => nl2br(htmlspecialchars($resort->fullDescription))
             ]);
         } else {
             http_response_code(404);
@@ -1340,7 +1342,14 @@ class BookingController {
     public function getFacilitiesForBooking() {
         header('Content-Type: application/json');
         
-        if (!isset($_GET['booking_id']) || !isset($_SESSION['user_id'])) {
+        if (!isset($_GET['booking_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Booking ID is required']);
+            return;
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
             echo json_encode(['error' => 'Unauthorized']);
             return;
         }
@@ -1348,14 +1357,27 @@ class BookingController {
         $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
         $booking = Booking::findById($bookingId);
 
-        if (!$booking || $booking->customerId != $_SESSION['user_id']) {
-            echo json_encode(['error' => 'Invalid booking']);
+        if (!$booking) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Booking not found']);
+            return;
+        }
+        
+        if ($booking->customerId != $_SESSION['user_id']) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You are not authorized to view these details']);
             return;
         }
 
         require_once __DIR__ . '/../Models/BookingFacilities.php';
-        $facilities = BookingFacilities::getFacilitiesForBooking($bookingId);
+        $facilitiesData = BookingFacilities::getFacilitiesForBooking($bookingId);
 
-        echo json_encode($facilities);
+        // Format descriptions for display
+        foreach ($facilitiesData as $facility) {
+            $facility->shortDescription = nl2br(htmlspecialchars($facility->shortDescription));
+            $facility->fullDescription = nl2br(htmlspecialchars($facility->fullDescription));
+        }
+
+        echo json_encode($facilitiesData);
     }
 }

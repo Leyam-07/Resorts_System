@@ -144,7 +144,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                                 <i class="<?= htmlspecialchars($resort->icon) ?> text-primary me-2"></i>
                                                 <?= htmlspecialchars($resort->name) ?>
                                             </h5>
-                                            <p class="card-text small text-muted"><?= htmlspecialchars($resort->shortDescription) ?></p>
+                                            <p class="card-text small text-muted"><?= nl2br(htmlspecialchars($resort->shortDescription)) ?></p>
                                         </div>
                                     </label>
                                 </div>
