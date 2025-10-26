@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.2] - 2025-10-26
+
+### Enhanced
+
+- **Guest Booking Experience Overhaul:** Completely transformed the booking process for non-registered "Guest" users from a static preview into a fully interactive and intuitive experience.
+  - **Actionable Modals:** Replaced static "Close" buttons on the guest dashboard's "View Details" modals with dynamic "Book Resort Experience" and "Book This Facility" links, which now redirect to the booking page with the appropriate resort/facility pre-selected.
+  - **Unified Booking Page:** Eliminated code duplication and UI inconsistencies (e.g., broken progress bar) by consolidating the separate `create_guest.php` and `create.php` files into a single, intelligent `create.php` view.
+  - **Conditional UI:** The unified booking page now conditionally displays a "login/register" prompt for guests and correctly handles the "Complete Booking" action based on the user's login status.
+  - **Improved Dashboard Guidance:** Added a prominent alert message at the top of the main guest dashboard, clearly prompting users to log in or register to access full booking functionalities.
+
+### Fixed
+
+- **Facility Pre-selection Bug:** Corrected an issue where clicking "Book This Facility" from the details modal would fail to pre-select the facility on the subsequent booking page.
+- **Guest Progress Bar:** Resolved the bug where the multi-step progress bar was not updating for guests by implementing the unified booking page.
+
+### Files Updated
+
+- `app/Controllers/BookingController.php`
+- `app/Views/booking/create.php`
+- `app/Views/partials/footer.php`
+- `app/Views/dashboard.php`
+- `app/Views/booking/create_guest.php` (Removed/Superseded)
+
 ## [1.45.1] - 2025-10-26
 
 ### Fixed

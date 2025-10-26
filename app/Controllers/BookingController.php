@@ -96,29 +96,13 @@ class BookingController {
     }
 
     public function showBookingForm() {
-        if (!isset($_SESSION['user_id'])) {
-            // For guests, we still need to fetch resorts to display them
-            $resorts = Resort::findAll();
-            require_once __DIR__ . '/../Models/User.php';
-            $adminUsers = User::getAdminUsers();
-            $adminContact = !empty($adminUsers) ? $adminUsers[0] : null;
+        // Unify guest and customer booking form logic
+        $isGuest = !isset($_SESSION['user_id']);
 
-            // Add necessary properties for the view
-            require_once __DIR__ . '/../Models/ResortTimeframePricing.php';
-            foreach ($resorts as $resort) {
-                $resort->icon = $this->getIconForResort($resort->name);
-                $resort->mainPhotoURL = BASE_URL . '/' . $resort->mainPhotoURL;
-                $resort->hasCompletePricing = ResortTimeframePricing::hasCompletePricing($resort->resortId);
-            }
-
-            include __DIR__ . '/../Views/booking/create_guest.php';
-            return;
-        }
-
-        // Role-based access control: Only allow Customers to see this form
-        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'Customer') {
+        // Role-based access control: Only allow Customers or Guests
+        if (!$isGuest && (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Customer')) {
             $_SESSION['error_message'] = "You do not have permission to access this page.";
-            header('Location: index.php'); // Redirect non-customers away
+            header('Location: index.php');
             exit;
         }
 
@@ -152,6 +136,7 @@ class BookingController {
         unset($_SESSION['old_input']);
 
         // Pass admin contact information for pricing incomplete notice
+        // Pass a flag to the view to handle UI differences
         require_once __DIR__ . '/../Views/booking/create.php';
     }
 

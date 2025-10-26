@@ -8,6 +8,11 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 <div class="container mt-5">
+    <?php if (!isset($_SESSION['user_id'])): ?>
+    <div class="alert alert-info" role="alert">
+        Please <a href="?action=login">login</a> or <a href="?action=showRegisterForm">register</a> to make a reservation and manage your bookings.
+    </div>
+    <?php endif; ?>
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-4">

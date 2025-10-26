@@ -176,12 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             // Set Footer Button
-            const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
-            if (userRole === 'Customer') {
-                modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}" class="btn btn-success">Book Resort Experience</a>`;
-            } else {
-                modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
-            }
+            modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}" class="btn btn-success">Book Resort Experience</a>`;
         });
 
         // Use event delegation for facility buttons
@@ -244,12 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <h5>Description</h5><p>${data.fullDescription || 'No description available.'}</p><hr>
                     <p><strong>Price:</strong> ₱${parseFloat(data.rate).toFixed(2)}</p>`;
 
-                const userRole = '<?= $_SESSION['role'] ?? 'Guest' ?>';
-                if (userRole === 'Customer') {
-                    modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}&facility_id=${data.facilityId}" class="btn btn-success">Book This Facility</a>`;
-                } else {
-                    modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
-                }
+                modalFooter.innerHTML = `<a href="?controller=booking&action=showBookingForm&resort_id=${resortId}&facility_id=${data.facilityId}" class="btn btn-success">Book This Facility</a>`;
 
                 const mainPhoto = detailsTab.querySelector('#main-facility-photo');
                 const thumbnails = detailsTab.querySelectorAll('.thumbnail-item');

@@ -1,6 +1,11 @@
 <?php
 $pageTitle = "New Reservation";
-require_once __DIR__ . '/../partials/header.php';
+// Conditionally load the header based on user session
+if (isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/../partials/header.php';
+} else {
+    require_once __DIR__ . '/../partials/guest_header.php';
+}
 
 // Get pre-selected resort ID and facility ID from URL if available
 $selectedResortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
@@ -21,6 +26,13 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
         </div>
     </div>
 </div>
+
+<!-- Guest Notice -->
+<?php if (!isset($_SESSION['user_id'])): ?>
+    <div class="alert alert-info" role="alert">
+        Please <a href="?action=login">login</a> or <a href="?action=showRegisterForm">register</a> to create a new reservation.
+    </div>
+<?php endif; ?>
 
 <!-- Progressive Step Indicators -->
 <div class="row mb-4">
@@ -832,6 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const stepIndicators = document.querySelectorAll('.step-indicator');
 
     // State tracking
+    const isGuest = <?= !isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
     let currentBasePrice = 0;
     let currentPricingData = null; // Store current pricing data
     let availableFacilities = [];
@@ -1674,7 +1687,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submission handler to include facility IDs
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
-        // Add hidden inputs for selected facility IDs
+        if (isGuest) {
+            e.preventDefault();
+            const confirmation = confirm("You need to be logged in to complete the booking. Would you like to log in or register now?");
+            if (confirmation) {
+                // Save booking details to session/local storage before redirecting
+                const bookingDetails = {
+                    resort_id: selectedResortId,
+                    timeframe: selectedTimeframe,
+                    booking_date: dateInput.value,
+                    facility_ids: selectedFacilities.map(f => f.id)
+                };
+                sessionStorage.setItem('pendingBooking', JSON.stringify(bookingDetails));
+                window.location.href = '?action=login';
+            }
+            return;
+        }
+
+        // Add hidden inputs for selected facility IDs for logged-in users
         selectedFacilities.forEach(facility => {
             const input = document.createElement('input');
             input.type = 'hidden';
