@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.44.11] - 2025-10-26
+
+### Fixed
+
+- **Facility Editing Data Loss:** Resolved a series of critical bugs in the "Manage Resort" page where editing a facility would cause data loss.
+  - **Deletion Bug:** Fixed an issue where editing and saving a facility would detach it from its resort, making it appear as if it was deleted.
+  - **Data Preservation:** Corrected the `editFacility()` method in `AdminController.php` to load existing facility data before applying updates, preventing unedited fields (like the "Full Description") from being cleared.
+  - **Validation Errors:** Fixed an "Undefined array key" warning by adding a validation rule for the `full_description` field in `ValidationHelper.php`.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Models/Facility.php`
+- `app/Helpers/ValidationHelper.php`
+
 ## [1.44.10] - 2025-10-26
 
 ### Security

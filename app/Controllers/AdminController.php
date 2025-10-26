@@ -377,12 +377,18 @@ class AdminController {
             $facilityId = filter_input(INPUT_POST, 'facilityId', FILTER_VALIDATE_INT);
             if (!$facilityId) { die('Invalid Facility ID.'); }
 
-            $facility = new Facility();
-            $facility->facilityId = $facilityId;
+            // First, get the existing facility data from the database
+            $facility = Facility::findById($facilityId);
+            if (!$facility) {
+                die('Facility not found.');
+            }
+
+            // Now, update the object with the validated data from the form
             $facility->name = $validatedData['name'];
             $facility->rate = $validatedData['rate'];
             $facility->shortDescription = $validatedData['short_description'];
-            $facility->fullDescription = $validatedData['description'];
+            $facility->fullDescription = $validatedData['full_description']; // Corrected from 'description'
+            $facility->resortId = $validatedData['resort_id'];
 
             // Handle new photo uploads
             $newPhotoURLs = $this->handlePhotoUpload('photos', 'facilities');
@@ -615,9 +621,11 @@ class AdminController {
             }
             
             if (Resort::update($resort)) {
-                header('Location: ?controller=admin&action=management&status=resort_updated&active_resort_id=' . $resortId);
+                $_SESSION['success_message'] = "Resort updated successfully.";
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $resortId);
             } else {
-                header('Location: ?controller=admin&action=management&error=update_failed&active_resort_id=' . $resortId);
+                $_SESSION['error_message'] = "Failed to update resort.";
+                header('Location: ?controller=admin&action=management&active_resort_id=' . $resortId);
             }
             exit();
         }

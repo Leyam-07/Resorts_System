@@ -231,7 +231,8 @@ class ValidationHelper {
             'name' => 'required|sanitize|min:2|max:100',
             'rate' => 'required|float|min:0|max:50000',
             'short_description' => 'sanitize|max:255',
-            'description' => 'sanitize|max:1000'
+            'description' => 'sanitize|max:1000',
+            'full_description' => 'sanitize|max:5000'
         ];
 
         $customMessages = [
@@ -243,7 +244,8 @@ class ValidationHelper {
             'rate.min' => 'Rate cannot be negative',
             'rate.max' => 'Rate cannot exceed ₱50,000',
             'short_description.max' => 'Short description cannot exceed 255 characters',
-            'description.max' => 'Description cannot exceed 1000 characters'
+            'description.max' => 'Description cannot exceed 1000 characters',
+            'full_description.max' => 'Full description cannot exceed 5000 characters'
         ];
 
         return ErrorHandler::validateInput($data, $rules, $customMessages);
