@@ -14,6 +14,8 @@ class UserController {
 
    public function dashboard() {
        $resorts = Resort::findAll();
+       $admins = User::getAdminUsers();
+       $admin = !empty($admins) ? $admins[0] : null;
        include __DIR__ . '/../Views/dashboard.php';
    }
 

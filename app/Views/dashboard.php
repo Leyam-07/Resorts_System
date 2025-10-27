@@ -14,29 +14,66 @@ if (isset($_SESSION['user_id'])) {
     </div>
     <?php endif; ?>
     <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3><?php if (isset($_SESSION['user_id'])): ?>
+        <!-- Welcome Card -->
+        <div class="col-lg-7 mb-4 mb-lg-0">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h3 class="mb-0">
+                        <?php if (isset($_SESSION['user_id'])): ?>
                             Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!
                         <?php else: ?>
                             Welcome, Guest!
-                        <?php endif; ?></h3>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            Customer Dashboard
-                        <?php else: ?>
-                            Browse Our Resorts
                         <?php endif; ?>
-                    </h5>
-                    <p class="card-text">Browse our resorts and book your next getaway.</p>
+                    </h3>
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <p class="card-text mb-3">Explore our collection of beautiful resorts and book your next unforgettable getaway with just a few clicks.</p>
+                    <p class="card-text mb-3">Our platform is designed to make your booking experience seamless and enjoyable.</p>
+                    <p class="card-text">Should you have any questions or require assistance, we are here to help.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Contact Card -->
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">Admin Contact</h4>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <?php if (isset($_SESSION['user_id']) && $admin): ?>
+                        <div class="text-center">
+                            <img src="<?= $admin['ProfileImageURL'] ? BASE_URL . '/' . htmlspecialchars($admin['ProfileImageURL']) : 'https://via.placeholder.com/100' ?>" class="img-fluid rounded-circle mb-3" alt="Admin" style="width: 100px; height: 100px; object-fit: cover;">
+                            <h6><?= htmlspecialchars($admin['FirstName'] . ' ' . $admin['LastName']) ?></h6>
+                            <p class="mb-1"><i class="fas fa-phone me-2"></i><?= htmlspecialchars($admin['PhoneNumber']) ?></p>
+                            <p class="mb-1"><i class="fas fa-envelope me-2"></i><?= htmlspecialchars($admin['Email']) ?></p>
+                            <?php if (!empty($admin['Socials'])): ?>
+                                <?php
+                                $socials = preg_split("/\r\n|\n|\r/", $admin['Socials']);
+                                foreach ($socials as $socialLink):
+                                    if (!empty(trim($socialLink))):
+                                ?>
+                                        <p class="mb-1"><i class="fas fa-link me-2"></i><a href="<?= htmlspecialchars(trim($socialLink)) ?>" target="_blank"><?= htmlspecialchars(trim($socialLink)) ?></a></p>
+                                <?php
+                                    endif;
+                                endforeach;
+                                ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center">
+                            <img src="https://via.placeholder.com/100" class="img-fluid rounded-circle mb-3" alt="Admin" style="width: 100px; height: 100px; object-fit: cover;">
+                            <p class="mb-1"><i>Admin details are available for registered users only.</i></p>
+                            <br>
+                            <p class="mb-1"><a href="?action=login">Login</a> or <a href="?action=showRegisterForm">Register</a> to view contact information.</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-
+    
+    <br>
     <h2 class="text-center mb-4">Our Resorts</h2>
 
     <?php if (empty($resorts)): ?>

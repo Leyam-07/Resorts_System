@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.7] - 2025-10-27
+
+### Enhanced
+
+- **Customer Dashboard UI/UX Overhaul:** Significantly improved the customer-facing dashboard for better usability, trust, and mobile responsiveness.
+  - **Admin Contact Card:** Added a new card to display administrator contact information (profile picture, name, phone, email, and socials), making it easier for customers to connect for support. This information is hidden from non-registered guests to protect privacy.
+  - **Responsive Layout:** The main welcome/contact section was refactored from a single card into a responsive two-card layout. The cards display side-by-side on desktops and stack vertically on mobile devices, preventing content collision.
+  - **Visual Refinements:** Iteratively improved the layout by adding vertical separators, adjusting column proportions, centering text, and adding padding for a cleaner, more professional appearance.
+  - **Expanded Social Links:** The "Socials" display now parses a line-separated list of URLs and displays each link individually, providing direct access to the admin's different social profiles.
+
+### Files Updated
+
+- `app/Controllers/UserController.php`
+- `app/Views/dashboard.php`
+
 ## [1.45.6] - 2025-10-27
 
 ### Changed
