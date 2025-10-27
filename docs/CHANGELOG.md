@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.6] - 2025-10-27
+
+### Changed
+
+- **Admin User Management UI/UX:**
+  - Switched the positions of the "Notes" and "Socials" columns on the "Manage Users" page for better logical flow. The change was applied to the main user table, the "Edit User" modal, and the associated JavaScript.
+  - Disabled the "Delete" button for all users with the 'Admin' role to prevent accidental deletions and align with backend security rules.
+
+### Security
+
+- **Admin Self-Editing Restrictions:** Implemented a rule to prevent administrators from editing their own notes.
+  - **Frontend:** The "Notes" field is now hidden in the "Edit User" modal when an administrator edits their own profile.
+  - **Backend:** Added server-side validation to the `editUser` function to ignore any submitted "notes" data when an admin updates their own profile, ensuring the restriction cannot be bypassed.
+
+### Files Updated
+
+- `app/Views/admin/users.php`
+- `app/Views/admin/user_modals.php`
+- `app/Controllers/AdminController.php`
+
 ## [1.45.5] - 2025-10-27
 
 ### Added

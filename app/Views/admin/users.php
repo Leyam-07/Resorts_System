@@ -40,8 +40,8 @@ require_once __DIR__ . '/../partials/header.php';
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Phone</th>
-                <th>Notes</th>
                 <th>Socials</th>
+                <th>Notes</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -55,8 +55,8 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['FirstName']) ?></td>
                 <td><?= htmlspecialchars($user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
-                <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td><?= htmlspecialchars($user['Socials'] ?? '') ?></td>
+                <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td>
                     <?php if ($user['Role'] === 'Customer'): ?>
                         <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
@@ -68,10 +68,10 @@ require_once __DIR__ . '/../partials/header.php';
                     <?php else: ?>
                        <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
                     <?php endif; ?>
-                    <?php if (isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']): ?>
+                    <?php if ((isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']) || ($user['Role'] === 'Admin')): ?>
                         <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
                     <?php else: ?>
-                         <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
+                        <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
                     <?php endif; ?>
                 </td>
             </tr>
@@ -90,6 +90,7 @@ require_once __DIR__ . '/../partials/header.php';
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const currentUserId = <?php echo json_encode($_SESSION['user_id']); ?>;
         // Edit User Modal - Data Population
         var editUserModal = document.getElementById('editUserModal');
         editUserModal.addEventListener('show.bs.modal', function (event) {
@@ -112,19 +113,26 @@ require_once __DIR__ . '/../partials/header.php';
                     form.querySelector('#edit-firstName').value = user.FirstName;
                     form.querySelector('#edit-lastName').value = user.LastName;
                     form.querySelector('#edit-phoneNumber').value = user.PhoneNumber;
-                    form.querySelector('#edit-notes').value = user.Notes;
                     form.querySelector('#edit-socials').value = user.Socials;
+                    form.querySelector('#edit-notes').value = user.Notes;
 
                     const imageContainer = form.querySelector('#edit-profile-image-container');
                     const imagePreview = form.querySelector('#edit-profile-image-preview');
                     const uploadContainer = form.querySelector('#profile-image-upload-container');
                     const socialsContainer = form.querySelector('#edit-socials').closest('.mb-3');
+                    const notesContainer = form.querySelector('#edit-notes').closest('.mb-3');
                     const baseUrl = "<?php echo BASE_URL; ?>";
 
                     if (user.Role === 'Admin') {
                         imageContainer.style.display = 'block';
                         uploadContainer.style.display = 'block';
                         socialsContainer.style.display = 'block';
+
+                        if (user.UserID == currentUserId) {
+                            notesContainer.style.display = 'none';
+                        } else {
+                            notesContainer.style.display = 'block';
+                        }
 
                         if (user.ProfileImageURL) {
                             imagePreview.src = baseUrl + '/' + user.ProfileImageURL;
@@ -135,6 +143,7 @@ require_once __DIR__ . '/../partials/header.php';
                         imageContainer.style.display = 'none';
                         uploadContainer.style.display = 'none';
                         socialsContainer.style.display = 'none';
+                        notesContainer.style.display = 'block';
                     }
                 });
         });

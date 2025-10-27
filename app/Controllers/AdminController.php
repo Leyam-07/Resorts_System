@@ -252,6 +252,10 @@ class AdminController {
             }
 
 
+            if ($userToEdit['Role'] === 'Admin' && $userId == $_SESSION['user_id']) {
+                $notes = $userToEdit['Notes']; // Keep existing notes
+            }
+
             $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes, $socials, $profileImageURL);
 
             if ($result === true) {

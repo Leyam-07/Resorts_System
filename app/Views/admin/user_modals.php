@@ -102,12 +102,12 @@
                         <input type="text" class="form-control" id="edit-phoneNumber" name="phoneNumber">
                     </div>
                     <div class="mb-3">
-                        <label for="notes" class="form-label">Notes</label>
-                        <textarea class="form-control" id="edit-notes" name="notes" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
                         <label for="edit-socials" class="form-label">Socials</label>
                         <textarea class="form-control" id="edit-socials" name="socials" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="edit-notes" name="notes" rows="3"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
