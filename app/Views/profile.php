@@ -33,6 +33,13 @@ require_once __DIR__ . '/partials/header.php';
                     <label for="phoneNumber" class="form-label">Phone Number</label>
                     <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($user['PhoneNumber']); ?>">
                 </div>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+                <div class="mb-3">
+                    <label for="socials" class="form-label">Socials</label>
+                    <textarea class="form-control" id="socials" name="socials" rows="3"><?php echo htmlspecialchars($user['Socials'] ?? ''); ?></textarea>
+                    <div class="form-text">Enter social media links, one per line.</div>
+                </div>
+                <?php endif; ?>
                 <hr>
                 <h5>Change Password</h5>
                 <div class="mb-3">

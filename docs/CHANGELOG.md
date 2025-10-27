@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.4] - 2025-10-27
+
+### Added
+
+- **Admin Socials Information:** Implemented a new "Socials" field exclusively for Admin users, allowing them to add social media links to their profiles.
+  - **Database:** Added a `Socials` column to the `Users` table.
+  - **UI/UX:** The "Socials" field is now visible on the Admin registration page, the Admin profile page, and in the "Edit User" modal in the admin panel.
+  - **Role-Based Access:** The feature is strictly limited to Admins; the field is not visible or editable for Staff or Customer roles.
+
+### Files Updated
+
+- `scripts/migrations/add_socials_to_users.php`
+- `app/Views/register-admin.php`
+- `app/Views/profile.php`
+- `app/Models/User.php`
+- `app/Controllers/AdminController.php`
+- `app/Controllers/UserController.php`
+- `app/Views/admin/user_modals.php`
+- `app/Views/admin/users.php`
+- `app/Helpers/ValidationHelper.php`
+
 ## [1.45.3] - 2025-10-26
 
 ### Changed

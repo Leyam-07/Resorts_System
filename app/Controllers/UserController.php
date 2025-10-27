@@ -191,7 +191,9 @@ class UserController {
                 'Admin',
                 $_POST['firstName'] ?? '',
                 $_POST['lastName'] ?? '',
-                $_POST['phoneNumber'] ?? ''
+                $_POST['phoneNumber'] ?? '',
+                null,
+                $_POST['socials'] ?? ''
             );
 
             if ($result === true) {
@@ -259,11 +261,15 @@ class UserController {
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
+            $socials = null;
+            if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin') {
+                $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW);
+            }
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
 
             // Update user details
-            $result = User::update($userId, $username, $email, $firstName, $lastName, $phoneNumber);
+            $result = User::update($userId, $username, $email, $firstName, $lastName, $phoneNumber, null, $socials);
 
             if ($result) {
                 // Update the session variables

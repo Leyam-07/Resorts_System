@@ -189,6 +189,12 @@ class ValidationHelper {
                 $result['valid'] = false;
                 $result['errors']['username'][] = 'Username can only contain letters, numbers, and underscores';
             }
+            if (isset($data['role']) && $data['role'] === 'Admin') {
+                if (empty($data['socials'])) {
+                    $result['valid'] = false;
+                    $result['errors']['socials'][] = 'Socials field is required for Admins.';
+                }
+            }
         }
 
         return $result;

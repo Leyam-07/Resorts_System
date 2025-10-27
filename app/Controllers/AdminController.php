@@ -174,6 +174,7 @@ class AdminController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
+            $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW) ?? '';
  
             if ($role === 'Admin') {
                 header('Location: ?controller=admin&action=users&error=cannot_create_admin');
@@ -185,7 +186,7 @@ class AdminController {
                 exit();
             }
 
-            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes);
+            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes, $socials);
             if ($result === true) {
                 header('Location: ?controller=admin&action=users&status=user_added');
                 exit();
@@ -223,8 +224,9 @@ class AdminController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
+            $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW) ?? '';
 
-            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes);
+            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes, $socials);
 
             if ($result === true) {
                 // If admin edits their own profile, update session

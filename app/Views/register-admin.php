@@ -78,6 +78,11 @@
                             <label for="phoneNumber" class="form-label">Phone Number</label>
                             <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($oldInput['phoneNumber'] ?? ''); ?>">
                         </div>
+                        <div class="mb-3">
+                            <label for="socials" class="form-label">Socials</label>
+                            <textarea class="form-control" id="socials" name="socials" rows="3" required><?php echo htmlspecialchars($oldInput['socials'] ?? ''); ?></textarea>
+                            <div class="form-text">Enter social media links, one per line.</div>
+                        </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Register Admin</button>
                         </div>

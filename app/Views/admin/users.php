@@ -41,6 +41,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <th>Last Name</th>
                 <th>Phone</th>
                 <th>Notes</th>
+                <th>Socials</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -55,6 +56,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
                 <td><?= htmlspecialchars($user['Notes']) ?></td>
+                <td><?= htmlspecialchars($user['Socials'] ?? '') ?></td>
                 <td>
                     <?php if ($user['Role'] === 'Customer'): ?>
                         <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
@@ -111,6 +113,7 @@ require_once __DIR__ . '/../partials/header.php';
                     form.querySelector('#edit-lastName').value = user.LastName;
                     form.querySelector('#edit-phoneNumber').value = user.PhoneNumber;
                     form.querySelector('#edit-notes').value = user.Notes;
+                    form.querySelector('#edit-socials').value = user.Socials;
                 });
         });
 
