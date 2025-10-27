@@ -113,13 +113,21 @@ class UserController {
            exit();
        }
        $resortId = $_GET['id'];
-       $feedback = Feedback::findByResortId($resortId);
+       $feedbackRecords = Feedback::findByResortId($resortId);
 
-       if ($feedback) {
+       if ($feedbackRecords) {
+           $feedbackWithCounts = [];
+           foreach ($feedbackRecords as $record) {
+               $record->completedBookings = Booking::countCompletedBookingsByCustomer($record->CustomerID);
+               $feedbackWithCounts[] = $record;
+           }
            header('Content-Type: application/json');
-           echo json_encode($feedback);
+           echo json_encode($feedbackWithCounts);
        } else {
-           http_response_code(404);
+           // To ensure consistency, we'll return a 200 OK with an empty array
+           // even if no feedback is found. This prevents the client-side
+           // fetch from throwing an error on a 404 response.
+           header('Content-Type: application/json');
            echo json_encode([]); // Return empty array if no feedback
        }
        exit();

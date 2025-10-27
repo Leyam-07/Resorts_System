@@ -60,7 +60,11 @@ require_once __DIR__ . '/../../partials/header.php';
                                 <?php foreach ($resortFeedbacks as $feedback): ?>
                                     <tr>
                                         <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback->BookingDate))) ?></td>
-                                        <td><?= htmlspecialchars($feedback->CustomerName) ?></td>
+                                        <td>
+                                            <?= htmlspecialchars($feedback->CustomerName) ?>
+                                            <br>
+                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback->CustomerID) ?> Completed Bookings)</small>
+                                        </td>
                                         <td><strong><?= htmlspecialchars($feedback->ResortName) ?></strong></td>
                                         <td><?= htmlspecialchars($feedback->FacilityName) ?></td>
                                         <td>
@@ -107,7 +111,11 @@ require_once __DIR__ . '/../../partials/header.php';
                                 <?php foreach ($facilityFeedbacks as $feedback): ?>
                                     <tr>
                                         <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback->BookingDate))) ?></td>
-                                        <td><?= htmlspecialchars($feedback->CustomerName) ?></td>
+                                        <td>
+                                            <?= htmlspecialchars($feedback->CustomerName) ?>
+                                            <br>
+                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback->CustomerID) ?> Completed Bookings)</small>
+                                        </td>
                                         <td><strong><?= htmlspecialchars($feedback->ResortName) ?></strong></td>
                                         <td><?= htmlspecialchars($feedback->FacilityName) ?></td>
                                         <td>

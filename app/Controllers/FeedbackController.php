@@ -73,8 +73,53 @@ class FeedbackController {
         $resorts = Resort::findAll();
 
         $resortFeedbacks = Feedback::findAll($resortId);
+        // This line will be replaced by the more efficient function below
+        // $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortId);
+        
         $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortId);
 
         require_once __DIR__ . '/../Views/admin/feedback/index.php';
+    }
+
+    public function getFacilityFeedback() {
+        header('Content-Type: application/json');
+
+        if (!isset($_GET['facility_id'])) {
+            echo json_encode(['success' => false, 'error' => 'Facility ID is required.']);
+            exit;
+        }
+        $facilityId = filter_var($_GET['facility_id'], FILTER_VALIDATE_INT);
+        if (!$facilityId) {
+            echo json_encode(['success' => false, 'error' => 'Invalid Facility ID.']);
+            exit;
+        }
+
+        // Get reviews for the facility
+        $reviews = Feedback::findFacilityFeedbackDetails($facilityId);
+
+        // Get the total number of completed bookings for the facility
+        $totalCompletedBookings = Booking::countCompletedBookingsByFacility($facilityId);
+
+        if ($reviews === false) {
+            echo json_encode(['success' => false, 'error' => 'Failed to retrieve feedback data.']);
+            exit;
+        }
+        
+        $reviewsWithCounts = [];
+        foreach ($reviews as $review) {
+            $review['completedBookings'] = Booking::countCompletedBookingsByCustomer($review['CustomerID']);
+            $reviewsWithCounts[] = $review;
+        }
+
+        $response = [
+            'success' => true,
+            'feedback' => [
+                'reviews' => $reviewsWithCounts,
+                'totalCompletedBookings' => $totalCompletedBookings
+            ]
+        ];
+
+        echo json_encode($response);
+        exit;
     }
 }

@@ -48,7 +48,7 @@ class Feedback {
 
     public static function findAll($resortId = null) {
         $db = self::getDB();
-        $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.Username as CustomerName,
+        $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.UserID as CustomerID, u.Username as CustomerName,
                          COALESCE(fac.Name, 'Overall Resort Experience') as FacilityName, r.Name as ResortName, b.ResortID
                   FROM Feedback f
                   JOIN Bookings b ON f.BookingID = b.BookingID
@@ -81,7 +81,7 @@ class Feedback {
     public static function findAllFacilityFeedbacks($resortId = null) {
         $db = self::getDB();
         $query = "SELECT ff.FacilityFeedbackID, ff.FeedbackID, ff.FacilityID, ff.Rating, ff.Comment, ff.CreatedAt,
-                         u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID
+                         u.UserID as CustomerID, u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID
                   FROM FacilityFeedback ff
                   JOIN Feedback f ON ff.FeedbackID = f.FeedbackID
                   JOIN Bookings b ON f.BookingID = b.BookingID
@@ -131,7 +131,7 @@ class Feedback {
    public static function findByResortId($resortId) {
        $db = self::getDB();
        $stmt = $db->prepare(
-           "SELECT f.Rating, f.Comment, f.CreatedAt, u.Username as CustomerName, COALESCE(fac.Name, 'General Resort Experience') as FacilityName
+           "SELECT f.Rating, f.Comment, f.CreatedAt, u.UserID as CustomerID, u.Username as CustomerName, COALESCE(fac.Name, 'General Resort Experience') as FacilityName
             FROM Feedback f
             JOIN Bookings b ON f.BookingID = b.BookingID
             JOIN Users u ON b.CustomerID = u.UserID
@@ -203,5 +203,24 @@ class Feedback {
             \ErrorHandler::log("Feedback submission failed: " . $e->getMessage(), 'ERROR');
             return false;
         }
+    }
+
+    /**
+     * Get all feedback entries for a specific facility with customer details.
+     */
+    public static function findFacilityFeedbackDetails($facilityId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT ff.Rating, ff.Comment, ff.CreatedAt, u.UserID AS CustomerID, u.Username AS CustomerName
+             FROM FacilityFeedback ff
+             JOIN Feedback f ON ff.FeedbackID = f.FeedbackID
+             JOIN Bookings b ON f.BookingID = b.BookingID
+             JOIN Users u ON b.CustomerID = u.UserID
+             WHERE ff.FacilityID = :facilityId
+             ORDER BY ff.CreatedAt DESC"
+        );
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -841,4 +841,34 @@ class Booking {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+
+    /**
+     * Get the total number of completed bookings for a specific facility.
+     */
+    public static function countCompletedBookingsByFacility($facilityId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(DISTINCT b.BookingID)
+             FROM Bookings b
+             JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             WHERE bf.FacilityID = :facilityId
+               AND b.Status = 'Completed'"
+        );
+        $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Get the total number of completed bookings for a specific customer.
+     */
+    public static function countCompletedBookingsByCustomer($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) FROM Bookings WHERE CustomerID = :customerId AND Status = 'Completed'"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
 }

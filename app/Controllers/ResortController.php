@@ -10,7 +10,7 @@ class ResortController {
     public function __construct() {
         // Public actions that don't require admin role can be whitelisted.
         $action = $_GET['action'] ?? 'index';
-        $publicActions = ['getFacilitiesJson', 'getResortJson'];
+        $publicActions = ['getFacilitiesJson', 'getResortJson', 'getResortFacilities'];
 
         if (in_array($action, $publicActions)) {
             if (!isset($_SESSION['user_id'])) {
@@ -133,6 +133,20 @@ class ResortController {
             error_log("Error in getFacilitiesJson: " . $e->getMessage());
             echo json_encode(['success' => false, 'error' => 'A server error occurred while fetching facilities.']);
         }
+        exit();
+    }
+
+    public function getResortFacilities() {
+        header('Content-Type: application/json');
+        $resortId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$resortId) {
+            http_response_code(400);
+            echo json_encode([]);
+            exit();
+        }
+
+        $facilities = Facility::getFacilitiesWithFeedback($resortId);
+        echo json_encode($facilities);
         exit();
     }
 }

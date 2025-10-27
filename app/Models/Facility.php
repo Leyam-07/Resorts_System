@@ -9,6 +9,7 @@ class Facility {
    public $fullDescription;
    public $mainPhotoURL;
    public $photos = [];
+   public $completedBookingsCount = 0;
 
     private static $db;
 
@@ -246,5 +247,37 @@ class Facility {
              ORDER BY r.Name ASC, f.Name ASC"
         );
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Get facilities with aggregated feedback data for a specific resort.
+     */
+    public static function getFacilitiesWithFeedback($resortId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT
+                f.FacilityID,
+                f.Name,
+                f.ShortDescription,
+                f.FullDescription,
+                f.MainPhotoURL,
+                COALESCE(AVG(ff.Rating), 0) as AverageRating,
+                COUNT(ff.FacilityFeedbackID) as FeedbackCount
+            FROM Facilities f
+            LEFT JOIN FacilityFeedback ff ON f.FacilityID = ff.FacilityID
+            WHERE f.ResortID = :resortId
+            GROUP BY f.FacilityID"
+        );
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $facilities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Now, for each facility, get the completed bookings count
+        foreach ($facilities as &$facility) {
+            $facility['CompletedBookingsCount'] = Booking::countCompletedBookingsByFacility($facility['FacilityID']);
+        }
+
+        return $facilities;
     }
 }

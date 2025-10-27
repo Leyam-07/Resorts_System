@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.8] - 2025-10-27
+
+### Enhanced
+
+- **Feedback System Trustworthiness:** Improved the customer feedback system by displaying the total number of a customer's completed bookings next to their name on all feedback entries. This provides social proof and adds context to their reviews.
+- **Facility Usage Metrics:** The facility list and facility-specific feedback tabs now also display a count of how many completed bookings have included that facility.
+
+### Fixed
+
+- **Feedback Loading Error:** Resolved a critical bug that caused the "Feedback" tab in modals to fail with a "Could not load feedback" error. The issue was traced to a missing `CustomerID` in the underlying database queries.
+- **UI Consistency:** Corrected the capitalization of the "Completed Bookings" label across all new displays for a more professional and consistent user interface.
+
+### Files Updated
+
+- `app/Models/Booking.php`
+- `app/Models/Facility.php`
+- `app/Models/Feedback.php`
+- `app/Controllers/FeedbackController.php`
+- `app/Controllers/ResortController.php`
+- `app/Controllers/UserController.php`
+- `app/Views/partials/footer.php`
+- `app/Views/admin/feedback/index.php`
+
 ## [1.45.7] - 2025-10-27
 
 ### Enhanced

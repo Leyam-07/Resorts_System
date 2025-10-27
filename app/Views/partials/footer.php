@@ -122,6 +122,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         let facilitiesHtml = '<div class="row">';
                         data.forEach(facility => {
+                            const avgRating = parseFloat(facility.AverageRating).toFixed(1);
+                            const feedbackCount = facility.FeedbackCount;
+                            const completedBookings = facility.CompletedBookingsCount;
+
                             facilitiesHtml += `
                                 <div class="col-md-6 mb-3">
                                     <div class="card h-100">
@@ -129,6 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <div class="card-body">
                                             <h6 class="card-title">${facility.name}</h6>
                                             <p class="card-text small">${facility.shortDescription}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-warning">${'⭐'.repeat(Math.round(avgRating))} (${avgRating})</span>
+                                                <small class="text-muted">${feedbackCount} reviews</small>
+                                            </div>
+                                             <small class="text-muted">Used in ${completedBookings} Completed Bookings</small>
                                         </div>
                                         <div class="card-footer">
                                             <button class="btn btn-secondary btn-sm w-100 view-facility-details" data-facility-id="${facility.facilityId}">View Details</button>
@@ -145,34 +154,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Fetch Resort Feedback
             fetch('?controller=user&action=getResortFeedback&id=' + resortId)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        // If the server returns a 404 or other error, treat it as empty feedback
+                        return [];
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.length === 0) {
+                    const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
+                    if (!data || data.length === 0) {
                         feedbackTab.innerHTML = '<p class="text-center">No feedback available for this resort yet.</p>';
-                        // Update tab to show (0)
-                        const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
                         if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (0)';
                     } else {
                         let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
                         data.forEach(review => {
+                            const completedBookingsText = review.completedBookings > 0 ? `<span class="badge bg-light text-dark ms-2">${review.completedBookings} Completed Bookings</span>` : '';
                             feedbackHtml += `
                                 <div class="card mb-2">
                                     <div class="card-body">
-                                        <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
-                                        <p class="card-text">${review.Comment}</p>
+                                        <h6 class="card-title">${review.CustomerName} ${completedBookingsText} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                        <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                         <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                     </div>
                                 </div>`;
                         });
                         feedbackTab.innerHTML = feedbackHtml;
-                        // Update tab to show count
-                        const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
                         if (feedbackTabTrigger) feedbackTabTrigger.textContent = `Feedback (${data.length})`;
                     }
                 }).catch(error => {
                     feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
                     const feedbackTabTrigger = resortModalEl.querySelector('#resort-feedback-tab');
-                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback';
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (Error)';
                 });
 
             // Set Footer Button
@@ -256,35 +269,45 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
         // Fetch Facility Feedback
-        fetch('?controller=user&action=getFacilityFeedback&id=' + facilityId)
+        // Fetch Facility Feedback
+        fetch('?controller=feedback&action=getFacilityFeedback&facility_id=' + facilityId)
             .then(response => response.json())
             .then(data => {
-                if (data.length === 0) {
-                    feedbackTab.innerHTML = '<p class="text-center">No feedback available for this facility yet.</p>';
-                    // Update tab to show (0)
-                    const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
+                const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
+
+                if (!data.success) {
+                    feedbackTab.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (Error)';
+                    return;
+                }
+
+                const reviews = data.feedback.reviews || [];
+                const totalBookings = data.feedback.totalCompletedBookings;
+
+                if (reviews.length === 0) {
+                    feedbackTab.innerHTML = `<p class="text-center">No reviews available for this facility yet.</p>
+                                             <p class="text-center text-muted">Used in ${totalBookings} Completed Bookings.</p>`;
                     if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (0)';
                 } else {
-                    let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
-                    data.forEach(review => {
+                    let feedbackHtml = `<h5>Customer Reviews (${reviews.length})</h5>
+                                        <p class="text-muted">This facility has been part of ${totalBookings} Completed Bookings.</p><hr>`;
+                    reviews.forEach(review => {
                         feedbackHtml += `
                             <div class="card mb-2">
                                 <div class="card-body">
-                                    <h6 class="card-title">${review.CustomerName} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
-                                    <p class="card-text">${review.Comment}</p>
+                                    <h6 class="card-title">${review.CustomerName} <span class="badge bg-light text-dark ms-2">${review.completedBookings} Completed Bookings</span><span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                    <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                     <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                 </div>
                             </div>`;
                     });
                     feedbackTab.innerHTML = feedbackHtml;
-                    // Update tab to show count
-                    const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
-                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = `Feedback (${data.length})`;
+                    if (feedbackTabTrigger) feedbackTabTrigger.textContent = `Feedback (${reviews.length})`;
                 }
             }).catch(error => {
-                feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
                 const feedbackTabTrigger = facilityModalEl.querySelector('#feedback-tab');
-                if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback';
+                feedbackTab.innerHTML = '<p class="text-danger">Could not load feedback.</p>';
+                if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (Error)';
             });
     }
 });
