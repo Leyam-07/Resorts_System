@@ -10,9 +10,20 @@ require_once __DIR__ . '/partials/header.php';
         <?php if (isset($_GET['error']) && $_GET['error'] === 'password_mismatch'): ?>
             <div class="alert alert-danger alert-dismissible fade show">Passwords do not match.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         <?php endif; ?>
-        <form action="?controller=user&action=profile" method="POST">
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+        <div class="text-center mb-4">
+            <img src="<?php echo !empty($user['ProfileImageURL']) ? BASE_URL . '/' . htmlspecialchars($user['ProfileImageURL']) : 'https://via.placeholder.com/150'; ?>" alt="Profile Image" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+        </div>
+        <?php endif; ?>
+        <form action="?controller=user&action=profile" method="POST" enctype="multipart/form-data">
             <div style="max-height: 78vh; overflow-y: auto; padding-right: 15px;">
                 <fieldset id="profile-fieldset" disabled>
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+                    <div class="mb-3">
+                        <label for="profileImage" class="form-label">Update Profile Image</label>
+                        <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*">
+                    </div>
+                    <?php endif; ?>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['Username']); ?>" required>

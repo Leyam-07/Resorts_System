@@ -73,7 +73,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editUserForm" action="" method="POST">
+                <form id="editUserForm" action="" method="POST" enctype="multipart/form-data">
+                    <div id="edit-profile-image-container" class="text-center mb-3" style="display: none;">
+                        <img id="edit-profile-image-preview" src="" alt="Profile Image" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                    </div>
+                    <div class="mb-3" id="profile-image-upload-container" style="display: none;">
+                        <label for="edit-profileImage" class="form-label">Update Profile Image</label>
+                        <input class="form-control" type="file" id="edit-profileImage" name="profileImage" accept="image/*">
+                    </div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="edit-username" name="username" required>

@@ -114,6 +114,28 @@ require_once __DIR__ . '/../partials/header.php';
                     form.querySelector('#edit-phoneNumber').value = user.PhoneNumber;
                     form.querySelector('#edit-notes').value = user.Notes;
                     form.querySelector('#edit-socials').value = user.Socials;
+
+                    const imageContainer = form.querySelector('#edit-profile-image-container');
+                    const imagePreview = form.querySelector('#edit-profile-image-preview');
+                    const uploadContainer = form.querySelector('#profile-image-upload-container');
+                    const socialsContainer = form.querySelector('#edit-socials').closest('.mb-3');
+                    const baseUrl = "<?php echo BASE_URL; ?>";
+
+                    if (user.Role === 'Admin') {
+                        imageContainer.style.display = 'block';
+                        uploadContainer.style.display = 'block';
+                        socialsContainer.style.display = 'block';
+
+                        if (user.ProfileImageURL) {
+                            imagePreview.src = baseUrl + '/' + user.ProfileImageURL;
+                        } else {
+                            imagePreview.src = 'https://via.placeholder.com/150';
+                        }
+                    } else {
+                        imageContainer.style.display = 'none';
+                        uploadContainer.style.display = 'none';
+                        socialsContainer.style.display = 'none';
+                    }
                 });
         });
 

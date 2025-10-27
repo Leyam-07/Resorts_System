@@ -33,7 +33,7 @@ class User {
      * @param string $phoneNumber
      * @return bool
      */
-    public static function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null, $notes = null, $socials = null) {
+    public static function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null, $notes = null, $socials = null, $profileImageURL = null) {
         // Check for existing user
         if (self::findByUsername($username)) {
             return 'username_exists';
@@ -45,8 +45,8 @@ class User {
         // Hash the password for security
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $query = "INSERT INTO " . self::$table . " (Username, Password, Email, Role, FirstName, LastName, PhoneNumber, Notes, Socials)
-                  VALUES (:username, :password, :email, :role, :firstName, :lastName, :phoneNumber, :notes, :socials)";
+        $query = "INSERT INTO " . self::$table . " (Username, Password, Email, Role, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials)
+                  VALUES (:username, :password, :email, :role, :firstName, :lastName, :phoneNumber, :profileImageURL, :notes, :socials)";
 
         $stmt = self::getDB()->prepare($query);
 
@@ -58,6 +58,7 @@ class User {
         $stmt->bindParam(':firstName', $firstName);
         $stmt->bindParam(':lastName', $lastName);
         $stmt->bindParam(':phoneNumber', $phoneNumber);
+        $stmt->bindParam(':profileImageURL', $profileImageURL);
         $stmt->bindParam(':notes', $notes);
         $stmt->bindParam(':socials', $socials);
 
@@ -101,7 +102,7 @@ class User {
     }
 
     public static function findAll() {
-        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
+        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -116,7 +117,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function update($id, $username, $email, $firstName, $lastName, $phoneNumber, $notes = null, $socials = null) {
+    public static function update($id, $username, $email, $firstName, $lastName, $phoneNumber, $notes = null, $socials = null, $profileImageURL = null) {
         // Check if the new username or email already exists for another user
         $query = "SELECT UserID FROM " . self::$table . " WHERE (Username = :username OR Email = :email) AND UserID != :id";
         $stmt = self::getDB()->prepare($query);
@@ -128,26 +129,34 @@ class User {
             return 'username_or_email_exists';
         }
 
-        $query = "UPDATE " . self::$table . " SET
-                    Username = :username,
-                    Email = :email,
-                    FirstName = :firstName,
-                    LastName = :lastName,
-                    PhoneNumber = :phoneNumber,
-                    Notes = :notes,
-                    Socials = :socials
-                  WHERE UserID = :id";
+        $fields = [
+            'Username' => $username,
+            'Email' => $email,
+            'FirstName' => $firstName,
+            'LastName' => $lastName,
+            'PhoneNumber' => $phoneNumber,
+            'Notes' => $notes,
+            'Socials' => $socials,
+        ];
+
+        if ($profileImageURL !== null) {
+            $fields['ProfileImageURL'] = $profileImageURL;
+        }
+
+        $setClauses = [];
+        foreach ($fields as $key => $value) {
+            $setClauses[] = "$key = :$key";
+        }
+        $setClause = implode(', ', $setClauses);
+
+        $query = "UPDATE " . self::$table . " SET $setClause WHERE UserID = :id";
         
         $stmt = self::getDB()->prepare($query);
 
         $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':firstName', $firstName);
-        $stmt->bindParam(':lastName', $lastName);
-        $stmt->bindParam(':phoneNumber', $phoneNumber);
-        $stmt->bindParam(':notes', $notes);
-        $stmt->bindParam(':socials', $socials);
+        foreach ($fields as $key => &$value) {
+            $stmt->bindParam(":$key", $value);
+        }
 
         try {
             return $stmt->execute();

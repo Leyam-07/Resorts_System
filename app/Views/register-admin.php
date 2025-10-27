@@ -45,7 +45,7 @@
                         }
                     ?>
                     <!-- Registration Form -->
-                    <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST">
+                    <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="role" value="Admin">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
@@ -82,6 +82,10 @@
                             <label for="socials" class="form-label">Socials</label>
                             <textarea class="form-control" id="socials" name="socials" rows="3" required><?php echo htmlspecialchars($oldInput['socials'] ?? ''); ?></textarea>
                             <div class="form-text">Enter social media links, one per line.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profileImage" class="form-label">Profile Image</label>
+                            <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*" required>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Register Admin</button>

@@ -172,7 +172,7 @@ class UserController {
     public function registerAdmin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Phase 6: Enhanced validation
-            $validation = ValidationHelper::validateUserRegistration($_POST);
+            $validation = ValidationHelper::validateUserRegistration($_POST, $_FILES);
 
             if (!$validation['valid']) {
                 $_SESSION['error_message'] = implode('<br>', array_merge(...array_values($validation['errors'])));
@@ -182,6 +182,20 @@ class UserController {
             }
 
             $validatedData = $validation['data'];
+
+            $profileImageURL = null;
+            if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $fileName = uniqid() . '-' . basename($_FILES['profileImage']['name']);
+                $targetFile = $uploadDir . $fileName;
+
+                if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $targetFile)) {
+                    $profileImageURL = 'public/uploads/profiles/' . $fileName;
+                }
+            }
 
             // Attempt to create the user with Admin role
             $result = User::create(
@@ -193,7 +207,8 @@ class UserController {
                 $_POST['lastName'] ?? '',
                 $_POST['phoneNumber'] ?? '',
                 null,
-                $_POST['socials'] ?? ''
+                $_POST['socials'] ?? '',
+                $profileImageURL
             );
 
             if ($result === true) {
@@ -262,14 +277,29 @@ class UserController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $socials = null;
+            $profileImageURL = null;
+
             if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin') {
                 $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW);
+                if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    $fileName = uniqid() . '-' . basename($_FILES['profileImage']['name']);
+                    $targetFile = $uploadDir . $fileName;
+
+                    if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $targetFile)) {
+                        $profileImageURL = 'public/uploads/profiles/' . $fileName;
+                    }
+                }
             }
+            
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
 
             // Update user details
-            $result = User::update($userId, $username, $email, $firstName, $lastName, $phoneNumber, null, $socials);
+            $result = User::update($userId, $username, $email, $firstName, $lastName, $phoneNumber, null, $socials, $profileImageURL);
 
             if ($result) {
                 // Update the session variables

@@ -224,9 +224,35 @@ class AdminController {
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
-            $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW) ?? '';
+            $socials = null;
+            $profileImageURL = null;
 
-            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes, $socials);
+            if ($userToEdit['Role'] === 'Admin') {
+                $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW) ?? '';
+
+                if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    $fileName = uniqid() . '-' . basename($_FILES['profileImage']['name']);
+                    $targetFile = $uploadDir . $fileName;
+
+                    if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $targetFile)) {
+                        $profileImageURL = 'public/uploads/profiles/' . $fileName;
+
+                        if (!empty($userToEdit['ProfileImageURL'])) {
+                            $oldImagePath = __DIR__ . '/../../' . $userToEdit['ProfileImageURL'];
+                            if (file_exists($oldImagePath)) {
+                                unlink($oldImagePath);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            $result = $this->userModel->update($userId, $username, $email, $firstName, $lastName, $phoneNumber, $notes, $socials, $profileImageURL);
 
             if ($result === true) {
                 // If admin edits their own profile, update session

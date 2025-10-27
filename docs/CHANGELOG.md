@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.5] - 2025-10-27
+
+### Added
+
+- **Admin Profile Image:** Implemented a new, required "Profile Image" feature exclusively for Admin users.
+  - **Database:** Added a `ProfileImageURL` column to the `Users` table via a new migration script.
+  - **UI/UX:**
+    - The profile image is now a required field on the Admin registration page.
+    - The image is displayed on the Admin's "My Profile" page and in the "Edit User" modal.
+    - The feature is strictly limited to Admins; the image and upload fields are not visible to Staff or Customer roles on any page.
+  - **Validation:** Added robust server-side validation to ensure a valid image file is uploaded during admin registration.
+
+### Files Updated
+
+- `scripts/migrations/add_profile_image_to_users.php`
+- `app/Models/User.php`
+- `app/Controllers/UserController.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/register-admin.php`
+- `app/Views/profile.php`
+- `app/Views/admin/user_modals.php`
+- `app/Views/admin/users.php`
+- `app/Helpers/ValidationHelper.php`
+
 ## [1.45.4] - 2025-10-27
 
 ### Added

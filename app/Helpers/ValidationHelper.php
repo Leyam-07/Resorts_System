@@ -150,9 +150,49 @@ class ValidationHelper {
     }
 
     /**
+     * Validate profile image file upload
+     */
+    public static function validateProfileImageFile($file) {
+        $errors = [];
+
+        // Check if file was uploaded
+        if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Profile image is required';
+            return ['valid' => false, 'errors' => $errors];
+        }
+
+        // Check file size (5MB max)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($file['size'] > $maxSize) {
+            $errors[] = 'Image file size must not exceed 5MB';
+        }
+
+        // Check file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+            $errors[] = 'Profile image must be a valid image (JPEG, PNG, or GIF)';
+        }
+
+        // Check if file is actually an image
+        $imageInfo = getimagesize($file['tmp_name']);
+        if ($imageInfo === false) {
+            $errors[] = 'The uploaded file is not a valid image';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    /**
      * Validate user registration data
      */
-    public static function validateUserRegistration($data) {
+    public static function validateUserRegistration($data, $files = []) {
         $rules = [
             'username' => 'required|sanitize|min:3|max:50',
             'email' => 'required|email',
@@ -193,6 +233,13 @@ class ValidationHelper {
                 if (empty($data['socials'])) {
                     $result['valid'] = false;
                     $result['errors']['socials'][] = 'Socials field is required for Admins.';
+                }
+
+                // Validate profile image for Admin registration
+                $fileValidation = self::validateProfileImageFile($files['profileImage'] ?? null);
+                if (!$fileValidation['valid']) {
+                    $result['valid'] = false;
+                    $result['errors']['profileImage'] = $fileValidation['errors'];
                 }
             }
         }
