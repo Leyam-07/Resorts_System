@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `LastName` VARCHAR(255),
   `Email` VARCHAR(255) NOT NULL UNIQUE,
   `PhoneNumber` VARCHAR(20),
+  `ProfileImageURL` VARCHAR(255) NULL,
   `Notes` TEXT,
+  `Socials` TEXT,
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -95,6 +97,7 @@ CREATE TABLE IF NOT EXISTS `Bookings` (
   `PaymentReference` VARCHAR(100),
   `RemainingBalance` DECIMAL(10, 2) DEFAULT 0.00,
   `Status` ENUM('Pending', 'Confirmed', 'Cancelled', 'Completed') NOT NULL,
+  `ExpiresAt` DATETIME NULL DEFAULT NULL,
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`CustomerID`) REFERENCES `Users`(`UserID`),
   FOREIGN KEY (`FacilityID`) REFERENCES `Facilities`(`FacilityID`),
@@ -303,6 +306,23 @@ CREATE TABLE IF NOT EXISTS `BookingAuditTrail` (
     INDEX `idx_created_at` (`CreatedAt`),
     INDEX `idx_field_name` (`FieldName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+### Table: `EmailTemplates`
+
+Stores customizable email templates for automated notifications.
+
+```sql
+CREATE TABLE IF NOT EXISTS `EmailTemplates` (
+  `TemplateID` INT PRIMARY KEY AUTO_INCREMENT,
+  `TemplateType` VARCHAR(255) NOT NULL UNIQUE,
+  `Subject` VARCHAR(255) NOT NULL,
+  `Body` TEXT NOT NULL,
+  `UseCustom` BOOLEAN NOT NULL DEFAULT FALSE,
+  `IsEnabled` BOOLEAN DEFAULT TRUE,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 ```
 
 ---
