@@ -328,7 +328,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
             <!-- Enhanced Submit Section -->
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-success btn-lg shadow" id="submitBtn" disabled>
+                <button type="button" class="btn btn-success btn-lg shadow" id="submitBtn" disabled <?php if (isset($_SESSION['user_id'])): ?>data-bs-toggle="modal" data-bs-target="#termsModal"<?php endif; ?>>
                     <i class="fas fa-calendar-check"></i> Complete Booking
                 </button>
                 <a href="?" class="btn btn-outline-secondary">
@@ -385,6 +385,82 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     </div>
 </div>
 
+<!-- Terms and Conditions Modal -->
+<?php if (isset($_SESSION['user_id'])): ?>
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Last Updated: October 28, 2025</strong></p>
+                <p>Welcome to our resort booking platform. By completing your reservation through this system, you <strong id="termsGuestName" class="text-primary"></strong> agree to be bound by the following Terms and Conditions. This document constitutes a legally binding agreement between you and the resort property you are booking <strong id="termsResortName" class="text-primary"></strong>. Please read these terms carefully.</p>
+
+                <h6>1. Introduction</h6>
+                <p>This platform provides an integrated digital management system for private pool resorts. Our service is to facilitate the booking and reservation process between you and the Resort. The specific policies of each Resort are determined by its management, and by booking, you agree to adhere to them.</p>
+
+                <h6>2. Booking and Reservations</h6>
+                <ul>
+                    <li><strong>Accuracy of Information:</strong> You are responsible for providing complete and accurate information for your booking, including your name, contact details, and the number of guests. Any inaccuracies may lead to the cancellation of your reservation or additional charges.</li>
+                    <li><strong>Booking Confirmation:</strong> A reservation is considered tentative until the required payment is made and confirmed by the system. You will receive an official booking confirmation via email or our platform's notification system once the payment is successfully processed and verified. Please present this confirmation upon arrival at the Resort.</li>
+                    <li><strong>Platform's Role:</strong> Our system acts as an intermediary to manage reservations. The contract for the resort stay and any services provided is directly between you and the Resort.</li>
+                </ul>
+
+                <h6>3. Payment Policies</h6>
+                <ul>
+                    <li><strong>Down Payment:</strong> A down payment is required to secure your booking. The specific amount and deadline will be indicated during the booking process. Failure to pay the down payment by the specified deadline will result in the automatic cancellation of your tentative reservation.</li>
+                    <li><strong>Full Payment:</strong> The remaining balance must be paid on or before the date specified in your booking confirmation. The Resort reserves the right to cancel your booking if the full payment is not received on time.</li>
+                    <li><strong>Payment Methods:</strong> We accept payments through Gcash, bank transfer, and other methods as specified on the payment page. You are responsible for any transaction fees that may be charged by the payment provider.</li>
+                    <li><strong>Refunds:</strong> All payments are generally non-refundable. Refunds will only be considered under specific circumstances, such as cancellations initiated by the Resort or as outlined in the "Cancellation and Modifications" section below.</li>
+                </ul>
+
+                <h6>4. Cancellation and Modifications</h6>
+                <ul>
+                    <li><strong>Guest-Initiated Cancellation:</strong> If you wish to cancel your booking, you must do so through the system or by contacting the Resort directly.
+                        <ul>
+                            <li>Cancellations made more than <strong>14 days</strong> prior to the check-in date may be eligible for a partial refund, subject to a cancellation fee determined by the Resort.</li>
+                            <li>Cancellations made within <strong>14 days</strong> of the check-in date are strictly non-refundable.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Booking Modifications:</strong> Any request to change your booking dates or other details is subject to availability and the Resort's approval. Additional charges may apply.</li>
+                    <li><strong>No-Show Policy:</strong> If you do not arrive for your booking on the scheduled check-in date (a "no-show"), your booking will be canceled without any refund.</li>
+                </ul>
+
+                <h6>5. Resort Rules and Guest Conduct</h6>
+                <ul>
+                    <li><strong>Adherence to Rules:</strong> You and all members of your party agree to abide by the specific rules and regulations of the Resort, which may include policies on noise levels, visitor access, use of facilities, and safety procedures. These rules will be provided by the Resort.</li>
+                    <li><strong>Liability for Damages:</strong> The registered Guest is personally liable for any damages caused to the resort property, facilities, or equipment by you or any member of your party. The cost of repairs or replacement will be charged to you.</li>
+                    <li><strong>Right to Refuse Service:</strong> The Resort management reserves the right to refuse entry or evict any guest or party who acts in a disorderly, disruptive, or unsafe manner, without any refund.</li>
+                </ul>
+
+                <h6>6. Limitation of Liability</h6>
+                <ul>
+                    <li><strong>At the Resort:</strong> The booking platform and its operators are not liable for any personal injury, accidents, loss of property, or any other damages that may occur during your stay at the Resort. All activities and the use of facilities (such as the swimming pool) are at your own risk.</li>
+                    <li><strong>System Availability:</strong> While we strive to ensure the system is available 24/7, we do not guarantee that it will be uninterrupted or error-free. We are not liable for any loss or inconvenience caused by technical issues, system downtime, or booking errors.</li>
+                </ul>
+
+                <h6>7. Data Privacy</h6>
+                <p>We are committed to protecting your privacy. The personal information you provide during the booking process will be collected, stored, and used in compliance with the Data Privacy Act. Your data will be used to process and manage your booking, communicate important information about your reservation, and maintain a record of your booking history. Your information will not be shared with third parties for marketing purposes without your explicit consent.</p>
+
+                <h6>8. Acceptance of Terms</h6>
+                <p>By checking the "I accept the Terms and Conditions" box and proceeding with your booking, you acknowledge that you have read, understood, and agree to be bound by all the terms and conditions outlined above.</p>
+            </div>
+            <div class="modal-footer">
+                <div class="form-check me-auto">
+                    <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" disabled>
+                    <label class="form-check-label" for="termsCheckbox">
+                        I have read and accept the Terms and Conditions
+                    </label>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Decline</button>
+                <button type="button" class="btn btn-primary" id="acceptTermsBtn" disabled>I Accept</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 <!-- Add CSS for enhanced UI components -->
 <style>
 /* Hide native date picker calendar icon */
@@ -1685,13 +1761,13 @@ document.addEventListener('DOMContentLoaded', function() {
         currentBasePrice = 0;
     }
 
-    // Form submission handler to include facility IDs
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    const bookingForm = document.getElementById('bookingForm');
+
+    // This handles the guest case, where the modal attributes are not on the button
+    submitBtn.addEventListener('click', function() {
         if (isGuest) {
-            e.preventDefault();
             const confirmation = confirm("You need to be logged in to complete the booking. Would you like to log in or register now?");
             if (confirmation) {
-                // Save booking details to session/local storage before redirecting
                 const bookingDetails = {
                     resort_id: selectedResortId,
                     timeframe: selectedTimeframe,
@@ -1701,17 +1777,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 sessionStorage.setItem('pendingBooking', JSON.stringify(bookingDetails));
                 window.location.href = '?action=login';
             }
-            return;
         }
+        // For logged-in users, the button's data-bs-toggle attribute handles opening the modal.
+    });
 
-        // Add hidden inputs for selected facility IDs for logged-in users
-        selectedFacilities.forEach(facility => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'facility_ids[]';
-            input.value = facility.id;
-            this.appendChild(input);
+    // This handles the logged-in user case, where the modal exists
+    if (!isGuest) {
+        const termsModalEl = document.getElementById('termsModal');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const acceptTermsBtn = document.getElementById('acceptTermsBtn');
+        const modalBody = termsModalEl.querySelector('.modal-body');
+        const termsGuestName = document.getElementById('termsGuestName');
+        const termsResortName = document.getElementById('termsResortName');
+
+        termsModalEl.addEventListener('show.bs.modal', function (event) {
+            // Populate dynamic data
+            const guestName = '<?= htmlspecialchars($_SESSION['user_name'] ?? 'Valued Customer') ?>';
+            const resortName = document.getElementById('summaryResort').textContent;
+            if (termsGuestName) termsGuestName.textContent = guestName;
+            if (termsResortName) termsResortName.textContent = resortName;
+
+            // Reset modal state
+            modalBody.scrollTop = 0;
+            termsCheckbox.checked = false;
+            termsCheckbox.disabled = true;
+            acceptTermsBtn.disabled = true;
         });
+
+        modalBody.addEventListener('scroll', function() {
+            if (modalBody.scrollHeight - modalBody.scrollTop <= modalBody.clientHeight + 5) {
+                termsCheckbox.disabled = false;
+            }
+        });
+
+        termsCheckbox.addEventListener('change', function() {
+            acceptTermsBtn.disabled = !this.checked;
+        });
+
+        acceptTermsBtn.addEventListener('click', function() {
+            // Add hidden inputs for selected facility IDs before submitting
+            bookingForm.querySelectorAll('input[name="facility_ids[]"]').forEach(input => input.remove());
+            selectedFacilities.forEach(facility => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'facility_ids[]';
+                input.value = facility.id;
+                bookingForm.appendChild(input);
+            });
+            // Submit the form
+            bookingForm.submit();
+        });
+    }
+
+    // Prevent the form from being submitted by pressing Enter in a field
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // If the form is submitted via Enter key, and the user is logged in, show the modal.
+        if (!isGuest && !submitBtn.disabled) {
+            const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+            termsModal.show();
+        }
     });
 });
 </script>

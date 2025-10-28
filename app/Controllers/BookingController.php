@@ -106,6 +106,20 @@ class BookingController {
             exit;
         }
 
+        // Ensure full name is set in session for existing users
+        if (!$isGuest && !isset($_SESSION['user_name'])) {
+            $user = User::findById($_SESSION['user_id']);
+            if ($user) {
+                $firstName = $user['FirstName'] ?? '';
+                $lastName = $user['LastName'] ?? '';
+                $fullName = trim($firstName . ' ' . $lastName);
+                if (empty($fullName)) {
+                    $fullName = $user['Username'];
+                }
+                $_SESSION['user_name'] = $fullName;
+            }
+        }
+
         // Fetch all resorts and their facilities
         $resorts = Resort::findAll();
 

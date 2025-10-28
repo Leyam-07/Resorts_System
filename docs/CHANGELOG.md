@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.9] - 2025-10-28
+
+### Added
+
+- **Terms and Conditions Modal:** Implemented a mandatory Terms and Conditions modal on the booking page to enhance user trust and clarify liability.
+  - **Conditional Display:** The modal is now intelligently displayed only to logged-in users. Guest users are prompted to log in, streamlining the user flow.
+  - **Dynamic Content:** The modal's text is dynamically populated with the current user's name and the selected resort's name for a personalized experience.
+  - **Interaction Logic:** Users must scroll to the bottom of the terms before they can enable an "I Accept" checkbox, which in turn enables the final confirmation button.
+
+### Changed
+
+- **Booking Workflow:** The "Complete Booking" button on `app/Views/booking/create.php` now triggers the Terms and Conditions modal for registered users, instead of submitting the form directly.
+
+### Fixed
+
+- **Terms and Conditions Modal Customer Name Display:** Resolved a critical issue where the Terms and Conditions modal displayed "Valued Customer" instead of the user's actual full name. This occurred because the session variable `$_SESSION['user_name']` was not being set during login, causing the fallback to always trigger.
+  - **Root Cause:** Session user name variable was unset for existing logged-in users, falling back to "Valued Customer".
+  - **Solution:** Modified login logic to construct and store the full name in session using `FirstName + LastName` or `Username`. Added profile update synchronization and booking controller fallback for already logged-in users to refresh the session data.
+  - **Implemented Files:** `app/Controllers/UserController.php`, `app/Controllers/BookingController.php`.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+- `app/Controllers/UserController.php`
+- `app/Controllers/BookingController.php`
+
 ## [1.45.8] - 2025-10-27
 
 ### Enhanced

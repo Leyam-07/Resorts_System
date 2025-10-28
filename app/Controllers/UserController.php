@@ -253,6 +253,15 @@ class UserController {
                 $_SESSION['username'] = $user['Username'];
                 $_SESSION['role'] = $user['Role'];
 
+                // Set full name for display purposes
+                $firstName = $user['FirstName'] ?? '';
+                $lastName = $user['LastName'] ?? '';
+                $fullName = trim($firstName . ' ' . $lastName);
+                if (empty($fullName)) {
+                    $fullName = $user['Username'];
+                }
+                $_SESSION['user_name'] = $fullName;
+
                 if ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'Staff') {
                    header('Location: ?controller=admin&action=dashboard');
                 } else {
@@ -314,6 +323,17 @@ class UserController {
             if ($result) {
                 // Update the session variables
                 $_SESSION['username'] = $username;
+                // Also update user_name for display purposes
+                $updatedUser = User::findById($userId);
+                if ($updatedUser) {
+                    $firstName = $updatedUser['FirstName'] ?? '';
+                    $lastName = $updatedUser['LastName'] ?? '';
+                    $fullName = trim($firstName . ' ' . $lastName);
+                    if (empty($fullName)) {
+                        $fullName = $updatedUser['Username'];
+                    }
+                    $_SESSION['user_name'] = $fullName;
+                }
             }
 
             // Update password if provided
