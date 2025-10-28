@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.0] - 2025-10-28
+
+### Enhanced
+
+- **Flexible Same-Day Bookings UI:** Improved user experience for partially booked dates by adding "Already Booked" visual indicators on dimmed timeframe cards.
+  - **Automated Selection Logic:** When a partially booked date is selected from the availability calendar, the system now automatically selects the single available timeframe and displays "Already Booked" labels on disabled timeframe cards only when needed.
+  - **Clear Visual Feedback:** Dimmed timeframes now clearly indicate unavailability with "Already Booked" text, preventing user confusion about booking status.
+  - **Smart Label Management:** Labels are conditionally displayed to show occupancy status, ensuring only unavailable timeframes are marked with the appropriate indicator.
+  - **Enhanced JavaScript Logic:** Updated `updateTimeframeStates()` function to manage label visibility and disable only unavailable options while keeping the UI accessible and informative.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+
 ## [1.45.9] - 2025-10-28
 
 ### Added

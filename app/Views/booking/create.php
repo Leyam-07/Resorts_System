@@ -140,7 +140,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 <div class="card-body text-center">
                                     <h5 class="card-title">
                                         <i class="fas fa-sun text-warning me-2"></i>
-                                        12 Hours
+                                        12 Hours <span id="booked-12_hours" class="text-danger fw-bold small" style="display: none;">(Already Booked)</span>
                                     </h5>
                                     <div class="small text-muted">
                                         <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
@@ -159,7 +159,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 <div class="card-body text-center">
                                     <h5 class="card-title">
                                         <i class="fas fa-clock text-info me-2"></i>
-                                        24 Hours
+                                        24 Hours <span id="booked-24_hours" class="text-danger fw-bold small" style="display: none;">(Already Booked)</span>
                                     </h5>
                                     <div class="small text-muted">
                                         <div class="mb-1"><strong>Check In:</strong> 7:00 AM</div>
@@ -178,7 +178,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 <div class="card-body text-center">
                                     <h5 class="card-title">
                                         <i class="fas fa-moon text-secondary me-2"></i>
-                                        Overnight
+                                        Overnight <span id="booked-overnight" class="text-danger fw-bold small" style="display: none;">(Already Booked)</span>
                                     </h5>
                                     <div class="small text-muted">
                                         <div class="mb-1"><strong>Check In:</strong> 7:00 PM</div>
@@ -1245,10 +1245,14 @@ document.addEventListener('DOMContentLoaded', function() {
         timeframeRadios.forEach(radio => {
             radio.disabled = false;
             radio.closest('.timeframe-card').classList.remove('timeframe-disabled');
+            // hide the booked label
+            const bookedLabel = document.getElementById(`booked-${radio.value}`);
+            if (bookedLabel) bookedLabel.style.display = 'none';
         });
 
         if (dayData && dayData.status === 'partially_booked' && dayData.availableTimeframes.length > 0) {
             const available = dayData.availableTimeframes[0]; // Assuming only one is available
+            let alreadyBookedShown = false;
 
             // Disable all others and auto-select the available one
             timeframeRadios.forEach(radio => {
@@ -1260,6 +1264,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     radio.disabled = true;
                     card.classList.add('timeframe-disabled');
+                    // show the booked label only on the first disabled timeframe
+                    const bookedLabel = document.getElementById(`booked-${radio.value}`);
+                    if (bookedLabel && !alreadyBookedShown) {
+                        bookedLabel.style.display = 'block';
+                        alreadyBookedShown = true;
+                    } else if (bookedLabel) {
+                        bookedLabel.style.display = 'none';
+                    }
                 }
             });
         }
