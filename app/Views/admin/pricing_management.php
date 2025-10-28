@@ -301,9 +301,9 @@ require_once __DIR__ . '/../partials/header.php';
                                                </div>
 
                                                <div class="mb-3">
-                                                   <label for="qr_code" class="form-label">QR Code Image</label>
-                                                   <input type="file" class="form-control" id="qr_code" name="qr_code" accept="image/*">
-                                                   <div class="form-text">Upload a QR code image for easy payment (optional).</div>
+                                                   <label for="qr_code" class="form-label">QR Code Image <span class="text-danger">*</span></label>
+                                                   <input type="file" class="form-control" id="qr_code" name="qr_code" accept="image/*" required>
+                                                   <div class="form-text">A QR code image is required.</div>
                                                </div>
 
                                                <button type="submit" class="btn btn-primary w-100">

@@ -188,6 +188,38 @@ class ValidationHelper {
             'errors' => $errors
         ];
     }
+    public static function validateQrCodeFile($file) {
+        $errors = [];
+
+        if (empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'QR code image is required.';
+            return ['valid' => false, 'errors' => $errors];
+        }
+
+        $maxSize = 2 * 1024 * 1024; // 2MB
+        if ($file['size'] > $maxSize) {
+            $errors[] = 'QR code file size must not exceed 2MB.';
+        }
+
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+            $errors[] = 'QR code must be a valid image (JPEG, PNG, or GIF).';
+        }
+
+        $imageInfo = getimagesize($file['tmp_name']);
+        if ($imageInfo === false) {
+            $errors[] = 'The uploaded file is not a valid image.';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
 
     /**
      * Validate user registration data

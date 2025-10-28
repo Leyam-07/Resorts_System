@@ -416,32 +416,34 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        var html = '<div class="row">';
+        var html = '<div class="row justify-content-center">'; // Center the columns if there's only one
         methods.forEach(function(method, index) {
             const qrCodeHtml = method.qrCodeUrl ?
-                `<div class="col-md-4 text-center">
-                    <img src="${method.qrCodeUrl}" alt="${method.name} QR Code" class="img-fluid rounded mb-2" style="max-width: 150px;">
-                    <a href="${method.qrCodeUrl}" class="btn btn-sm btn-outline-secondary" download>Download QR</a>
-                </div>` : '<div class="col-md-4"></div>';
+                `<div class="qr-code-container text-center mb-3">
+                    <img src="${method.qrCodeUrl}" alt="${method.name} QR Code" class="img-fluid rounded" style="max-height: 220px; height: auto; width: 100%; object-fit: contain;">
+                    <a href="${method.qrCodeUrl}" class="btn btn-sm btn-outline-secondary mt-2" download><i class="fas fa-download"></i> Download QR</a>
+                </div>` :
+                `<div class="qr-code-container text-center mb-3 p-5 border rounded bg-light">
+                    <i class="fas fa-qrcode fa-3x text-muted"></i>
+                    <p class="mt-2 text-muted small">QR Code Not Available</p>
+                </div>`;
 
             html += `
-                <div class="col-12 mb-3">
+                <div class="col-md-6 mb-3">
                     <label for="payment_method_option_${index}" class="card h-100 payment-method-card" style="cursor: pointer;">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <div class="form-check">
-                                        <input type="radio" name="payment_method_option" value="${method.name}" id="payment_method_option_${index}" class="form-check-input" required>
-                                        <label class="form-check-label" for="payment_method_option_${index}">
-                                            <h5 class="card-title text-success fw-bold">${method.name}</h5>
-                                        </label>
-                                    </div>
-                                    <hr>
-                                    <p class="card-text"><strong>Account Name:</strong> ${method.accountName}</p>
-                                    <p class="card-text"><strong>Account Number:</strong> ${method.accountNumber}</p>
-                                    <p class="card-text small text-muted">Select this option and proceed below to enter payment details.</p>
-                                </div>
-                                ${qrCodeHtml}
+                        <div class="card-body d-flex flex-column text-center">
+                            <div class="form-check mb-2">
+                                <input type="radio" name="payment_method_option" value="${method.name}" id="payment_method_option_${index}" class="form-check-input" required>
+                                <label class="form-check-label" for="payment_method_option_${index}">
+                                    <h5 class="card-title text-success fw-bold">${method.name}</h5>
+                                </label>
+                            </div>
+                            
+                            ${qrCodeHtml}
+                            
+                            <div class="payment-details mt-auto">
+                                <p class="card-text mb-1"><strong>Account Name:</strong><br>${method.accountName}</p>
+                                <p class="card-text"><strong>Account Number:</strong><br>${method.accountNumber}</p>
                             </div>
                         </div>
                     </label>

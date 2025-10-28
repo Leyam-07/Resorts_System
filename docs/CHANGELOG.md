@@ -5,7 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.47.0] - 2025-10-28
+## [1.46.4] - 2025-10-28
+
+### Changed
+
+- **Payment Modal UI/UX:** Refactored the payment method display in the customer-facing "Submit Payment" modal to use a more user-friendly, two-column layout. This improves QR code visibility and makes the payment process smoother.
+
+### Added
+
+- **QR Code Requirement:** The QR code image is now a mandatory field when administrators add a new payment method (`GCash` or `Maya`).
+  - **Backend Validation:** Implemented robust server-side validation in `AdminController.php` to ensure a QR code image is always uploaded.
+  - **Client-Side Validation:** The UI in `pricing_management.php` now clearly indicates that the QR code is a required field.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+- `app/Controllers/AdminController.php`
+- `app/Helpers/ValidationHelper.php`
+- `app/Views/admin/pricing_management.php`
+
+## [1.46.3] - 2025-10-28
 
 ### Added
 
@@ -37,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/admin/unified_booking_management.php`
 - `app/Views/booking/my_reservations.php`
 
-## [1.46.0] - 2025-10-28
+## [1.46.2] - 2025-10-28
 
 ### Enhanced
 
@@ -51,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `app/Views/booking/create.php`
 
-## [1.45.9] - 2025-10-28
+## [1.46.1] - 2025-10-28
 
 ### Added
 
@@ -77,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/UserController.php`
 - `app/Controllers/BookingController.php`
 
-## [1.45.8] - 2025-10-27
+## [1.46.0] - 2025-10-27
 
 ### Enhanced
 
@@ -100,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/partials/footer.php`
 - `app/Views/admin/feedback/index.php`
 
-## [1.45.7] - 2025-10-27
+## [1.45.9] - 2025-10-27
 
 ### Enhanced
 
@@ -115,7 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/UserController.php`
 - `app/Views/dashboard.php`
 
-## [1.45.6] - 2025-10-27
+## [1.45.8] - 2025-10-27
 
 ### Changed
 
@@ -135,7 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/admin/user_modals.php`
 - `app/Controllers/AdminController.php`
 
-## [1.45.5] - 2025-10-27
+## [1.45.7] - 2025-10-27
 
 ### Added
 
@@ -159,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/admin/users.php`
 - `app/Helpers/ValidationHelper.php`
 
-## [1.45.4] - 2025-10-27
+## [1.45.6] - 2025-10-27
 
 ### Added
 
@@ -180,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/admin/users.php`
 - `app/Helpers/ValidationHelper.php`
 
-## [1.45.3] - 2025-10-26
+## [1.45.5] - 2025-10-26
 
 ### Changed
 
@@ -193,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/booking/create.php`
 - `app/Controllers/BookingController.php`
 
-## [1.45.2] - 2025-10-26
+## [1.45.4] - 2025-10-26
 
 ### Enhanced
 
@@ -216,7 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/dashboard.php`
 - `app/Views/booking/create_guest.php` (Removed/Superseded)
 
-## [1.45.1] - 2025-10-26
+## [1.45.3] - 2025-10-26
 
 ### Fixed
 
@@ -232,7 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/BookingController.php`
 - `app/Models/BookingFacilities.php`
 
-## [1.45.0] - 2025-10-26
+## [1.45.2] - 2025-10-26
 
 ### Fixed
 
@@ -247,7 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Models/Facility.php`
 - `app/Helpers/ValidationHelper.php`
 
-## [1.44.10] - 2025-10-26
+## [1.45.1] - 2025-10-26
 
 ### Security
 
@@ -260,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/AdminController.php`
 - `app/Views/admin/users.php`
 
-## [1.44.9] - 2025-10-26
+## [1.45.0] - 2025-10-26
 
 ### Added
 
@@ -288,7 +307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/migrations/add_usecustom_to_email_templates.php`
 - `scripts/seed_email_templates.php`
 
-## [1.44.8] - 2025-10-24
+## [1.44.9] - 2025-10-24
 
 ### Fixed
 
@@ -300,7 +319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `app/Controllers/BookingController.php`
 
-## [1.44.7] - 2025-10-24
+## [1.44.8] - 2025-10-24
 
 ### Fixed
 
@@ -320,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/BookingController.php`
 - `scripts/send_email_worker.php`
 
-## [1.44.6] - 2025-10-23
+## [1.44.7] - 2025-10-23
 
 ### Fixed
 
@@ -340,7 +359,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/send_email_worker.php`
 - `app/Controllers/BookingController.php`
 
-## [1.44.5] - 2025-10-22
+## [1.44.6] - 2025-10-22
 
 ### Enhanced
 
@@ -363,7 +382,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/BookingController.php`
 - `app/Views/booking/create.php`
 
-## [1.44.4] - 2025-10-22
+## [1.44.5] - 2025-10-22
 
 ### Enhanced
 
@@ -378,7 +397,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/cancel_expired_bookings.php`
 - `app/Views/booking/confirmation.php`
 
-## [1.44.3] - 2025-10-22
+## [1.44.4] - 2025-10-22
 
 ### Added
 
@@ -410,7 +429,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/booking/my_reservations.php`
 - `app/Views/booking/confirmation.php`
 
-## [1.44.2] - 2025-10-22
+## [1.44.3] - 2025-10-22
 
 ### Added
 
@@ -427,7 +446,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/admin/income_analytics.php`
 - `app/Views/partials/header.php`
 
-## [1.44.1] - 2025-10-22
+## [1.44.2] - 2025-10-22
 
 ### Changed
 
@@ -438,7 +457,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/partials/header.php`
 - `assets/js/chart.min.js`
 
-## [1.44.0] - 2025-10-22
+## [1.44.1] - 2025-10-22
 
 ### Enhanced
 
@@ -451,7 +470,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Models/Payment.php`
 - `app/Views/partials/header.php`
 
-## [1.43.10] - 2025-10-22
+## [1.44.0] - 2025-10-22
 
 ### Fixed
 

@@ -864,7 +864,15 @@ class AdminController {
 
             // Handle QR Code Upload
             $qrCodeUrl = null;
-            if (isset($_FILES['qr_code']) && $_FILES['qr_code']['error'] === UPLOAD_ERR_OK) {
+            $fileValidation = ValidationHelper::validateQrCodeFile($_FILES['qr_code'] ?? null);
+
+            if (!$fileValidation['valid']) {
+                // If validation fails, add all specific errors to the main validationErrors array
+                foreach ($fileValidation['errors'] as $error) {
+                    $validationErrors[] = $error;
+                }
+            } else {
+                // If validation is successful, proceed with file upload
                 $uploadDir = __DIR__ . '/../../public/uploads/qr_codes/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
@@ -872,18 +880,10 @@ class AdminController {
                 $fileName = 'qr_' . $resortId . '_' . uniqid() . '.' . pathinfo($_FILES['qr_code']['name'], PATHINFO_EXTENSION);
                 $targetFile = $uploadDir . $fileName;
 
-                // Validate file type and size
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                if (!in_array($_FILES['qr_code']['type'], $allowedTypes)) {
-                    $validationErrors[] = "Invalid QR code file type. Only JPG, PNG, and GIF are allowed.";
-                } elseif ($_FILES['qr_code']['size'] > 2 * 1024 * 1024) { // 2MB limit
-                    $validationErrors[] = "QR code file size exceeds the 2MB limit.";
+                if (move_uploaded_file($_FILES['qr_code']['tmp_name'], $targetFile)) {
+                    $qrCodeUrl = 'public/uploads/qr_codes/' . $fileName;
                 } else {
-                    if (move_uploaded_file($_FILES['qr_code']['tmp_name'], $targetFile)) {
-                        $qrCodeUrl = 'public/uploads/qr_codes/' . $fileName;
-                    } else {
-                        $validationErrors[] = "Failed to upload QR code image.";
-                    }
+                    $validationErrors[] = "An unexpected error occurred while saving the QR code image.";
                 }
             }
 
