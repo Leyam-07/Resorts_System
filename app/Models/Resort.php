@@ -191,4 +191,25 @@ class Resort {
         $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+    public static function findAllWithStats() {
+        $db = self::getDB();
+        $stmt = $db->query(
+            "SELECT
+                r.*,
+                COALESCE(AVG(f.Rating), 0) AS AverageRating,
+                COUNT(DISTINCT f.FeedbackID) AS FeedbackCount,
+                (SELECT COUNT(*) FROM Bookings b WHERE b.ResortID = r.ResortID AND b.Status = 'Completed') AS CompletedBookingsCount
+            FROM
+                Resorts r
+            LEFT JOIN
+                Bookings b ON r.ResortID = b.ResortID
+            LEFT JOIN
+                Feedback f ON b.BookingID = f.BookingID
+            GROUP BY
+                r.ResortID
+            ORDER BY
+                r.Name ASC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

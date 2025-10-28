@@ -13,7 +13,7 @@ require_once __DIR__ . '/../Helpers/AsyncHelper.php';
 class UserController {
 
    public function dashboard() {
-       $resorts = Resort::findAll();
+       $resorts = Resort::findAllWithStats();
        $admins = User::getAdminUsers();
        $admin = !empty($admins) ? $admins[0] : null;
        include __DIR__ . '/../Views/dashboard.php';
@@ -89,14 +89,16 @@ class UserController {
            exit();
        }
        $resortId = $_GET['id'];
-       $facilities = Facility::findByResortId($resortId);
+       // Phase 6: Switched to a method that includes feedback and booking counts
+       $facilities = Facility::getFacilitiesWithFeedback($resortId);
 
        if ($facilities) {
            header('Content-Type: application/json');
            // Format descriptions for display
-           foreach ($facilities as $facility) {
-               $facility->shortDescription = nl2br(htmlspecialchars($facility->shortDescription));
-               $facility->fullDescription = nl2br(htmlspecialchars($facility->fullDescription));
+           foreach ($facilities as &$facility) {
+               // The data is now an associative array, not an object
+               $facility['shortDescription'] = nl2br(htmlspecialchars($facility['ShortDescription']));
+               $facility['fullDescription'] = nl2br(htmlspecialchars($facility['FullDescription']));
            }
            echo json_encode($facilities);
        } else {

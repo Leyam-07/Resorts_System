@@ -123,24 +123,36 @@ document.addEventListener('DOMContentLoaded', function () {
                         let facilitiesHtml = '<div class="row">';
                         data.forEach(facility => {
                             const avgRating = parseFloat(facility.AverageRating).toFixed(1);
-                            const feedbackCount = facility.FeedbackCount;
-                            const completedBookings = facility.CompletedBookingsCount;
+                            const feedbackCount = parseInt(facility.FeedbackCount) || 0;
+                            const completedBookings = parseInt(facility.CompletedBookingsCount) || 0;
+
+                            let badgesHtml = '<div class="mt-auto">';
+                            if (feedbackCount > 0 && !isNaN(avgRating)) {
+                                badgesHtml += `
+                                    <span class="badge bg-light text-dark">
+                                        ⭐ ${avgRating}
+                                        <span class="text-muted">(${feedbackCount} reviews)</span>
+                                    </span>`;
+                            }
+                            if (completedBookings > 0) {
+                                badgesHtml += `
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-check-circle"></i> ${completedBookings} Completed Bookings
+                                    </span>`;
+                            }
+                            badgesHtml += '</div>';
 
                             facilitiesHtml += `
                                 <div class="col-md-6 mb-3">
-                                    <div class="card h-100">
-                                        <img src="${facility.mainPhotoURL ? BASE_URL + '/' + facility.mainPhotoURL : 'https://via.placeholder.com/300x200'}" class="card-img-top" alt="${facility.name}" style="height: 150px; object-fit: cover;">
-                                        <div class="card-body">
-                                            <h6 class="card-title">${facility.name}</h6>
+                                    <div class="card h-100 d-flex flex-column">
+                                        <img src="${facility.MainPhotoURL ? BASE_URL + '/' + facility.MainPhotoURL : 'https://via.placeholder.com/300x200'}" class="card-img-top" alt="${facility.Name}" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h6 class="card-title">${facility.Name}</h6>
                                             <p class="card-text small">${facility.shortDescription}</p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-warning">${'⭐'.repeat(Math.round(avgRating))} (${avgRating})</span>
-                                                <small class="text-muted">${feedbackCount} reviews</small>
-                                            </div>
-                                             <small class="text-muted">Used in ${completedBookings} Completed Bookings</small>
+                                            ${badgesHtml}
                                         </div>
                                         <div class="card-footer">
-                                            <button class="btn btn-secondary btn-sm w-100 view-facility-details" data-facility-id="${facility.facilityId}">View Details</button>
+                                            <button class="btn btn-secondary btn-sm w-100 view-facility-details" data-facility-id="${facility.FacilityID}">View Details</button>
                                         </div>
                                     </div>
                                 </div>`;
@@ -169,11 +181,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
                         data.forEach(review => {
-                            const completedBookingsText = review.completedBookings > 0 ? `<span class="badge bg-light text-dark ms-2">${review.completedBookings} Completed Bookings</span>` : '';
+                            const completedBookingsBadge = review.completedBookings > 0
+                                ? `<span class="badge bg-light text-dark ms-2"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
+                                : '';
                             feedbackHtml += `
                                 <div class="card mb-2">
                                     <div class="card-body">
-                                        <h6 class="card-title">${review.CustomerName} ${completedBookingsText} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                        <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                         <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                         <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                     </div>
@@ -282,20 +296,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 const reviews = data.feedback.reviews || [];
-                const totalBookings = data.feedback.totalCompletedBookings;
+                const totalBookings = parseInt(data.feedback.totalCompletedBookings) || 0;
 
                 if (reviews.length === 0) {
-                    feedbackTab.innerHTML = `<p class="text-center">No reviews available for this facility yet.</p>
-                                             <p class="text-center text-muted">Used in ${totalBookings} Completed Bookings.</p>`;
+                    let emptyHtml = '<p class="text-center">No reviews available for this facility yet.</p>';
+                    if (totalBookings > 0) {
+                        emptyHtml += `<p class="text-center text-muted mt-2">Used in ${totalBookings} Completed Bookings.</p>`;
+                    }
+                    feedbackTab.innerHTML = emptyHtml;
                     if (feedbackTabTrigger) feedbackTabTrigger.textContent = 'Feedback (0)';
                 } else {
-                    let feedbackHtml = `<h5>Customer Reviews (${reviews.length})</h5>
-                                        <p class="text-muted">This facility has been part of ${totalBookings} Completed Bookings.</p><hr>`;
+                    let feedbackHtml = `<h5>Customer Reviews (${reviews.length})</h5>`;
+                    if (totalBookings > 0) {
+                        feedbackHtml += `<p class="text-muted">This facility has been part of ${totalBookings} completed bookings.</p>`;
+                    }
+                    feedbackHtml += '<hr>';
                     reviews.forEach(review => {
+                        const completedBookingsBadge = review.completedBookings > 0
+                            ? `<span class="badge bg-light text-dark ms-2"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
+                            : '';
                         feedbackHtml += `
                             <div class="card mb-2">
                                 <div class="card-body">
-                                    <h6 class="card-title">${review.CustomerName} <span class="badge bg-light text-dark ms-2">${review.completedBookings} Completed Bookings</span><span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                    <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge}<span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                     <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                     <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                 </div>

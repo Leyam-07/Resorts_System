@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.5] - 2025-10-28
+
+### Enhanced
+
+- **Dashboard & Modal UI Consistency:** Implemented a new statistical badge design to display average ratings, review counts, and completed booking counts. This design has been applied consistently across the main dashboard's resort cards, the resort modal's facility list, and within the feedback tabs, ensuring a uniform and professional appearance.
+
+### Fixed
+
+- **Data Display Errors:** Resolved a bug where facility and feedback modals would display `NaN` or `undefined` when booking or feedback counts were zero. The backend now reliably provides this data, and the frontend gracefully hides zero-value statistics.
+
+### Files Updated
+
+- `app/Controllers/UserController.php`
+- `app/Models/Resort.php`
+- `app/Views/dashboard.php`
+- `app/Views/partials/footer.php`
+
 ## [1.46.4] - 2025-10-28
 
 ### Changed
