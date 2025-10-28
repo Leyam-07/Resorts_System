@@ -19,7 +19,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="card h-100">
                 <div class="card-header text-center">
                     <h3 class="mb-0">
-                        <?php if (isset($_SESSION['user_id'])): ?>
+                        <i class="fas fa-user-circle me-2"></i><?php if (isset($_SESSION['user_id'])): ?>
                             Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!
                         <?php else: ?>
                             Welcome, Guest!
@@ -27,9 +27,9 @@ if (isset($_SESSION['user_id'])) {
                     </h3>
                 </div>
                 <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <p class="card-text mb-3">Explore our collection of beautiful resorts and book your next unforgettable getaway with just a few clicks.</p>
-                    <p class="card-text mb-3">Our platform is designed to make your booking experience seamless and enjoyable.</p>
-                    <p class="card-text">Should you have any questions or require assistance, we are here to help.</p>
+                    <p class="card-text mb-3">🏖️ Explore our collection of beautiful resorts and book your next unforgettable getaway with just a few clicks! </p>
+                    <p class="card-text mb-3">Our platform is designed to make your booking experience seamless and enjoyable. </p>
+                    <p class="card-text">Should you have any questions or require assistance, we are here to help. 😊</p>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@ if (isset($_SESSION['user_id'])) {
         <div class="col-lg-5">
             <div class="card h-100">
                 <div class="card-header text-center">
-                    <h4 class="mb-0">Admin Contact</h4>
+                    <h4 class="mb-0"><i class="fas fa-address-card me-2"></i>Admin Contact</h4>
                 </div>
                 <div class="card-body d-flex flex-column justify-content-center">
                     <?php if (isset($_SESSION['user_id']) && $admin): ?>
