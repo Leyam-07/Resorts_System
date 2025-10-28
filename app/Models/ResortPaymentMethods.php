@@ -4,7 +4,9 @@ class ResortPaymentMethods {
     public $paymentMethodId;
     public $resortId;
     public $methodType;
-    public $accountDetails;
+    public $accountName;
+    public $accountNumber;
+    public $qrCodeUrl;
     public $isDefault;
     public $isActive;
     public $createdAt;
@@ -23,12 +25,14 @@ class ResortPaymentMethods {
     public static function create(ResortPaymentMethods $paymentMethod) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO ResortPaymentMethods (ResortID, MethodType, AccountDetails, IsDefault, IsActive)
-             VALUES (:resortId, :methodType, :accountDetails, :isDefault, :isActive)"
+            "INSERT INTO ResortPaymentMethods (ResortID, MethodType, AccountName, AccountNumber, QrCodeURL, IsDefault, IsActive)
+             VALUES (:resortId, :methodType, :accountName, :accountNumber, :qrCodeUrl, :isDefault, :isActive)"
         );
         $stmt->bindValue(':resortId', $paymentMethod->resortId, PDO::PARAM_INT);
         $stmt->bindValue(':methodType', $paymentMethod->methodType, PDO::PARAM_STR);
-        $stmt->bindValue(':accountDetails', $paymentMethod->accountDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':accountName', $paymentMethod->accountName, PDO::PARAM_STR);
+        $stmt->bindValue(':accountNumber', $paymentMethod->accountNumber, PDO::PARAM_STR);
+        $stmt->bindValue(':qrCodeUrl', $paymentMethod->qrCodeUrl, PDO::PARAM_STR);
         $stmt->bindValue(':isDefault', $paymentMethod->isDefault, PDO::PARAM_BOOL);
         $stmt->bindValue(':isActive', $paymentMethod->isActive, PDO::PARAM_BOOL);
 
@@ -50,7 +54,9 @@ class ResortPaymentMethods {
             $paymentMethod->paymentMethodId = $data['PaymentMethodID'];
             $paymentMethod->resortId = $data['ResortID'];
             $paymentMethod->methodType = $data['MethodType'];
-            $paymentMethod->accountDetails = $data['AccountDetails'];
+            $paymentMethod->accountName = $data['AccountName'];
+            $paymentMethod->accountNumber = $data['AccountNumber'];
+            $paymentMethod->qrCodeUrl = $data['QrCodeURL'];
             $paymentMethod->isDefault = $data['IsDefault'];
             $paymentMethod->isActive = $data['IsActive'];
             $paymentMethod->createdAt = $data['CreatedAt'];
@@ -91,11 +97,13 @@ class ResortPaymentMethods {
         $db = self::getDB();
         $stmt = $db->prepare(
             "UPDATE ResortPaymentMethods
-             SET MethodType = :methodType, AccountDetails = :accountDetails, IsDefault = :isDefault, IsActive = :isActive
-             WHERE PaymentMethodID = :paymentMethodId"
+             SET MethodType = :methodType, AccountName = :accountName, AccountNumber = :accountNumber, QrCodeURL = :qrCodeUrl, IsDefault = :isDefault, IsActive = :isActive
+              WHERE PaymentMethodID = :paymentMethodId"
         );
         $stmt->bindValue(':methodType', $paymentMethod->methodType, PDO::PARAM_STR);
-        $stmt->bindValue(':accountDetails', $paymentMethod->accountDetails, PDO::PARAM_STR);
+        $stmt->bindValue(':accountName', $paymentMethod->accountName, PDO::PARAM_STR);
+        $stmt->bindValue(':accountNumber', $paymentMethod->accountNumber, PDO::PARAM_STR);
+        $stmt->bindValue(':qrCodeUrl', $paymentMethod->qrCodeUrl, PDO::PARAM_STR);
         $stmt->bindValue(':isDefault', $paymentMethod->isDefault, PDO::PARAM_BOOL);
         $stmt->bindValue(':isActive', $paymentMethod->isActive, PDO::PARAM_BOOL);
         $stmt->bindValue(':paymentMethodId', $paymentMethod->paymentMethodId, PDO::PARAM_INT);
@@ -125,40 +133,17 @@ class ResortPaymentMethods {
      * Create default payment methods for a new resort
      */
     public static function createDefaultPaymentMethods($resortId) {
-        $defaultMethods = [
-            [
-                'type' => 'Gcash',
-                'details' => 'Send payment to GCash number: [Add GCash number here]'
-            ],
-            [
-                'type' => 'Bank Transfer',
-                'details' => 'Transfer to: [Add bank account details here]'
-            ],
-            [
-                'type' => 'Cash',
-                'details' => 'Pay cash upon arrival at the resort'
-            ]
-        ];
-
-        foreach ($defaultMethods as $method) {
-            $paymentMethod = new ResortPaymentMethods();
-            $paymentMethod->resortId = $resortId;
-            $paymentMethod->methodType = $method['type'];
-            $paymentMethod->accountDetails = $method['details'];
-            $paymentMethod->isDefault = ($method['type'] === 'Gcash'); // Example default
-            $paymentMethod->isActive = true;
-
-            self::create($paymentMethod);
-        }
+        // This function is deprecated. Admins must now add specific payment details manually.
+        // A 'Cash' option is handled separately on the admin side and is not a configurable method.
     }
 
     /**
      * Get suggested payment method examples for admins
      */
     public static function getAvailableMethodTypes() {
-        // Return common payment method examples that admins can use or modify
-        // These are no longer restricted - admins can enter any custom method name
-        return ['GCash', 'Maya', 'PayPal', 'BPI', 'BDO', 'UnionBank', 'Cash'];
+        // Returns the only allowed configurable payment method types.
+        // 'Cash' is handled as a special case and is not configured here.
+        return ['GCash', 'Maya'];
     }
 
     /**
@@ -169,9 +154,17 @@ class ResortPaymentMethods {
         $formatted = [];
 
         foreach ($methods as $method) {
+            // Exclude 'Cash' from the list shown to customers
+            if ($method->MethodType === 'Cash') {
+                continue;
+            }
+
             $formatted[] = [
                 'name' => $method->MethodType,
-                'details' => $method->AccountDetails
+                'accountName' => $method->AccountName,
+                'accountNumber' => $method->AccountNumber,
+                'qrCodeUrl' => $method->QrCodeURL ? BASE_URL . '/' . $method->QrCodeURL : null,
+                'details' => $method->AccountName . ' - ' . $method->AccountNumber
             ];
         }
 

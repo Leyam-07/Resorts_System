@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(method => {
                         const option = document.createElement('option');
                         option.value = method.name;
-                        option.textContent = method.name + ' - ' + method.details;
+                        option.textContent = `${method.name} (${method.accountName} - ${method.accountNumber})`;
                         selectElement.appendChild(option);
                     });
 

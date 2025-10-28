@@ -240,8 +240,19 @@ require_once __DIR__ . '/../partials/header.php';
                                                     <?php foreach ($paymentMethods as $method): ?>
                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                                             <div>
-                                                                <strong><?= htmlspecialchars($method->MethodType) ?></strong>:
-                                                                <span><?= htmlspecialchars($method->AccountDetails) ?></span>
+                                                                <strong><?= htmlspecialchars($method->MethodType) ?></strong>
+                                                                <ul class="list-unstyled small ps-3">
+                                                                    <li><strong>Name:</strong> <?= htmlspecialchars($method->AccountName) ?></li>
+                                                                    <li><strong>Number:</strong> <?= htmlspecialchars($method->AccountNumber) ?></li>
+                                                                    <li>
+                                                                        <strong>QR Code:</strong>
+                                                                        <?php if ($method->QrCodeURL): ?>
+                                                                            <a href="<?= BASE_URL . '/' . htmlspecialchars($method->QrCodeURL) ?>" target="_blank">View QR</a>
+                                                                        <?php else: ?>
+                                                                            <span class="text-muted">Not set</span>
+                                                                        <?php endif; ?>
+                                                                    </li>
+                                                                </ul>
                                                             </div>
                                                             <a href="?controller=admin&action=deletePaymentMethod&id=<?= $method->PaymentMethodID ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this payment method?');">
                                                                 <i class="fas fa-trash"></i>
@@ -253,24 +264,52 @@ require_once __DIR__ . '/../partials/header.php';
                                         </div>
                                         <div class="col-lg-5">
                                             <h6>Add New Method</h6>
-                                            <form method="POST" action="?controller=admin&action=addPaymentMethod">
-                                                <input type="hidden" name="resort_id" value="<?= $_GET['resort_id'] ?>">
-                                                <div class="mb-3">
-                                                    <label for="method_type" class="form-label">Payment Method Name</label>
-                                                    <input type="text" class="form-control" id="method_type" name="method_type"
-                                                           placeholder="e.g., GCash, PayPal, Maya, BPI, etc." required>
-                                                    <div class="form-text">Enter the name of the payment method (e.g., GCash, PayPal, Maya, Bank Name)</div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="account_details" class="form-label">Account Details</label>
-                                                    <textarea class="form-control" id="account_details" name="account_details" rows="3"
-                                                              placeholder="Enter only account number and account name (e.g., 09123456789 - Juan Dela Cruz)" required></textarea>
-                                                    <div class="form-text">Include only the account number and account holder name. Do not repeat the payment method name.</div>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary w-100">
-                                                    <i class="fas fa-plus"></i> Add Payment Method
-                                                </button>
-                                            </form>
+                                            <form method="POST" action="?controller=admin&action=addPaymentMethod" enctype="multipart/form-data">
+                                               <input type="hidden" name="resort_id" value="<?= $_GET['resort_id'] ?>">
+                                               
+                                               <div class="mb-3">
+                                                   <label for="method_type" class="form-label">Payment Method</label>
+                                                   <select class="form-select" id="method_type" name="method_type" required>
+                                                       <option value="">Select a method...</option>
+                                                       <?php
+                                                       $availableTypes = ResortPaymentMethods::getAvailableMethodTypes();
+                                                       foreach ($availableTypes as $type):
+                                                           // Check if this method type is already configured
+                                                           $isConfigured = false;
+                                                           foreach ($paymentMethods as $existingMethod) {
+                                                               if ($existingMethod->MethodType === $type) {
+                                                                   $isConfigured = true;
+                                                                   break;
+                                                               }
+                                                           }
+                                                       ?>
+                                                           <option value="<?= htmlspecialchars($type) ?>" <?= $isConfigured ? 'disabled' : '' ?>>
+                                                               <?= htmlspecialchars($type) ?> <?= $isConfigured ? '(Already configured)' : '' ?>
+                                                           </option>
+                                                       <?php endforeach; ?>
+                                                   </select>
+                                               </div>
+
+                                               <div class="mb-3">
+                                                   <label for="account_name" class="form-label">Account Name</label>
+                                                   <input type="text" class="form-control" id="account_name" name="account_name" placeholder="e.g., Juan Dela Cruz" required>
+                                               </div>
+
+                                               <div class="mb-3">
+                                                   <label for="account_number" class="form-label">Account Number</label>
+                                                   <input type="text" class="form-control" id="account_number" name="account_number" placeholder="e.g., 09123456789" required>
+                                               </div>
+
+                                               <div class="mb-3">
+                                                   <label for="qr_code" class="form-label">QR Code Image</label>
+                                                   <input type="file" class="form-control" id="qr_code" name="qr_code" accept="image/*">
+                                                   <div class="form-text">Upload a QR code image for easy payment (optional).</div>
+                                               </div>
+
+                                               <button type="submit" class="btn btn-primary w-100">
+                                                   <i class="fas fa-plus"></i> Add Payment Method
+                                               </button>
+                                           </form>
                                         </div>
                                     </div>
                                 </div>

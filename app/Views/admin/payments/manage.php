@@ -100,7 +100,7 @@ require_once __DIR__ . '/../../../Models/ResortPaymentMethods.php';
                                 $resortPaymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
                                 foreach ($resortPaymentMethods as $method): ?>
                                     <option value="<?= htmlspecialchars($method->MethodType) ?>">
-                                        <?= htmlspecialchars($method->MethodType) ?> - <?= htmlspecialchars($method->AccountDetails) ?>
+                                       <?= htmlspecialchars($method->MethodType) ?> (<?= htmlspecialchars($method->AccountName) ?> - <?= htmlspecialchars($method->AccountNumber) ?>)
                                     </option>
                                 <?php endforeach; ?>
                                 <option value="On-Site Payment">On-Site Payment</option>

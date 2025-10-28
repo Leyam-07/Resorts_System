@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.0] - 2025-10-28
+
+### Added
+
+- **Structured Payment Methods:** Implemented a new structured system for payment methods, restricting options to GCash and Maya to enhance trustworthiness and reliability.
+  - **Database Schema:** Added `AccountName`, `AccountNumber`, and `QrCodeURL` to the `ResortPaymentMethods` table.
+  - **QR Code Uploads:** Admins are now required to upload a QR code image when configuring a payment method.
+  - **Admin UI:** The payment method configuration in the admin panel now uses a structured form with dedicated fields for Account Name, Account Number, and QR Code upload.
+
+### Changed
+
+- **Payment System Refactor:** Overhauled the entire payment method system for consistency and improved user experience.
+  - **Standardized Methods:** Replaced free-text payment method names with a fixed `ENUM` of 'GCash' and 'Maya' (with 'Cash' reserved for admin use).
+  - **Customer Payment UI:** The customer-facing payment modal now displays rich payment method cards, including the QR code, account name, and account number, instead of a simple radio button list.
+  - **Backend Logic:** Updated all models and controllers (`ResortPaymentMethods`, `AdminController`, `BookingController`) to support the new structured data model and stricter validation.
+
+### Fixed
+
+- **Inconsistent Payment Displays:** Resolved issues where payment method dropdowns in various admin interfaces (`payments/manage.php`, `unified_booking_management.php`) were empty or displayed inconsistent data. All payment selection UIs now correctly show the configured, resort-specific payment options in a clear format.
+
+### Files Updated
+
+- `scripts/migrations/refactor_payment_methods_table.php` (New File)
+- `docs/Database-Schema.md`
+- `app/Models/ResortPaymentMethods.php`
+- `app/Controllers/AdminController.php`
+- `app/Controllers/BookingController.php`
+- `app/Views/admin/pricing_management.php`
+- `app/Views/admin/payments/manage.php`
+- `app/Views/admin/unified_booking_management.php`
+- `app/Views/booking/my_reservations.php`
+
 ## [1.46.0] - 2025-10-28
 
 ### Enhanced

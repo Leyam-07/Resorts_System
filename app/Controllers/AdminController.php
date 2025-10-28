@@ -853,55 +853,63 @@ class AdminController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
             $methodType = filter_input(INPUT_POST, 'method_type', FILTER_UNSAFE_RAW);
-            $accountDetails = filter_input(INPUT_POST, 'account_details', FILTER_UNSAFE_RAW);
-
-            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
+            $accountName = filter_input(INPUT_POST, 'account_name', FILTER_SANITIZE_STRING);
+            $accountNumber = filter_input(INPUT_POST, 'account_number', FILTER_SANITIZE_STRING);
+            
             $validationErrors = [];
             if (!$resortId) $validationErrors[] = "Invalid resort ID.";
             if (!$methodType) $validationErrors[] = "Payment method type is required.";
-            if (!$accountDetails) $validationErrors[] = "Account details are required.";
+            if (!$accountName) $validationErrors[] = "Account name is required.";
+            if (!$accountNumber) $validationErrors[] = "Account number is required.";
+
+            // Handle QR Code Upload
+            $qrCodeUrl = null;
+            if (isset($_FILES['qr_code']) && $_FILES['qr_code']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../public/uploads/qr_codes/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $fileName = 'qr_' . $resortId . '_' . uniqid() . '.' . pathinfo($_FILES['qr_code']['name'], PATHINFO_EXTENSION);
+                $targetFile = $uploadDir . $fileName;
+
+                // Validate file type and size
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!in_array($_FILES['qr_code']['type'], $allowedTypes)) {
+                    $validationErrors[] = "Invalid QR code file type. Only JPG, PNG, and GIF are allowed.";
+                } elseif ($_FILES['qr_code']['size'] > 2 * 1024 * 1024) { // 2MB limit
+                    $validationErrors[] = "QR code file size exceeds the 2MB limit.";
+                } else {
+                    if (move_uploaded_file($_FILES['qr_code']['tmp_name'], $targetFile)) {
+                        $qrCodeUrl = 'public/uploads/qr_codes/' . $fileName;
+                    } else {
+                        $validationErrors[] = "Failed to upload QR code image.";
+                    }
+                }
+            }
 
             if (!empty($validationErrors)) {
-                if ($isAjax) {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => implode(' ', $validationErrors)]);
-                    exit();
-                } else {
-                    $_SESSION['error_message'] = implode('<br>', $validationErrors);
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit();
-                }
+                $_SESSION['error_message'] = implode('<br>', $validationErrors);
+                header('Location: ' . $_SERVER['HTTP_REFERER']);
+                exit();
             }
 
             $paymentMethod = new ResortPaymentMethods();
             $paymentMethod->resortId = $resortId;
             $paymentMethod->methodType = $methodType;
-            $paymentMethod->accountDetails = $accountDetails;
-            $paymentMethod->isDefault = false; // Not handled in this form
+            $paymentMethod->accountName = $accountName;
+            $paymentMethod->accountNumber = $accountNumber;
+            $paymentMethod->qrCodeUrl = $qrCodeUrl;
+            $paymentMethod->isDefault = false; // Set default logic if needed
             $paymentMethod->isActive = true;
 
             if (ResortPaymentMethods::create($paymentMethod)) {
-                if ($isAjax) {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => true, 'message' => 'Payment method added successfully!']);
-                    exit();
-                } else {
-                    $_SESSION['success_message'] = "Payment method added successfully.";
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit();
-                }
+                $_SESSION['success_message'] = "Payment method added successfully.";
             } else {
-                if ($isAjax) {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => 'Failed to add payment method. A method of this type may already exist for the resort.']);
-                    exit();
-                } else {
-                    $_SESSION['error_message'] = "Failed to add payment method. A method of this type may already exist for the resort.";
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit();
-                }
+                $_SESSION['error_message'] = "Failed to add payment method. A method with the same type might already exist for this resort.";
             }
+            
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
+            exit();
         }
     }
 

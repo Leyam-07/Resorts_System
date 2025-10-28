@@ -1108,6 +1108,7 @@ class BookingController {
             }
         }
 
+        // The model now returns the data in the correct format including the full QR code URL
         $paymentMethods = ResortPaymentMethods::getFormattedPaymentMethods($resortId);
 
         echo json_encode($paymentMethods);

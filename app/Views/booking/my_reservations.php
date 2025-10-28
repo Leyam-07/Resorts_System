@@ -412,33 +412,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p class="mb-3"><strong>Please contact the resort directly to arrange payment outside of this system.</strong></p>
                 </div>
             `;
-
-            // Disable all form fields and submit button
-            var formElements = paymentForm.querySelectorAll('input, button[type="submit"]');
-            formElements.forEach(function(element) {
-                element.disabled = true;
-            });
-            modalSubmitBtn.disabled = true;
-
-            // Add disabled styling
-            paymentForm.classList.add('opacity-50');
-            paymentForm.style.pointerEvents = 'none';
-
+            paymentForm.style.display = 'none'; // Hide the form completely
             return;
         }
 
         var html = '<div class="row">';
         methods.forEach(function(method, index) {
+            const qrCodeHtml = method.qrCodeUrl ?
+                `<div class="col-md-4 text-center">
+                    <img src="${method.qrCodeUrl}" alt="${method.name} QR Code" class="img-fluid rounded mb-2" style="max-width: 150px;">
+                    <a href="${method.qrCodeUrl}" class="btn btn-sm btn-outline-secondary" download>Download QR</a>
+                </div>` : '<div class="col-md-4"></div>';
+
             html += `
-                <div class="col-md-6 mb-3">
-                    <label for="payment_method_option_${index}" class="card h-100 payment-method-card text-center" style="cursor: pointer;">
+                <div class="col-12 mb-3">
+                    <label for="payment_method_option_${index}" class="card h-100 payment-method-card" style="cursor: pointer;">
                         <div class="card-body">
-                             <input type="radio" name="payment_method_option" value="${method.name}" id="payment_method_option_${index}" class="form-check-input" required style="position: absolute; top: 10px; left: 10px;">
-                             <div class="mb-2 mt-2">
-                                <i class="fas fa-mobile-alt fa-2x text-success"></i>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="form-check">
+                                        <input type="radio" name="payment_method_option" value="${method.name}" id="payment_method_option_${index}" class="form-check-input" required>
+                                        <label class="form-check-label" for="payment_method_option_${index}">
+                                            <h5 class="card-title text-success fw-bold">${method.name}</h5>
+                                        </label>
+                                    </div>
+                                    <hr>
+                                    <p class="card-text"><strong>Account Name:</strong> ${method.accountName}</p>
+                                    <p class="card-text"><strong>Account Number:</strong> ${method.accountNumber}</p>
+                                    <p class="card-text small text-muted">Select this option and proceed below to enter payment details.</p>
+                                </div>
+                                ${qrCodeHtml}
                             </div>
-                            <h6 class="card-title text-success fw-bold">${method.name}</h6>
-                            <p class="card-text small text-muted">${method.details}</p>
                         </div>
                     </label>
                 </div>
@@ -452,16 +456,10 @@ document.addEventListener('DOMContentLoaded', function () {
         paymentRadios.forEach(function(radio) {
             radio.addEventListener('change', function() {
                 if (this.checked) {
-                    // Update the hidden input in the form
                     document.getElementById('selectedPaymentMethod').value = this.value;
-
-                    // Show the form fields
                     document.getElementById('paymentFormFields').style.display = 'block';
-                    
-                    // Highlight selected card
                     document.querySelectorAll('.payment-method-card').forEach(card => card.classList.remove('border-primary', 'border-3'));
                     this.closest('.payment-method-card').classList.add('border-primary', 'border-3');
-                    
                     validateModalForm();
                 }
             });
