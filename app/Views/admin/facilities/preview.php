@@ -17,13 +17,33 @@ require_once __DIR__ . '/../../partials/header.php';
             <?php foreach ($resorts as $resort): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <img src="<?= $resort->mainPhotoURL ? BASE_URL . '/' . htmlspecialchars($resort->mainPhotoURL) : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= htmlspecialchars($resort->name) ?>" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($resort->name) ?></h5>
-                            <p class="card-text"><?= nl2br(htmlspecialchars($resort->shortDescription)) ?></p>
+                        <img src="<?= $resort['MainPhotoURL'] ? BASE_URL . '/' . htmlspecialchars($resort['MainPhotoURL']) : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= htmlspecialchars($resort['Name']) ?>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><?= htmlspecialchars($resort['Name']) ?></h5>
+                            <p class="card-text"><?= nl2br(htmlspecialchars($resort['ShortDescription'])) ?></p>
+                            
+                            <div class="mt-auto">
+                                <?php
+                                $avgRating = !empty($resort['AverageRating']) ? floatval($resort['AverageRating']) : 0;
+                                $feedbackCount = !empty($resort['FeedbackCount']) ? intval($resort['FeedbackCount']) : 0;
+                                $completedBookings = !empty($resort['CompletedBookingsCount']) ? intval($resort['CompletedBookingsCount']) : 0;
+
+                                if ($feedbackCount > 0): ?>
+                                    <span class="badge bg-light text-dark">
+                                        ⭐ <?= number_format($avgRating, 1) ?>
+                                        <span class="text-muted">(<?= $feedbackCount ?> reviews)</span>
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if ($completedBookings > 0): ?>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-check-circle"></i> <?= $completedBookings ?> Completed Bookings
+                                    </span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#resortModal" data-resort-id="<?= $resort->resortId ?>">
+                            <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#resortModal" data-resort-id="<?= $resort['ResortID'] ?>">
                                 View Details (Preview)
                             </button>
                         </div>

@@ -564,7 +564,7 @@ class AdminController {
        }
        // This action is for admins/staff to see the customer view
        // We can reuse the logic from the UserController's dashboard
-       $resorts = Resort::findAll();
+       $resorts = Resort::findAllWithStats();
        include __DIR__ . '/../Views/admin/facilities/preview.php';
    }
     public function management() {

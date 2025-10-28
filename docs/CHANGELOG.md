@@ -18,8 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Files Updated
 
 - `app/Controllers/UserController.php`
+- `app/Controllers/AdminController.php`
 - `app/Models/Resort.php`
 - `app/Views/dashboard.php`
+- `app/Views/admin/facilities/preview.php`
 - `app/Views/partials/footer.php`
 
 ## [1.46.4] - 2025-10-28
