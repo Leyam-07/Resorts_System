@@ -75,8 +75,8 @@ require_once __DIR__ . '/../partials/header.php';
                             <a href="?controller=admin&action=unifiedBookingManagement" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i> Clear
                             </a>
-                            <a href="?controller=admin&action=showOnSiteBookingForm" class="btn btn-success ms-2">
-                                <i class="fas fa-plus"></i> On-Site Book
+                            <a href="?controller=admin&action=showOnSiteBookingForm" class="btn btn-success ms-auto">
+                                <i class="fas fa-plus"></i> On-Site Booking
                             </a>
                         </div>
                     </form>

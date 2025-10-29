@@ -65,6 +65,7 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                             <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
                                 <li><a class="dropdown-item" href="?controller=admin&action=unifiedBookingManagement"><i class="fas fa-calendar-check"></i> Unified Management<?php if ($totalActiveBookings > 0): ?><span class="badge booking-count-badge bg-info text-white fw-semibold ms-1"><?php echo $totalActiveBookings; ?></span><?php endif; ?></a></li>
                                 <li><a class="dropdown-item" href="?controller=payment&action=showPendingPayments"><i class="fas fa-credit-card"></i> Payment Verification<?php if ($totalPendingPayments > 0): ?><span class="badge booking-count-badge bg-danger text-white fw-semibold ms-1"><?php echo $totalPendingPayments; ?></span><?php endif; ?></a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=showOnSiteBookingForm"><i class="fas fa-store"></i> On-Site Booking</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
