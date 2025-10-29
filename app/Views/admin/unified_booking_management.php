@@ -386,8 +386,39 @@ document.addEventListener('DOMContentLoaded', function() {
            .then(data => {
                if (data.success) {
                    const booking = data.booking;
-                   document.getElementById('updateBookingStatus').value = booking.Status;
-                   // You can also populate the payment history here.
+                   document.getElementById('updateBookingStatus').value = booking.status;
+                   const paymentsSection = document.getElementById('existingPaymentsSection');
+                   if (booking.Payments && booking.Payments.length > 0) {
+                       let paymentsHtml = '<table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead><tbody>';
+                       booking.Payments.forEach(p => {
+                           // Determine badge color based on status
+                           let statusColor = 'secondary';
+                           switch (p.Status) {
+                               case 'Verified':
+                               case 'Paid':
+                                   statusColor = 'success';
+                                   break;
+                               case 'Pending':
+                                   statusColor = 'warning text-dark';
+                                   break;
+                               case 'Rejected':
+                                   statusColor = 'danger';
+                                   break;
+                           }
+
+                           paymentsHtml += `<tr>
+                               <td>${p.PaymentID}</td>
+                               <td>₱${parseFloat(p.Amount).toFixed(2)}</td>
+                               <td>${p.PaymentMethod}</td>
+                               <td>${formatDateTime(p.PaymentDate)}</td>
+                               <td><span class="badge bg-${statusColor}">${p.Status}</span></td>
+                           </tr>`;
+                       });
+                       paymentsHtml += '</tbody></table>';
+                       paymentsSection.innerHTML = paymentsHtml;
+                   } else {
+                       paymentsSection.innerHTML = '<p class="text-muted small">No payment history found for this booking.</p>';
+                   }
                } else {
                    document.getElementById('existingPaymentsSection').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                }

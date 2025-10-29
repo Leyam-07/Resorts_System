@@ -1892,6 +1892,9 @@ class AdminController {
             // We only need the IDs for the initial check in the UI
             $booking->BookedFacilities = $bookedFacilities;
 
+            $payments = Payment::findByBookingId($bookingId);
+            $booking->Payments = $payments;
+
             echo json_encode(['success' => true, 'booking' => $booking]);
         } catch (Exception $e) {
             http_response_code(500);
