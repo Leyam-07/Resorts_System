@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const booking = data.booking;
 
                     // Validation
-                    if (booking.Status !== 'Confirmed' || booking.RemainingBalance > 0) {
+                    if (booking.status !== 'Confirmed' || booking.remainingBalance > 0) {
                         modalBody.innerHTML = '<div class="alert alert-danger">On-site edits are only allowed for Confirmed and fully paid bookings.</div>';
                         return;
                     }
