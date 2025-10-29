@@ -153,16 +153,19 @@ class PaymentController {
         require_once __DIR__ . '/../Models/Payment.php';
         require_once __DIR__ . '/../Helpers/Notification.php';
 
-        if (Payment::verifyPayment($paymentId, $_SESSION['user_id'])) {
+        $result = Payment::verifyPayment($paymentId, $_SESSION['user_id']);
+
+        if ($result['success']) {
             // Payment verification successful - try to send confirmation email
             $payment = Payment::findById($paymentId);
             if ($payment) {
                 AsyncHelper::triggerEmailWorker('payment_verified', $payment->bookingId);
+                $_SESSION['success_message'] = "Payment for Booking #" . $payment->bookingId . " verified. The booking is now Confirmed.";
+            } else {
+                $_SESSION['success_message'] = "Payment verified successfully, but could not retrieve booking details.";
             }
-
-            $_SESSION['success_message'] = "Payment verified successfully!";
         } else {
-            $_SESSION['error_message'] = "Failed to verify payment.";
+            $_SESSION['error_message'] = "Failed to verify payment: " . ($result['error'] ?? 'An unknown error occurred.');
         }
 
         $redirectUrl = '?controller=payment&action=showPendingPayments';

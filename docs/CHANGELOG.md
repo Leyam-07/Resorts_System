@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.1] - 2025-10-29
+
+### Fixed
+
+- **Booking Confirmation Logic:** Resolved an issue where a booking's status would only change to "Confirmed" if it was fully paid. The system now correctly updates the booking status to "Confirmed" as soon as an administrator verifies any payment, regardless of the remaining balance.
+  - **Model Logic:** The `Payment::verifyPayment()` method was updated to unconditionally set the booking status.
+  - **Controller Feedback:** The `PaymentController::verifyPayment()` method was enhanced to provide a clearer success message to the admin, confirming the status change.
+
+### Files Updated
+
+- `app/Models/Payment.php`
+- `app/Controllers/PaymentController.php`
+
 ## [1.47.0] - 2025-10-29
 
 ### Fixed

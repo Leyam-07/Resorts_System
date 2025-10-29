@@ -197,7 +197,8 @@ class Payment {
             $balanceCalculation = self::calculateSmartBalance($booking->bookingId);
             $newBalance = $balanceCalculation['remainingBalance'];
             $oldStatus = $booking->status;
-            $newStatus = self::determineBookingStatusFromBalance($newBalance, $booking->totalAmount);
+            // As per requirement, verifying any payment confirms the booking.
+            $newStatus = 'Confirmed';
             
             // Update booking
             $updateStmt = $db->prepare("UPDATE Bookings SET RemainingBalance = ?, Status = ? WHERE BookingID = ?");
