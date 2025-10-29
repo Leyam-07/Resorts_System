@@ -566,7 +566,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
                    // Conditional "Add New Payment" Form
                    if (booking.status !== 'Pending' && booking.remainingBalance > 0) {
-                       modalHtml += '<hr><h6>Add New On-Site Payment</h6>';
+                       modalHtml += '<hr><h6>Add New Payment</h6>';
+                       
+                       // Dynamic Payment Method Dropdown
+                       let paymentOptionsHtml = '<option value="Cash">Cash</option>';
+                       if (data.paymentMethods && data.paymentMethods.length > 0) {
+                           data.paymentMethods.forEach(method => {
+                               // Avoid adding 'Cash' again if it's already a configured method type
+                               if (method.MethodType.toLowerCase() !== 'cash') {
+                                   paymentOptionsHtml += `<option value="${method.MethodType}">${method.MethodType}</option>`;
+                               }
+                           });
+                       }
+
                        modalHtml += `<form id="addPaymentForm" method="POST" action="?controller=payment&action=add">
                            <input type="hidden" name="booking_id" value="${bookingId}">
                            <div class="row">
@@ -577,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                <div class="col-md-4">
                                    <label class="form-label">Payment Method</label>
                                    <select name="payment_method" class="form-select" required>
-                                       <option value="On-Site Payment">On-Site Payment</option>
+                                       ${paymentOptionsHtml}
                                    </select>
                                </div>
                                <div class="col-md-4 d-flex align-items-end">

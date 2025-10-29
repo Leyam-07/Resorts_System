@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.0] - 2025-10-29
+
+### Fixed
+
+- **Admin Payment Method Consistency:** Resolved a user experience issue in the "Payments" modal on the unified management page where the payment method dropdown was hardcoded.
+  - **Dynamic Dropdown:** The dropdown now dynamically loads all configured payment methods for the specific resort (e.g., GCash, Maya), ensuring administrators can accurately record payments.
+  - **Redundancy Removed:** Removed the redundant "On-Site Payment" option from the UI, establishing "Cash" as the single, clear option for physical payments.
+  - **Backend Alignment:** Updated the `Booking` model (`onSiteUpdateFacilities` and `adminUpdateBooking` methods) to use 'Cash' as the payment method for on-site adjustments and payments, ensuring complete consistency between the frontend and backend.
+
+### Files Updated
+
+- `app/Views/admin/unified_booking_management.php`
+- `app/Models/Booking.php`
+
 ## [1.46.9] - 2025-10-29
 
 ### Fixed

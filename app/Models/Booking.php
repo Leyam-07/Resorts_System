@@ -818,17 +818,17 @@ class Booking {
                 $payment->amount = $paymentAmount;
                 $payment->paymentMethod = $paymentData['method'];
                 $payment->status = 'Verified'; // Admin payments are auto-verified
-                $payment->proofOfPaymentURL = 'On-Site Payment by Admin';
+                $payment->proofOfPaymentURL = 'Payment recorded by Admin';
 
                 if (!Payment::create($payment)) {
-                    throw new Exception("Failed to record on-site payment.");
+                    throw new Exception("Failed to record payment.");
                 }
-                BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAmount', '0', $paymentAmount, 'On-site payment receipt by admin');
+                BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAmount', '0', $paymentAmount, 'Payment recorded by admin');
 
                 // After adding payment, recalculate balance again
                 $balanceResult = self::recalculateBookingTotals($bookingId);
                 if ($oldRemainingBalance !== $balanceResult['remainingBalance']) {
-                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $balanceResult['remainingBalance'], 'Updated after on-site payment');
+                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $balanceResult['remainingBalance'], 'Updated after payment');
                 }
             }
 
@@ -895,14 +895,14 @@ class Booking {
                     $payment = new Payment();
                     $payment->bookingId = $bookingId;
                     $payment->amount = $adjustmentAmount;
-                    $payment->paymentMethod = 'On-Site Payment';
+                    $payment->paymentMethod = 'Cash';
                     $payment->status = 'Verified';
-                    $payment->proofOfPaymentURL = 'On-Site Adjustment by Admin';
+                    $payment->proofOfPaymentURL = 'Facility change adjustment by Admin';
                     
                     if (!Payment::create($payment)) {
                         throw new Exception("Failed to record payment adjustment.");
                     }
-                    BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAdjustment', '0', $adjustmentAmount, 'On-site facility change adjustment');
+                    BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAdjustment', '0', $adjustmentAmount, 'Facility change adjustment by admin');
                 }
                 
                 // Final recalculation of balance
