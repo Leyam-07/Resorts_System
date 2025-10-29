@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.4] - 2025-10-29
+
+### Changed
+
+- **Dashboard Usability:** Improved the Admin and Staff dashboards by initially showing only the top 10 upcoming bookings. A "View More" link on the Admin dashboard now directs to the full unified booking management page, while the Staff dashboard features a client-side "View More" button that expands to show all upcoming bookings without leaving the page.
+
+### Files Updated
+
+- `app/Models/Booking.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/dashboard.php`
+- `app/Views/admin/staff_dashboard.php`
+
+## [1.47.3] - 2025-10-29
+
+### Enhanced
+
+- **Pending Payments UI:** The "Pending Payments" page in the admin panel has been enhanced to display a list of included facilities for each booking. This provides administrators with more context when reviewing payments.
+
+### Files Updated
+
+- `app/Models/Payment.php`
+- `app/Views/admin/payments/pending.php`
+
 ## [1.47.2] - 2025-10-29
 
 ### Fixed

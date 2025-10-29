@@ -221,7 +221,7 @@ class Booking {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public static function findUpcomingBookings($resortId = null) {
+    public static function findUpcomingBookings($resortId = null, $limit = null) {
         $db = self::getDB();
         $today = date('Y-m-d');
 
@@ -239,11 +239,18 @@ class Booking {
         }
 
         $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate ASC, b.CreatedAt ASC";
+
+        if ($limit) {
+            $sql .= " LIMIT :limit";
+        }
         
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':today', $today, PDO::PARAM_STR);
         if ($resortId) {
             $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        }
+        if ($limit) {
+            $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         }
 
         $stmt->execute();

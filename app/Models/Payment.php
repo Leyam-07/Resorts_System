@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/PaymentSchedule.php';
 require_once __DIR__ . '/BookingAuditTrail.php';
+require_once __DIR__ . '/BookingFacilities.php';
 
 class Payment {
     public $paymentId;
@@ -164,7 +165,14 @@ class Payment {
         
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $payments = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        // Fetch included facilities for each payment's booking
+        foreach ($payments as $payment) {
+            $payment->IncludedFacilities = BookingFacilities::getFacilitiesForBooking($payment->BookingID);
+        }
+
+        return $payments;
     }
 
     /**

@@ -58,7 +58,7 @@ class AdminController {
         // Role-based dashboard logic
         if ($_SESSION['role'] === 'Admin') {
             $todaysBookings = Booking::findTodaysBookings($resortId);
-            $upcomingBookings = Booking::findUpcomingBookings($resortId);
+            $upcomingBookings = Booking::findUpcomingBookings($resortId, 10);
 
             // Augment bookings with payment status
             foreach ($todaysBookings as $booking) {

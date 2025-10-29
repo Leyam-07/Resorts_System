@@ -272,6 +272,9 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
                     <?php endif; ?>
                 </div>
+                <div class="card-footer text-center">
+                    <a href="?controller=admin&action=unifiedBookingManagement&status=Confirmed" class="btn btn-outline-primary btn-sm">View More Upcoming Bookings</a>
+                </div>
             </div>
         </div>
     </div>
@@ -330,6 +333,9 @@ require_once __DIR__ . '/../partials/header.php';
                             </table>
                         </div>
                     <?php endif; ?>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="?controller=admin&action=unifiedBookingManagement&status=Completed" class="btn btn-outline-secondary btn-sm">View More Booking History</a>
                 </div>
             </div>
         </div>

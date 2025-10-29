@@ -104,8 +104,8 @@ require_once __DIR__ . '/../partials/header.php';
                                 <th class="text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach ($upcomingBookings as $booking): ?>
+                        <tbody id="upcoming-bookings-tbody">
+                            <?php foreach ($upcomingBookings as $index => $booking): ?>
                                 <?php
                                 $statusColors = [
                                     'Pending' => 'bg-warning text-dark',
@@ -122,7 +122,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 ];
                                 $timeDisplay = $timeSlotDisplay[$booking->TimeSlotType] ?? 'N/A';
                                 ?>
-                                <tr>
+                                <tr class="booking-row" style="<?= $index >= 10 ? 'display: none;' : '' ?>">
                                     <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
                                     <td><?= htmlspecialchars($timeDisplay) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
@@ -143,9 +143,28 @@ require_once __DIR__ . '/../partials/header.php';
                         </tbody>
                     </table>
                 </div>
+                <?php if (count($upcomingBookings) > 10): ?>
+                <div class="text-center mt-3">
+                    <button id="view-more-btn" class="btn btn-primary">View More</button>
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const viewMoreBtn = document.getElementById('view-more-btn');
+    if (viewMoreBtn) {
+        viewMoreBtn.addEventListener('click', function() {
+            const hiddenRows = document.querySelectorAll('#upcoming-bookings-tbody .booking-row[style*="display: none;"]');
+            hiddenRows.forEach(row => {
+                row.style.display = '';
+            });
+            viewMoreBtn.style.display = 'none'; // Hide the button after showing all rows
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>

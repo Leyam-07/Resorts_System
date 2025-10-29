@@ -83,6 +83,18 @@ require_once __DIR__ . '/../../partials/header.php';
                                 <div><strong>Remaining:</strong> ₱<?= number_format($payment->RemainingBalance, 2) ?></div>
                             </div>
 
+                            <!-- Included Facilities -->
+                            <?php if (!empty($payment->IncludedFacilities)): ?>
+                                <h6 class="text-primary mb-2"><i class="fas fa-swimming-pool"></i> Included Facilities</h6>
+                                <div class="mb-3">
+                                    <ul class="list-unstyled mb-0 small">
+                                        <?php foreach ($payment->IncludedFacilities as $facility): ?>
+                                            <li><i class="fas fa-check-circle text-success me-1"></i><?= htmlspecialchars($facility->Name) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+
                             <!-- Payment Information -->
                             <h6 class="text-primary mb-2"><i class="fas fa-money-bill"></i> Payment Details</h6>
                             <div class="mb-3">
