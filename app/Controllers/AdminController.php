@@ -18,6 +18,7 @@ require_once __DIR__ . '/../Models/BookingAuditTrail.php';
 require_once __DIR__ . '/../Models/PaymentSchedule.php';
 require_once __DIR__ . '/../Helpers/ValidationHelper.php';
 require_once __DIR__ . '/../Models/EmailTemplate.php';
+require_once __DIR__ . '/../Helpers/AsyncHelper.php';
 
 class AdminController {
     private $db;
@@ -2102,5 +2103,130 @@ class AdminController {
 
         header('Location: ?controller=admin&action=emailTemplates');
         exit();
+    }
+
+    public function showOnSiteBookingForm() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Fetch resorts
+        $resorts = Resort::findAll();
+        foreach ($resorts as $resort) {
+            $resort->icon = $this->getIconForResort($resort->name);
+            $resort->mainPhotoURL = BASE_URL . '/' . $resort->mainPhotoURL;
+            $resort->hasCompletePricing = ResortTimeframePricing::hasCompletePricing($resort->resortId);
+        }
+
+        // Fetch customers
+        $customers = User::findByRole('Customer');
+        
+        $adminUsers = User::getAdminUsers();
+        $adminContact = !empty($adminUsers) ? $adminUsers[0] : null;
+
+        $pageTitle = "On-Site Booking";
+        require_once __DIR__ . '/../Views/admin/on_site_booking.php';
+    }
+
+    public function createOnSiteBooking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=showOnSiteBookingForm');
+            exit;
+        }
+
+        if ($_SESSION['role'] !== 'Admin') {
+            $_SESSION['error_message'] = "You are not authorized to perform this action.";
+            header('Location: ?controller=admin&action=dashboard');
+            exit;
+        }
+
+        $validation = ValidationHelper::validateBookingData($_POST, true); // Admin validation includes customer ID
+
+        if (!$validation['valid']) {
+            $errorMessages = [];
+            foreach ($validation['errors'] as $field => $errors) {
+                $errorMessages = array_merge($errorMessages, $errors);
+            }
+            $_SESSION['error_message'] = implode('<br>', $errorMessages);
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=admin&action=showOnSiteBookingForm');
+            exit;
+        }
+
+        $validatedData = $validation['data'];
+        $resortId = $validatedData['resort_id'];
+        $bookingDate = $validatedData['booking_date'];
+        $timeSlotType = $validatedData['timeframe'];
+        $facilityIds = $validatedData['facility_ids'] ?? [];
+        $customerId = $validatedData['customer_id'];
+        $adminUserId = $_SESSION['user_id'];
+
+        // Check availability
+        if (!Booking::isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds)) {
+            $_SESSION['error_message'] = "The selected date and timeframe is not available.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=admin&action=showOnSiteBookingForm');
+            exit;
+        }
+
+        // Create booking with 'Confirmed' status
+        $totalAmount = Booking::calculateBookingTotal($resortId, $timeSlotType, $bookingDate, $facilityIds);
+        $bookingId = Booking::createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $totalAmount, $facilityIds, 'Confirmed');
+
+        if ($bookingId) {
+            // Log creation
+            $bookingData = [
+                'resortId' => $resortId,
+                'bookingDate' => $bookingDate,
+                'timeSlotType' => $timeSlotType,
+                'totalAmount' => $totalAmount
+            ];
+            BookingAuditTrail::logBookingCreation($bookingId, $adminUserId, $bookingData, "On-site booking created by admin.");
+
+            // Create a 'Paid' cash payment record
+            Payment::createFromBookingPayment(
+                $bookingId,
+                $totalAmount,
+                'Cash',
+                'On-Site Payment',
+                null,
+                'Paid'
+            );
+            
+            // Update booking balance to zero
+            Booking::updateRemainingBalance($bookingId, 0);
+            
+            // Send confirmation email to customer
+            AsyncHelper::triggerEmailWorker('booking_confirmed_paid', $bookingId);
+
+            $_SESSION['success_message'] = "On-site booking #{$bookingId} created successfully.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement&highlight=' . $bookingId);
+        } else {
+            $_SESSION['error_message'] = "Could not create the on-site booking. Please try again.";
+            $_SESSION['old_input'] = $_POST;
+            header('Location: ?controller=admin&action=showOnSiteBookingForm');
+        }
+        exit;
+    }
+
+    private function getIconForFacility($facilityName) {
+        $name = strtolower($facilityName);
+        if (strpos($name, 'pool') !== false) return 'fas fa-swimming-pool';
+        if (strpos($name, 'videoke') !== false || strpos($name, 'karaoke') !== false) return 'fas fa-microphone-alt';
+        if (strpos($name, 'room') !== false) return 'fas fa-bed';
+        if (strpos($name, 'cottage') !== false) return 'fas fa-campground';
+        if (strpos($name, 'grill') !== false) return 'fas fa-fire-alt';
+        if (strpos($name, 'kitchen') !== false) return 'fas fa-utensils';
+        return 'fas fa-swimming-pool'; // Default icon
+    }
+
+    private function getIconForResort($resortName) {
+        $name = strtolower($resortName);
+        if (strpos($name, 'villa') !== false) return 'fas fa-house-user';
+        if (strpos($name, 'season') !== false) return 'fas fa-cloud-sun';
+        if (strpos($name, 'classic') !== false) return 'fas fa-gopuram';
+        return 'fas fa-hotel'; // Default icon
     }
 }

@@ -12,7 +12,7 @@ class ValidationHelper {
     /**
      * Validate booking creation data
      */
-    public static function validateBookingData($data) {
+    public static function validateBookingData($data, $isAdmin = false) {
         $rules = [
             'resort_id' => 'required|integer|min:1',
             'booking_date' => 'required|date',
@@ -29,6 +29,12 @@ class ValidationHelper {
             'timeframe.in' => 'Please select a valid time slot option',
             'facility_ids.array' => 'Invalid facility selection format'
         ];
+
+        if ($isAdmin) {
+            $rules['customer_id'] = 'required|integer|min:1';
+            $customMessages['customer_id.required'] = 'Please select a customer';
+            $customMessages['customer_id.integer'] = 'Invalid customer selection';
+        }
 
         $result = ErrorHandler::validateInput($data, $rules, $customMessages);
 

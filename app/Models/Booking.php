@@ -61,7 +61,7 @@ class Booking {
     /**
      * Create a new resort-centric booking with multiple facilities
      */
-    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $totalAmount, $facilityIds = []) {
+    public static function createResortBooking($customerId, $resortId, $bookingDate, $timeSlotType, $totalAmount, $facilityIds = [], $status = 'Pending') {
         $db = self::getDB();
         
         // Start transaction
@@ -75,16 +75,21 @@ class Booking {
             $booking->facilityId = null; // Will be deprecated
             $booking->bookingDate = $bookingDate;
             $booking->timeSlotType = $timeSlotType;
-            $booking->status = 'Pending';
+            $booking->status = $status;
             $booking->totalAmount = $totalAmount;
             $booking->paymentProofURL = null;
             $booking->paymentReference = null;
             $booking->remainingBalance = $totalAmount;
             
             // Create a DateTime object in UTC to ensure correct expiration time across timezones
-            $dt = new DateTime("now", new DateTimeZone('UTC'));
-            $dt->add(new DateInterval('PT3H'));
-            $booking->expiresAt = $dt->format('Y-m-d H:i:s');
+            // Set expiration only for pending bookings
+            if ($status === 'Pending') {
+                $dt = new DateTime("now", new DateTimeZone('UTC'));
+                $dt->add(new DateInterval('PT3H'));
+                $booking->expiresAt = $dt->format('Y-m-d H:i:s');
+            } else {
+               $booking->expiresAt = null;
+            }
             
             $bookingId = self::create($booking);
             

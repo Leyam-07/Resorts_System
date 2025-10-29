@@ -101,7 +101,11 @@ class EmailTemplate
             'booking_expired' => [
                 'Subject' => 'Your Booking Has Expired',
                 'Body' => '<p>Dear {{customer_name}},</p><p>Your booking #{{booking_id}} has expired due to non-payment and has been cancelled.</p>'
-            ]
+            ],
+           'booking_confirmed_paid' => [
+               'Subject' => 'Booking Confirmed and Paid: #{{booking_id}}',
+               'Body' => '<p>Dear {{customer_name}},</p><p>An administrator has created a new booking for you for {{resort_name}} on {{booking_date}}. This booking is confirmed and fully paid. We look forward to seeing you!</p>'
+           ]
         ];
     }
 }

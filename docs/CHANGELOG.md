@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.7] - 2025-10-29
+
+### Added
+
+- **On-Site Booking Feature:** Implemented a new "On-Site Booking" feature, allowing administrators to create a confirmed, fully paid booking for an existing customer directly from the "Unified Booking & Payment Management" page.
+  - **New Admin View:** Created a dedicated booking form for admins at `app/Views/admin/on_site_booking.php`, which reuses the dynamic calendar and availability logic from the customer-facing form but includes a customer selection dropdown.
+  - **Backend Logic:** Added `showOnSiteBookingForm()` and `createOnSiteBooking()` methods to the `AdminController` to handle form display and submission. The backend logic creates a 'Confirmed' booking and immediately logs a 'Paid' cash payment.
+
+### Changed
+
+- The `Booking` model's `createResortBooking()` method was enhanced to accept an optional status.
+- The `Payment` model's `createFromBookingPayment()` method was updated to accept an optional payment status.
+- The `ValidationHelper` was modified to require a `customer_id` for admin-initiated bookings.
+
+### Fixed
+
+- **Fatal Errors:** Resolved two critical fatal errors that occurred during implementation:
+  - Fixed a `Call to undefined method User::findAllByRole()` by correcting the method call to `User::findByRole()`.
+  - Fixed a `Class "AsyncHelper" not found` error by adding the necessary `require_once` statement in the `AdminController`.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/unified_booking_management.php`
+- `app/Views/admin/on_site_booking.php` (New File)
+- `app/Helpers/ValidationHelper.php`
+- `app/Models/Booking.php`
+- `app/Models/Payment.php`
+- `app/Models/EmailTemplate.php`
+
 ## [1.47.6] - 2025-10-29
 
 ### Fixed
