@@ -105,7 +105,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 </thead>
                                 <tbody>
                                     <?php foreach ($bookings as $booking): ?>
-                                        <tr>
+                                        <tr id="booking-row-<?= $booking->BookingID ?>">
                                             <td><strong><?= htmlspecialchars($booking->BookingID) ?></strong></td>
                                             <td>
                                                 <div><?= date('M j, Y', strtotime($booking->BookingDate)) ?></div>
@@ -383,6 +383,24 @@ require_once __DIR__ . '/../partials/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Highlight and scroll to booking if a hash is present
+    if (window.location.hash) {
+        const hash = window.location.hash;
+        const targetRow = document.querySelector(hash);
+        if (targetRow) {
+            // Add a temporary highlight class
+            targetRow.classList.add('table-info');
+            
+            // Scroll to the element
+            targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Remove the highlight after a few seconds
+            setTimeout(() => {
+                targetRow.classList.remove('table-info');
+            }, 3000);
+        }
+    }
+
    const updateModal = document.getElementById('updateBookingModal');
    
    updateModal.addEventListener('show.bs.modal', function (event) {

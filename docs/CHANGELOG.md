@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.5] - 2025-10-29
+
+### Enhanced
+
+- **Dashboard to Management Page Navigation:** Enhanced the user experience by linking the "View Details" buttons on the Admin Dashboard to the Unified Booking & Payment Management page. When clicked, the page now automatically scrolls to and highlights the corresponding booking row for immediate context.
+
+### Files Updated
+
+- `app/Views/admin/dashboard.php`
+- `app/Views/admin/unified_booking_management.php`
+
 ## [1.47.4] - 2025-10-29
 
 ### Changed
