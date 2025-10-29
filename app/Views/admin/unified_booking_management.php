@@ -584,6 +584,15 @@ document.addEventListener('DOMContentLoaded', function() {
                        modalHtml += '<p class="text-muted">No payment schedule defined.</p>';
                    }
 
+                   // Invoice Section
+                   modalHtml += '<hr><h6>Invoice</h6>';
+                   modalHtml += `<div class="d-flex justify-content-between align-items-center">
+                       <p class="mb-0">Generate an invoice for this booking.</p>
+                       <a href="?controller=admin&action=generateInvoiceForAdmin&id=${bookingId}" target="_blank" class="btn btn-primary">
+                           <i class="fas fa-file-pdf me-2"></i>Generate as PDF
+                       </a>
+                   </div>`;
+
 
                    // Conditional "Add New Payment" Form
                    if (booking.status !== 'Pending' && booking.remainingBalance > 0) {

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.8] - 2025-10-29
+
+### Added
+
+- **Admin Invoice Generation:** Implemented a new "Invoice" section in the "Payments" modal on the "Unified Booking & Payment Management" page. Administrators can now generate a PDF invoice for any booking directly from this modal.
+
+### Changed
+
+- **Admin Controller:** Added a new `generateInvoiceForAdmin()` method to `app/Controllers/AdminController.php` to handle secure invoice generation for administrators.
+- **Admin View:** Modified `app/Views/admin/unified_booking_management.php` to include the "Invoice" section and the "Generate as PDF" button within the payments modal's JavaScript logic.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/unified_booking_management.php`
+
 ## [1.47.7] - 2025-10-29
 
 ### Added

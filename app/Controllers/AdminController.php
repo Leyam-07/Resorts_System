@@ -2059,6 +2059,41 @@ class AdminController {
         }
         exit();
     }
+
+    public function generateInvoiceForAdmin() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            die('Forbidden');
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            die('Invalid booking ID.');
+        }
+
+        // We can reuse the BookingController's logic by instantiating it
+        require_once __DIR__ . '/BookingController.php';
+        $bookingController = new BookingController();
+        
+        // Temporarily grant access for the admin to generate the invoice
+        // This is a simplified approach; a more robust RBAC would be better
+        $originalUserId = $_SESSION['user_id'];
+        
+        // Find the customer ID from the booking to satisfy the check in generateInvoice
+        $booking = Booking::findById($bookingId);
+        if (!$booking) {
+            die('Booking not found.');
+        }
+        $_SESSION['user_id'] = $booking->customerId;
+
+        // Call the public method, which contains the PDF generation logic
+        $bookingController->generateInvoice();
+
+        // Restore the original admin user ID
+        $_SESSION['user_id'] = $originalUserId;
+        exit();
+    }
+    
     public function emailTemplates() {
         if ($_SESSION['role'] !== 'Admin') {
             http_response_code(403);
