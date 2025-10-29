@@ -15,7 +15,7 @@ require_once __DIR__ . '/../partials/header.php';
     <div class="col-md-4">
         <form action="" method="GET" id="resortFilterForm">
             <input type="hidden" name="controller" value="admin">
-            <input type="hidden" name="action" value="dashboard">
+            <input type="hidden" name="action" value="staffDashboard">
             <select name="resort_id" class="form-select" onchange="this.form.submit()">
                 <option value="">All Resorts</option>
                 <?php foreach ($resorts as $resort): ?>

@@ -258,22 +258,33 @@ class Booking {
     }
     
 
-    public static function getBookingHistory($limit = 10) {
+    public static function getBookingHistory($resortId = null, $limit = 10) {
         $db = self::getDB();
-        $stmt = $db->prepare(
-            "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
-                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
-             FROM Bookings b
-             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
-             LEFT JOIN Users u ON b.CustomerID = u.UserID
-             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
-             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
-             WHERE b.BookingDate < CURDATE()
-             GROUP BY b.BookingID
-             ORDER BY b.BookingDate DESC, b.CreatedAt DESC
-             LIMIT :limit"
-        );
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $sql = "SELECT b.*, r.Name as ResortName, u.Username as CustomerName,
+                       GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+                FROM Bookings b
+                LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+                LEFT JOIN Users u ON b.CustomerID = u.UserID
+                LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+                LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+                WHERE b.BookingDate < CURDATE()";
+
+        $params = [];
+
+        if ($resortId) {
+            $sql .= " AND b.ResortID = :resortId";
+            $params[':resortId'] = $resortId;
+        }
+
+        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate DESC, b.CreatedAt DESC LIMIT :limit";
+        $params[':limit'] = $limit;
+
+        $stmt = $db->prepare($sql);
+
+        foreach ($params as $param => &$val) {
+            $stmt->bindParam($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }

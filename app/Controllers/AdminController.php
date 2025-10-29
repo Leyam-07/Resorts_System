@@ -84,7 +84,7 @@ class AdminController {
             $currentMonth = date('m');
             $currentYear = date('Y');
             $monthlyIncome = Payment::getMonthlyIncome($currentYear, $currentMonth, $resortId);
-            $bookingHistory = Booking::getBookingHistory(10); // This could also be filtered if needed
+            $bookingHistory = Booking::getBookingHistory($resortId, 10);
             $dailyIncomeData = Payment::getDailyIncomeForMonth($currentYear, $currentMonth, $resortId);
 
             // Get counts for dashboard buttons
