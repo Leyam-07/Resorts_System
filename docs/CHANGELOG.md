@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.2] - 2025-10-29
+
+### Fixed
+
+- **Payment Processing System:** Resolved a series of critical bugs in the on-site payment system.
+  - **Data Integrity:** Implemented a new transactional method, `Booking::processNewPayment()`, to ensure that adding a payment, updating the booking balance, and updating the payment schedule all occur as a single, atomic operation, preventing data inconsistencies.
+  - **Overpayment Prevention:** The system now validates payments to prevent an amount greater than the remaining balance from being submitted.
+  - **Status Accuracy:** Corrected the logic that determines a booking's payment status to ensure it is only marked as "Paid" when the remaining balance is zero.
+  - **Redirect Logic:** Fixed a bug where adding a payment would redirect to an unfiltered page. The system now preserves the admin's filters (e.g., by resort) after the action is complete.
+
+### Files Updated
+
+- `app/Controllers/PaymentController.php`
+- `app/Models/Booking.php`
+- `app/Models/Payment.php`
+
 ## [1.47.1] - 2025-10-29
 
 ### Fixed

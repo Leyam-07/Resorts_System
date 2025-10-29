@@ -586,7 +586,6 @@ class Booking {
                     u.Email as CustomerEmail,
                     r.Name as ResortName,
                     GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames,
-                    COALESCE(p.PaymentStatus, 'Unpaid') as PaymentStatus,
                     COALESCE(p.TotalPaid, 0) as TotalPaid,
                     -- Phase 6 Data
                     COALESCE(at.AuditTrailCount, 0) as AuditTrailCount,
@@ -598,16 +597,10 @@ class Booking {
                 LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
                 LEFT JOIN (
                     SELECT
-                        p2.BookingID,
-                        SUM(p2.Amount) as TotalPaid,
-                        CASE
-                            WHEN SUM(CASE WHEN p2.Status = 'Verified' THEN p2.Amount ELSE 0 END) >= MAX(b2.TotalAmount) THEN 'Paid'
-                            WHEN SUM(CASE WHEN p2.Status = 'Verified' THEN p2.Amount ELSE 0 END) > 0 THEN 'Partial'
-                            ELSE 'Unpaid'
-                        END as PaymentStatus
-                    FROM Payments p2
-                    LEFT JOIN Bookings b2 ON p2.BookingID = b2.BookingID
-                    GROUP BY p2.BookingID
+                        BookingID,
+                        SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) as TotalPaid
+                    FROM Payments
+                    GROUP BY BookingID
                 ) p ON b.BookingID = p.BookingID
                 -- Phase 6: Join for Audit Trail Count
                 LEFT JOIN (
@@ -649,7 +642,20 @@ class Booking {
         }
         
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $bookings = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        // Manually set the correct PaymentStatus based on accurate balance
+        foreach ($bookings as $booking) {
+            if ($booking->RemainingBalance <= 0 && $booking->TotalAmount > 0) {
+                $booking->PaymentStatus = 'Paid';
+            } elseif ($booking->TotalPaid > 0) {
+                $booking->PaymentStatus = 'Partial';
+            } else {
+                $booking->PaymentStatus = 'Unpaid';
+            }
+        }
+
+        return $bookings;
     }
 
     /**
@@ -918,6 +924,80 @@ class Booking {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+    /**
+     * Process a new payment for a booking in a transactional way.
+     */
+    public static function processNewPayment($bookingId, $amount, $paymentMethod, $adminUserId) {
+        // First, validate the payment amount to prevent overpayment
+        $validation = Payment::validatePaymentAmount($bookingId, $amount);
+        if (!$validation['valid']) {
+            // Immediately return the specific validation error (e.g., "Payment exceeds remaining balance")
+            return ['success' => false, 'error' => implode(', ', $validation['errors'])];
+        }
+
+        $db = self::getDB();
+        $db->beginTransaction();
+
+        try {
+            // 1. Create the payment record
+            $payment = new Payment();
+            $payment->bookingId = $bookingId;
+            $payment->amount = $amount;
+            $payment->paymentMethod = $paymentMethod;
+            $payment->status = 'Verified'; // Admin-added payments are auto-verified
+            $payment->proofOfPaymentURL = 'On-site payment by Admin';
+            
+            $paymentId = Payment::create($payment);
+            if (!$paymentId) {
+                throw new Exception("Failed to create payment record.");
+            }
+
+            // 2. Find and update the corresponding payment schedule
+            $nextScheduleItem = PaymentSchedule::getNextPaymentDue($bookingId);
+            if ($nextScheduleItem) {
+                PaymentSchedule::markAsPaid($nextScheduleItem->ScheduleID, $paymentId);
+            }
+
+            // 3. Recalculate booking totals and status
+            $booking = self::findById($bookingId);
+            $oldRemainingBalance = $booking->remainingBalance;
+            
+            $totals = self::recalculateBookingTotals($bookingId);
+            $newRemainingBalance = $totals['remainingBalance'];
+            
+            // 4. Log the payment and balance change
+            BookingAuditTrail::logPaymentUpdate(
+                $bookingId,
+                $adminUserId,
+                'Payment',
+                'N/A',
+                '₱' . number_format($amount, 2),
+                "Admin recorded an on-site payment via {$paymentMethod}."
+            );
+            
+            if ($oldRemainingBalance != $newRemainingBalance) {
+                BookingAuditTrail::logChange(
+                    $bookingId,
+                    $adminUserId,
+                    'UPDATE',
+                    'RemainingBalance',
+                    $oldRemainingBalance,
+                    $newRemainingBalance,
+                    'Balance updated after new payment.'
+                );
+            }
+            
+            // The recalculateBookingTotals method already updates the DB, so we just need to commit.
+            $db->commit();
+            return ['success' => true];
+
+        } catch (Exception $e) {
+            $db->rollback();
+            error_log("Failed to process new payment for booking #{$bookingId}: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
 
     /**
      * Get the total number of completed bookings for a specific facility.

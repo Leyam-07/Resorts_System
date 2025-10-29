@@ -340,8 +340,9 @@ class Payment {
             return ['valid' => false, 'errors' => $errors];
         }
 
-        // Check if payment exceeds remaining balance
-        if ($amount > $balanceInfo['remainingBalance']) {
+        // Check if payment exceeds remaining balance with a small tolerance for floating-point issues
+        $tolerance = 0.001;
+        if ($amount > ($balanceInfo['remainingBalance'] + $tolerance)) {
             $errors[] = 'Payment amount (₱' . number_format($amount, 2) . ') exceeds remaining balance (₱' . number_format($balanceInfo['remainingBalance'], 2) . ')';
         }
 

@@ -31,31 +31,38 @@ class PaymentController {
         $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
         $amount = filter_input(INPUT_POST, 'amount', FILTER_VALIDATE_FLOAT);
         $paymentMethod = filter_input(INPUT_POST, 'payment_method', FILTER_UNSAFE_RAW);
-        $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
+        $adminUserId = $_SESSION['user_id'];
 
-        if (!$bookingId || !$amount || !$paymentMethod || !$status) {
-            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=invalid_input');
+        // Preserve filters from the referring URL
+        $redirectUrl = 'index.php?controller=admin&action=unifiedBookingManagement';
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $parts = parse_url($_SERVER['HTTP_REFERER']);
+            if (isset($parts['query'])) {
+                parse_str($parts['query'], $query);
+                // Keep only relevant filters, not action/controller
+                unset($query['controller']);
+                unset($query['action']);
+                if (!empty($query)) {
+                    $redirectUrl .= '&' . http_build_query($query);
+                }
+            }
+        }
+
+        if (!$bookingId || !$amount || !$paymentMethod) {
+            $_SESSION['error_message'] = "Invalid input for adding payment.";
+            header('Location: ' . $redirectUrl);
             exit();
         }
 
-        $payment = new Payment();
-        $payment->bookingId = $bookingId;
-        $payment->amount = $amount;
-        $payment->paymentMethod = $paymentMethod;
-        $payment->status = $status;
-        
-        // For now, we'll leave ProofOfPaymentURL as null
-        $payment->proofOfPaymentURL = null;
+        $result = Booking::processNewPayment($bookingId, $amount, $paymentMethod, $adminUserId);
 
-        if (Payment::create($payment)) {
-            // If payment was successful and status is 'Paid', auto-confirm the booking
-            if ($status === 'Paid') {
-                Booking::updateStatus($bookingId, 'Confirmed');
-            }
-            header('Location: index.php?controller=admin&action=unifiedBookingManagement&status=payment_added');
+        if ($result['success']) {
+            $_SESSION['success_message'] = "Payment of ₱" . number_format($amount, 2) . " added successfully.";
         } else {
-            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=add_failed');
+            $_SESSION['error_message'] = "Failed to add payment: " . ($result['error'] ?? 'An unknown error occurred.');
         }
+
+        header('Location: ' . $redirectUrl);
         exit();
     }
 
