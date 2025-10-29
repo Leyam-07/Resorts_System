@@ -841,6 +841,83 @@ class Booking {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+    public static function onSiteUpdateFacilities($bookingId, $newFacilityIds, $adminUserId) {
+        $db = self::getDB();
+        $db->beginTransaction();
+
+        try {
+            $booking = self::findById($bookingId);
+            if (!$booking) {
+                throw new Exception("Booking not found.");
+            }
+
+            // Validation: Only allow for confirmed and fully paid bookings
+            if ($booking->status !== 'Confirmed') {
+                throw new Exception("On-site edits are only allowed for Confirmed bookings.");
+            }
+            if ($booking->remainingBalance > 0) {
+                throw new Exception("Booking must be fully paid before making on-site edits.");
+            }
+
+            // Get original facility info for audit
+            $originalFacilityIds = BookingFacilities::getFacilityIds($bookingId);
+            sort($originalFacilityIds);
+            sort($newFacilityIds);
+
+            if ($originalFacilityIds !== $newFacilityIds) {
+                require_once __DIR__ . '/Facility.php';
+                $originalNames = [];
+                foreach ($originalFacilityIds as $facilityId) {
+                    $facility = Facility::findById($facilityId);
+                    if ($facility) $originalNames[] = $facility->name;
+                }
+                $originalFacilitiesStr = implode(', ', $originalNames);
+
+                $newNames = [];
+                foreach ($newFacilityIds as $facilityId) {
+                    $facility = Facility::findById($facilityId);
+                    if ($facility) $newNames[] = $facility->name;
+                }
+                $newFacilitiesStr = implode(', ', $newNames);
+
+                // Update facilities
+                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds);
+                BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'On-Site facility modification');
+
+                // Recalculate totals and create a new on-site payment record for the difference
+                $oldTotalAmount = $booking->totalAmount;
+                $totalsResult = self::recalculateBookingTotals($bookingId);
+                $newTotalAmount = $totalsResult['totalAmount'];
+
+                $adjustmentAmount = $newTotalAmount - $oldTotalAmount;
+
+                if ($adjustmentAmount != 0) {
+                    $payment = new Payment();
+                    $payment->bookingId = $bookingId;
+                    $payment->amount = $adjustmentAmount;
+                    $payment->paymentMethod = 'On-Site Payment';
+                    $payment->status = 'Verified';
+                    $payment->proofOfPaymentURL = 'On-Site Adjustment by Admin';
+                    
+                    if (!Payment::create($payment)) {
+                        throw new Exception("Failed to record payment adjustment.");
+                    }
+                    BookingAuditTrail::logPaymentUpdate($bookingId, $adminUserId, 'PaymentAdjustment', '0', $adjustmentAmount, 'On-site facility change adjustment');
+                }
+                
+                // Final recalculation of balance
+                self::recalculateBookingTotals($bookingId);
+            }
+
+            $db->commit();
+            return ['success' => true];
+
+        } catch (Exception $e) {
+            $db->rollback();
+            error_log("On-Site Booking Update Failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
 
     /**
      * Get the total number of completed bookings for a specific facility.

@@ -170,45 +170,24 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="btn-group-vertical btn-group-sm" role="group">
-                                                    <button type="button" class="btn btn-outline-primary btn-sm"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#manageBookingModal"
-                                                            data-booking-id="<?= $booking->BookingID ?>"
-                                                            data-booking-status="<?= $booking->Status ?>"
-                                                            data-total-amount="<?= $booking->TotalAmount ?>"
-                                                            data-remaining-balance="<?= $booking->RemainingBalance ?>">
-                                                        <i class="fas fa-edit"></i> Manage
+                                                <div class="btn-group" role="group" aria-label="Booking Actions">
+                                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateBookingModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                        <i class="fas fa-edit"></i> Update
                                                     </button>
-                                                    
-                                                    <div class="btn-group" role="group">
-                                                        <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle"
-                                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-tools"></i> Tools
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#"
-                                                                   onclick="showAuditTrail(<?= $booking->BookingID ?>)">
-                                                                <i class="fas fa-history"></i> Audit Trail
-                                                            </a></li>
-                                                            <li><a class="dropdown-item" href="#"
-                                                                   onclick="showPaymentSchedule(<?= $booking->BookingID ?>)">
-                                                                <i class="fas fa-calendar-alt"></i> Payment Schedule
-                                                            </a></li>
-                                                            <?php if (!empty($recommendations)): ?>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li><a class="dropdown-item text-info" href="#"
-                                                                   onclick="applyRecommendation(<?= $booking->BookingID ?>, '<?= $rec['recommended'] ?>')">
-                                                                <i class="fas fa-lightbulb"></i> Apply Suggestion
-                                                            </a></li>
-                                                            <?php endif; ?>
-                                                        </ul>
-                                                    </div>
-                                                    
-                                                    <a href="?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>"
-                                                       class="btn btn-outline-success btn-sm">
+                                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentsModal" data-booking-id="<?= $booking->BookingID ?>">
                                                         <i class="fas fa-credit-card"></i> Payments
-                                                    </a>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#onSiteEditModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                        <i class="fas fa-store"></i> On-Site Edit
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="showAuditTrail(<?= $booking->BookingID ?>)">
+                                                        <i class="fas fa-history"></i> Audit
+                                                    </button>
+                                                    <?php if (!empty($recommendations)): ?>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="applyRecommendation(<?= $booking->BookingID ?>, '<?= $rec['recommended'] ?>')">
+                                                            <i class="fas fa-lightbulb"></i> Suggestions
+                                                        </button>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>
@@ -223,75 +202,6 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
-<!-- Manage Booking Modal -->
-<div class="modal fade" id="manageBookingModal" tabindex="-1" aria-labelledby="manageBookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="manageBookingForm" method="POST" action="?controller=admin&action=adminUpdateBooking">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="manageBookingModalLabel">Manage On-Site Booking</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="modalBookingId" name="booking_id">
-                    <input type="hidden" id="modalResortId" name="resort_id">
-                    
-                    <div class="mb-3">
-                        <label for="bookingStatus" class="form-label">Booking Status</label>
-                        <select class="form-select" id="bookingStatus" name="booking_status">
-                            <option value="Pending">Pending</option>
-                            <option value="Confirmed">Confirmed</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-
-                    <hr>
-                    <h6>Manage Facilities (On-Site Add-ons)</h6>
-                    <div id="facilitiesManagementSection" class="mb-3">
-                        <p class="text-muted small">Loading available facilities...</p>
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
-
-                    <hr>
-                    <h6>Record On-Site Payment (Optional)</h6>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="paymentAmount" class="form-label">Payment Amount</label>
-                                <input type="number" step="0.01" class="form-control" id="paymentAmount" name="payment_amount">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="paymentMethod" class="form-label">Payment Method</label>
-                                <select class="form-select" id="paymentMethod" name="payment_method">
-                                    <option value="">Loading payment methods...</option>
-                                </select>
-                                <div class="form-text small">Choose from configured payment methods for this resort</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="paymentStatus" class="form-label">Payment Status</label>
-                        <select class="form-select" id="paymentStatus" name="payment_status">
-                            <option value="">Select status</option>
-                            <option value="Verified">Verified (Confirmed)</option>
-                            <option value="Pending">Pending (Needs Review)</option>
-                            <option value="Partial">Partial Payment</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Phase 6: Audit Trail Modal -->
 <div class="modal fade" id="auditTrailModal" tabindex="-1" aria-labelledby="auditTrailModalLabel" aria-hidden="true">
@@ -343,74 +253,180 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Update Booking Modal -->
+<div class="modal fade" id="updateBookingModal" tabindex="-1" aria-labelledby="updateBookingModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <form id="updateBookingForm" method="POST" action="?controller=admin&action=adminUpdateBooking">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="updateBookingModalLabel">Update Booking</h5>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   <input type="hidden" id="updateModalBookingId" name="booking_id">
+                   
+                   <div class="mb-3">
+                       <label for="updateBookingStatus" class="form-label">Booking Status</label>
+                       <select class="form-select" id="updateBookingStatus" name="booking_status">
+                           <option value="Pending">Pending</option>
+                           <option value="Confirmed">Confirmed</option>
+                           <option value="Completed">Completed</option>
+                           <option value="Cancelled">Cancelled</option>
+                       </select>
+                   </div>
+
+                   <hr>
+                   <h6>Existing Payments</h6>
+                   <div id="existingPaymentsSection" class="mb-3">
+                       <p class="text-muted small">Loading payment history...</p>
+                   </div>
+
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                   <button type="submit" class="btn btn-primary">Save Changes</button>
+               </div>
+           </form>
+       </div>
+   </div>
+</div>
+
+<!-- Payments Modal -->
+<div class="modal fade" id="paymentsModal" tabindex="-1" aria-labelledby="paymentsModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="paymentsModalLabel">Payments</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+               <!-- Content will be loaded via JS -->
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+           </div>
+       </div>
+   </div>
+</div>
+
+<!-- On-Site Edit Modal -->
+<div class="modal fade" id="onSiteEditModal" tabindex="-1" aria-labelledby="onSiteEditModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="onSiteEditModalLabel">On-Site Edit</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+               <!-- Content will be loaded via JS -->
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+           </div>
+       </div>
+   </div>
+</div>
+
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('manageBookingModal');
-    
-    modal.addEventListener('show.bs.modal', function (event) {
+   const updateModal = document.getElementById('updateBookingModal');
+   
+   updateModal.addEventListener('show.bs.modal', function (event) {
+       const button = event.relatedTarget;
+       const bookingId = button.getAttribute('data-booking-id');
+
+       // Reset form state
+       const form = document.getElementById('updateBookingForm');
+       form.reset();
+       document.getElementById('existingPaymentsSection').innerHTML = '<p class="text-muted small">Loading payment history...</p>';
+
+       // Set basic modal data
+       document.getElementById('updateModalBookingId').value = bookingId;
+       document.getElementById('updateBookingModalLabel').textContent = 'Update Booking #' + bookingId;
+
+       // Fetch booking details for the modal
+       fetch(`?controller=admin&action=getBookingDetailsForManagement&booking_id=${bookingId}`)
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   const booking = data.booking;
+                   document.getElementById('updateBookingStatus').value = booking.Status;
+                   // You can also populate the payment history here.
+               } else {
+                   document.getElementById('existingPaymentsSection').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+               }
+           })
+           .catch(error => {
+               console.error('Error fetching booking details:', error);
+               document.getElementById('existingPaymentsSection').innerHTML = '<div class="alert alert-danger">Failed to load booking details.</div>';
+           });
+   });
+
+
+    const onSiteEditModal = document.getElementById('onSiteEditModal');
+    onSiteEditModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const bookingId = button.getAttribute('data-booking-id');
+        const modalBody = onSiteEditModal.querySelector('.modal-body');
+        modalBody.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2">Loading booking data...</p></div>';
+        document.getElementById('onSiteEditModalLabel').textContent = 'On-Site Edit for Booking #' + bookingId;
 
-        // Reset form state
-        const form = document.getElementById('manageBookingForm');
-        form.reset();
-        document.getElementById('facilitiesManagementSection').innerHTML = '<p class="text-muted small">Loading available facilities...</p>';
-
-        // Set basic modal data
-        document.getElementById('modalBookingId').value = bookingId;
-        document.getElementById('manageBookingModalLabel').textContent = 'Manage Booking #' + bookingId;
-
-        // Fetch comprehensive booking details for the modal
         fetch(`?controller=admin&action=getBookingDetailsForManagement&booking_id=${bookingId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     const booking = data.booking;
-                    document.getElementById('bookingStatus').value = booking.Status;
-                    document.getElementById('modalResortId').value = booking.ResortID;
+
+                    // Validation
+                    if (booking.Status !== 'Confirmed' || booking.RemainingBalance > 0) {
+                        modalBody.innerHTML = '<div class="alert alert-danger">On-site edits are only allowed for Confirmed and fully paid bookings.</div>';
+                        return;
+                    }
+
+                    let formHtml = `<form id="onSiteEditForm" method="POST" action="?controller=admin&action=onSiteUpdateBooking">
+                        <input type="hidden" name="booking_id" value="${bookingId}">
+                        <h6>Modify Facilities</h6>
+                        <div id="onSiteFacilitiesSection">Loading facilities...</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning">Apply Edits</button>
+                        </div>
+                    </form>`;
+                    modalBody.innerHTML = formHtml;
                     
-                    // Now fetch facilities and payment methods for the resort
-                    fetchFacilities(booking.resortId, booking.BookedFacilities);
-                    fetchPaymentMethods(booking.resortId);
+                    fetchFacilitiesForOnSiteEdit(booking.resortId, booking.BookedFacilities);
+
                 } else {
-                    document.getElementById('facilitiesManagementSection').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    modalBody.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }
             })
             .catch(error => {
-                console.error('Error fetching booking details:', error);
-                document.getElementById('facilitiesManagementSection').innerHTML = '<div class="alert alert-danger">Failed to load booking details.</div>';
+                console.error('Error fetching booking data:', error);
+                modalBody.innerHTML = '<div class="alert alert-danger">Failed to load booking data.</div>';
             });
     });
 
-    function fetchFacilities(resortId, bookedFacilities) {
-        const container = document.getElementById('facilitiesManagementSection');
-
+    function fetchFacilitiesForOnSiteEdit(resortId, bookedFacilities) {
+        const container = document.getElementById('onSiteFacilitiesSection');
         fetch(`?controller=resort&action=getFacilitiesJson&resort_id=${resortId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.facilities) {
-                    if (data.facilities.length > 0) {
-                        let facilitiesHtml = '<label class="form-label">Available Facilities:</label>';
-
-                        data.facilities.forEach(facility => {
-                            const isChecked = bookedFacilities.some(bf => bf.facilityId == facility.facilityId);
-                            facilitiesHtml += `
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="facilities[]" value="${facility.facilityId}" id="facility_${facility.facilityId}" ${isChecked ? 'checked' : ''}>
-                                    <label class="form-check-label" for="facility_${facility.facilityId}">
-                                        ${facility.name} (+₱${parseFloat(facility.rate).toFixed(2)})
-                                    </label>
-                                </div>
-                            `;
-                        });
-                        container.innerHTML = facilitiesHtml;
-                    } else {
-                        container.innerHTML = '<p class="text-muted small">No facilities available for this resort.</p>';
-                    }
+                    let facilitiesHtml = '';
+                    data.facilities.forEach(facility => {
+                        const isChecked = bookedFacilities.some(bf => bf.facilityId == facility.facilityId);
+                        facilitiesHtml += `<div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="facilities[]" value="${facility.facilityId}" id="onsite_facility_${facility.facilityId}" ${isChecked ? 'checked' : ''}>
+                            <label class="form-check-label" for="onsite_facility_${facility.facilityId}">
+                                ${facility.name} (+₱${parseFloat(facility.rate).toFixed(2)})
+                            </label>
+                        </div>`;
+                    });
+                    container.innerHTML = facilitiesHtml;
                 } else {
-                    container.innerHTML = `<div class="alert alert-warning">${data.error || 'Could not load facilities.'}</div>`;
+                    container.innerHTML = '<p class="text-muted">No facilities available for this resort.</p>';
                 }
             })
             .catch(error => {
@@ -418,55 +434,90 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.innerHTML = '<div class="alert alert-danger">Failed to load facilities.</div>';
             });
     }
-
-    function fetchPaymentMethods(resortId) {
-        const selectElement = document.getElementById('paymentMethod');
-
-        fetch(`?controller=booking&action=getPaymentMethods&resort_id=${resortId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Clear loading option and existing options
-                selectElement.innerHTML = '';
-
-                if (data.length > 0) {
-                    // Add default option
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.textContent = 'Select payment method...';
-                    selectElement.appendChild(defaultOption);
-
-                    // Add payment methods
-                    data.forEach(method => {
-                        const option = document.createElement('option');
-                        option.value = method.name;
-                        option.textContent = `${method.name} (${method.accountName} - ${method.accountNumber})`;
-                        selectElement.appendChild(option);
-                    });
-
-                    // Add On-Site Payment option at the end
-                    const onsiteOption = document.createElement('option');
-                    onsiteOption.value = 'On-Site Payment';
-                    onsiteOption.textContent = 'On-Site Payment';
-                    selectElement.appendChild(onsiteOption);
-                } else {
-                    // No payment methods configured - just show On-Site Payment
-                    const onsiteOption = document.createElement('option');
-                    onsiteOption.value = 'On-Site Payment';
-                    onsiteOption.textContent = 'On-Site Payment';
-                    selectElement.appendChild(onsiteOption);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching payment methods:', error);
-                selectElement.innerHTML = '<option value="">Error loading payment methods</option>';
-                // Add On-Site Payment option as fallback
-                const onsiteOption = document.createElement('option');
-                onsiteOption.value = 'On-Site Payment';
-                onsiteOption.textContent = 'On-Site Payment';
-                selectElement.appendChild(onsiteOption);
-            });
-    }
 });
+
+   const paymentsModal = document.getElementById('paymentsModal');
+   paymentsModal.addEventListener('show.bs.modal', function (event) {
+       const button = event.relatedTarget;
+       const bookingId = button.getAttribute('data-booking-id');
+       const modalBody = paymentsModal.querySelector('.modal-body');
+
+       modalBody.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2">Loading payment data...</p></div>';
+       document.getElementById('paymentsModalLabel').textContent = 'Payments for Booking #' + bookingId;
+
+       fetch(`?controller=admin&action=getPaymentsData&booking_id=${bookingId}`)
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   let modalHtml = '';
+                   const booking = data.booking;
+
+                   // Existing Payments
+                   modalHtml += '<h6>Existing Payments</h6>';
+                   if (data.payments && data.payments.length > 0) {
+                       modalHtml += '<table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead><tbody>';
+                       data.payments.forEach(p => {
+                           modalHtml += `<tr><td>${p.PaymentID}</td><td>₱${parseFloat(p.Amount).toFixed(2)}</td><td>${p.PaymentMethod}</td><td>${formatDateTime(p.PaymentDate)}</td><td><span class="badge bg-success">${p.Status}</span></td></tr>`;
+                       });
+                       modalHtml += '</tbody></table>';
+                   } else {
+                       modalHtml += '<p class="text-muted">No payments recorded yet.</p>';
+                   }
+
+                   modalHtml += '<hr>';
+
+                   // Payment Schedule
+                   modalHtml += '<h6>Payment Schedule</h6>';
+                    if (data.schedule && data.schedule.length > 0) {
+                       modalHtml += '<table class="table table-sm table-bordered"><thead><tr><th>Installment</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>';
+                       data.schedule.forEach(s => {
+                            modalHtml += `<tr><td>${s.InstallmentNumber}</td><td>${formatDate(s.DueDate)}</td><td>₱${parseFloat(s.Amount).toFixed(2)}</td><td><span class="badge bg-${getStatusColor(s.Status)}">${s.Status}</span></td></tr>`;
+                       });
+                       modalHtml += '</tbody></table>';
+                   } else {
+                       modalHtml += '<p class="text-muted">No payment schedule defined.</p>';
+                   }
+
+
+                   // Conditional "Add New Payment" Form
+                   if (booking.status !== 'Pending' && booking.remainingBalance > 0) {
+                       modalHtml += '<hr><h6>Add New On-Site Payment</h6>';
+                       modalHtml += `<form id="addPaymentForm" method="POST" action="?controller=payment&action=add">
+                           <input type="hidden" name="booking_id" value="${bookingId}">
+                           <div class="row">
+                               <div class="col-md-4">
+                                   <label class="form-label">Amount</label>
+                                   <input type="number" name="amount" class="form-control" step="0.01" required value="${booking.remainingBalance}">
+                               </div>
+                               <div class="col-md-4">
+                                   <label class="form-label">Payment Method</label>
+                                   <select name="payment_method" class="form-select" required>
+                                       <option value="On-Site Payment">On-Site Payment</option>
+                                   </select>
+                               </div>
+                               <div class="col-md-4 d-flex align-items-end">
+                                   <button type="submit" class="btn btn-success">Add Payment</button>
+                               </div>
+                           </div>
+                           <input type="hidden" name="status" value="Verified">
+                       </form>`;
+                   } else if (booking.status === 'Pending') {
+                        modalHtml += '<div class="alert alert-warning mt-3">Cannot add new payments to a pending booking. Please confirm the booking first.</div>';
+                   } else if (booking.remainingBalance <= 0) {
+                       modalHtml += '<div class="alert alert-success mt-3">This booking is fully paid.</div>';
+                   }
+
+                   modalBody.innerHTML = modalHtml;
+               } else {
+                   modalBody.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+               }
+           })
+           .catch(error => {
+               console.error('Error fetching payment data:', error);
+               modalBody.innerHTML = '<div class="alert alert-danger">Failed to load payment data.</div>';
+           });
+   });
+
 
 // Phase 6: Enhanced JavaScript functions
 function showAuditTrail(bookingId) {

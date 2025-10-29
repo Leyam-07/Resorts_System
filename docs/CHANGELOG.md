@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.6] - 2025-10-29
+
+### Changed
+
+- **Unified Booking & Payment Management:** Deprecated the standalone "Manage Payments" page (`manage.php`) and integrated all booking and payment management functionalities into a unified, modal-based interface on the `unified_booking_management.php` page.
+  - Replaced the "Manage Payments" buttons on the admin dashboard with direct links to the unified management page.
+  - Reworked the "Actions" column in the unified view into a clean button group ("Update", "Payments", "On-Site Edit", "Audit", "Suggestions").
+- **Modal-Based Workflow:**
+  - **Update Modal:** For quick status changes.
+  - **Payments Modal:** Combines payment schedule, payment history, and a conditional form to add new on-site payments for confirmed bookings with a balance.
+  - **On-Site Edit Modal:** A new feature for admins to modify facilities for confirmed, fully-paid bookings, with automatic payment adjustment.
+
+### Removed
+
+- Deleted the now-unused `app/Views/admin/payments/manage.php` view.
+- Removed the `manage()` method from `app/Controllers/PaymentController.php`.
+
+### Files Updated
+
+- `app/Views/admin/dashboard.php`
+- `app/Views/admin/unified_booking_management.php`
+- `app/Controllers/AdminController.php`
+- `app/Controllers/PaymentController.php`
+- `app/Models/Booking.php`
+
 ## [1.46.5] - 2025-10-28
 
 ### Enhanced

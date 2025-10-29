@@ -21,21 +21,6 @@ class PaymentController {
         header('Location: index.php?controller=admin&action=dashboard');
     }
 
-    public function manage() {
-        if (!isset($_GET['booking_id'])) {
-            die('Booking ID not specified.');
-        }
-        $bookingId = $_GET['booking_id'];
-        $booking = Booking::findById($bookingId);
-        if (!$booking) {
-            die('Booking not found.');
-        }
-
-        $customer = User::findById($booking->customerId);
-        $payments = Payment::findByBookingId($bookingId);
-
-        include __DIR__ . '/../Views/admin/payments/manage.php';
-    }
 
     public function add() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -49,7 +34,7 @@ class PaymentController {
         $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
 
         if (!$bookingId || !$amount || !$paymentMethod || !$status) {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=invalid_input');
             exit();
         }
 
@@ -67,9 +52,9 @@ class PaymentController {
             if ($status === 'Paid') {
                 Booking::updateStatus($bookingId, 'Confirmed');
             }
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=payment_added');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&status=payment_added');
         } else {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=add_failed');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=add_failed');
         }
         exit();
     }
@@ -85,7 +70,7 @@ class PaymentController {
         $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
 
         if (!$paymentId || !$bookingId || !$status) {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=invalid_input');
             exit();
         }
 
@@ -94,9 +79,9 @@ class PaymentController {
             if ($status === 'Paid') {
                 Booking::updateStatus($bookingId, 'Confirmed');
             }
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=status_updated');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&status=status_updated');
         } else {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=update_failed');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=update_failed');
         }
         exit();
     }
@@ -111,14 +96,14 @@ class PaymentController {
         $status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
 
         if (!$bookingId || !$status) {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=invalid_input');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=invalid_input');
             exit();
         }
 
         if (Booking::updateStatus($bookingId, $status)) {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&status=booking_status_updated');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&status=booking_status_updated');
         } else {
-            header('Location: index.php?controller=payment&action=manage&booking_id=' . $bookingId . '&error=booking_update_failed');
+            header('Location: index.php?controller=admin&action=unifiedBookingManagement&error=booking_update_failed');
         }
         exit();
     }

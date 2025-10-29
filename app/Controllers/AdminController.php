@@ -1964,6 +1964,89 @@ class AdminController {
         header('Location: ?controller=admin&action=unifiedBookingManagement');
         exit();
     }
+    /**
+     * Handle on-site booking updates for facility changes
+     */
+    public function onSiteUpdateBooking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        if ($_SESSION['role'] !== 'Admin') {
+            $_SESSION['error_message'] = "You are not authorized to perform this action.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+        $facilityIds = $_POST['facilities'] ?? [];
+        $adminUserId = $_SESSION['user_id'];
+
+        if (!$bookingId) {
+            $_SESSION['error_message'] = "Missing required booking information.";
+            header('Location: ?controller=admin&action=unifiedBookingManagement');
+            exit();
+        }
+        
+        $result = Booking::onSiteUpdateFacilities($bookingId, $facilityIds, $adminUserId);
+
+        if ($result['success']) {
+            $_SESSION['success_message'] = "On-site edit for booking #{$bookingId} was successful.";
+        } else {
+            $_SESSION['error_message'] = "Failed to update booking #{$bookingId}: " . ($result['error'] ?? 'An unknown error occurred.');
+        }
+
+        header('Location: ?controller=admin&action=unifiedBookingManagement');
+        exit();
+    }
+    /**
+     * Get data for the new "Payments" modal
+     */
+    public function getPaymentsData() {
+        header('Content-Type: application/json');
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+            exit();
+        }
+
+        $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT);
+        if (!$bookingId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid Booking ID.']);
+            exit();
+        }
+
+        try {
+            $booking = Booking::findById($bookingId);
+            if (!$booking) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Booking not found.']);
+                exit();
+            }
+
+            $payments = Payment::findByBookingId($bookingId);
+            $schedule = PaymentSchedule::findByBookingId($bookingId);
+            $summary = PaymentSchedule::getScheduleSummary($bookingId);
+            $resortPaymentMethods = ResortPaymentMethods::findByResortId($booking->resortId, true);
+
+            echo json_encode([
+                'success' => true,
+                'booking' => $booking,
+                'payments' => $payments,
+                'schedule' => $schedule,
+                'summary' => $summary,
+                'paymentMethods' => $resortPaymentMethods
+            ]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            error_log("Error in getPaymentsData: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'A server error occurred.']);
+        }
+        exit();
+    }
     public function emailTemplates() {
         if ($_SESSION['role'] !== 'Admin') {
             http_response_code(403);

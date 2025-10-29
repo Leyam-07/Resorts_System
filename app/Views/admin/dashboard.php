@@ -174,7 +174,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="index.php?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
+                                                <a href="?controller=admin&action=unifiedBookingManagement&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">View Details</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -263,7 +263,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="index.php?controller=payment&action=manage&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">Manage Payments</a>
+                                                <a href="?controller=admin&action=unifiedBookingManagement&booking_id=<?= $booking->BookingID ?>" class="btn btn-primary btn-sm">View Details</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
