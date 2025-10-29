@@ -26,6 +26,12 @@ class Database {
         return self::$instance;
     }
 
+    public static function safeCommit() {
+        if (self::$instance && self::$instance->inTransaction()) {
+            self::$instance->commit();
+        }
+    }
+
     // Prevent cloning of the instance
     private function __clone() {
     }

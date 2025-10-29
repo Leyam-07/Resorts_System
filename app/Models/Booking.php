@@ -794,7 +794,7 @@ class Booking {
                 }
                 $newFacilitiesStr = implode(', ', $newNames);
 
-                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds);
+                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds, $db);
                 BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'Admin facility modification');
             }
 
@@ -844,7 +844,7 @@ class Booking {
     public static function onSiteUpdateFacilities($bookingId, $newFacilityIds, $adminUserId) {
         $db = self::getDB();
         $db->beginTransaction();
-
+ 
         try {
             $booking = self::findById($bookingId);
             if (!$booking) {
@@ -880,8 +880,8 @@ class Booking {
                 }
                 $newFacilitiesStr = implode(', ', $newNames);
 
-                // Update facilities
-                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds);
+                // Update facilities, passing the existing transaction context
+                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds, $db);
                 BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'On-Site facility modification');
 
                 // Recalculate totals and create a new on-site payment record for the difference

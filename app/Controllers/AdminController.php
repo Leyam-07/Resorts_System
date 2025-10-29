@@ -1887,9 +1887,17 @@ class AdminController {
                 exit();
             }
 
-            $bookedFacilities = BookingFacilities::findByBookingId($bookingId);
+            $bookedFacilitiesRaw = BookingFacilities::findByBookingId($bookingId);
             
-            // We only need the IDs for the initial check in the UI
+            // Remap keys to camelCase for JS consistency
+            $bookedFacilities = array_map(function($bf) {
+                return [
+                    'facilityId' => $bf->FacilityID,
+                    'name' => $bf->FacilityName,
+                    'rate' => $bf->FacilityRate
+                ];
+            }, $bookedFacilitiesRaw);
+
             $booking->BookedFacilities = $bookedFacilities;
 
             $payments = Payment::findByBookingId($bookingId);

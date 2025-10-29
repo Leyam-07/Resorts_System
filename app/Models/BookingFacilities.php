@@ -54,8 +54,8 @@ class BookingFacilities {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-    public static function deleteByBookingId($bookingId) {
-        $db = self::getDB();
+    public static function deleteByBookingId($bookingId, $db = null) {
+        $db = $db ?? self::getDB();
         $stmt = $db->prepare("DELETE FROM BookingFacilities WHERE BookingID = :bookingId");
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
         return $stmt->execute();
@@ -71,20 +71,22 @@ class BookingFacilities {
     /**
      * Add multiple facilities to a booking
      */
-    public static function addFacilitiesToBooking($bookingId, $facilityIds) {
+    public static function addFacilitiesToBooking($bookingId, $facilityIds, $db = null) {
         if (empty($facilityIds)) {
             return true; // No facilities to add
         }
 
-        $db = self::getDB();
+        $db = $db ?? self::getDB();
         
-        // Insert each facility
+        // Use the passed-in DB connection for the create operation
         foreach ($facilityIds as $facilityId) {
-            $bookingFacility = new BookingFacilities();
-            $bookingFacility->bookingId = $bookingId;
-            $bookingFacility->facilityId = $facilityId;
+            $stmt = $db->prepare(
+                "INSERT INTO BookingFacilities (BookingID, FacilityID) VALUES (:bookingId, :facilityId)"
+            );
+            $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
+            $stmt->bindValue(':facilityId', $facilityId, PDO::PARAM_INT);
             
-            if (!self::create($bookingFacility)) {
+            if (!$stmt->execute()) {
                 return false; // Failed to add facility
             }
         }
@@ -136,30 +138,34 @@ class BookingFacilities {
     /**
      * Update facilities for an existing booking
      */
-    public static function updateBookingFacilities($bookingId, $facilityIds) {
-        $db = self::getDB();
+    public static function updateBookingFacilities($bookingId, $facilityIds, $db = null) {
+        $isExternalTransaction = $db !== null;
         
-        // Start transaction
-        $db->beginTransaction();
+        if (!$isExternalTransaction) {
+            $db = self::getDB();
+            $db->beginTransaction();
+        }
         
         try {
-            // Remove all existing facilities for this booking
-            self::deleteByBookingId($bookingId);
+            // Pass the db connection to the sub-methods
+            self::deleteByBookingId($bookingId, $db);
             
-            // Add new facilities
             if (!empty($facilityIds)) {
-                if (!self::addFacilitiesToBooking($bookingId, $facilityIds)) {
-                    throw new Exception("Failed to add facilities to booking");
+                if (!self::addFacilitiesToBooking($bookingId, $facilityIds, $db)) {
+                    throw new Exception("Failed to add new facilities to booking");
                 }
             }
             
-            // Commit transaction
-            $db->commit();
+            if (!$isExternalTransaction) {
+                $db->commit();
+            }
             return true;
         } catch (Exception $e) {
-            // Rollback transaction
-            $db->rollback();
-            return false;
+            if (!$isExternalTransaction) {
+                $db->rollback();
+            }
+            // It's better to let the calling method handle the error message
+            throw $e;
         }
     }
     public static function getFacilitiesForBooking($bookingId) {

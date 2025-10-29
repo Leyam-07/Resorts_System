@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.9] - 2025-10-29
+
+### Fixed
+
+- **Database Transaction Errors:** Resolved a series of critical "There is already an active transaction" errors that occurred during booking modifications.
+  - **Root Cause:** Identified nested transactions where a parent method (e.g., `onSiteUpdateFacilities`) would start a transaction and then call a child method (`updateBookingFacilities`) that attempted to start its own, causing a database error.
+  - **Solution:** Refactored the `BookingFacilities::updateBookingFacilities` method to make it "transaction-aware." It can now accept an existing database connection object and participate in the parent's transaction, preventing nested transaction errors.
+  - **Implementation:** Updated both `Booking::onSiteUpdateFacilities` and `Booking::adminUpdateBooking` to pass their database connection context to the child method, ensuring all related database operations are handled within a single, atomic transaction.
+- **UI & Redirection Bugs:**
+  - **"On-Site Edit" UI:** Fixed a bug where the modal did not pre-select a booking's existing facilities due to a case-sensitivity mismatch in property names (`facilityId` vs. `FacilityID`).
+  - **Error Message Display:** Corrected an issue where error messages were not appearing on the correct page by adding the standard session alert block to the `unified_booking_management.php` view.
+  - **Latent Modal Bug:** Fixed a hidden bug in the "Update" modal where a missing `resort_id` would have caused errors.
+
+### Files Updated
+
+- `app/Models/Booking.php`
+- `app/Models/BookingFacilities.php`
+- `app/Helpers/Database.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/unified_booking_management.php`
+
 ## [1.46.8] - 2025-10-29
 
 ### Fixed

@@ -4,6 +4,23 @@ require_once __DIR__ . '/../partials/header.php';
 ?>
 
 <div class="container-fluid mt-4">
+    <!-- Session Message Alerts -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= htmlspecialchars($_SESSION['success_message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?= htmlspecialchars($_SESSION['error_message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+    
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -177,7 +194,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             <li>
-                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#updateBookingModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#updateBookingModal" data-booking-id="<?= $booking->BookingID ?>" data-resort-id="<?= $booking->ResortID ?>">
                                                                     <i class="fas fa-edit fa-fw me-2"></i>Update
                                                                 </button>
                                                             </li>
@@ -298,6 +315,7 @@ require_once __DIR__ . '/../partials/header.php';
                </div>
                <div class="modal-body">
                    <input type="hidden" id="updateModalBookingId" name="booking_id">
+                   <input type="hidden" id="updateModalResortId" name="resort_id">
                    
                    <div class="mb-3">
                        <label for="updateBookingStatus" class="form-label">Booking Status</label>
@@ -370,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
    updateModal.addEventListener('show.bs.modal', function (event) {
        const button = event.relatedTarget;
        const bookingId = button.getAttribute('data-booking-id');
+       const resortId = button.getAttribute('data-resort-id');
 
        // Reset form state
        const form = document.getElementById('updateBookingForm');
@@ -378,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
        // Set basic modal data
        document.getElementById('updateModalBookingId').value = bookingId;
+       document.getElementById('updateModalResortId').value = resortId;
        document.getElementById('updateBookingModalLabel').textContent = 'Update Booking #' + bookingId;
 
        // Fetch booking details for the modal
