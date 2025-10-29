@@ -170,23 +170,57 @@ require_once __DIR__ . '/../partials/header.php';
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="btn-group" role="group" aria-label="Booking Actions">
-                                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateBookingModal" data-booking-id="<?= $booking->BookingID ?>">
-                                                        <i class="fas fa-edit"></i> Update
-                                                    </button>
-                                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentsModal" data-booking-id="<?= $booking->BookingID ?>">
-                                                        <i class="fas fa-credit-card"></i> Payments
-                                                    </button>
-                                                    <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#onSiteEditModal" data-booking-id="<?= $booking->BookingID ?>">
-                                                        <i class="fas fa-store"></i> On-Site Edit
-                                                    </button>
-                                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="showAuditTrail(<?= $booking->BookingID ?>)">
-                                                        <i class="fas fa-history"></i> Audit
-                                                    </button>
-                                                    <?php if (!empty($recommendations)): ?>
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="applyRecommendation(<?= $booking->BookingID ?>, '<?= $rec['recommended'] ?>')">
-                                                            <i class="fas fa-lightbulb"></i> Suggestions
+                                                <div class="d-flex flex-column gap-1">
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
                                                         </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li>
+                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#updateBookingModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                                    <i class="fas fa-edit fa-fw me-2"></i>Update
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#paymentsModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                                    <i class="fas fa-credit-card fa-fw me-2"></i>Payments
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#onSiteEditModal" data-booking-id="<?= $booking->BookingID ?>">
+                                                                    <i class="fas fa-store fa-fw me-2"></i>On-Site Edit
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" type="button" onclick="showAuditTrail(<?= $booking->BookingID ?>)">
+                                                                    <i class="fas fa-history fa-fw me-2"></i>Audit
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <?php if (!empty($recommendations)): ?>
+                                                        <?php if (count($recommendations) === 1): ?>
+                                                            <?php $rec = $recommendations[0]; ?>
+                                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="applyRecommendation(<?= $booking->BookingID ?>, '<?= htmlspecialchars($rec['recommended'], ENT_QUOTES, 'UTF-8') ?>')" title="Suggest: <?= htmlspecialchars($rec['reason']) ?>">
+                                                                <i class="fas fa-lightbulb"></i> Suggest
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fas fa-lightbulb"></i> Suggestions
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <?php foreach ($recommendations as $rec): ?>
+                                                                    <li>
+                                                                        <button class="dropdown-item" type="button" onclick="applyRecommendation(<?= $booking->BookingID ?>, '<?= htmlspecialchars($rec['recommended'], ENT_QUOTES, 'UTF-8') ?>')" title="<?= htmlspecialchars($rec['reason']) ?>">
+                                                                            Suggest: <?= htmlspecialchars($rec['recommended']) ?>
+                                                                        </button>
+                                                                    </li>
+                                                                    <?php endforeach; ?>
+                                                                </ul>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.7] - 2025-10-29
+
+### Changed
+
+- **UI/UX Refinement:** Iteratively improved the UI of the "Actions" column on the "Unified Booking & Payment Management" page for better compactness and usability.
+  - **First Iteration:** Replaced the wide, horizontal button group with a single, compact "Actions" dropdown menu.
+  - **Second Iteration:** Separated the "Suggestions" from the main dropdown for better visibility, creating a dedicated button or dropdown for them.
+  - **Third Iteration:** Stacked the "Actions" and "Suggestions" elements vertically for a cleaner, more organized layout.
+
+### Files Updated
+
+- `app/Views/admin/unified_booking_management.php`
+
 ## [1.46.6] - 2025-10-29
 
 ### Changed
