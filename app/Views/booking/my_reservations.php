@@ -320,12 +320,98 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Payment Confirmation Modal -->
+<div class="modal fade" id="paymentConfirmationModal" tabindex="-1" aria-labelledby="paymentConfirmationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="paymentConfirmationModalLabel">
+                    <i class="fas fa-file-invoice-dollar"></i> Please Verify Your Payment Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <h6 class="fw-bold"><i class="fas fa-info-circle"></i> Final Review</h6>
+                    <p>Please take a moment to review your payment details carefully before submitting. This action cannot be undone.</p>
+                </div>
+
+                <div class="card mb-3 border-success">
+                    <div class="card-header bg-success-subtle">
+                        <h6 class="mb-0 text-success"><i class="fas fa-money-check-dollar"></i> Payment Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <dl class="row">
+                                    <dt class="col-sm-5">Amount Paid:</dt>
+                                    <dd class="col-sm-7"><strong class="text-success" id="summaryAmount"></strong></dd>
+
+                                    <dt class="col-sm-5">Payment Method:</dt>
+                                    <dd class="col-sm-7" id="summaryPaymentMethod"></dd>
+
+                                    <dt class="col-sm-5">Reference #:</dt>
+                                    <dd class="col-sm-7" id="summaryReference"></dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <h6 class="text-muted">Payment Proof Preview</h6>
+                                <img id="summaryProofImage" src="" alt="Payment Proof Preview" class="img-fluid rounded border" style="max-height: 150px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3 border-primary">
+                     <div class="card-header bg-primary-subtle">
+                        <h6 class="mb-0 text-primary">
+                            <i class="fas fa-receipt"></i> Booking Summary - <span id="summaryResortName"></span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Booking Details</h6>
+                                <p><strong>Date:</strong> <span id="summaryBookingDate"></span></p>
+                                <p><strong>Facilities:</strong> <span id="summaryFacilityNames" class="badge"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Original Payment Info</h6>
+                                <p><strong>Total Amount:</strong> <span id="summaryTotalAmount" class="fw-bold text-success"></span></p>
+                                <p><strong>Remaining Balance:</strong> <span id="summaryRemainingBalance" class="fw-bold text-danger"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="goBackToPaymentModal">Go Back & Edit</button>
+                <button type="button" class="btn btn-success" id="finalSubmitBtn" disabled>
+                    <span id="finalSubmitText">
+                        <i class="fas fa-check-circle"></i> I Verify This is Correct & Submit Payment <span id="countdownTimerSpan" class="fw-bold"></span>
+                    </span>
+                    <span id="finalLoadingText" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Submitting...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    let isTransitioningToConfirmation = false;
+    let isReturningFromConfirmation = false;
     // Payment Modal Handler
     var paymentModal = document.getElementById('paymentModal');
     paymentModal.addEventListener('show.bs.modal', function (event) {
+        if (isReturningFromConfirmation) {
+            isReturningFromConfirmation = false; // Reset flag
+            return; // Skip re-initialization on the way back
+        }
         var button = event.relatedTarget;
         var bookingId = button.getAttribute('data-booking-id');
         var bookingDate = button.getAttribute('data-booking-date');
@@ -369,13 +455,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reset modal when hidden
     paymentModal.addEventListener('hidden.bs.modal', function () {
-        // Reset form
+        // Don't reset the form if we are just moving to the confirmation modal
+        if (isTransitioningToConfirmation) {
+            isTransitioningToConfirmation = false; // Reset flag
+            return;
+        }
+
+        // Reset form on normal close
         document.getElementById('paymentForm').reset();
         document.getElementById('modalImagePreview').style.display = 'none';
         document.getElementById('modalUploadArea').style.display = 'block';
         document.getElementById('paymentFormFields').style.display = 'none';
-
-        // Reset validation
         document.getElementById('modalSubmitBtn').disabled = true;
     });
 
@@ -622,31 +712,130 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Form submission
     document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Always prevent default to show our confirmation modal
+
         var amount = parseFloat(document.getElementById('modalAmountPaid').value);
         var maxAmount = parseFloat(document.getElementById('modalAmountPaid').max);
 
+        // Re-validate amount before proceeding
         if (amount <= 0 || amount > maxAmount) {
-            e.preventDefault();
             showModalAlert('Please enter a valid payment amount between ₱1.00 and ₱' + maxAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}), 'danger');
             return false;
         }
 
-        // Show loading state
+        isTransitioningToConfirmation = true; // Set flag to prevent form reset
+
+        // Hide the first modal
+        const paymentModalInstance = bootstrap.Modal.getInstance(paymentModal);
+        if(paymentModalInstance) {
+            paymentModalInstance.hide();
+        }
+        
+        // --- Populate Confirmation Modal ---
+        const confirmationModalEl = document.getElementById('paymentConfirmationModal');
+        const confirmationModal = new bootstrap.Modal(confirmationModalEl);
+
+        // --- Payment Summary ---
+        document.getElementById('summaryAmount').textContent = '₱' + amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('summaryPaymentMethod').textContent = document.getElementById('selectedPaymentMethod').value;
+        document.getElementById('summaryReference').textContent = document.getElementById('modalPaymentReference').value;
+        document.getElementById('summaryProofImage').src = document.getElementById('modalPreviewImg').src;
+
+        // --- Booking Summary ---
+        document.getElementById('summaryResortName').textContent = document.getElementById('paymentResortName').textContent;
+        document.getElementById('summaryBookingDate').textContent = document.getElementById('paymentBookingDate').textContent;
+        document.getElementById('summaryTotalAmount').textContent = document.getElementById('paymentTotalAmount').textContent;
+        document.getElementById('summaryRemainingBalance').textContent = document.getElementById('paymentRemainingBalance').textContent;
+
+        const facilityBadge = document.getElementById('summaryFacilityNames');
+        const originalFacilityBadge = document.getElementById('paymentFacilityNames');
+        facilityBadge.textContent = originalFacilityBadge.textContent;
+        facilityBadge.className = originalFacilityBadge.className; // Copy all classes
+
+
+        // Show the confirmation modal
+        confirmationModal.show();
+
+        // Start the countdown
+        startConfirmationCountdown();
+    });
+
+    // Confirmation Modal Logic
+    function startConfirmationCountdown() {
+        const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+        const countdownTimerSpan = document.getElementById('countdownTimerSpan');
+        let countdown = 10;
+        let interval;
+
+        // Reset state
+        finalSubmitBtn.disabled = true;
+        countdownTimerSpan.textContent = `(${countdown})`;
+
+        interval = setInterval(() => {
+            countdown--;
+            countdownTimerSpan.textContent = `(${countdown})`;
+
+            if (countdown <= 0) {
+                clearInterval(interval);
+                finalSubmitBtn.disabled = false;
+                countdownTimerSpan.textContent = ''; // Clear timer text
+            }
+        }, 1000);
+        
+        // Also handle modal close to stop the timer
+        const confirmationModalEl = document.getElementById('paymentConfirmationModal');
+        confirmationModalEl.addEventListener('hidden.bs.modal', () => {
+            clearInterval(interval);
+            // Reset button and timer for next time
+            finalSubmitBtn.disabled = true;
+            countdownTimerSpan.textContent = `(${10})`;
+        }, { once: true });
+    }
+
+    document.getElementById('finalSubmitBtn').addEventListener('click', function() {
+        // Show loading state on the final button
+        this.disabled = true;
+        document.getElementById('finalSubmitText').style.display = 'none';
+        document.getElementById('finalLoadingText').style.display = 'inline';
+        
+        // Show loading state on the original submit button (for when user navigates back)
         document.getElementById('modalSubmitText').style.display = 'none';
         document.getElementById('modalLoadingText').style.display = 'inline';
-
-        // Confirm submission
-        if (!confirm('Are you sure you want to submit this payment?\n\n' +
-                    'Amount: ₱' + amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '\n' +
-                    'Reference: ' + document.getElementById('modalPaymentReference').value + '\n\n' +
-                    'Please ensure all information is correct.')) {
-            e.preventDefault();
-            document.getElementById('modalSubmitText').style.display = 'inline';
-            document.getElementById('modalLoadingText').style.display = 'none';
-            return false;
+        document.getElementById('modalSubmitBtn').disabled = true;
+        
+        showModalAlert('Submitting payment proof... Please wait.', 'info');
+        
+        // Hide confirmation modal
+        const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('paymentConfirmationModal'));
+        if (confirmationModal) {
+            confirmationModal.hide();
         }
 
-        showModalAlert('Submitting payment proof...', 'info');
+        // Add a small delay to allow the modal to finish hiding before submitting
+        setTimeout(() => {
+            // Actually submit the form (this bypasses the 'submit' event listener)
+            document.getElementById('paymentForm').submit();
+        }, 500);
+    });
+
+    document.getElementById('goBackToPaymentModal').addEventListener('click', function() {
+        isReturningFromConfirmation = true; // Set flag to prevent re-initialization
+
+        const confirmationModalEl = document.getElementById('paymentConfirmationModal');
+        const paymentModalEl = document.getElementById('paymentModal');
+        
+        const confirmationModal = bootstrap.Modal.getInstance(confirmationModalEl);
+        
+        // Add a one-time event listener to show the payment modal after this one is hidden
+        confirmationModalEl.addEventListener('hidden.bs.modal', function () {
+            const paymentModal = bootstrap.Modal.getOrCreateInstance(paymentModalEl);
+            paymentModal.show();
+        }, { once: true });
+        
+        // Now, hide the confirmation modal
+        if (confirmationModal) {
+            confirmationModal.hide();
+        }
     });
 
     // Modal alert function

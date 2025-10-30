@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.0] - 2025-10-30
+
+### Enhanced
+
+- **Payment Submission Workflow:** Overhauled the customer payment submission process on the "My Reservations" page to improve user confidence and reduce errors.
+  - **Confirmation Modal:** Replaced the simple browser confirmation with a detailed modal that provides a full summary of the payment (amount, method, reference) and a preview of the uploaded proof.
+  - **Security Countdown:** Implemented a 10-second countdown on the final submission button, encouraging users to carefully review all details before committing.
+  - **UI Refinements:** Iteratively improved the modal's UI by making the countdown timer more subtle and organizing the payment and booking summaries into separate, clear cards.
+
+### Fixed
+
+- **Modal State Preservation:** Fixed a bug where the payment modal would lose its state (user input, uploaded image) when navigating back from the confirmation screen. Implemented JavaScript flags to preserve the modal's state for a seamless editing experience.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+
 ## [1.47.9] - 2025-10-30
 
 ### Changed
