@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.1] - 2025-10-30
+
+### Changed
+
+- **UI/UX Consistency:** Synchronized the "My Bookings" page with the more advanced "My Reservations" page to create a consistent user experience.
+  - The payment modal on `my_bookings.php` has been replaced with the enhanced version from `my_reservations.php`, featuring a two-step confirmation process and improved validation.
+  - Alert notifications on the "My Bookings" page are now dismissible.
+  - Consolidated and refactored JavaScript to remove redundant code and support the unified modal functionality.
+
+### Files Updated
+
+- `app/Views/booking/my_bookings.php`
+
 ## [1.48.0] - 2025-10-30
 
 ### Enhanced
