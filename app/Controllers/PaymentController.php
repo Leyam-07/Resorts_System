@@ -183,48 +183,4 @@ class PaymentController {
         exit();
     }
 
-    /**
-     * Reject a payment
-     */
-    public function rejectPayment() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ?controller=payment&action=showPendingPayments');
-            exit();
-        }
-
-        $paymentId = filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT);
-        $reason = filter_input(INPUT_POST, 'reason', FILTER_SANITIZE_STRING);
-
-        if (!$paymentId) {
-            $_SESSION['error_message'] = "Invalid payment ID.";
-            $redirectUrl = '?controller=payment&action=showPendingPayments';
-            if (isset($_SESSION['pending_resort_filter'])) {
-                $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
-            }
-            header('Location: ' . $redirectUrl);
-            exit();
-        }
-
-        require_once __DIR__ . '/../Models/Payment.php';
-        require_once __DIR__ . '/../Helpers/Notification.php';
-
-        if (Payment::rejectPayment($paymentId, $reason)) {
-            // Get payment info to send rejection notification
-            $payment = Payment::findById($paymentId);
-            if ($payment) {
-                AsyncHelper::triggerEmailWorker('payment_rejected', $payment->bookingId);
-            }
-
-            $_SESSION['success_message'] = "Payment rejected.";
-        } else {
-            $_SESSION['error_message'] = "Failed to reject payment.";
-        }
-
-        $redirectUrl = '?controller=payment&action=showPendingPayments';
-        if (isset($_SESSION['pending_resort_filter'])) {
-            $redirectUrl .= '&resort_id=' . urlencode($_SESSION['pending_resort_filter']);
-        }
-        header('Location: ' . $redirectUrl);
-        exit();
-    }
 }

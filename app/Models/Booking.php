@@ -506,24 +506,16 @@ class Booking {
             $remainingBalance = max(0, $booking->remainingBalance - $amountPaid);
         }
 
-        // Update status based on payment
-        $newStatus = $booking->status;
-        if ($remainingBalance <= 0) {
-            $newStatus = 'Confirmed'; // Fully paid
-        } elseif ($remainingBalance < $booking->totalAmount) {
-            $newStatus = 'Pending'; // Partially paid, but still pending confirmation
-        }
-
+        // Do not update status here; status is only updated upon admin verification.
         $stmt = $db->prepare(
             "UPDATE Bookings
              SET PaymentProofURL = :paymentProofURL, PaymentReference = :paymentReference,
-                 RemainingBalance = :remainingBalance, Status = :status
+                 RemainingBalance = :remainingBalance
              WHERE BookingID = :bookingId"
         );
         $stmt->bindValue(':paymentProofURL', $paymentProofURL, PDO::PARAM_STR);
         $stmt->bindValue(':paymentReference', $paymentReference, PDO::PARAM_STR);
         $stmt->bindValue(':remainingBalance', $remainingBalance, PDO::PARAM_STR);
-        $stmt->bindValue(':status', $newStatus, PDO::PARAM_STR);
         $stmt->bindValue(':bookingId', $bookingId, PDO::PARAM_INT);
 
         return $stmt->execute();

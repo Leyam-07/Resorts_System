@@ -147,7 +147,7 @@ class Payment {
     public static function getPendingPayments($resortId = null) {
         $db = self::getDB();
         $sql = "SELECT p.*, b.BookingID, b.BookingDate, b.TotalAmount, b.RemainingBalance,
-                       u.Username as CustomerName, u.Email as CustomerEmail,
+                       u.Username as CustomerName, u.Email as CustomerEmail, u.PhoneNumber as CustomerPhone,
                        r.Name as ResortName
                 FROM Payments p
                 JOIN Bookings b ON p.BookingID = b.BookingID
@@ -239,15 +239,6 @@ class Payment {
             $db->rollback();
             return ['success' => false, 'error' => $e->getMessage()];
         }
-    }
-
-    /**
-     * Reject payment with reason
-     */
-    public static function rejectPayment($paymentId, $reason = null) {
-        $db = self::getDB();
-        $stmt = $db->prepare("UPDATE Payments SET Status = 'Rejected' WHERE PaymentID = ?");
-        return $stmt->execute([$paymentId]);
     }
 
     /**
@@ -394,7 +385,6 @@ class Payment {
                     COUNT(*) as PaymentCount,
                     SUM(CASE WHEN Status = 'Verified' THEN Amount ELSE 0 END) as VerifiedTotal,
                     SUM(CASE WHEN Status = 'Pending' THEN Amount ELSE 0 END) as PendingTotal,
-                    SUM(CASE WHEN Status = 'Rejected' THEN Amount ELSE 0 END) as RejectedTotal,
                     MAX(PaymentDate) as LastPaymentDate,
                     MIN(PaymentDate) as FirstPaymentDate
                 FROM Payments

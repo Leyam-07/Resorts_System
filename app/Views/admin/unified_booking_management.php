@@ -442,9 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                case 'Pending':
                                    statusColor = 'warning text-dark';
                                    break;
-                               case 'Rejected':
-                                   statusColor = 'danger';
-                                   break;
                            }
 
                            paymentsHtml += `<tr>

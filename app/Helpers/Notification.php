@@ -241,14 +241,14 @@ class Notification {
     /**
      * Send payment verification confirmation to customer
      */
-    public static function sendPaymentVerificationConfirmation($bookingId, $isVerified = true) {
+    public static function sendPaymentVerificationConfirmation($bookingId) {
         $booking = Booking::findById($bookingId);
         if (!$booking) return false;
 
         $customer = User::findById($booking->customerId);
         if (!$customer) return false;
 
-        $templateType = $isVerified ? 'payment_verified' : 'payment_rejected';
+        $templateType = 'payment_verified';
         $template = EmailTemplate::getTemplate($templateType);
         $isCustomTemplate = $template && $template['UseCustom'];
 
@@ -268,7 +268,7 @@ class Notification {
             $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
             $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
 
-            $mail->AltBody = $isVerified ? "Payment verified! Booking #{$booking->bookingId} is confirmed." : "Payment verification failed for booking #{$booking->bookingId}.";
+            $mail->AltBody = "Payment verified! Booking #{$booking->bookingId} is confirmed.";
             $mail->send();
             return true;
         } catch (Exception $e) {

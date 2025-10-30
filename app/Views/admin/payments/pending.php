@@ -125,12 +125,16 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <i class="fas fa-check"></i> Verify & Approve Payment
                                 </button>
                                 
-                                <!-- Reject Button -->
-                                <button type="button" class="btn btn-outline-danger" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#rejectModal"
-                                        onclick="setRejectPaymentId(<?= $payment->PaymentID ?>, <?= $payment->BookingID ?>)">
-                                    <i class="fas fa-times"></i> Reject Payment
+                                <!-- Contact Customer Button -->
+                                <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#contactCustomerModal"
+                                        onclick="populateContactModal(
+                                            '<?= htmlspecialchars($payment->CustomerName, ENT_QUOTES) ?>',
+                                            '<?= htmlspecialchars($payment->CustomerEmail, ENT_QUOTES) ?>',
+                                            '<?= htmlspecialchars($payment->CustomerPhone ?? 'N/A', ENT_QUOTES) ?>'
+                                        )">
+                                    <i class="fas fa-phone"></i> Contact Customer
                                 </button>
                             </div>
                         </div>
@@ -156,36 +160,27 @@ require_once __DIR__ . '/../../partials/header.php';
     </div>
 </div>
 
-<!-- Reject Payment Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+<!-- Contact Customer Modal -->
+<div class="modal fade" id="contactCustomerModal" tabindex="-1" aria-labelledby="contactCustomerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rejectModalLabel">Reject Payment</h5>
+                <h5 class="modal-title" id="contactCustomerModalLabel">Contact Customer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="?controller=payment&action=rejectPayment" method="POST">
-                <div class="modal-body">
-                    <input type="hidden" id="rejectPaymentId" name="payment_id" value="">
-                    
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action will reject the payment submission and notify the customer to resubmit.
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="rejectReason" class="form-label">Reason for Rejection (Optional)</label>
-                        <textarea class="form-control" id="rejectReason" name="reason" rows="3" 
-                                  placeholder="e.g., Image unclear, wrong amount, invalid reference number..."></textarea>
-                    </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Please contact the customer directly to resolve any issues with their payment submission.
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times"></i> Reject Payment
-                    </button>
-                </div>
-            </form>
+                <h6 class="text-primary"><i class="fas fa-user"></i> Customer Details</h6>
+                <p><strong>Name:</strong> <span id="modalCustomerName"></span></p>
+                <p><strong>Email:</strong> <span id="modalCustomerEmail"></span></p>
+                <p><strong>Phone:</strong> <span id="modalCustomerPhone"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -193,7 +188,6 @@ require_once __DIR__ . '/../../partials/header.php';
 <script>
 // Show image in modal
 function showImageModal(src) {
-    // Ensure full URL is used for modal display
     if (src && !src.startsWith('http')) {
         src = '<?= BASE_URL ?>/' + src.replace(/^\/+/, '');
     }
@@ -219,9 +213,11 @@ function verifyPayment(paymentId, bookingId) {
     }
 }
 
-// Set reject payment ID in modal
-function setRejectPaymentId(paymentId, bookingId) {
-    document.getElementById('rejectPaymentId').value = paymentId;
+// Populate contact customer modal
+function populateContactModal(name, email, phone) {
+    document.getElementById('modalCustomerName').textContent = name;
+    document.getElementById('modalCustomerEmail').textContent = email;
+    document.getElementById('modalCustomerPhone').textContent = phone;
 }
 
 // Auto-refresh every 30 seconds if there are pending payments

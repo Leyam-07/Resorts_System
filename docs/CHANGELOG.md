@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.9] - 2025-10-30
+
+### Changed
+
+- **Payment Verification Workflow:** Overhauled the payment verification process to enhance customer trust and transparency. The administrator's ability to unilaterally reject a payment has been completely removed.
+  - **UI/UX:** The "Reject" button on the pending payments page has been replaced with a "Contact Customer" button, which opens a modal displaying the customer's contact information. This encourages direct communication to resolve payment issues.
+  - **Backend Logic:** The `rejectPayment()` action and its corresponding model method have been completely removed from the system.
+  - **Email Notifications:** The "payment rejected" email template and all associated sending logic have been eliminated.
+  - **Code Cleanup:** All remaining references to a "Rejected" payment status have been purged from the codebase, including in payment summaries and UI styling.
+
+### Fixed
+
+- **Booking Status Logic:** Corrected a critical logical flaw where a customer's booking was being prematurely set to "Confirmed" immediately upon payment submission, before an administrator had verified the payment. The booking status is now correctly preserved as "Pending" until manual admin verification.
+
+### Files Updated
+
+- `app/Views/admin/payments/pending.php`
+- `app/Controllers/PaymentController.php`
+- `app/Models/Payment.php`
+- `app/Models/EmailTemplate.php`
+- `app/Helpers/Notification.php`
+- `app/Views/admin/unified_booking_management.php`
+- `app/Models/Booking.php`
+
 ## [1.47.8] - 2025-10-29
 
 ### Added

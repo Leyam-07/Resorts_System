@@ -90,10 +90,6 @@ class EmailTemplate
                 'Subject' => 'Booking Confirmed!',
                 'Body' => '<p>Dear {{customer_name}},</p><p>Your payment has been verified and your booking #{{booking_id}} is confirmed! We look forward to seeing you.</p>'
             ],
-            'payment_rejected' => [
-                'Subject' => 'Payment Rejected for Booking #{{booking_id}}',
-                'Body' => '<p>Dear {{customer_name}},</p><p>Your payment for booking #{{booking_id}} was rejected. Please contact us for more details or resubmit your proof of payment.</p>'
-            ],
             'booking_cancellation' => [
                 'Subject' => 'Booking Cancelled',
                 'Body' => '<p>Dear {{customer_name}},</p><p>Your booking #{{booking_id}} has been cancelled as requested.</p>'
