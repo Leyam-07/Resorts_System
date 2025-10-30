@@ -226,10 +226,10 @@ require_once __DIR__ . '/../partials/header.php';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-peso-sign"></i></span>
-                                <input type="number" class="form-control" id="modalAmountPaid" name="amount_paid" min="1" step="0.01" required>
+                                <input type="number" class="form-control" id="modalAmountPaid" name="amount_paid" min="1" step="0.01" required readonly>
                             </div>
                             <div class="form-text">
-                                <i class="fas fa-info-circle"></i> You can pay the full amount or make a partial payment.
+                                <i class="fas fa-info-circle"></i> Please use the buttons below to select a payment amount.
                             </div>
                             <div class="mt-2 d-flex gap-2 flex-wrap">
                                 <button type="button" class="btn btn-success btn-sm" id="payFullBtn">

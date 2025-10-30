@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.2] - 2025-10-30
+
+### Fixed
+
+- **Payment Amount Input:** The "Amount Being Paid" input field in the customer payment modal is now read-only. This ensures that users can only select predefined payment amounts ("Full Amount" or "Half Amount") using the provided buttons, preventing custom partial payments.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+- `app/Views/booking/my_bookings.php`
+
 ## [1.48.1] - 2025-10-30
 
 ### Changed
