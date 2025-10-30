@@ -88,40 +88,6 @@ class Notification {
         }
     }
 
-    public static function sendBookingCancellation($booking) {
-        if (!$booking) return false;
-
-        $customer = User::findById($booking->customerId);
-        if (!$customer) return false;
-
-        $template = EmailTemplate::getTemplate('booking_cancellation');
-        $isCustomTemplate = $template && $template['UseCustom'];
-
-        $mail = self::getMailer();
-        try {
-            $mail->addAddress($customer['Email'], $customer['FirstName']);
-
-            $placeholders = [
-                'customer_name' => htmlspecialchars($customer['FirstName']),
-                'booking_id' => $booking->bookingId,
-                'booking_date' => date('F j, Y', strtotime($booking->bookingDate)),
-                'timeslot' => htmlspecialchars(Booking::getTimeSlotDisplay($booking->timeSlotType))
-            ];
-
-            $mail->isHTML(true);
-            
-            $emailContent = $isCustomTemplate ? $template : EmailTemplate::getDefaultTemplate('booking_cancellation');
-            $mail->Subject = self::replacePlaceholders($emailContent['Subject'], $placeholders);
-            $mail->Body    = self::replacePlaceholders($emailContent['Body'], $placeholders);
-
-            $mail->AltBody = 'Your booking for ' . $booking->bookingDate . ' has been cancelled.';
-            $mail->send();
-            return true;
-        } catch (Exception $e) {
-            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
-            return false;
-        }
-    }
 
     public static function sendWelcomeEmail($userId) {
         $user = User::findById($userId);

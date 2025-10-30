@@ -612,6 +612,13 @@ class BookingController {
             exit;
         }
 
+        // Prevent customers from cancelling bookings directly
+        if (isset($_SESSION['role']) && $_SESSION['role'] === 'Customer') {
+            $_SESSION['error_message'] = "You do not have permission to cancel a booking. Please contact an administrator to discuss your options.";
+            header('Location: ?controller=booking&action=showMyReservations');
+            exit;
+        }
+
         $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$bookingId) {
@@ -643,9 +650,6 @@ class BookingController {
         }
 
         if (Booking::updateStatus($bookingId, 'Cancelled')) {
-            // Send cancellation email
-            AsyncHelper::triggerEmailWorker('booking_cancellation', $bookingId);
-            
             $_SESSION['success_message'] = "Booking successfully cancelled.";
         } else {
             $_SESSION['error_message'] = "Failed to cancel the booking. Please try again.";

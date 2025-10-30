@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.3] - 2025-10-30
+
+### Changed
+
+- **Customer Cancellation Workflow:** Overhauled the booking cancellation process for customers to enhance trust and handle bogus booking scenarios. Customers can no longer directly cancel their bookings.
+  - **UI/UX:** The "Cancel" button on the "My Reservations" and "My Bookings" pages has been replaced with a "Contact Admin" button. This button opens a modal displaying the administrator's dynamically-fetched contact information (Name, Email, Phone), directing customers to communicate directly for any booking modifications.
+  - **Email Removal:** The automated "Booking Cancelled" email notification has been completely removed from the system. This includes deleting the email template, the sending logic in the `BookingController`, and the responsible method in the `Notification` helper.
+
+### Security
+
+- **Cancellation Endpoint Hardening:** The `cancelBooking` action in the `BookingController` is now restricted. A server-side check prevents users with the 'Customer' role from accessing this endpoint, ensuring that the new workflow cannot be bypassed.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+- `app/Views/booking/my_bookings.php`
+- `app/Controllers/BookingController.php`
+- `app/Helpers/Notification.php`
+- `app/Models/EmailTemplate.php`
+
 ## [1.48.2] - 2025-10-30
 
 ### Fixed

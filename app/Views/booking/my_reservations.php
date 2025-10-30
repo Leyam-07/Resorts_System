@@ -139,11 +139,11 @@ require_once __DIR__ . '/../partials/header.php';
                                         <span class="badge bg-warning text-dark">Payment Under Review</span>
                                     <?php endif; ?>
 
-                                    <!-- Cancel Action -->
-                                    <?php if ($booking->Status === 'Pending' && $booking->RemainingBalance >= $booking->TotalAmount): ?>
-                                    <a href="?controller=booking&action=cancelBooking&id=<?= htmlspecialchars($booking->BookingID) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </a>
+                                    <!-- Contact Admin Action -->
+                                    <?php if ($booking->Status === 'Pending' && !empty($booking->RemainingBalance) && $booking->RemainingBalance > 0): ?>
+                                    <button type="button" class="btn btn-outline-info btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#contactAdminModal">
+                                        <i class="fas fa-headset"></i> Contact Admin
+                                    </button>
                                     <?php endif; ?>
 
                                     <?php if ($booking->Status === 'Cancelled'): ?>
@@ -400,6 +400,33 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Contact Admin Modal -->
+<div class="modal fade" id="contactAdminModal" tabindex="-1" aria-labelledby="contactAdminModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactAdminModalLabel">Contact Administrator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    To modify or inquire about your booking, please contact the resort administration directly.
+                </div>
+                <?php if (isset($adminContact) && $adminContact): ?>
+                    <p><strong>Admin Contact:</strong> <?= htmlspecialchars($adminContact['FirstName'] . ' ' . $adminContact['LastName']) ?></p>
+                    <p><strong>Email:</strong> <?= htmlspecialchars($adminContact['Email']) ?></p>
+                    <p><strong>Phone:</strong> <?= htmlspecialchars($adminContact['PhoneNumber'] ?? 'N/A') ?></p>
+                <?php else: ?>
+                    <p>Administrator contact information is not available at this time.</p>
+                <?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
