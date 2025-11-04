@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.5] - 2025-11-04
+
+### Changed
+
+- **Booking Year Restriction:** Implemented a system-wide restriction to limit all new reservations to the current calendar year.
+  - **Backend:** The `BookingController` now validates the year when fetching calendar data, preventing users from navigating to other years. The `AdvancedAvailabilityChecker` model was also updated with a hard validation rule to reject any booking dates outside the current year.
+  - **Frontend:** The calendar month-picker on the "New Reservation" page has been updated with `min` and `max` attributes, disabling year selection in the browser's native UI.
+
+### Files Updated
+
+- `app/Controllers/BookingController.php`
+- `app/Views/booking/create.php`
+- `app/Models/AdvancedAvailabilityChecker.php`
+
 ## [1.48.4] - 2025-11-04
 
 ### Fixed

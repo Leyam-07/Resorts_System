@@ -355,7 +355,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                 <div id="calendarContent" style="display: none;">
                     <div class="row mb-3">
                         <div class="col-12">
-                            <input type="month" class="form-control form-control-sm" id="calendarMonth" value="<?= date('Y-m') ?>">
+                            <input type="month" class="form-control form-control-sm" id="calendarMonth" value="<?= date('Y-m') ?>" min="<?= date('Y-01') ?>" max="<?= date('Y-12') ?>">
                         </div>
                     </div>
                     <div class="legend text-center mb-2">

@@ -123,11 +123,11 @@ class AdvancedAvailabilityChecker {
             return ['valid' => false, 'message' => 'Cannot book dates in the past'];
         }
 
-        // Check if booking is too far in the future (e.g., more than 1 year)
-        $maxDate = clone $today;
-        $maxDate->modify('+1 year');
-        if ($bookingDateTime > $maxDate) {
-            return ['valid' => false, 'message' => 'Cannot book more than 1 year in advance'];
+        // Check if booking is within the current year
+        $currentYear = $today->format('Y');
+        $bookingYear = $bookingDateTime->format('Y');
+        if ($bookingYear != $currentYear) {
+            return ['valid' => false, 'message' => 'Bookings are only allowed for the current year'];
         }
 
         return ['valid' => true];

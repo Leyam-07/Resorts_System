@@ -422,6 +422,15 @@ class BookingController {
             $month = date('Y-m');
         }
 
+        // Ensure the requested month is within the current year
+        $currentYear = date('Y');
+        $requestedYear = date('Y', strtotime($month . '-01'));
+
+        if ($requestedYear != $currentYear) {
+            // If an invalid year is requested, default to the current month of the current year
+            $month = date('Y-m');
+        }
+
         require_once __DIR__ . '/../Models/BlockedResortAvailability.php';
         require_once __DIR__ . '/../Models/BlockedFacilityAvailability.php';
         
