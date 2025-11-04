@@ -282,28 +282,50 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                     <div class="card-body">
                         <div id="bookingDetails" class="mb-3" style="display: none;">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span><i class="fas fa-building text-muted me-2"></i>Resort:</span>
-                                    <strong id="summaryResort" class="text-end">N/A</strong>
+                                <li class="list-group-item px-0">
+                                    <div class="row align-items-center justify-content-center">
+                                        <div class="col-auto">
+                                            <span><i class="fas fa-building text-muted me-2"></i>Resort:</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <strong id="summaryResort">N/A</strong>
+                                        </div>
+                                    </div>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span><i class="fas fa-clock text-muted me-2"></i>Timeframe:</span>
-                                    <strong id="summaryTimeframeText" class="text-end">N/A</strong>
+                                <li class="list-group-item px-0">
+                                    <div class="row align-items-center justify-content-center">
+                                        <div class="col-auto">
+                                            <span><i class="fas fa-clock text-muted me-2"></i>Timeframe:</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <strong id="summaryTimeframeText">N/A</strong>
+                                        </div>
+                                    </div>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span><i class="fas fa-calendar-alt text-muted me-2"></i>Date:</span>
-                                    <strong id="summaryDate" class="text-end">N/A</strong>
+                                <li class="list-group-item px-0">
+                                    <div class="row align-items-center justify-content-center">
+                                        <div class="col-auto">
+                                            <span><i class="fas fa-calendar-alt text-muted me-2"></i>Date:</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <strong id="summaryDate">N/A</strong>
+                                        </div>
+                                    </div>
                                 </li>
 
                             </ul>
                         </div>
                         <div id="pricingBreakdown" style="display: none;">
-                            <h6 class="text-muted">Pricing Details:</h6>
+                            <h6 class="text-muted text-center">Pricing Details:</h6>
                             <div id="summaryPricingDetails">
                                 <!-- Base price and surcharges will be populated here -->
-                                <div class="d-flex justify-content-between mb-2 py-2">
-                                    <span><i class="fas fa-clock text-muted"></i> Base Price (<span id="summaryTimeframe"></span>):</span>
-                                    <span id="summaryBasePrice" class="fw-bold text-success">₱0.00</span>
+                                <div class="row mb-2 py-2 justify-content-center">
+                                    <div class="col-auto">
+                                        <span><i class="fas fa-clock text-muted"></i> Base Price (<span id="summaryTimeframe"></span>):</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span id="summaryBasePrice" class="fw-bold text-success">₱0.00</span>
+                                    </div>
                                 </div>
                                 <div id="summarySurchargeBreakdown">
                                     <!-- Surcharge breakdown will be populated here -->
@@ -313,9 +335,13 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 <!-- Facility prices will be populated here -->
                             </div>
                             <hr class="my-3">
-                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded">
-                                <span class="fs-5 fw-bold"><i class="fas fa-tag text-primary"></i> Total Price:</span>
-                                <span id="totalPriceDisplay" class="fs-4 fw-bold text-primary">₱0.00</span>
+                            <div class="row align-items-center bg-light p-3 rounded justify-content-center">
+                                <div class="col-auto">
+                                    <span class="fs-5 fw-bold"><i class="fas fa-tag text-primary"></i> Total Price:</span>
+                                </div>
+                                <div class="col-auto">
+                                    <span id="totalPriceDisplay" class="fs-4 fw-bold text-primary">₱0.00</span>
+                                </div>
                             </div>
                         </div>
                         <div id="noPricingMessage" class="text-muted text-center py-4">
@@ -956,6 +982,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentStep = 1;
     let selectedResortId = null; // Track selected resort ID
     let selectedTimeframe = null; // Track selected timeframe
+    let fullTimeframeDescription = 'N/A';
 
     // Event listeners
     resortRadios.forEach(radio => {
@@ -1531,13 +1558,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentBasePrice = pricing.basePrice;
                 currentPricingData = pricing; // Store pricing data globally for summary
                 basePriceDisplay.textContent = pricing.basePriceDisplay;
-                summaryTimeframe.textContent = pricing.timeframeDisplay;
+                fullTimeframeDescription = pricing.timeframeDisplay.replace('Check In:', 'CI:').replace('Check Out:', 'CO:'); // Store and shorten
+                const simpleTimeframe = pricing.timeframeDisplay.split(' - ')[0]; // Extract "12 Hours" etc.
+                summaryTimeframe.textContent = simpleTimeframe; // Use simple version for base price line
                 summaryBasePrice.textContent = pricing.basePriceDisplay;
 
                 // Display detailed surcharge breakdown
                 const surchargeBreakdown = document.getElementById('surchargeBreakdown');
                 if (pricing.appliedSurcharges && pricing.appliedSurcharges.length > 0) {
-                    let surchargeHtml = '<small class="text-muted">Additional Charges:</small>';
+                    let surchargeHtml = '<div class="text-center"><small class="text-muted">Additional Charges:</small></div>';
                     pricing.appliedSurcharges.forEach(surcharge => {
                         const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' :
                                         surcharge.type === 'holiday' ? 'fa-star' : 'fa-plus';
@@ -1545,17 +1574,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                          surcharge.type === 'holiday' ? 'text-info' : 'text-primary';
 
                         surchargeHtml += `
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="small ps-3 ${badgeClass}">
-                                    <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
-                                </span>
-                                <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                            <div class="row mb-1 justify-content-center">
+                                <div class="col-auto">
+                                    <span class="small ps-3 ${badgeClass}">
+                                        <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
+                                    </span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                                </div>
                             </div>
                         `;
                     });
                     surchargeBreakdown.innerHTML = surchargeHtml;
                 } else {
-                    surchargeBreakdown.innerHTML = '<small class="text-muted">No additional charges</small>';
+                    surchargeBreakdown.innerHTML = '<div class="text-center"><small class="text-muted">No additional charges</small></div>';
                 }
 
                 // Show/hide pricing notices (keep for visual indicator)
@@ -1615,12 +1648,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update facility pricing breakdown
             let facilityHtml = '';
             if (selectedFacilities.length > 0) {
-                facilityHtml += '<small class="text-muted">Additional Facilities:</small>';
+                facilityHtml += '<div class="text-center"><small class="text-muted">Additional Facilities:</small></div>';
                 selectedFacilities.forEach(facility => {
                     facilityHtml += `
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="small ps-3"><i class="fas fa-swimming-pool text-muted me-2"></i>${facility.name}:</span>
-                            <span class="small">+ ₱${facility.price.toLocaleString()}</span>
+                        <div class="row mb-1 justify-content-center">
+                            <div class="col-auto">
+                                <span class="small ps-3"><i class="fas fa-swimming-pool text-muted me-2"></i>${facility.name}:</span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="small">+ ₱${facility.price.toLocaleString()}</span>
+                            </div>
                         </div>
                     `;
                 });
@@ -1644,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const summarySurchargeBreakdown = document.getElementById('summarySurchargeBreakdown');
 
         if (currentPricingData && currentPricingData.appliedSurcharges && currentPricingData.appliedSurcharges.length > 0) {
-            let surchargeHtml = '<small class="text-muted">Additional Charges:</small>';
+            let surchargeHtml = '<div class="text-center"><small class="text-muted">Additional Charges:</small></div>';
             currentPricingData.appliedSurcharges.forEach(surcharge => {
                 const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' :
                                 surcharge.type === 'holiday' ? 'fa-star' : 'fa-plus';
@@ -1652,17 +1689,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                  surcharge.type === 'holiday' ? 'text-info' : 'text-primary';
 
                 surchargeHtml += `
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small ps-3 ${badgeClass}">
-                            <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
-                        </span>
-                        <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                    <div class="row mb-1 justify-content-center">
+                        <div class="col-auto">
+                            <span class="small ps-3 ${badgeClass}">
+                                <i class="fas ${iconClass} me-1"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge:
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="small fw-bold ${badgeClass}">+ ₱${parseFloat(surcharge.amount).toLocaleString()}</span>
+                        </div>
                     </div>
                 `;
             });
             summarySurchargeBreakdown.innerHTML = surchargeHtml;
         } else {
-            summarySurchargeBreakdown.innerHTML = '<small class="text-muted">No additional charges</small>';
+            summarySurchargeBreakdown.innerHTML = '<div class="text-center"><small class="text-muted">No additional charges</small></div>';
         }
     }
 
@@ -1767,13 +1808,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Map timeframe values to display names
-        const timeframeDisplayNames = {
-            '12_hours': '12 Hours',
-            '24_hours': '24 Hours',
-            'overnight': 'Overnight'
-        };
-        const timeframeValue = selectedTimeframe ? timeframeDisplayNames[selectedTimeframe] || 'N/A' : 'N/A';
+        const timeframeValue = selectedTimeframe ? fullTimeframeDescription : 'N/A';
         const dateValue = dateInput.value
             ? new Date(dateInput.value + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
             : 'N/A';
@@ -1797,6 +1832,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pricingBreakdown.style.display = 'none';
         noPricingMessage.style.display = 'block';
         currentBasePrice = 0;
+        fullTimeframeDescription = 'N/A';
     }
 
     const bookingForm = document.getElementById('bookingForm');
