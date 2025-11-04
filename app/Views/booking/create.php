@@ -1570,7 +1570,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Display detailed surcharge breakdown
                 const surchargeBreakdown = document.getElementById('surchargeBreakdown');
                 if (pricing.appliedSurcharges && pricing.appliedSurcharges.length > 0) {
-                    let surchargeHtml = '<div class="text-center"><small class="text-muted">Additional Charges:</small></div>';
+                    let surchargeHtml = '<small class="text-muted">Additional Charges:</small>';
                     pricing.appliedSurcharges.forEach(surcharge => {
                         const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' :
                                         surcharge.type === 'holiday' ? 'fa-star' : 'fa-plus';
