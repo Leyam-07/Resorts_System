@@ -1000,6 +1000,10 @@ document.addEventListener('DOMContentLoaded', function() {
     calendarMonth.addEventListener('change', loadCalendarData);
     selectDateBtn.addEventListener('click', selectCalendarDate);
 
+    function formatTimeframeDescription(description) {
+        return description.replace('Check In:', 'CI:').replace('Check Out:', 'CO:').replace(' Next Day', '');
+    }
+
     function initializeFormState() {
         step2Fieldset.disabled = true;
         step3Fieldset.disabled = true;
@@ -1558,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentBasePrice = pricing.basePrice;
                 currentPricingData = pricing; // Store pricing data globally for summary
                 basePriceDisplay.textContent = pricing.basePriceDisplay;
-                fullTimeframeDescription = pricing.timeframeDisplay.replace('Check In:', 'CI:').replace('Check Out:', 'CO:'); // Store and shorten
+                fullTimeframeDescription = formatTimeframeDescription(pricing.timeframeDisplay);
                 const simpleTimeframe = pricing.timeframeDisplay.split(' - ')[0]; // Extract "12 Hours" etc.
                 summaryTimeframe.textContent = simpleTimeframe; // Use simple version for base price line
                 summaryBasePrice.textContent = pricing.basePriceDisplay;
