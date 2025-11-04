@@ -446,11 +446,16 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
                 <h6>8. Acceptance of Terms</h6>
                 <p>By checking the "I accept the Terms and Conditions" box and proceeding with your booking, you acknowledge that you have read, understood, and agree to be bound by all the terms and conditions outlined above.</p>
+                
+                <!-- Scroll down notice -->
+                <div id="scroll-notice" class="alert alert-info text-center sticky-bottom mb-0 p-2 rounded-0" role="alert" style="display: none;">
+                    <i class="fas fa-arrow-down me-2"></i>Scroll down to read all terms and enable the checkbox.
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="form-check me-auto">
                     <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" disabled>
-                    <label class="form-check-label" for="termsCheckbox">
+                    <label class="form-check-label fw-bold ms-2" for="termsCheckbox">
                         I have read and accept the Terms and Conditions
                     </label>
                 </div>
@@ -834,6 +839,27 @@ input[type="number"].form-control {
 @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
+}
+
+/* Custom styles for the terms and conditions checkbox */
+#termsCheckbox {
+    width: 1.5em;
+    height: 1.5em;
+    border: 2px solid #adb5bd; /* Gray border */
+    background-color: #f8f9fa; /* Light gray background */
+    cursor: pointer;
+    margin-top: 0.1em; /* Align better with the text */
+    vertical-align: top;
+}
+
+#termsCheckbox:checked {
+    background-color: #0d6efd; /* Bootstrap primary blue */
+    border-color: #0d6efd;
+}
+
+#termsCheckbox:disabled {
+    background-color: #e9ecef; /* Lighter gray when disabled */
+    border-color: #ced4da;
 }
 
 /* Mobile responsiveness improvements */
@@ -1801,6 +1827,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalBody = termsModalEl.querySelector('.modal-body');
         const termsGuestName = document.getElementById('termsGuestName');
         const termsResortName = document.getElementById('termsResortName');
+        const scrollNotice = document.getElementById('scroll-notice');
+
 
         termsModalEl.addEventListener('show.bs.modal', function (event) {
             // Populate dynamic data
@@ -1814,11 +1842,27 @@ document.addEventListener('DOMContentLoaded', function() {
             termsCheckbox.checked = false;
             termsCheckbox.disabled = true;
             acceptTermsBtn.disabled = true;
+
+            // Show scroll notice initially
+            if (scrollNotice) {
+                scrollNotice.style.display = 'block';
+            }
         });
 
         modalBody.addEventListener('scroll', function() {
-            if (modalBody.scrollHeight - modalBody.scrollTop <= modalBody.clientHeight + 5) {
-                termsCheckbox.disabled = false;
+            const isScrolledToBottom = modalBody.scrollHeight - modalBody.scrollTop <= modalBody.clientHeight + 5;
+
+            if (isScrolledToBottom) {
+                if (termsCheckbox.disabled) {
+                    termsCheckbox.disabled = false;
+                }
+                if (scrollNotice) {
+                    scrollNotice.style.display = 'none';
+                }
+            } else {
+                 if (scrollNotice) {
+                    scrollNotice.style.display = 'block';
+                }
             }
         });
 
