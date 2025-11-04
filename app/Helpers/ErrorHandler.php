@@ -131,8 +131,19 @@ class ErrorHandler {
         foreach ($rules as $field => $rule) {
             $value = $data[$field] ?? null;
             $ruleArray = is_string($rule) ? explode('|', $rule) : $rule;
+
+            // If the field is nullable and not present (or null), it's valid for this field.
+            if (in_array('nullable', $ruleArray) && $value === null) {
+                $sanitizedData[$field] = null;
+                continue; // Skip further validation for this field
+            }
             
             foreach ($ruleArray as $singleRule) {
+                // We already handled nullable, so just skip it in the loop
+                if ($singleRule === 'nullable') {
+                    continue;
+                }
+
                 $result = self::applyValidationRule($field, $value, $singleRule, $customMessages);
                 
                 if ($result['valid']) {

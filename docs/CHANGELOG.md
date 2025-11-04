@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.4] - 2025-11-04
+
+### Fixed
+
+- **Booking Form Unresponsiveness:** Resolved a critical bug on the "New Reservations" page where the "Complete Booking" button would become unresponsive if a user filled out the form without selecting any "Additional Facilities." The `facility_ids` field is now correctly treated as optional.
+  - The validation rule in `ValidationHelper` was changed from `'array'` to `'nullable|array'`.
+  - The `ErrorHandler` was updated to correctly process the `nullable` rule.
+  - Safeguards were added to `BookingController` and `Booking` model to gracefully handle cases where `facility_ids` is `null`.
+
+### Files Updated
+
+- `app/Helpers/ValidationHelper.php`
+- `app/Helpers/ErrorHandler.php`
+- `app/Controllers/BookingController.php`
+- `app/Models/Booking.php`
+
 ## [1.48.3] - 2025-10-30
 
 ### Changed

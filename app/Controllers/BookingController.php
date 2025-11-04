@@ -60,7 +60,7 @@ class BookingController {
         $customerId = $_SESSION['user_id'];
 
         // 4. Check for availability (resort + timeframe + optional facilities)
-        if (!Booking::isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds)) {
+        if (!Booking::isResortTimeframeAvailable($resortId, $bookingDate, $timeSlotType, $facilityIds ?? [])) {
             $_SESSION['error_message'] = "The selected date and timeframe is not available. Please choose a different date or time.";
             $_SESSION['old_input'] = $_POST;
             header('Location: ?controller=booking&action=showBookingForm');

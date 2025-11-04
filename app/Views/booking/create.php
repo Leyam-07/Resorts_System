@@ -329,7 +329,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             <!-- Enhanced Submit Section -->
             <div class="d-grid gap-2">
                 <button type="button" class="btn btn-success btn-lg shadow" id="submitBtn" disabled <?php if (isset($_SESSION['user_id'])): ?>data-bs-toggle="modal" data-bs-target="#termsModal"<?php endif; ?>>
-                    <i class="fas fa-calendar-check"></i> Complete Booking
+                    <i class="fas fa-calendar-check"></i> Complete Reservation
                 </button>
                 <a href="?" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -1651,11 +1651,11 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = !isValid;
 
         if (isValid) {
-            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Booking';
+            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Reservation';
             submitBtn.classList.remove('btn-secondary');
             submitBtn.classList.add('btn-success');
         } else {
-            submitBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+            submitBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Reservation';
             submitBtn.classList.remove('btn-success');
             submitBtn.classList.add('btn-secondary');
         }

@@ -97,8 +97,8 @@ class Booking {
                 throw new Exception("Failed to create booking");
             }
             
-            // Add facilities to booking
-            if (!empty($facilityIds)) {
+            // Add facilities to booking, ensuring facilityIds is an array
+            if (!empty($facilityIds) && is_array($facilityIds)) {
                 if (!BookingFacilities::addFacilitiesToBooking($bookingId, $facilityIds)) {
                     throw new Exception("Failed to add facilities to booking");
                 }
