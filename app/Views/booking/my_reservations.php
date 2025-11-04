@@ -3,6 +3,27 @@ $pageTitle = "My Reservations";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
+<style>
+.countdown-timer .badge {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.6em 0.9em;
+    animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+</style>
+
 <h1><?= htmlspecialchars($pageTitle) ?></h1>
 
 <?php if (isset($_SESSION['success_message'])): ?>
@@ -925,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                timer.innerHTML = `<span class="badge bg-info text-dark">${hours}h ${minutes}m ${seconds}s</span>`;
+                timer.innerHTML = `<span class="badge bg-warning text-dark">${hours}h ${minutes}m ${seconds}s</span>`;
             }, 1000);
         });
     }
