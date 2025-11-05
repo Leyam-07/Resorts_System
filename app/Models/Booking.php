@@ -592,7 +592,7 @@ class Booking {
     /**
      * PHASE 5: Get bookings with payment details for unified management
      */
-    public static function getBookingsWithPaymentDetails($resortId = null, $status = null) {
+    public static function getBookingsWithPaymentDetails($filters = []) {
         $db = self::getDB();
         
         $sql = "SELECT
@@ -639,17 +639,49 @@ class Booking {
 
         $params = [];
         
-        if ($resortId) {
+        if (!empty($filters['resort_id'])) {
             $sql .= " AND b.ResortID = :resortId";
-            $params[':resortId'] = $resortId;
+            $params[':resortId'] = $filters['resort_id'];
         }
         
-        if ($status && $status !== 'all') {
+        if (!empty($filters['status']) && $filters['status'] !== 'all') {
             $sql .= " AND b.Status = :status";
-            $params[':status'] = $status;
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['customer_id'])) {
+            $sql .= " AND b.CustomerID = :customerId";
+            $params[':customerId'] = $filters['customer_id'];
+        }
+
+        if (!empty($filters['month'])) {
+            $sql .= " AND MONTH(b.BookingDate) = :month";
+            $params[':month'] = $filters['month'];
+        }
+
+        if (!empty($filters['year'])) {
+            $sql .= " AND YEAR(b.BookingDate) = :year";
+            $params[':year'] = $filters['year'];
         }
         
-        $sql .= " GROUP BY b.BookingID ORDER BY b.BookingDate DESC, b.CreatedAt DESC";
+        $sql .= " GROUP BY b.BookingID";
+
+        // Handle payment status filter using a HAVING clause
+        if (!empty($filters['payment_status'])) {
+            switch ($filters['payment_status']) {
+                case 'Paid':
+                    $sql .= " HAVING b.RemainingBalance <= 0 AND b.TotalAmount > 0";
+                    break;
+                case 'Partial':
+                    $sql .= " HAVING TotalPaid > 0 AND b.RemainingBalance > 0";
+                    break;
+                case 'Unpaid':
+                    $sql .= " HAVING TotalPaid = 0";
+                    break;
+            }
+        }
+
+        $sql .= " ORDER BY b.BookingDate DESC, b.CreatedAt DESC";
         
         $stmt = $db->prepare($sql);
         foreach ($params as $param => $value) {

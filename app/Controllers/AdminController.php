@@ -1056,22 +1056,29 @@ class AdminController {
             exit();
         }
 
-        $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
-        $status = filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW);
+        $filters = [
+            'resort_id' => filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT),
+            'status' => filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW),
+            'customer_id' => filter_input(INPUT_GET, 'customer_id', FILTER_VALIDATE_INT),
+            'payment_status' => filter_input(INPUT_GET, 'payment_status', FILTER_UNSAFE_RAW),
+            'month' => filter_input(INPUT_GET, 'month', FILTER_VALIDATE_INT),
+            'year' => filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT)
+        ];
 
         $resorts = Resort::findAll();
+        $customers = User::findByRole('Customer');
 
         // Get bookings with payment information
-        $bookings = Booking::getBookingsWithPaymentDetails($resortId, $status);
+        $bookings = Booking::getBookingsWithPaymentDetails($filters);
 
         // Get pending payment count for notification - filtered by resort
-        $pendingPaymentCount = Payment::getPendingPaymentCount($resortId);
+        $pendingPaymentCount = Payment::getPendingPaymentCount($filters['resort_id']);
 
         // Get active booking count (excluding completed) for header
-        $activeBookingCount = Booking::getActiveBookingsCountForAdmin($resortId);
+        $activeBookingCount = Booking::getActiveBookingsCountForAdmin($filters['resort_id']);
 
         // For the view: get total non-completed bookings count for header (separate from filtered $bookings)
-        $totalNonCompletedBookings = Booking::getActiveBookingsCountForAdmin($resortId);
+        $totalNonCompletedBookings = Booking::getActiveBookingsCountForAdmin($filters['resort_id']);
 
         require_once __DIR__ . '/../Views/admin/unified_booking_management.php';
     }

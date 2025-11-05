@@ -40,42 +40,87 @@ require_once __DIR__ . '/../partials/header.php';
 
                 <!-- Filters -->
                 <div class="card-body border-bottom">
-                    <form method="GET" class="row g-3">
+                    <form method="GET" class="row g-3 align-items-end">
                         <input type="hidden" name="controller" value="admin">
                         <input type="hidden" name="action" value="unifiedBookingManagement">
                         
-                        <div class="col-md-4">
-                            <label class="form-label">Resort Filter</label>
+                        <div class="col-lg-2 col-md-4">
+                            <label class="form-label">Resort</label>
                             <select name="resort_id" class="form-select">
                                 <option value="">All Resorts</option>
                                 <?php foreach ($resorts as $resort): ?>
-                                    <option value="<?= $resort->resortId ?>" 
-                                        <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == $resort->resortId) ? 'selected' : '' ?>>
+                                    <option value="<?= $resort->resortId ?>" <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == $resort->resortId) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($resort->name) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         
-                        <div class="col-md-4">
-                            <label class="form-label">Status Filter</label>
+                        <div class="col-lg-2 col-md-4">
+                            <label class="form-label">Customer</label>
+                            <select name="customer_id" class="form-select">
+                                <option value="">All Customers</option>
+                                <?php foreach ($customers as $customer): ?>
+                                    <option value="<?= $customer['UserID'] ?>" <?= (isset($_GET['customer_id']) && $_GET['customer_id'] == $customer['UserID']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($customer['Username']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2 col-md-4">
+                            <label class="form-label">Booking Status</label>
                             <select name="status" class="form-select">
-                                <option value="">All Statuses</option>
+                                <option value="">All</option>
                                 <option value="Pending" <?= (isset($_GET['status']) && $_GET['status'] == 'Pending') ? 'selected' : '' ?>>Pending</option>
                                 <option value="Confirmed" <?= (isset($_GET['status']) && $_GET['status'] == 'Confirmed') ? 'selected' : '' ?>>Confirmed</option>
                                 <option value="Completed" <?= (isset($_GET['status']) && $_GET['status'] == 'Completed') ? 'selected' : '' ?>>Completed</option>
                                 <option value="Cancelled" <?= (isset($_GET['status']) && $_GET['status'] == 'Cancelled') ? 'selected' : '' ?>>Cancelled</option>
                             </select>
                         </div>
+
+                        <div class="col-lg-2 col-md-4">
+                            <label class="form-label">Payment Status</label>
+                            <select name="payment_status" class="form-select">
+                                <option value="">All</option>
+                                <option value="Paid" <?= (isset($_GET['payment_status']) && $_GET['payment_status'] == 'Paid') ? 'selected' : '' ?>>Paid</option>
+                                <option value="Partial" <?= (isset($_GET['payment_status']) && $_GET['payment_status'] == 'Partial') ? 'selected' : '' ?>>Partial</option>
+                                <option value="Unpaid" <?= (isset($_GET['payment_status']) && $_GET['payment_status'] == 'Unpaid') ? 'selected' : '' ?>>Unpaid</option>
+                            </select>
+                        </div>
                         
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">
+                        <div class="col-lg-1 col-md-4">
+                            <label class="form-label">Month</label>
+                            <select name="month" class="form-select">
+                                <option value="">Any</option>
+                                <?php for ($m = 1; $m <= 12; $m++): ?>
+                                    <option value="<?= $m ?>" <?= (isset($_GET['month']) && $_GET['month'] == $m) ? 'selected' : '' ?>>
+                                        <?= date('M', mktime(0, 0, 0, $m, 10)) ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-1 col-md-4">
+                            <label class="form-label">Year</label>
+                            <select name="year" class="form-select">
+                                <option value="">Any</option>
+                                <?php for ($y = date('Y'); $y >= date('Y') - 5; $y--): ?>
+                                    <option value="<?= $y ?>" <?= (isset($_GET['year']) && $_GET['year'] == $y) ? 'selected' : '' ?>><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-12 d-flex align-items-end mt-3 mt-lg-0">
+                            <button type="submit" class="btn btn-primary me-2 w-100">
                                 <i class="fas fa-filter"></i> Filter
                             </button>
                             <a href="?controller=admin&action=unifiedBookingManagement" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Clear
+                                <i class="fas fa-times"></i>
                             </a>
-                            <a href="?controller=admin&action=showOnSiteBookingForm" class="btn btn-success ms-auto">
+                        </div>
+                         <div class="col-12 d-flex justify-content-end mt-2">
+                            <a href="?controller=admin&action=showOnSiteBookingForm" class="btn btn-success">
                                 <i class="fas fa-plus"></i> On-Site Booking
                             </a>
                         </div>
