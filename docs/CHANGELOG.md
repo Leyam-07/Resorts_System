@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.8] - 2025-11-05
+
+### Fixed
+
+- **Payment Proof Upload UX:** Resolved a user experience issue on the "My Reservations" and "My Bookings" pages where uploading a payment proof required two attempts. The redundant `onclick` attribute on the "Browse Files" button was removed, ensuring the file selection dialog only opens once per click.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+- `app/Views/booking/my_bookings.php`
+
 ## [1.48.7] - 2025-11-05
 
 ### Changed

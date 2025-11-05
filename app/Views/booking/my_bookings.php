@@ -303,7 +303,7 @@ require_once __DIR__ . '/../partials/header.php';
                                     <p class="mb-2"><strong>Drop your payment proof here</strong></p>
                                     <p class="text-muted small mb-2">or click to browse files</p>
                                     <input type="file" class="form-control d-none" id="modalPaymentProof" name="payment_proof" accept="image/*" required>
-                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('modalPaymentProof').click()">
+                                    <button type="button" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-folder-open"></i> Browse Files
                                     </button>
                                 </div>
