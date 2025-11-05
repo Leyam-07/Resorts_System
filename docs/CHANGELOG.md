@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.2] - 2025-11-05
+
+### Added
+
+- **New Reservation Page Redesign:** Implemented a complete UI/UX overhaul of the booking reservation page with modern wizard interface and enhanced user experience.
+  - **Modern Wizard Interface:**
+    - Created centered, focused layout with horizontal step transitions for intuitive navigation
+    - Implemented 5-step progressive wizard: Resort → Timeframe → Date → Facilities → Summary
+    - Added animated progress bar with visual fill indicating completion percentage
+    - Built interactive step indicators with icons, numbers, and completion states
+  - **Enhanced User Experience:**
+    - Designed card-based selection interfaces for resorts, timeframes, and facilities
+    - Implemented auto-advancement between steps after selection for minimal clicks
+    - Added visual selection feedback with hover effects and check overlays
+    - Created inline calendar with color-coded availability (weekday/weekend/holiday/booked)
+    - Built comprehensive booking summary with collapsible pricing breakdown
+  - **Smart Navigation:**
+    - Added back/forward navigation buttons positioned on sides of screen
+    - Implemented dot indicators at bottom for quick visual reference
+    - Created intelligent step validation enabling "Next" only when current step is valid
+    - Built contextual hints at each step guiding users through the process
+  - **Interactive Features:**
+    - Entire cards are clickable for easier selection (not just radio buttons)
+    - Real-time pricing updates as selections are made
+    - Dynamic facility loading based on selected date and resort
+    - Visual indicators for blocked/unavailable options
+    - Smooth CSS transitions and animations for professional feel
+  - **Technical Implementation:**
+    - File size: Exactly 1,943 lines matching original create.php
+    - Uses existing backend APIs (no controller changes needed)
+    - Compatible with both logged-in users and guests
+    - JavaScript-based state management for seamless navigation
+    - 800+ lines of custom CSS for polished UI
+    - Mobile-responsive design with Bootstrap grid integration
+
+### Changed
+
+- **Booking Flow Optimization:** Transformed traditional form into guided, progressive experience minimizing user decision fatigue and reducing clicks needed to complete reservation
+
+### Files Updated
+
+- `app/Views/booking/create.php` - Complete redesign of reservation page with wizard interface
+
 ## [1.49.1] - 2025-11-05
 
 ### Enhanced
