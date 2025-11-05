@@ -66,7 +66,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <?= htmlspecialchars(User::getAdminTypeDisplay($user['AdminType'])) ?>
                         </span>
                     <?php else: ?>
-                        <span class="text-muted">-</span>
+                        
                     <?php endif; ?>
                 </td>
                 <td><?= htmlspecialchars($user['FirstName']) ?></td>
@@ -74,8 +74,28 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
                 <td>
                     <?php if (!empty($user['Socials'])): ?>
-                        <small class="text-muted">
-                            <?= htmlspecialchars(str_replace(['https://www.', 'http://www.', 'https://', 'http://'], '', $user['Socials'])) ?>
+                        <small>
+                            <?php
+                            $socialsUrls = preg_split("/\r\n|\n|\r/", $user['Socials']);
+                            foreach ($socialsUrls as $socialsUrl) {
+                                if (empty(trim($socialsUrl))) continue;
+
+                                $socialsUrlForHref = trim($socialsUrl);
+                                if (strpos($socialsUrlForHref, 'http') !== 0) {
+                                    $socialsUrlForHref = 'https://' . $socialsUrlForHref;
+                                }
+                                
+                                $cleanedUrl = str_replace(['https://www.', 'http://www.', 'https://', 'http://'], '', trim($socialsUrl));
+                                
+                                $displayUrl = $cleanedUrl;
+                                if (strlen($displayUrl) > 25) {
+                                    $displayUrl = substr($displayUrl, 0, 25) . '...';
+                                }
+                                ?>
+                                <a href="<?= htmlspecialchars($socialsUrlForHref) ?>" target="_blank" title="<?= htmlspecialchars($cleanedUrl) ?>">
+                                    <?= htmlspecialchars($displayUrl) ?>
+                                </a><br>
+                            <?php } ?>
                         </small>
                     <?php endif; ?>
                 </td>
