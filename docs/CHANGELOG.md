@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.4] - 2025-11-05
+
+### Enhanced
+
+- **Calendar User Experience:** Significantly improved the booking calendar's user experience.
+  - **Availability Tooltip:** When hovering over "Partially Booked" dates, a tooltip now appears, showing exactly which timeframes are still available.
+  - **Smart Timeframe Switching:** If a user selects a partially booked date that conflicts with their chosen timeframe, a custom modal now appears. It clearly explains the conflict and offers to automatically switch to an available timeframe, replacing the previous, less user-friendly JavaScript `confirm()` dialog.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+
 ## [1.49.3] - 2025-11-05
 
 ### Fixed

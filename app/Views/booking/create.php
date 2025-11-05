@@ -417,6 +417,50 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     </div>
 </div>
 
+<!-- Timeframe Conflict Modal -->
+<div class="modal fade" id="timeframeConflictModal" tabindex="-1" aria-labelledby="timeframeConflictModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="timeframeConflictModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Timeframe Not Available
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-light border mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-times-circle text-danger me-2"></i>
+                        <strong>Selected Timeframe:</strong>
+                    </div>
+                    <div class="ps-4" id="conflictOldTimeframe">12 Hours (7:00 AM - 5:00 PM)</div>
+                </div>
+                
+                <p class="text-muted mb-3">
+                    <i class="fas fa-info-circle me-1"></i>
+                    This timeframe is not available on your selected date.
+                </p>
+                
+                <div class="alert alert-success border mb-0">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>We'll Switch You To:</strong>
+                    </div>
+                    <div class="ps-4 fw-bold" id="conflictNewTimeframe">Overnight (7:00 PM - 5:00 AM next day)</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmTimeframeSwitch">
+                    <i class="fas fa-check me-2"></i>Continue with New Timeframe
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Terms and Conditions Modal -->
 <?php if (isset($_SESSION['user_id'])): ?>
 <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -1049,6 +1093,37 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .calendar-day.partially_booked {
     background: #dbe4ff;
     border-color: #0d6efd;
+    position: relative;
+}
+
+.calendar-day.partially_booked:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+.calendar-day.partially_booked:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    z-index: 999;
+    margin-bottom: -6px;
 }
 
 .calendar-day.fully_booked,
@@ -1971,8 +2046,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const statusText = dayData ? dayData.statusText : '';
             
+            // Build tooltip for partially booked days
+            let tooltipText = '';
+            if (dayData && dayData.status === 'partially_booked' && dayData.availableTimeframes) {
+                const timeframeLabels = {
+                    '12_hours': '12 Hours (7AM-5PM)',
+                    '24_hours': '24 Hours (7AM-5AM)',
+                    'overnight': 'Overnight (7PM-5AM)'
+                };
+                const availableLabels = dayData.availableTimeframes.map(tf => timeframeLabels[tf] || tf);
+                tooltipText = 'Available: ' + availableLabels.join(', ');
+            }
+            
             html += `
-                <div class="${dayClass}" data-date="${dateStr}">
+                <div class="${dayClass}" data-date="${dateStr}" ${tooltipText ? `data-tooltip="${tooltipText}"` : ''}>
                     <div class="day-number">${dayNum}</div>
                     <div class="day-status">${statusText}</div>
                 </div>
@@ -1985,6 +2072,27 @@ document.addEventListener('DOMContentLoaded', function() {
         calendarGrid.querySelectorAll('.calendar-day:not(.disabled)').forEach(day => {
             day.addEventListener('click', function() {
                 const dateStr = this.dataset.date;
+                const dayData = state.calendarData[dateStr];
+                
+                // Check if this is a partially booked date
+                if (dayData && dayData.status === 'partially_booked') {
+                    // Check if the user's selected timeframe is available
+                    if (state.selectedTimeframe && !dayData.availableTimeframes.includes(state.selectedTimeframe)) {
+                        const timeframeLabels = {
+                            '12_hours': '12 Hours (7:00 AM - 5:00 PM)',
+                            '24_hours': '24 Hours (7:00 AM - 5:00 AM next day)',
+                            'overnight': 'Overnight (7:00 PM - 5:00 AM next day)'
+                        };
+                        
+                        const oldSelectedLabel = timeframeLabels[state.selectedTimeframe];
+                        const availableTimeframe = dayData.availableTimeframes[0]; // Auto-select first available
+                        const newSelectedLabel = timeframeLabels[availableTimeframe];
+                        
+                        // Show modal instead of confirm dialog
+                        showTimeframeConflictModal(oldSelectedLabel, newSelectedLabel, availableTimeframe, dateStr);
+                        return;
+                    }
+                }
                 
                 // Remove previous selection
                 calendarGrid.querySelectorAll('.calendar-day').forEach(d => {
@@ -2334,6 +2442,77 @@ document.addEventListener('DOMContentLoaded', function() {
     function hidePricingIncompleteNotice() {
         const notice = document.getElementById('pricingIncompleteNotice');
         notice.style.display = 'none';
+    }
+
+    // Timeframe conflict modal handler
+    function showTimeframeConflictModal(oldTimeframe, newTimeframe, newTimeframeValue, dateStr) {
+        // Update modal content
+        document.getElementById('conflictOldTimeframe').textContent = oldTimeframe;
+        document.getElementById('conflictNewTimeframe').textContent = newTimeframe;
+        
+        // Store context for confirmation
+        const modal = new bootstrap.Modal(document.getElementById('timeframeConflictModal'));
+        
+        // Set up one-time confirmation handler
+        const confirmBtn = document.getElementById('confirmTimeframeSwitch');
+        const newHandler = function() {
+            // Remove this handler
+            confirmBtn.removeEventListener('click', newHandler);
+            
+            // Hide modal
+            modal.hide();
+            
+            // Automatically switch to the new timeframe
+            state.selectedTimeframe = newTimeframeValue;
+            
+            // Update UI to reflect the new timeframe selection
+            document.querySelectorAll('.timeframe-radio').forEach(radio => {
+                radio.checked = (radio.value === newTimeframeValue);
+            });
+            document.querySelectorAll('.timeframe-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            const newTimeframeOption = document.querySelector(`input[value="${newTimeframeValue}"]`)?.closest('.timeframe-option');
+            if (newTimeframeOption) {
+                newTimeframeOption.classList.add('selected');
+            }
+            
+            // Load pricing for the new timeframe
+            if (state.selectedResortId) {
+                loadTimeframePricing(state.selectedResortId, newTimeframeValue);
+            }
+            
+            // Select the date and proceed
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.querySelectorAll('.calendar-day').forEach(d => {
+                d.classList.remove('selected');
+            });
+            const selectedDay = calendarGrid.querySelector(`[data-date="${dateStr}"]`);
+            if (selectedDay) {
+                selectedDay.classList.add('selected');
+            }
+            
+            handleDateSelection(dateStr);
+            
+            // Flash the timeframe card to draw attention
+            setTimeout(() => {
+                const selectedCard = document.querySelector(`input[value="${newTimeframeValue}"]`)?.closest('.timeframe-card');
+                if (selectedCard) {
+                    selectedCard.style.transition = 'all 0.3s ease';
+                    selectedCard.style.transform = 'scale(1.05)';
+                    selectedCard.style.boxShadow = '0 0 20px rgba(13, 110, 253, 0.5)';
+                    setTimeout(() => {
+                        selectedCard.style.transform = '';
+                        selectedCard.style.boxShadow = '';
+                    }, 600);
+                }
+            }, 100);
+        };
+        
+        confirmBtn.addEventListener('click', newHandler);
+        
+        // Show modal
+        modal.show();
     }
 });
 </script>
