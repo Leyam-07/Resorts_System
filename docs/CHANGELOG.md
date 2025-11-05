@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.9] - 2025-11-05
+
+### Enhanced
+
+- **Resort Card UI/UX:** Improved the user experience on the Customer Dashboard and Admin Preview pages by adding key resort details directly to the resort cards.
+  - **Starting Price:** A prominent "Starting at" price is now displayed on each card.
+  - **Address & Contact:** The resort's address and contact person are now visible on the card for quick reference.
+  - **Modal Display:** The "Starting at" price is also displayed within the "View Details" modal for further consistency.
+
+### Files Updated
+
+- `app/Models/Resort.php`
+- `app/Controllers/UserController.php`
+- `app/Views/dashboard.php`
+- `app/Views/admin/facilities/preview.php`
+- `app/Views/partials/footer.php`
+
 ## [1.48.8] - 2025-11-05
 
 ### Fixed

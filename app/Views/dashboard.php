@@ -87,7 +87,14 @@ if (isset($_SESSION['user_id'])) {
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($resort['Name']) ?></h5>
                             <p class="card-text"><?= nl2br(htmlspecialchars($resort['ShortDescription'])) ?></p>
+
+                            <p class="card-text small mb-1"><strong>Address:</strong> <?= htmlspecialchars($resort['Address']) ?></p>
+                            <p class="card-text small"><strong>Contact:</strong> <?= htmlspecialchars($resort['ContactPerson']) ?></p>
                             
+                            <?php if (!empty($resort['StartingPrice'])): ?>
+                                <h5 class="card-subtitle mb-2 text-primary fw-bold">Starting at ₱<?= number_format($resort['StartingPrice'], 0) ?></h5>
+                            <?php endif; ?>
+
                             <div class="mt-auto">
                                 <?php
                                 $avgRating = !empty($resort['AverageRating']) ? floatval($resort['AverageRating']) : 0;

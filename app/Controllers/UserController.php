@@ -74,6 +74,7 @@ class UserController {
            // Format descriptions for display
            $resort->shortDescription = nl2br(htmlspecialchars($resort->shortDescription));
            $resort->fullDescription = nl2br(htmlspecialchars($resort->fullDescription));
+           $resort->startingPrice = Resort::getStartingPrice($resortId);
            echo json_encode($resort);
        } else {
            http_response_code(404);

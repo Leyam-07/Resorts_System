@@ -95,9 +95,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     detailsTab.innerHTML = `
                         <div id="main-photo-container" class="mb-3">${mainPhotoHTML}</div>
                         <div class="thumbnail-gallery">${thumbnailsHTML}</div><hr>
-                        <h5>About ${data.name}</h5><p>${data.fullDescription || 'No description available.'}</p><hr>
+                        <h5>About ${data.name}</h5><p>${data.fullDescription || 'No description available.'}</p>
+                        <hr>
                         <p><strong>Address:</strong> ${data.address}</p>
-                        <p><strong>Contact:</strong> ${data.contactPerson}</p>`;
+                        <p><strong>Contact:</strong> ${data.contactPerson}</p>
+                        ${data.startingPrice ? `<hr><h5 class="text-primary fw-bold">Starting at ₱${Number(data.startingPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</h5>` : ''}
+                        `;
                     
                     const mainPhoto = detailsTab.querySelector('#main-resort-photo');
                     const thumbnails = detailsTab.querySelectorAll('.thumbnail-item-resort');

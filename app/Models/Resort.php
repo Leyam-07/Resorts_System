@@ -191,6 +191,20 @@ class Resort {
         $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public static function getStartingPrice($resortId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT MIN(BasePrice) as StartingPrice
+             FROM ResortTimeframePricing
+             WHERE ResortID = :resortId AND BasePrice > 0"
+        );
+        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['StartingPrice'] : null;
+    }
+
     public static function findAllWithStats() {
         $db = self::getDB();
         $stmt = $db->query(
@@ -198,7 +212,8 @@ class Resort {
                 r.*,
                 COALESCE(AVG(f.Rating), 0) AS AverageRating,
                 COUNT(DISTINCT f.FeedbackID) AS FeedbackCount,
-                (SELECT COUNT(*) FROM Bookings b WHERE b.ResortID = r.ResortID AND b.Status = 'Completed') AS CompletedBookingsCount
+                (SELECT COUNT(*) FROM Bookings b WHERE b.ResortID = r.ResortID AND b.Status = 'Completed') AS CompletedBookingsCount,
+                (SELECT MIN(rtp.BasePrice) FROM ResortTimeframePricing rtp WHERE rtp.ResortID = r.ResortID AND rtp.BasePrice > 0) AS StartingPrice
             FROM
                 Resorts r
             LEFT JOIN
