@@ -78,16 +78,23 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="systemDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-cog"></i> System
+                            <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-bar"></i> Reports
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="systemDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                <li><a class="dropdown-item" href="?controller=admin&action=incomeAnalytics"><i class="fas fa-chart-line"></i> Income Analytics</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=operationalReports"><i class="fas fa-file-alt"></i> Operational Reports</a></li>
+                                <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
                                 <li><a class="dropdown-item" href="?controller=admin&action=users"><i class="fas fa-users"></i> Manage Users</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=emailTemplates"><i class="fas fa-envelope"></i> Email Templates</a></li>
-                                <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
-                                <li><a class="dropdown-item" href="?controller=admin&action=incomeAnalytics"><i class="fas fa-chart-line"></i> Income Analytics</a></li>
-                                <li><a class="dropdown-item" href="?controller=admin&action=operationalReports"><i class="fas fa-file-alt"></i> Operational Reports</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
                             </ul>
                         </li>

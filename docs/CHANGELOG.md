@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.8] - 2025-11-05
+
+### Enhanced
+
+- **Admin Navigation UI/UX:** Reorganized the main admin navigation to improve clarity and reduce clutter.
+  - Renamed the "System" dropdown to "Settings" for better contextual accuracy.
+  - Created a new "Reports" dropdown to group all reporting-related pages.
+  - Moved "Income Analytics," "Operational Reports," and "View Feedback" from the old "System" dropdown into the new "Reports" section.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+
 ## [1.49.7] - 2025-11-05
 
 ### Added
