@@ -14,11 +14,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 <!-- Guest Notice -->
 <?php if (!isset($_SESSION['user_id'])): ?>
-    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
-        <i class="fas fa-info-circle me-2"></i>
-        Please <a href="?action=login" class="alert-link">login</a> or <a href="?action=showRegisterForm" class="alert-link">register</a> to create a new reservation.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<div class="alert alert-info" role="alert">
+    Please <a href="?action=login">login</a> or <a href="?action=showRegisterForm">register</a> to create a new reservation.
+</div>
 <?php endif; ?>
 
 <!-- Error Messages -->
