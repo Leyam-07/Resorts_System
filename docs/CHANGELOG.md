@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.48.7] - 2025-11-05
+
+### Changed
+
+- **UI/UX Consistency:** Synchronized the "Booking Summary" section on the "On-Site Booking" page (`app/Views/admin/on_site_booking.php`) with the "New Reservation" page for a consistent user experience.
+  - Replaced flexbox-based layouts with centered, grid-based layouts to align data values next to their labels.
+  - Updated JavaScript functions (`updatePricingDisplay`, `updateSummarySurchargeBreakdown`, `loadTimeframePricing`) to correctly populate the new centered layout.
+  - Ensured consistent display of timeframe and base price formats, including showing a detailed description in the main summary and a shortened label in the pricing line.
+
+### Files Updated
+
+- `app/Views/admin/on_site_booking.php`
+
 ## [1.48.6] - 2025-11-04
 
 ### Enhanced
