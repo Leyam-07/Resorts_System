@@ -2290,64 +2290,77 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculateTotalPrice() {
         if (!state.selectedResortId || !state.selectedTimeframe || !state.selectedDate) return;
         
-        const formData = new FormData();
-        formData.append('resort_id', state.selectedResortId);
-        formData.append('timeframe', state.selectedTimeframe);
-        formData.append('date', state.selectedDate);
-        state.selectedFacilities.forEach(f => formData.append('facility_ids[]', f.id));
-        
-        fetch('?controller=booking&action=calculateBookingPrice', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Update base price
-            const summaryBasePrice = document.getElementById('summaryBasePrice');
-            if (state.pricingData && summaryBasePrice) {
-                summaryBasePrice.textContent = state.pricingData.basePriceDisplay;
-            }
+        // First, reload pricing data with the actual selected date to get correct surcharges
+        fetch(`?controller=booking&action=getResortPricing&resort_id=${state.selectedResortId}&timeframe=${state.selectedTimeframe}&date=${state.selectedDate}`)
+            .then(response => response.json())
+            .then(pricingData => {
+                // Update state with correct pricing data for the selected date
+                state.pricingData = pricingData;
+                
+                // Update base price
+                const summaryBasePrice = document.getElementById('summaryBasePrice');
+                if (summaryBasePrice) {
+                    summaryBasePrice.textContent = pricingData.basePriceDisplay;
+                }
+                
+                // Update surcharges
+                const summarySurcharges = document.getElementById('summarySurcharges');
+                if (pricingData.appliedSurcharges && summarySurcharges) {
+                    let surchargesHtml = '';
+                    pricingData.appliedSurcharges.forEach(surcharge => {
+                        const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' : 'fa-star';
+                        surchargesHtml += `
+                            <div class="surcharge-item">
+                                <span><i class="fas ${iconClass} me-2"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge</span>
+                                <span>+₱${parseFloat(surcharge.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                        `;
+                    });
+                    summarySurcharges.innerHTML = surchargesHtml;
+                } else {
+                    summarySurcharges.innerHTML = '';
+                }
             
-            // Update surcharges
-            const summarySurcharges = document.getElementById('summarySurcharges');
-            if (state.pricingData && state.pricingData.appliedSurcharges && summarySurcharges) {
-                let surchargesHtml = '';
-                state.pricingData.appliedSurcharges.forEach(surcharge => {
-                    const iconClass = surcharge.type === 'weekend' ? 'fa-calendar-week' : 'fa-star';
-                    surchargesHtml += `
-                        <div class="surcharge-item">
-                            <span><i class="fas ${iconClass} me-2"></i>${surcharge.type.charAt(0).toUpperCase() + surcharge.type.slice(1)} Surcharge</span>
-                            <span>+₱${parseFloat(surcharge.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
-                    `;
+                // Now calculate the total booking price
+                const formData = new FormData();
+                formData.append('resort_id', state.selectedResortId);
+                formData.append('timeframe', state.selectedTimeframe);
+                formData.append('date', state.selectedDate);
+                state.selectedFacilities.forEach(f => formData.append('facility_ids[]', f.id));
+                
+                return fetch('?controller=booking&action=calculateBookingPrice', {
+                    method: 'POST',
+                    body: formData
                 });
-                summarySurcharges.innerHTML = surchargesHtml;
-            }
-            
-            // Update facility prices
-            const summaryFacilityPrices = document.getElementById('summaryFacilityPrices');
-            if (state.selectedFacilities.length > 0 && summaryFacilityPrices) {
-                let facilitiesHtml = '';
-                state.selectedFacilities.forEach(facility => {
-                    facilitiesHtml += `
-                        <div class="facility-price-item">
-                            <span><i class="fas fa-swimming-pool me-2"></i>${facility.name}</span>
-                            <span>+₱${facility.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
-                    `;
-                });
-                summaryFacilityPrices.innerHTML = facilitiesHtml;
-            }
-            
-            // Update total price
-            const summaryTotalPrice = document.getElementById('summaryTotalPrice');
-            if (summaryTotalPrice) {
-                summaryTotalPrice.textContent = data.totalPriceDisplay;
-            }
-        })
-        .catch(error => {
-            console.error('Error calculating price:', error);
-        });
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update facility prices
+                const summaryFacilityPrices = document.getElementById('summaryFacilityPrices');
+                if (state.selectedFacilities.length > 0 && summaryFacilityPrices) {
+                    let facilitiesHtml = '';
+                    state.selectedFacilities.forEach(facility => {
+                        facilitiesHtml += `
+                            <div class="facility-price-item">
+                                <span><i class="fas fa-swimming-pool me-2"></i>${facility.name}</span>
+                                <span>+₱${facility.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                        `;
+                    });
+                    summaryFacilityPrices.innerHTML = facilitiesHtml;
+                } else {
+                    summaryFacilityPrices.innerHTML = '';
+                }
+                
+                // Update total price
+                const summaryTotalPrice = document.getElementById('summaryTotalPrice');
+                if (summaryTotalPrice) {
+                    summaryTotalPrice.textContent = data.totalPriceDisplay;
+                }
+            })
+            .catch(error => {
+                console.error('Error calculating price:', error);
+            });
     }
 
     function setupTermsModal() {

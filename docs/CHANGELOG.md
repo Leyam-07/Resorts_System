@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.5] - 2025-11-05
+
+### Fixed
+
+- **Booking Summary Surcharges:** Fixed a UI bug on the New Reservation page where the "Price Breakdown" in the Summary step failed to display Weekend or Holiday surcharges. The system now correctly fetches and displays the price breakdown based on the user's selected booking date, ensuring an accurate summary before confirmation.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+
 ## [1.49.4] - 2025-11-05
 
 ### Enhanced
