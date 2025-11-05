@@ -1974,8 +1974,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const newYear = date.getFullYear();
         const newMonth = String(date.getMonth() + 1).padStart(2, '0');
+        const newValue = `${newYear}-${newMonth}`;
         
-        calendarMonth.value = `${newYear}-${newMonth}`;
+        // Get min and max values from the input element
+        const minValue = calendarMonth.getAttribute('min');
+        const maxValue = calendarMonth.getAttribute('max');
+        
+        // Validate the new value is within the allowed range
+        if (newValue < minValue || newValue > maxValue) {
+            // Don't change if out of range
+            return;
+        }
+        
+        calendarMonth.value = newValue;
         loadCalendarData();
     }
 
