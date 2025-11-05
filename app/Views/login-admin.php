@@ -42,7 +42,6 @@
                         </div>
                     </form>
                     <div class="mt-3 text-center">
-                        <p>Don't have an account? <a href="?action=showAdminRegisterForm">Register here</a></p>
                         <p class="mt-2">Or, <a href="?">continue as a guest</a> to preview the site.</p>
                     </div>
                 </div>
