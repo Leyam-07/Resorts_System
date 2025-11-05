@@ -45,23 +45,27 @@
                         }
                     ?>
                     <!-- Registration Form -->
-                    <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST" enctype="multipart/form-data">
+                    <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <input type="hidden" name="role" value="Admin">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($oldInput['username'] ?? ''); ?>" required>
+                            <div class="invalid-feedback">Please choose a username.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($oldInput['email'] ?? ''); ?>" required>
+                            <div class="invalid-feedback">Please provide a valid email.</div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="invalid-feedback">Password must be at least 8 characters long.</div>
                         </div>
                         <div class="mb-3">
                             <label for="confirm_password" class="form-label">Confirm Password</label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <div class="invalid-feedback">Passwords do not match.</div>
                         </div>
                         <hr>
                         <div class="row">
@@ -82,10 +86,12 @@
                             <label for="socials" class="form-label">Socials</label>
                             <textarea class="form-control" id="socials" name="socials" rows="3" required><?php echo htmlspecialchars($oldInput['socials'] ?? ''); ?></textarea>
                             <div class="form-text">Enter social media links, one per line.</div>
+                            <div class="invalid-feedback">Please enter social media links.</div>
                         </div>
                         <div class="mb-3">
                             <label for="profileImage" class="form-label">Profile Image</label>
                             <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*" required>
+                            <div class="invalid-feedback">Please upload a profile image.</div>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Register Admin</button>
@@ -102,5 +108,73 @@
 
 <!-- Bootstrap JS -->
 <script src="<?= BASE_URL ?>/assets/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirm_password = document.getElementById('confirm_password');
+
+        async function checkIfExists(field, value) {
+            const response = await fetch('?controller=validation&action=checkUserExists', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [field]: value })
+            });
+            const data = await response.json();
+            return data.exists;
+        }
+
+        function validateField(field, validationRule, serverRule = null) {
+            if (!validationRule(field.value)) {
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+                return;
+            }
+
+            if (serverRule) {
+                serverRule(field.id, field.value).then(exists => {
+                    if (exists) {
+                        field.classList.add('is-invalid');
+                        field.classList.remove('is-valid');
+                        field.nextElementSibling.textContent = `${field.id.charAt(0).toUpperCase() + field.id.slice(1)} is already taken.`;
+                    } else {
+                        field.classList.add('is-valid');
+                        field.classList.remove('is-invalid');
+                    }
+                });
+            } else {
+                field.classList.add('is-valid');
+                field.classList.remove('is-invalid');
+            }
+        }
+
+        username.addEventListener('input', () => validateField(username, value => value.trim().length > 0, checkIfExists));
+        email.addEventListener('input', () => validateField(email, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), checkIfExists));
+        
+        function validatePasswords() {
+            validateField(password, value => value.length >= 8);
+            validateField(confirm_password, value => value === password.value && value.length > 0);
+        }
+
+        password.addEventListener('input', validatePasswords);
+        confirm_password.addEventListener('input', validatePasswords);
+
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // Trigger validation feedback on all fields
+            validateField(username, value => value.trim().length > 0);
+            validateField(email, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+            validatePasswords();
+
+            form.classList.add('was-validated');
+        }, false);
+    });
+</script>
 </body>
 </html>

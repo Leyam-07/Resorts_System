@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.1] - 2025-11-05
+
+### Enhanced
+
+- **Registration UI/UX:** Implemented a real-time, asynchronous validation system on the customer and admin registration pages. The new system provides immediate visual feedback for input format correctness (e.g., valid email, password length) and checks for the uniqueness of usernames and emails against the database, preventing duplicate registrations.
+
+### Files Updated
+
+- `app/Views/register.php`
+- `app/Views/register-admin.php`
+- `app/Controllers/ValidationController.php` (New File)
+- `public/index.php`
+
 ## [1.49.0] - 2025-11-05
 
 ### Enhanced

@@ -140,6 +140,15 @@ if ($controllerName === 'dashboard' && $actionName === 'index') {
     } else {
         die('Action not found.');
     }
+} elseif ($controllerName === 'validation') {
+    require_once __DIR__ . '/../app/Controllers/ValidationController.php';
+    $validationController = new ValidationController();
+    if (method_exists($validationController, $actionName)) {
+        $validationController->$actionName();
+        exit();
+    } else {
+        die('Action not found.');
+    }
 }
  
  // All dashboard logic is now handled by controllers.
