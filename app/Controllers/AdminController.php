@@ -58,41 +58,48 @@ class AdminController {
 
         // Role-based dashboard logic
         if ($_SESSION['role'] === 'Admin') {
-            $todaysBookings = Booking::findTodaysBookings($resortId);
-            $upcomingBookings = Booking::findUpcomingBookings($resortId, 10);
+            // Check if this is a Main Admin or a sub-admin
+            if (User::isMainAdmin($_SESSION['user_id'])) {
+                // Main Admin gets the full dashboard
+                $todaysBookings = Booking::findTodaysBookings($resortId);
+                $upcomingBookings = Booking::findUpcomingBookings($resortId, 10);
 
-            // Augment bookings with payment status
-            foreach ($todaysBookings as $booking) {
-                $payments = Payment::findByBookingId($booking->BookingID);
-                if (empty($payments)) {
-                    $booking->PaymentStatus = 'Unpaid';
-                } else {
-                    // Use the status of the most recent payment
-                    $booking->PaymentStatus = $payments[0]->Status;
+                // Augment bookings with payment status
+                foreach ($todaysBookings as $booking) {
+                    $payments = Payment::findByBookingId($booking->BookingID);
+                    if (empty($payments)) {
+                        $booking->PaymentStatus = 'Unpaid';
+                    } else {
+                        // Use the status of the most recent payment
+                        $booking->PaymentStatus = $payments[0]->Status;
+                    }
                 }
-            }
 
-            foreach ($upcomingBookings as $booking) {
-                $payments = Payment::findByBookingId($booking->BookingID);
-                if (empty($payments)) {
-                    $booking->PaymentStatus = 'Unpaid';
-                } else {
-                    $booking->PaymentStatus = $payments[0]->Status;
+                foreach ($upcomingBookings as $booking) {
+                    $payments = Payment::findByBookingId($booking->BookingID);
+                    if (empty($payments)) {
+                        $booking->PaymentStatus = 'Unpaid';
+                    } else {
+                        $booking->PaymentStatus = $payments[0]->Status;
+                    }
                 }
+
+                // Get financial and history data
+                $currentMonth = date('m');
+                $currentYear = date('Y');
+                $monthlyIncome = Payment::getMonthlyIncome($currentYear, $currentMonth, $resortId);
+                $bookingHistory = Booking::getBookingHistory($resortId, 10);
+                $dailyIncomeData = Payment::getDailyIncomeForMonth($currentYear, $currentMonth, $resortId);
+
+                // Get counts for dashboard buttons
+                $pendingPaymentCount = Payment::getPendingPaymentCount($resortId);
+                $activeBookingCount = Booking::getActiveBookingsCountForAdmin($resortId);
+
+                include __DIR__ . '/../Views/admin/dashboard.php';
+            } else {
+                // Sub-admins get the simplified staff dashboard
+                $this->staffDashboard($resortId, $resorts);
             }
-
-            // Get financial and history data
-            $currentMonth = date('m');
-            $currentYear = date('Y');
-            $monthlyIncome = Payment::getMonthlyIncome($currentYear, $currentMonth, $resortId);
-            $bookingHistory = Booking::getBookingHistory($resortId, 10);
-            $dailyIncomeData = Payment::getDailyIncomeForMonth($currentYear, $currentMonth, $resortId);
-
-            // Get counts for dashboard buttons
-            $pendingPaymentCount = Payment::getPendingPaymentCount($resortId);
-            $activeBookingCount = Booking::getActiveBookingsCountForAdmin($resortId);
-
-            include __DIR__ . '/../Views/admin/dashboard.php';
         } elseif ($_SESSION['role'] === 'Staff') {
             $this->staffDashboard($resortId, $resorts);
         } else {
@@ -621,11 +628,18 @@ class AdminController {
    }
 
    public function previewFacilities() {
-       if ($_SESSION['role'] !== 'Admin') {
-           http_response_code(403);
-           require_once __DIR__ . '/../Views/errors/403.php';
-           exit();
-       }
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Check if admin has preview customer permission
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
        // This action is for admins/staff to see the customer view
        // We can reuse the logic from the UserController's dashboard
        $resorts = Resort::findAllWithStats();

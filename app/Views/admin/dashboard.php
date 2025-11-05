@@ -7,7 +7,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-$pageTitle = "Admin Dashboard";
+// Get the current admin's type and set dynamic title
+$currentUser = User::findById($_SESSION['user_id']);
+$adminTypeDisplay = User::getAdminTypeDisplay($currentUser['AdminType']);
+$pageTitle = $adminTypeDisplay . " Dashboard";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
@@ -100,7 +103,7 @@ require_once __DIR__ . '/../partials/header.php';
         <div class="col-md-9">
             <div class="card h-100">
                 <div class="card-header">
-                    <h3 class="card-title">Admin Dashboard</h3>
+                    <h3 class="card-title"><?= htmlspecialchars($adminTypeDisplay) ?> Dashboard</h3>
                 </div>
                 <div class="card-body">
                     <h4 class="mb-4">Today's Bookings (<?= date('F j, Y') ?>)</h4>

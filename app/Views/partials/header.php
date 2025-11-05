@@ -83,6 +83,14 @@ require_once __DIR__ . '/../../../app/Models/User.php';
                         </li>
                         <?php endif; ?>
                         
+                        <?php if (User::hasAdminPermission($_SESSION['user_id'], 'feedback_view') && !$hasReportsAccess): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=feedback&action=listAllFeedback">
+                                <i class="fas fa-comments"></i> View Feedbacks
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
                         <?php if ($hasOperationsAccess): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="operationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -97,6 +105,9 @@ require_once __DIR__ . '/../../../app/Models/User.php';
                                 <?php endif; ?>
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=advancedBlocking"><i class="fas fa-ban"></i> Advanced Blocking</a></li>
+                                <?php endif; ?>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')): ?>
+                                <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer</a></li>
                                 <?php endif; ?>
                             </ul>
                         </li>
@@ -114,7 +125,9 @@ require_once __DIR__ . '/../../../app/Models/User.php';
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'operational_reports')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=operationalReports"><i class="fas fa-file-alt"></i> Operational Reports</a></li>
                                 <?php endif; ?>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'feedback_view')): ?>
                                 <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
+                                <?php endif; ?>
                             </ul>
                         </li>
                         <?php endif; ?>
@@ -127,7 +140,9 @@ require_once __DIR__ . '/../../../app/Models/User.php';
                             <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
                                 <li><a class="dropdown-item" href="?controller=admin&action=users"><i class="fas fa-users"></i> Manage Users</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=emailTemplates"><i class="fas fa-envelope"></i> Email Templates</a></li>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
+                                <?php endif; ?>
                             </ul>
                         </li>
                         <?php endif; ?>

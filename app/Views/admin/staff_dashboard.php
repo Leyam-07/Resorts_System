@@ -7,7 +7,16 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array($_SES
     exit();
 }
 
-$pageTitle = "Staff Dashboard";
+// Get the current user's role and set dynamic title
+$currentUser = User::findById($_SESSION['user_id']);
+if ($_SESSION['role'] === 'Admin' && isset($currentUser['AdminType'])) {
+    $adminTypeDisplay = User::getAdminTypeDisplay($currentUser['AdminType']);
+    $pageTitle = $adminTypeDisplay . " Dashboard";
+    $cardTitle = $adminTypeDisplay . " Dashboard";
+} else {
+    $pageTitle = "Staff Dashboard";
+    $cardTitle = "Staff Dashboard";
+}
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
@@ -30,7 +39,7 @@ require_once __DIR__ . '/../partials/header.php';
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Staff Dashboard</h3>
+            <h3 class="card-title"><?= htmlspecialchars($cardTitle) ?></h3>
         </div>
         <div class="card-body">
             <h4 class="mb-4">Today's Bookings (<?= date('F j, Y') ?>)</h4>

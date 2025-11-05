@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.0] - 2025-11-05
+
+### Enhanced
+
+- **Sub-Admin Dashboard Experience:**
+  - All sub-admins (Booking, Operations, Reports) now see a simplified "Staff Dashboard" layout for a cleaner, more focused experience.
+  - Dashboard titles are now dynamic, displaying the specific admin role (e.g., "Booking Admin Dashboard").
+- **Role-Based Navigation:** The main navigation has been refined to provide more granular access based on sub-admin roles.
+
+### Changed
+
+- **Booking Admin:** "View Feedbacks" is now a standalone navigation item for better visibility, separated from the "Booking & Payments" dropdown.
+- **Operations Admin:** Now has access to the "Reports" dropdown, including "View Feedback" and "Income Analytics," and a "Preview Customer" link in the "Operations" dropdown.
+
+### Fixed
+
+- **Critical `User` Class Not Found Error:** Resolved a fatal error on the "View Feedback" page by adding the missing `require_once` for the `User` model in the `FeedbackController`.
+
+### Files Updated
+
+- `app/Models/User.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/dashboard.php`
+- `app/Views/admin/staff_dashboard.php`
+- `app/Views/partials/header.php`
+- `app/Controllers/FeedbackController.php`
+
 ## [1.49.9] - 2025-11-05
 
 ### Added

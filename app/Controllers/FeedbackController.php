@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../Models/Feedback.php';
 require_once __DIR__ . '/../Models/Booking.php';
+require_once __DIR__ . '/../Models/User.php';
 
 class FeedbackController {
 
@@ -66,6 +67,13 @@ class FeedbackController {
             $_SESSION['error_message'] = "You are not authorized to view this page.";
             header('Location: index.php');
             exit;
+        }
+
+        // Check if admin has feedback viewing permission
+        if ($_SESSION['role'] === 'Admin' && !User::hasAdminPermission($_SESSION['user_id'], 'feedback_view')) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
         }
 
         require_once __DIR__ . '/../Models/Resort.php';
