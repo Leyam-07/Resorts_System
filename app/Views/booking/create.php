@@ -1881,8 +1881,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateUI() {
-        // Update progress bar
-        const progress = ((state.currentStep - 1) / (state.totalSteps - 1)) * 100;
+        // Update progress bar - calculate width to stay within the track (10% to 90%)
+        const progress = ((state.currentStep - 1) / (state.totalSteps - 1)) * 80;
         progressBarFill.style.width = `${progress}%`;
         
         // Update step indicators
