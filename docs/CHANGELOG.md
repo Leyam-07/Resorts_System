@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.1] - 2025-11-05
+
+### Changed
+
+- **UI/UX:** Changed the "Dashboard" navigation link to "Home" for both logged-in customers and public guest views to better reflect its purpose as a landing page for browsing resorts. The corresponding icon has also been updated from `fa-tachometer-alt` to `fa-home`.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+- `app/Views/partials/guest_header.php`
+
 ## [1.50.0] - 2025-11-05
 
 ### Enhanced

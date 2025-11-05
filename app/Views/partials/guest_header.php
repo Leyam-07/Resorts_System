@@ -30,7 +30,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="?">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                        <i class="fas fa-home"></i> Home
                     </a>
                 </li>
                 <li class="nav-item">
