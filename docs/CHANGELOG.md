@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.6] - 2025-11-05
+
+### Added
+
+- **Separated Login Pages:** Implemented distinct Customer and Admin login pages with role-based access control.
+  - Created `app/Views/login-admin.php` for Admin/Staff authentication
+  - Enhanced `app/Views/login.php` for Customer-only access
+  - Added `loginAdmin()` method to `UserController` with role validation
+  - Implemented secure role-based login restrictions preventing cross-role authentication attempts
+  - Updated logout functionality to redirect users to their appropriate login page based on role
+
+### Security
+
+- **Role-Based Login Isolation:** Login pages now enforce strict role separation:
+  - Customer login rejects Admin/Staff users with appropriate messaging
+  - Admin login rejects Customer users with appropriate messaging
+  - No information leakage about user roles or existence through login attempts
+  - All failed login attempts display generic "Invalid username or password" message
+
+### Changed
+
+- **Logout Redirection:** Modified logout process to redirect Admin/Staff users to Admin login page and Customer users to Customer login page
+- **Deployment Guide:** Updated documentation with new login URLs and role-based access instructions
+
+### Files Updated
+
+- `app/Views/login-admin.php` (New file)
+- `app/Controllers/UserController.php`
+- `public/index.php`
+- `app/Views/register-admin.php`
+- `app/Views/login.php`
+- `docs/Deployment-Guide.md`
+
 ## [1.49.5] - 2025-11-05
 
 ### Fixed

@@ -30,7 +30,7 @@ $controllerName = isset($_GET['controller']) ? $_GET['controller'] : 'dashboard'
 $actionName = isset($_GET['action']) ? $_GET['action'] : 'index';
 
 // Allow login action even if not logged in
-if (in_array($actionName, ['login', 'showRegisterForm', 'register', 'showAdminRegisterForm', 'registerAdmin']) && !isset($_SESSION['user_id'])) {
+if (in_array($actionName, ['login', 'loginAdmin', 'showRegisterForm', 'register', 'showAdminRegisterForm', 'registerAdmin']) && !isset($_SESSION['user_id'])) {
     require_once __DIR__ . '/../app/Controllers/UserController.php';
     $userController = new UserController();
 
@@ -38,6 +38,9 @@ if (in_array($actionName, ['login', 'showRegisterForm', 'register', 'showAdminRe
     switch ($actionName) {
         case 'login':
             $userController->login();
+            break;
+        case 'loginAdmin':
+            $userController->loginAdmin();
             break;
         case 'showRegisterForm':
             $userController->showRegisterForm();

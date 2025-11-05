@@ -98,7 +98,7 @@
                         </div>
                     </form>
                     <div class="mt-3 text-center">
-                        <p>Go to regular login? <a href="/ResortsSystem/public/index.php?action=login">Login here</a></p>
+                        <p>Go to admin login? <a href="?action=loginAdmin">Login here</a></p>
                     </div>
                 </div>
             </div>

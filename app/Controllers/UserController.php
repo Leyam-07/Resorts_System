@@ -226,7 +226,7 @@ class UserController {
 
             if ($result === true) {
                 // Redirect to login page on success
-                header('Location: index.php?action=login&registration=success');
+                header('Location: index.php?action=loginAdmin&registration=success');
                 exit();
             } else {
                 // Handle registration failure
@@ -242,14 +242,14 @@ class UserController {
  
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
+
             $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
             $password = $_POST['password'];
 
             $user = User::findByUsername($username);
 
-            if ($user && password_verify($password, $user['Password'])) {
-                // Password is correct, destroy old session and start new one
+            if ($user && password_verify($password, $user['Password']) && $user['Role'] === 'Customer') {
+                // Password is correct and user is Customer, destroy old session and start new one
                 session_destroy();
                 session_start();
                 $_SESSION['user_id'] = $user['UserID'];
@@ -265,20 +265,54 @@ class UserController {
                 }
                 $_SESSION['user_name'] = $fullName;
 
-                if ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'Staff') {
-                   header('Location: ?controller=admin&action=dashboard');
-                } else {
-                   header('Location: ?controller=user&action=dashboard');
-                }
+                header('Location: ?controller=user&action=dashboard');
                 exit();
             } else {
-                // Invalid credentials, reload the login page with an error
+                // Invalid credentials or wrong role, reload the login page with an error
                 header('Location: index.php?action=login&error=invalid_credentials');
                 exit();
             }
         } else {
             // Display the login form
             include __DIR__ . '/../Views/login.php';
+        }
+    }
+
+    public function loginAdmin() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $username = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
+            $password = $_POST['password'];
+
+            $user = User::findByUsername($username);
+
+            if ($user && password_verify($password, $user['Password']) && ($user['Role'] === 'Admin' || $user['Role'] === 'Staff')) {
+                // Password is correct and user is Admin/Staff, destroy old session and start new one
+                session_destroy();
+                session_start();
+                $_SESSION['user_id'] = $user['UserID'];
+                $_SESSION['username'] = $user['Username'];
+                $_SESSION['role'] = $user['Role'];
+
+                // Set full name for display purposes
+                $firstName = $user['FirstName'] ?? '';
+                $lastName = $user['LastName'] ?? '';
+                $fullName = trim($firstName . ' ' . $lastName);
+                if (empty($fullName)) {
+                    $fullName = $user['Username'];
+                }
+                $_SESSION['user_name'] = $fullName;
+
+                header('Location: ?controller=admin&action=dashboard');
+                exit();
+            } else {
+                // Invalid credentials or wrong role, reload the login page with an error
+                header('Location: index.php?action=loginAdmin&error=invalid_credentials');
+                exit();
+            }
+        } else {
+            // Display the login form
+            include __DIR__ . '/../Views/login-admin.php';
         }
     }
 
@@ -359,15 +393,21 @@ class UserController {
     }
 
     public function logout() {
-       
+
+        // Check user role before destroying session
+        $redirectAction = 'login'; // Default to customer login
+        if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['Admin', 'Staff'])) {
+            $redirectAction = 'loginAdmin';
+        }
+
         // Unset all session variables
         $_SESSION = array();
 
         // Destroy the session
         session_destroy();
 
-        // Redirect to the login page
-        header('Location: index.php?action=login&logout=success');
+        // Redirect to appropriate login page
+        header('Location: index.php?action=' . $redirectAction . '&logout=success');
         exit();
     }
 }
