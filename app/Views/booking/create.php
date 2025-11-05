@@ -158,8 +158,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 </div>
                                 <h4>12 Hours</h4>
                                 <div class="timeframe-time">
-                                    <div><i class="fas fa-sign-in-alt me-2"></i>7:00 AM</div>
-                                    <div><i class="fas fa-sign-out-alt me-2"></i>5:00 PM</div>
+                                    <div><i class="fas fa-sign-in-alt me-2"></i><strong>Check In:</strong> 7:00 AM</div>
+                                    <div><i class="fas fa-sign-out-alt me-2"></i><strong>Check Out:</strong> 5:00 PM</div>
                                 </div>
                                 <div class="timeframe-price" id="price_12_hours">
                                     <span class="price-label">Starting at</span>
@@ -181,8 +181,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 </div>
                                 <h4>24 Hours</h4>
                                 <div class="timeframe-time">
-                                    <div><i class="fas fa-sign-in-alt me-2"></i>7:00 AM</div>
-                                    <div><i class="fas fa-sign-out-alt me-2"></i>5:00 AM <small>(next day)</small></div>
+                                    <div><i class="fas fa-sign-in-alt me-2"></i><strong>Check In:</strong> 7:00 AM</div>
+                                    <div><i class="fas fa-sign-out-alt me-2"></i><strong>Check Out:</strong> 5:00 AM <small>(next day)</small></div>
                                 </div>
                                 <div class="timeframe-price" id="price_24_hours">
                                     <span class="price-label">Starting at</span>
@@ -204,8 +204,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
                                 </div>
                                 <h4>Overnight</h4>
                                 <div class="timeframe-time">
-                                    <div><i class="fas fa-sign-in-alt me-2"></i>7:00 PM</div>
-                                    <div><i class="fas fa-sign-out-alt me-2"></i>5:00 AM <small>(next day)</small></div>
+                                    <div><i class="fas fa-sign-in-alt me-2"></i><strong>Check In:</strong> 7:00 PM</div>
+                                    <div><i class="fas fa-sign-out-alt me-2"></i><strong>Check Out:</strong> 5:00 AM <small>(next day)</small></div>
                                 </div>
                                 <div class="timeframe-price" id="price_overnight">
                                     <span class="price-label">Starting at</span>
@@ -1621,7 +1621,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const resortRadio = document.querySelector('input[name="resort_id"][value="<?= $selectedResortId ?>"]');
             if (resortRadio) {
                 resortRadio.checked = true;
-                handleResortSelection({ target: resortRadio });
+                state.selectedResortId = '<?= $selectedResortId ?>';
+                
+                // Load all timeframe pricing for pre-selected resort
+                loadAllTimeframePricing('<?= $selectedResortId ?>');
+                
+                // Visual feedback
+                document.querySelectorAll('.resort-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                resortRadio.closest('.resort-option').classList.add('selected');
             }
         <?php endif; ?>
     }
@@ -1646,6 +1655,9 @@ document.addEventListener('DOMContentLoaded', function() {
             opt.classList.remove('selected');
         });
         e.target.closest('.resort-option').classList.add('selected');
+        
+        // Load pricing for all timeframes when resort is selected
+        loadAllTimeframePricing(resortId);
         
         // Auto-advance after selection
         setTimeout(() => {
@@ -1848,11 +1860,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadTimeframePricing(resortId, timeframe) {
-        // Show loading on all timeframe cards
-        document.querySelectorAll('.timeframe-price .price-value').forEach(el => {
-            el.textContent = 'Loading...';
-        });
-        
+        // Load pricing for the selected timeframe and store it
         fetch(`?controller=booking&action=getResortPricing&resort_id=${resortId}&timeframe=${timeframe}&date=${new Date().toISOString().split('T')[0]}`)
             .then(response => response.json())
             .then(data => {
@@ -1868,6 +1876,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error loading pricing:', error);
                 showError('Failed to load pricing information');
             });
+    }
+    
+    function loadAllTimeframePricing(resortId) {
+        const timeframes = ['12_hours', '24_hours', 'overnight'];
+        const currentDate = new Date().toISOString().split('T')[0];
+        
+        // Load pricing for all timeframes
+        timeframes.forEach(timeframe => {
+            fetch(`?controller=booking&action=getResortPricing&resort_id=${resortId}&timeframe=${timeframe}&date=${currentDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    const priceElement = document.querySelector(`#price_${timeframe} .price-value`);
+                    if (priceElement) {
+                        priceElement.textContent = data.basePriceDisplay;
+                    }
+                })
+                .catch(error => {
+                    console.error(`Error loading pricing for ${timeframe}:`, error);
+                    const priceElement = document.querySelector(`#price_${timeframe} .price-value`);
+                    if (priceElement) {
+                        priceElement.textContent = '₱0.00';
+                    }
+                });
+        });
     }
 
     function loadCalendarData() {

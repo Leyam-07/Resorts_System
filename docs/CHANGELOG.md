@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.3] - 2025-11-05
+
+### Fixed
+
+- **Timeframe Pricing Display:** Resolved an issue on the New Reservation page where the "Starting at" price for timeframes would initially display as "₱0.00" or "Loading..." instead of the correct price. The system now pre-loads the pricing for all available timeframes as soon as a resort is selected, ensuring immediate and accurate price display.
+
+### Changed
+
+- **Timeframe UI:** Improved clarity on the New Reservation page by explicitly adding "Check In:" and "Check Out:" labels to the timeframe selection cards, removing ambiguity from the icons.
+
+### Files Updated
+
+- `app/Views/booking/create.php`
+
 ## [1.49.2] - 2025-11-05
 
 ### Added
