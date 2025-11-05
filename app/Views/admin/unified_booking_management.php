@@ -192,7 +192,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <td>
                                                 <div class="d-flex flex-column gap-1">
                                                     <div class="btn-group">
-                                                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" data-bs-strategy="fixed" aria-expanded="false">
                                                             <i class="fas fa-cog"></i> Actions
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end">
@@ -227,7 +227,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                             </button>
                                                         <?php else: ?>
                                                             <div class="btn-group">
-                                                                <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" data-bs-toggle="dropdown" data-bs-strategy="fixed" aria-expanded="false">
                                                                     <i class="fas fa-lightbulb"></i> Suggestions
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
