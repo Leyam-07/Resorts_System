@@ -785,7 +785,9 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .resort-card {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     cursor: pointer;
     border: 2px solid #dee2e6;
     border-radius: 0.75rem;
@@ -850,6 +852,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 .resort-details {
     padding: 1rem;
+    flex-grow: 1;
 }
 
 .resort-details h4 {
