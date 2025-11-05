@@ -512,8 +512,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 /* Progress Steps */
 .progress-steps-wrapper {
     position: relative;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
 }
 
 .progress-bar-track {
@@ -552,50 +552,50 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .step-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: white;
-    border: 3px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.step-circle i {
-    font-size: 1.5rem;
-    color: #6c757d;
-    transition: all 0.3s ease;
-}
-
-.step-circle .step-number {
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    width: 24px;
-    height: 24px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background: white;
     border: 2px solid #e9ecef;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.step-circle i {
+    font-size: 1.1rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.step-circle .step-number {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
     font-weight: bold;
     color: #6c757d;
 }
 
 .step-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #6c757d;
     text-align: center;
@@ -659,7 +659,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 /* Wizard Content */
 .wizard-content {
-    min-height: 500px;
+    min-height: 350px;
     position: relative;
     overflow: hidden;
 }
@@ -686,33 +686,33 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 .step-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     padding: 0 1rem;
 }
 
 .step-header h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     color: #212529;
 }
 
 .step-header p {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     margin: 0;
 }
 
 .step-body {
     padding: 0 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .step-footer {
     text-align: center;
-    padding: 1.5rem 1rem;
+    padding: 0.75rem 1rem;
     background: #f8f9fa;
     border-radius: 0.5rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .step-hint {
@@ -727,8 +727,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 /* Resort Grid */
 .resort-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
     margin: 0 auto;
 }
 
@@ -745,17 +745,17 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .resort-card {
     display: block;
     cursor: pointer;
-    border: 3px solid #dee2e6;
-    border-radius: 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
     overflow: hidden;
     background: white;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .resort-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-color: #0d6efd;
 }
 
@@ -768,7 +768,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .resort-image {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 150px;
     overflow: hidden;
 }
 
@@ -807,29 +807,29 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .resort-details {
-    padding: 1.5rem;
+    padding: 1rem;
 }
 
 .resort-details h4 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: #212529;
 }
 
 .resort-details p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #6c757d;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 /* Timeframe Grid */
 .timeframe-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    max-width: 1000px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -847,21 +847,21 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 1.5rem;
-    border: 3px solid #dee2e6;
-    border-radius: 1rem;
+    padding: 1.25rem 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
     background: white;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    min-height: 320px;
+    min-height: 240px;
     position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .timeframe-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-color: #0d6efd;
 }
 
@@ -878,44 +878,48 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .timeframe-icon {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.timeframe-icon i {
+    font-size: 2.5rem !important;
 }
 
 .timeframe-card h4 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: #212529;
 }
 
 .timeframe-time {
     width: 100%;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .timeframe-time div {
-    padding: 0.5rem;
-    font-size: 0.95rem;
+    padding: 0.25rem;
+    font-size: 0.85rem;
     color: #495057;
 }
 
 .timeframe-price {
     margin-top: auto;
-    padding-top: 1rem;
+    padding-top: 0.75rem;
     border-top: 2px solid #e9ecef;
     width: 100%;
 }
 
 .timeframe-price .price-label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #6c757d;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .timeframe-price .price-value {
     display: block;
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #198754;
 }
@@ -934,7 +938,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 /* Calendar Section */
 .calendar-section {
-    max-width: 900px;
+    max-width: 750px;
     margin: 0 auto;
 }
 
@@ -942,36 +946,41 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .calendar-month-display {
-    flex: 0 0 200px;
+    flex: 0 0 160px;
+}
+
+.calendar-month-display .form-control {
+    font-size: 0.85rem;
+    padding: 0.375rem 0.5rem;
 }
 
 .calendar-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.5rem;
     justify-content: center;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
     background: #f8f9fa;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
+    gap: 0.25rem;
+    font-size: 0.7rem;
 }
 
 .legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 0.25rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 0.2rem;
     border: 1px solid #dee2e6;
 }
 
@@ -984,35 +993,36 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    padding: 1rem;
+    gap: 0.3rem;
+    padding: 0.5rem;
     background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .calendar-day-header {
-    padding: 0.75rem;
+    padding: 0.4rem 0.2rem;
     text-align: center;
     font-weight: 700;
     background: #495057;
     color: white;
-    border-radius: 0.25rem;
-    font-size: 0.9rem;
+    border-radius: 0.2rem;
+    font-size: 0.7rem;
 }
 
 .calendar-day {
     aspect-ratio: 1;
     border: 2px solid #dee2e6;
-    border-radius: 0.5rem;
+    border-radius: 0.3rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    padding: 0.5rem;
+    padding: 0.3rem;
     background: white;
+    min-height: 55px;
 }
 
 .calendar-day:hover:not(.disabled) {
@@ -1073,47 +1083,50 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .calendar-day .day-number {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #212529;
 }
 
 .calendar-day .day-status {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     text-transform: uppercase;
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
     text-align: center;
     line-height: 1.1;
+    font-weight: 600;
+    color: #495057;
 }
 
 .selected-date-card {
-    margin-top: 1.5rem;
-    padding: 1rem 1.5rem;
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.85rem;
     background: linear-gradient(135deg, #d1e7dd 0%, #ffffff 100%);
     border: 2px solid #198754;
-    border-radius: 0.75rem;
+    border-radius: 0.4rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.6rem;
 }
 
 .selected-date-card i {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .selected-date-info {
-    font-size: 1.1rem;
+    font-size: 0.875rem;
 }
 
 .selected-date-info strong {
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.1rem;
 }
 
 /* Facilities Grid */
 .facilities-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
 }
 
 .facility-option {
@@ -1151,7 +1164,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .facility-image {
     position: relative;
     width: 100%;
-    height: 150px;
+    height: 120px;
     overflow: hidden;
 }
 
@@ -1175,23 +1188,23 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .facility-details {
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 .facility-details h5 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .facility-details p {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #6c757d;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .facility-price {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #198754;
 }
@@ -1217,32 +1230,32 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .summary-section {
     background: white;
     border: 2px solid #dee2e6;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 
 .summary-section h5 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
     border-bottom: 2px solid #e9ecef;
 }
 
 .summary-grid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .summary-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.6rem;
     background: #f8f9fa;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
 .summary-label {
@@ -1258,20 +1271,20 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .facilities-summary-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .facility-summary-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
+    gap: 0.75rem;
+    padding: 0.6rem;
     background: #f8f9fa;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
 .facility-summary-item i {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: #0d6efd;
 }
 
@@ -1296,24 +1309,24 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .price-breakdown {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .price-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.6rem;
     background: #f8f9fa;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
 .price-item.total {
     background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
     color: white;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 .price-item.total .price-value {
@@ -1323,7 +1336,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 .price-value {
     font-weight: 700;
     color: #198754;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .surcharges-list,
@@ -1347,23 +1360,23 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 3rem;
-    padding-top: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
     border-top: 2px solid #e9ecef;
 }
 
 .btn-nav {
-    padding: 0.875rem 2rem;
-    font-size: 1.1rem;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.95rem;
     font-weight: 600;
     border: none;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .btn-prev {
@@ -1373,8 +1386,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 .btn-prev:hover {
     background: #5a6268;
-    transform: translateX(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: translateX(-3px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 .btn-next {
@@ -1384,8 +1397,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 
 .btn-next:hover:not(:disabled) {
     background: #0b5ed7;
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: translateX(3px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 .btn-submit {
@@ -1394,8 +1407,8 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 }
 
 .btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(25, 135, 84, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
 }
 
 .btn-nav:disabled {
@@ -1439,20 +1452,24 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     }
     
     .step-circle {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
     }
     
     .step-circle i {
-        font-size: 1.25rem;
+        font-size: 1rem;
     }
     
     .step-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
     
     .step-header h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .step-header p {
+        font-size: 0.85rem;
     }
     
     .resort-grid,
@@ -1462,31 +1479,33 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     }
     
     .calendar-grid {
-        gap: 0.25rem;
+        gap: 0.2rem;
         padding: 0.5rem;
     }
     
     .calendar-day {
-        padding: 0.25rem;
+        padding: 0.2rem;
     }
     
     .calendar-day .day-number {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     
     .calendar-day .day-status {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
     }
     
     .wizard-navigation {
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .btn-nav {
         flex: 1;
-        min-width: 120px;
+        min-width: 110px;
         justify-content: center;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
     }
     
     .nav-center {
