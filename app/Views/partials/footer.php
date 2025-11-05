@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <hr>
                         <p><strong>Address:</strong> ${data.address}</p>
                         <p><strong>Contact:</strong> ${data.contactPerson}</p>
-                        ${data.startingPrice ? `<hr><h5 class="text-primary fw-bold">Starting at ₱${Number(data.startingPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</h5>` : ''}
+                        ${data.startingPrice ? `<hr><h5 class="text-success fw-bold">Starting at ₱${Number(data.startingPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</h5>` : ''}
                         `;
                     
                     const mainPhoto = detailsTab.querySelector('#main-resort-photo');
