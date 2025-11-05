@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `Username` VARCHAR(255) NOT NULL UNIQUE,
   `Password` VARCHAR(255) NOT NULL,
   `Role` ENUM('Admin', 'Staff', 'Customer') NOT NULL,
+  `AdminType` ENUM('Admin', 'BookingAdmin', 'OperationsAdmin', 'ReportsAdmin') NULL DEFAULT NULL,
   `FirstName` VARCHAR(255),
   `LastName` VARCHAR(255),
   `Email` VARCHAR(255) NOT NULL UNIQUE,

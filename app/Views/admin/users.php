@@ -17,12 +17,14 @@ require_once __DIR__ . '/../partials/header.php';
         <?php
         if ($_GET['error'] === 'cannot_delete_self') {
             echo "You cannot delete your own account.";
-        } elseif ($_GET['error'] === 'cannot_delete_admin') {
-            echo "You cannot delete another Admin user.";
-        } elseif ($_GET['error'] === 'cannot_create_admin') {
-            echo "You cannot create another Admin user.";
-        } elseif ($_GET['error'] === 'cannot_edit_admin') {
-            echo "You cannot edit another Admin user.";
+        } elseif ($_GET['error'] === 'only_main_admin_can_delete_admins') {
+            echo "Only the Main Admin (System Admin) can delete other admin accounts.";
+        } elseif ($_GET['error'] === 'only_main_admin_can_create_admins') {
+            echo "Only the Main Admin (System Admin) can create other admin accounts.";
+        } elseif ($_GET['error'] === 'admin_type_exists') {
+            echo "An admin with this sub-admin role already exists. Please choose a different role.";
+        } elseif ($_GET['error'] === 'only_main_admin_can_edit_admins') {
+            echo "Only the Main Admin (System Admin) can edit other admin accounts.";
         } else {
             echo "An unknown error occurred.";
         }
@@ -37,6 +39,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <th>Username</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Admin Type</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Phone</th>
@@ -51,28 +54,55 @@ require_once __DIR__ . '/../partials/header.php';
                 <td><?= htmlspecialchars($user['UserID']) ?></td>
                 <td><?= htmlspecialchars($user['Username']) ?></td>
                 <td><?= htmlspecialchars($user['Email']) ?></td>
-                <td><?= htmlspecialchars($user['Role']) ?></td>
+                <td>
+                    <?= htmlspecialchars($user['Role']) ?>
+                    <?php if ($user['Role'] === 'Admin' && $user['UserID'] == $_SESSION['user_id']): ?>
+                        <span class="badge bg-warning text-dark">You</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($user['AdminType']): ?>
+                        <span class="badge bg-info">
+                            <?= htmlspecialchars(User::getAdminTypeDisplay($user['AdminType'])) ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </td>
                 <td><?= htmlspecialchars($user['FirstName']) ?></td>
                 <td><?= htmlspecialchars($user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
-                <td><?= htmlspecialchars($user['Socials'] ?? '') ?></td>
+                <td>
+                    <?php if (!empty($user['Socials'])): ?>
+                        <small class="text-muted">
+                            <?= htmlspecialchars(str_replace(['https://www.', 'http://www.', 'https://', 'http://'], '', $user['Socials'])) ?>
+                        </small>
+                    <?php endif; ?>
+                </td>
                 <td><?= htmlspecialchars($user['Notes']) ?></td>
                 <td>
-                    <?php if ($user['Role'] === 'Customer'): ?>
-                        <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
-                    <?php else: ?>
-                        <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
-                    <?php endif; ?>
-                    <?php if ($user['Role'] === 'Admin' && $user['UserID'] != $_SESSION['user_id']): ?>
-                       <button type="button" class="btn btn-sm btn-primary" disabled>Edit</button>
-                    <?php else: ?>
-                       <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
-                    <?php endif; ?>
-                    <?php if ((isset($_SESSION['user_id']) && $user['UserID'] == $_SESSION['user_id']) || ($user['Role'] === 'Admin')): ?>
-                        <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
-                    <?php else: ?>
-                        <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
-                    <?php endif; ?>
+                    <div class="btn-group" role="group">
+                        <?php if ($user['Role'] === 'Customer'): ?>
+                            <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
+                        <?php else: ?>
+                            <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
+                        <?php endif; ?>
+                        <?php
+                        $isMainAdmin = User::isMainAdmin($_SESSION['user_id']);
+                        $canEditThisUser = ($user['UserID'] == $_SESSION['user_id']) || ($isMainAdmin && $user['Role'] !== 'Admin') || ($isMainAdmin && $user['Role'] === 'Admin');
+                        $canDeleteThisUser = ($user['UserID'] != $_SESSION['user_id']) && ($isMainAdmin || $user['Role'] !== 'Admin');
+                        ?>
+                        <?php if ($canEditThisUser): ?>
+                           <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
+                        <?php else: ?>
+                           <button type="button" class="btn btn-sm btn-primary" disabled>Edit</button>
+                        <?php endif; ?>
+                        <?php if ($canDeleteThisUser): ?>
+                            <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
+                        <?php else: ?>
+                            <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
+                        <?php endif; ?>
+                    </div>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -171,4 +201,17 @@ require_once __DIR__ . '/../partials/header.php';
                 });
         });
     });
+
+    // Toggle Admin Type field when creating new user
+    function toggleAddAdminTypeField() {
+        const roleSelect = document.getElementById('add-role');
+        const adminTypeContainer = document.getElementById('add-adminType-container');
+        if (roleSelect && adminTypeContainer) {
+            if (roleSelect.value === 'Admin') {
+                adminTypeContainer.style.display = 'block';
+            } else {
+                adminTypeContainer.style.display = 'none';
+            }
+        }
+    }
     </script>

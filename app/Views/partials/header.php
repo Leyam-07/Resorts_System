@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../../../app/Models/Booking.php';
 require_once __DIR__ . '/../../../app/Models/Payment.php';
+require_once __DIR__ . '/../../../app/Models/User.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,14 +51,26 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                     <?php if ($_SESSION['role'] === 'Admin'): ?>
                         <?php
                         // Calculate total counts across all resorts for navigation badges
-                        $totalPendingPayments = Payment::getPendingPaymentCount(); // No resort filter = all resorts
-                        $totalActiveBookings = Booking::getActiveBookingsCountForAdmin(); // No resort filter = all resorts
+                        $totalPendingPayments = Payment::getPendingPaymentCount();
+                        $totalActiveBookings = Booking::getActiveBookingsCountForAdmin();
+                        
+                        // Check admin permissions
+                        $hasBookingAccess = User::hasAdminPermission($_SESSION['user_id'], 'booking_management');
+                        $hasOperationsAccess = User::hasAdminPermission($_SESSION['user_id'], 'pricing_management') ||
+                                              User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking') ||
+                                              User::hasAdminPermission($_SESSION['user_id'], 'resort_management');
+                        $hasReportsAccess = User::hasAdminPermission($_SESSION['user_id'], 'income_analytics') ||
+                                          User::hasAdminPermission($_SESSION['user_id'], 'income_analytics_view') ||
+                                          User::hasAdminPermission($_SESSION['user_id'], 'operational_reports');
+                        $isMainAdmin = User::isMainAdmin($_SESSION['user_id']);
                         ?>
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=admin&action=dashboard">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a>
                         </li>
+                        
+                        <?php if ($hasBookingAccess): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="bookingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-calendar-check"></i> Booking & Payments
@@ -68,36 +81,56 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                                 <li><a class="dropdown-item" href="?controller=admin&action=showOnSiteBookingForm"><i class="fas fa-store"></i> On-Site Booking</a></li>
                             </ul>
                         </li>
+                        <?php endif; ?>
+                        
+                        <?php if ($hasOperationsAccess): ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-tags"></i> Pricing & Blocking
+                            <a class="nav-link dropdown-toggle" href="#" id="operationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cogs"></i> Operations
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="pricingDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="operationsDropdown">
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'resort_management')): ?>
+                                <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
+                                <?php endif; ?>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'pricing_management')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=pricingManagement"><i class="fas fa-tags"></i> Pricing Management</a></li>
+                                <?php endif; ?>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=advancedBlocking"><i class="fas fa-ban"></i> Advanced Blocking</a></li>
+                                <?php endif; ?>
                             </ul>
                         </li>
+                        <?php endif; ?>
+                        
+                        <?php if ($hasReportsAccess): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-chart-bar"></i> Reports
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'income_analytics') || User::hasAdminPermission($_SESSION['user_id'], 'income_analytics_view')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=incomeAnalytics"><i class="fas fa-chart-line"></i> Income Analytics</a></li>
+                                <?php endif; ?>
+                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'operational_reports')): ?>
                                 <li><a class="dropdown-item" href="?controller=admin&action=operationalReports"><i class="fas fa-file-alt"></i> Operational Reports</a></li>
+                                <?php endif; ?>
                                 <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
                             </ul>
                         </li>
+                        <?php endif; ?>
+                        
+                        <?php if ($isMainAdmin): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-cog"></i> Settings
+                                <i class="fas fa-cog"></i> System
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
                                 <li><a class="dropdown-item" href="?controller=admin&action=users"><i class="fas fa-users"></i> Manage Users</a></li>
-                                <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=emailTemplates"><i class="fas fa-envelope"></i> Email Templates</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
                             </ul>
                         </li>
+                        <?php endif; ?>
                     <?php elseif ($_SESSION['role'] === 'Staff'): ?>
                        <li class="nav-item">
                            <a class="nav-link" href="?controller=admin&action=dashboard">

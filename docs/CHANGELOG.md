@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.9] - 2025-11-05
+
+### Added
+
+- **Modular Admin Roles:** Implemented a new sub-admin role system to enhance security and delegate responsibilities.
+  - **Main Admin (System Admin):** Retains full control and is the only role that can create or manage other admin accounts.
+  - **Booking Admin:** Manages bookings, payments, and on-site booking creation.
+  - **Operations Admin:** Manages resort details, pricing, and availability blocking.
+  - **Reports Admin:** Has read-only access to operational reports and income analytics.
+- **Unique Sub-Admin Roles:** The system now ensures that each sub-admin type (Booking, Operations, Reports) can only be assigned to a single user, preventing duplicate roles.
+- **Admin Management UI:**
+  - The "Manage Users" page now displays the `AdminType` for each user.
+  - When creating a new user, a conditional "Admin Type" dropdown appears if the "Admin" role is selected.
+
+### Changed
+
+- **Admin Navigation:** The main admin navigation is now dynamic, showing menu items based on the logged-in user's `AdminType` permissions.
+- **Permissions:** Replaced hardcoded admin restrictions with a flexible, permission-based system (`isMainAdmin()`, `hasAdminPermission()`).
+- **UI/UX:**
+  - Fixed misaligned action buttons in the "Manage Users" table by using a `btn-group`.
+  - Trimmed long URLs in the "Socials" column for a cleaner look.
+
+### Security
+
+- **Role-Based Access Control (RBAC):** All major admin controller actions are now protected by permission checks, ensuring sub-admins can only access their designated areas.
+- **Admin Account Management:** Only the Main Admin can create, edit, or delete other admin accounts.
+
+### Files Updated
+
+- `scripts/migrations/add_admin_type_to_users.php` (New File)
+- `app/Models/User.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/partials/header.php`
+- `app/Views/admin/users.php`
+- `app/Views/admin/user_modals.php`
+- `docs/Database-Schema.md`
+
 ## [1.49.8] - 2025-11-05
 
 ### Enhanced

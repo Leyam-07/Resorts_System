@@ -142,6 +142,14 @@ class AdminController {
             exit();
         }
 
+        // Operations Admin and Reports Admin can view, but not Main Admin exclusive
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'income_analytics') &&
+            !User::hasAdminPermission($_SESSION['user_id'], 'income_analytics_view')) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
         $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
         $year = filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT) ?? date('Y');
         $month = filter_input(INPUT_GET, 'month', FILTER_VALIDATE_INT) ?? date('m');
@@ -161,6 +169,13 @@ class AdminController {
 
     public function operationalReports() {
         if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Only Main Admin and Reports Admin can access operational reports
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'operational_reports')) {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();
@@ -202,6 +217,13 @@ class AdminController {
     }
 
     public function users() {
+        // Only Main Admin can access user management
+        if (!User::isMainAdmin($_SESSION['user_id'])) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+        
         $users = $this->userModel->findAll();
         include __DIR__ . '/../Views/admin/users.php';
     }
@@ -213,14 +235,16 @@ class AdminController {
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
             $role = filter_input(INPUT_POST, 'role', FILTER_UNSAFE_RAW);
+            $adminType = filter_input(INPUT_POST, 'adminType', FILTER_UNSAFE_RAW) ?? null;
             $firstName = filter_input(INPUT_POST, 'firstName', FILTER_UNSAFE_RAW);
             $lastName = filter_input(INPUT_POST, 'lastName', FILTER_UNSAFE_RAW);
             $phoneNumber = filter_input(INPUT_POST, 'phoneNumber', FILTER_UNSAFE_RAW);
             $notes = filter_input(INPUT_POST, 'notes', FILTER_UNSAFE_RAW) ?? '';
             $socials = filter_input(INPUT_POST, 'socials', FILTER_UNSAFE_RAW) ?? '';
  
-            if ($role === 'Admin') {
-                header('Location: ?controller=admin&action=users&error=cannot_create_admin');
+            // Only Main Admin can create other admins
+            if ($role === 'Admin' && !User::isMainAdmin($_SESSION['user_id'])) {
+                header('Location: ?controller=admin&action=users&error=only_main_admin_can_create_admins');
                 exit();
             }
             
@@ -229,19 +253,15 @@ class AdminController {
                 exit();
             }
 
-            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes, $socials);
+            $result = $this->userModel->create($username, $password, $email, $role, $firstName, $lastName, $phoneNumber, $notes, $socials, null, $adminType);
             if ($result === true) {
                 header('Location: ?controller=admin&action=users&status=user_added');
                 exit();
             } else {
-                // To handle errors in modal, you might want to return a JSON response
-                // For now, redirecting back with an error. A more advanced implementation
-                // would handle this via AJAX on the client-side.
                 header('Location: ?controller=admin&action=users&error=' . $result);
                 exit();
             }
         }
-        // This part is now handled by getAddUserForm
     }
 
     // The getAddUserForm() method is no longer needed as the form is now static in user_modals.php
@@ -254,8 +274,9 @@ class AdminController {
         $userId = $_GET['id'];
  
         $userToEdit = $this->userModel->findById($userId);
-        if ($userToEdit && $userToEdit['Role'] === 'Admin' && $userId != $_SESSION['user_id']) {
-            header('Location: ?controller=admin&action=users&error=cannot_edit_admin');
+        // Only Main Admin can edit other admins; sub-admins can only edit themselves
+        if ($userToEdit && $userToEdit['Role'] === 'Admin' && $userId != $_SESSION['user_id'] && !User::isMainAdmin($_SESSION['user_id'])) {
+            header('Location: ?controller=admin&action=users&error=only_main_admin_can_edit_admins');
             exit();
         }
         
@@ -347,10 +368,10 @@ class AdminController {
             exit();
         }
 
-        // Prevent admins from deleting other admins
+        // Only Main Admin can delete other admins
         $userToDelete = $this->userModel->findById($userId);
-        if ($userToDelete && $userToDelete['Role'] === 'Admin') {
-            header('Location: ?controller=admin&action=users&error=cannot_delete_admin');
+        if ($userToDelete && $userToDelete['Role'] === 'Admin' && !User::isMainAdmin($_SESSION['user_id'])) {
+            header('Location: ?controller=admin&action=users&error=only_main_admin_can_delete_admins');
             exit();
         }
 
@@ -612,6 +633,13 @@ class AdminController {
    }
     public function management() {
         if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Only Main Admin and Operations Admin can access resort management
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'resort_management')) {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();
@@ -1098,6 +1126,13 @@ class AdminController {
             exit();
         }
 
+        // Only Main Admin and Booking Admin can access booking management
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'booking_management')) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
         $filters = [
             'resort_id' => filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT),
             'status' => filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW),
@@ -1186,6 +1221,13 @@ class AdminController {
      */
     public function pricingManagement() {
         if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Only Main Admin and Operations Admin can access pricing management
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'pricing_management')) {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();
@@ -1303,6 +1345,13 @@ class AdminController {
      */
     public function advancedBlocking() {
         if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Only Main Admin and Operations Admin can access advanced blocking
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking')) {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();
@@ -2150,6 +2199,13 @@ class AdminController {
             exit();
         }
 
+        // Only Main Admin can access email templates
+        if (!User::isMainAdmin($_SESSION['user_id'])) {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
         $customTemplatesData = EmailTemplate::getAllTemplates();
         $customTemplates = [];
         foreach ($customTemplatesData as $template) {
@@ -2191,6 +2247,13 @@ class AdminController {
 
     public function showOnSiteBookingForm() {
         if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        // Only Main Admin and Booking Admin can access on-site booking
+        if (!User::hasAdminPermission($_SESSION['user_id'], 'onsite_booking')) {
             http_response_code(403);
             require_once __DIR__ . '/../Views/errors/403.php';
             exit();

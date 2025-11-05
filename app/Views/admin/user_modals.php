@@ -32,10 +32,22 @@
                         </div>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="add-role" name="role">
+                            <select class="form-select" id="add-role" name="role" onchange="toggleAddAdminTypeField()">
                                 <option value="Customer">Customer</option>
                                 <option value="Staff">Staff</option>
+                                <?php if (User::isMainAdmin($_SESSION['user_id'])): ?>
+                                <option value="Admin">Admin</option>
+                                <?php endif; ?>
                             </select>
+                        </div>
+                        <div class="mb-3" id="add-adminType-container" style="display: none;">
+                            <label for="adminType" class="form-label">Admin Type</label>
+                            <select class="form-select" id="add-adminType" name="adminType">
+                                <option value="BookingAdmin">Booking Admin</option>
+                                <option value="OperationsAdmin">Operations Admin</option>
+                                <option value="ReportsAdmin">Reports Admin</option>
+                            </select>
+                            <small class="form-text text-muted">Select the type of admin permissions for this user.</small>
                         </div>
                         <div class="mb-3">
                             <label for="firstName" class="form-label">First Name</label>

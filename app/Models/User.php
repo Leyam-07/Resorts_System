@@ -33,7 +33,7 @@ class User {
      * @param string $phoneNumber
      * @return bool
      */
-    public static function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null, $notes = null, $socials = null, $profileImageURL = null) {
+    public static function create($username, $password, $email, $role = 'Customer', $firstName = null, $lastName = null, $phoneNumber = null, $notes = null, $socials = null, $profileImageURL = null, $adminType = null) {
         // Check for existing user
         if (self::findByUsername($username)) {
             return 'username_exists';
@@ -42,11 +42,16 @@ class User {
             return 'email_exists';
         }
 
+        // Ensure AdminType is unique for sub-admins
+        if ($role === 'Admin' && $adminType !== 'Admin' && self::findByAdminType($adminType)) {
+            return 'admin_type_exists';
+        }
+
         // Hash the password for security
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $query = "INSERT INTO " . self::$table . " (Username, Password, Email, Role, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials)
-                  VALUES (:username, :password, :email, :role, :firstName, :lastName, :phoneNumber, :profileImageURL, :notes, :socials)";
+        $query = "INSERT INTO " . self::$table . " (Username, Password, Email, Role, AdminType, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials)
+                  VALUES (:username, :password, :email, :role, :adminType, :firstName, :lastName, :phoneNumber, :profileImageURL, :notes, :socials)";
 
         $stmt = self::getDB()->prepare($query);
 
@@ -55,6 +60,7 @@ class User {
         $stmt->bindParam(':password', $hashed_password);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':adminType', $adminType);
         $stmt->bindParam(':firstName', $firstName);
         $stmt->bindParam(':lastName', $lastName);
         $stmt->bindParam(':phoneNumber', $phoneNumber);
@@ -101,8 +107,18 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public static function findByAdminType($adminType) {
+        $query = "SELECT * FROM " . self::$table . " WHERE AdminType = :adminType LIMIT 1";
+        
+        $stmt = self::getDB()->prepare($query);
+        $stmt->bindParam(':adminType', $adminType);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public static function findAll() {
-        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
+        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, AdminType, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -204,5 +220,52 @@ class User {
      */
     public static function getAdminUsers() {
         return self::findByRole('Admin');
+    }
+
+    /**
+     * Check if user is Main Admin (System Admin)
+     */
+    public static function isMainAdmin($userId) {
+        $user = self::findById($userId);
+        return $user && $user['Role'] === 'Admin' && $user['AdminType'] === 'Admin';
+    }
+
+    /**
+     * Get admin type display name
+     */
+    public static function getAdminTypeDisplay($adminType) {
+        $displayNames = [
+            'Admin' => 'Main Admin',
+            'BookingAdmin' => 'Booking Admin',
+            'OperationsAdmin' => 'Operations Admin',
+            'ReportsAdmin' => 'Reports Admin'
+        ];
+        return $displayNames[$adminType] ?? $adminType;
+    }
+
+    /**
+     * Check if user has specific admin permission
+     */
+    public static function hasAdminPermission($userId, $permission) {
+        $user = self::findById($userId);
+        if (!$user || $user['Role'] !== 'Admin') {
+            return false;
+        }
+
+        $adminType = $user['AdminType'];
+        
+        // Main Admin has all permissions
+        if ($adminType === 'Admin') {
+            return true;
+        }
+
+        // Permission mappings for sub-admins
+        $permissions = [
+            'BookingAdmin' => ['booking_management', 'payment_verification', 'onsite_booking', 'view_customers'],
+            'OperationsAdmin' => ['pricing_management', 'advanced_blocking', 'resort_management', 'income_analytics'],
+            'ReportsAdmin' => ['dashboard_view', 'income_analytics_view', 'operational_reports', 'feedback_view']
+        ];
+
+        return isset($permissions[$adminType]) && in_array($permission, $permissions[$adminType]);
     }
 }
