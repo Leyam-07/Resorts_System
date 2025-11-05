@@ -87,6 +87,7 @@ require_once __DIR__ . '/../../../app/Models/Payment.php';
                                 <li><a class="dropdown-item" href="?controller=admin&action=emailTemplates"><i class="fas fa-envelope"></i> Email Templates</a></li>
                                 <li><a class="dropdown-item" href="?controller=feedback&action=listAllFeedback"><i class="fas fa-comments"></i> View Feedback</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=incomeAnalytics"><i class="fas fa-chart-line"></i> Income Analytics</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=operationalReports"><i class="fas fa-file-alt"></i> Operational Reports</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
                             </ul>
                         </li>

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.7] - 2025-11-05
+
+### Added
+
+- **Operational Reports Page:** Implemented a new "Operational Reports" page in the admin panel, providing a dedicated interface for viewing booking data with advanced filtering.
+  - The page features summary cards for key metrics like Total Bookings, Total Revenue, and a status breakdown.
+  - The data table is streamlined for reporting, removing management actions and extraneous columns.
+  - The filtering options are consistent with the "Unified Booking & Payment Management" page for a uniform user experience.
+
+### Files Updated
+
+- `app/Views/admin/operational_reports.php` (New File)
+- `app/Controllers/AdminController.php`
+- `app/Views/partials/header.php`
+
 ## [1.49.6] - 2025-11-05
 
 ### Added

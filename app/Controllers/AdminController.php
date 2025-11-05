@@ -159,6 +159,48 @@ class AdminController {
         require_once __DIR__ . '/../Views/admin/income_analytics.php';
     }
 
+    public function operationalReports() {
+        if ($_SESSION['role'] !== 'Admin') {
+            http_response_code(403);
+            require_once __DIR__ . '/../Views/errors/403.php';
+            exit();
+        }
+
+        $filters = [
+            'resort_id' => filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT),
+            'status' => filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW),
+            'customer_id' => filter_input(INPUT_GET, 'customer_id', FILTER_VALIDATE_INT),
+            'payment_status' => filter_input(INPUT_GET, 'payment_status', FILTER_UNSAFE_RAW),
+            'month' => filter_input(INPUT_GET, 'month', FILTER_VALIDATE_INT),
+            'year' => filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT)
+        ];
+
+        $resorts = Resort::findAll();
+        $customers = User::findByRole('Customer');
+        $bookings = Booking::getBookingsWithPaymentDetails($filters);
+
+        // Calculate summary statistics for the report view
+        $totalBookings = count($bookings);
+        $totalRevenue = 0;
+        $statusCounts = [
+            'Pending' => 0,
+            'Confirmed' => 0,
+            'Completed' => 0,
+            'Cancelled' => 0,
+        ];
+
+        foreach ($bookings as $booking) {
+            if ($booking->Status !== 'Cancelled') {
+                $totalRevenue += $booking->TotalAmount;
+            }
+            if (array_key_exists($booking->Status, $statusCounts)) {
+                $statusCounts[$booking->Status]++;
+            }
+        }
+
+        require_once __DIR__ . '/../Views/admin/operational_reports.php';
+    }
+
     public function users() {
         $users = $this->userModel->findAll();
         include __DIR__ . '/../Views/admin/users.php';
