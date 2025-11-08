@@ -221,7 +221,8 @@ class UserController {
                 $_POST['phoneNumber'] ?? '',
                 null,
                 $_POST['socials'] ?? '',
-                $profileImageURL
+                $profileImageURL,
+                'Admin' // Explicitly set AdminType to 'Admin' for the Main Admin
             );
 
             if ($result === true) {
