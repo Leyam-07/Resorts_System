@@ -238,6 +238,7 @@ class UserController {
     }
 
     public function showAdminRegisterForm() {
+        $mainAdminExists = User::mainAdminExists();
         include __DIR__ . '/../Views/register-admin.php';
     }
  

@@ -231,6 +231,18 @@ class User {
     }
 
     /**
+     * Check if a Main Admin (AdminType = 'Admin') already exists.
+     *
+     * @return bool
+     */
+    public static function mainAdminExists() {
+        $query = "SELECT COUNT(*) FROM " . self::$table . " WHERE Role = 'Admin' AND AdminType = 'Admin'";
+        $stmt = self::getDB()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
+    /**
      * Get admin type display name
      */
     public static function getAdminTypeDisplay($adminType) {

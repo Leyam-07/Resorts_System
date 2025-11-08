@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.4] - 2025-11-08
+
+### Security
+
+- **Admin Registration:** Implemented a critical security restriction to enforce a single "Main Admin" (AdminType = 'Admin') account. The Admin Registration page now checks for an existing Main Admin and disables the form with a clear error message if one is found.
+
+### Files Updated
+
+- `app/Models/User.php`
+- `app/Controllers/UserController.php`
+- `app/Views/register-admin.php`
+
 ## [1.50.3] - 2025-11-08
 
 ### Changed

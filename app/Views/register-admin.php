@@ -17,6 +17,8 @@
                     <h3 class="card-title text-center">Create an Admin Account</h3>
                     <hr>
                     <?php
+                        // $mainAdminExists is passed from UserController::showAdminRegisterForm()
+                        $formDisabled = $mainAdminExists ? 'disabled' : '';
                         $errorMsg = '';
                         $oldInput = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : [];
                         unset($_SESSION['old_input']);
@@ -44,58 +46,65 @@
                             echo '<div class="alert alert-danger" role="alert">' . $errorMsg . '</div>';
                         }
                     ?>
+                    <?php if ($mainAdminExists): ?>
+                        <div class="alert alert-danger text-center" role="alert">
+                            <strong>Registration Restricted:</strong> A Main Admin account already exists. Only one Main Admin is allowed for system security and control.
+                        </div>
+                    <?php endif; ?>
                     <!-- Registration Form -->
                     <form action="/ResortsSystem/public/index.php?action=registerAdmin" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <input type="hidden" name="role" value="Admin">
+                        <fieldset <?= $formDisabled ?>>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($oldInput['username'] ?? ''); ?>" required>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($oldInput['username'] ?? ''); ?>" required <?= $formDisabled ?>>
                             <div class="invalid-feedback">Please choose a username.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($oldInput['email'] ?? ''); ?>" required>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($oldInput['email'] ?? ''); ?>" required <?= $formDisabled ?>>
                             <div class="invalid-feedback">Please provide a valid email.</div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required <?= $formDisabled ?>>
                             <div class="invalid-feedback">Password must be at least 8 characters long.</div>
                         </div>
                         <div class="mb-3">
                             <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required <?= $formDisabled ?>>
                             <div class="invalid-feedback">Passwords do not match.</div>
                         </div>
                         <hr>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="firstName" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($oldInput['firstName'] ?? ''); ?>">
+                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($oldInput['firstName'] ?? ''); ?>" <?= $formDisabled ?>>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="lastName" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($oldInput['lastName'] ?? ''); ?>">
+                                <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($oldInput['lastName'] ?? ''); ?>" <?= $formDisabled ?>>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($oldInput['phoneNumber'] ?? ''); ?>">
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($oldInput['phoneNumber'] ?? ''); ?>" <?= $formDisabled ?>>
                         </div>
                         <div class="mb-3">
                             <label for="socials" class="form-label">Socials</label>
-                            <textarea class="form-control" id="socials" name="socials" rows="3" required><?php echo htmlspecialchars($oldInput['socials'] ?? ''); ?></textarea>
+                            <textarea class="form-control" id="socials" name="socials" rows="3" required <?= $formDisabled ?>><?php echo htmlspecialchars($oldInput['socials'] ?? ''); ?></textarea>
                             <div class="form-text">Enter social media links, one per line.</div>
                             <div class="invalid-feedback">Please enter social media links.</div>
                         </div>
                         <div class="mb-3">
                             <label for="profileImage" class="form-label">Profile Image</label>
-                            <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*" required>
+                            <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*" required <?= $formDisabled ?>>
                             <div class="invalid-feedback">Please upload a profile image.</div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Register Admin</button>
+                            <button type="submit" class="btn btn-primary" <?= $formDisabled ?>>Register Admin</button>
                         </div>
+                        </fieldset>
                     </form>
                     <div class="mt-3 text-center">
                         <p>Go to admin login? <a href="?action=loginAdmin">Login here</a></p>
