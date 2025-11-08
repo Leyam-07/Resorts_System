@@ -38,6 +38,10 @@ if (!defined('APP_LOADED')) {
                         <textarea class="form-control" id="fullDescription" name="fullDescription" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
+                        <label for="googleMapsLink" class="form-label">Google Maps Link</label>
+                        <input type="url" class="form-control" id="googleMapsLink" name="googleMapsLink" placeholder="https://maps.app.goo.gl/...">
+                    </div>
+                    <div class="mb-3">
                         <label for="photos" class="form-label">Upload Photos</label>
                         <input type="file" class="form-control" id="photos" name="photos[]" multiple>
                         <small class="form-text text-muted">You can select multiple files. The first photo uploaded will be set as the main photo.</small>
@@ -82,6 +86,10 @@ if (!defined('APP_LOADED')) {
                     <div class="mb-3">
                         <label for="editFullDescription" class="form-label">Full Description</label>
                         <textarea class="form-control" id="editFullDescription" name="fullDescription" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGoogleMapsLink" class="form-label">Google Maps Link</label>
+                        <input type="url" class="form-control" id="editGoogleMapsLink" name="googleMapsLink" placeholder="https://maps.app.goo.gl/...">
                     </div>
                     <hr>
                     <h5>Manage Photos</h5>
@@ -210,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             form.querySelector('#editContactPerson').value = data.contactPerson;
                             form.querySelector('#editShortDescription').value = data.shortDescription || '';
                             form.querySelector('#editFullDescription').value = data.fullDescription || '';
+                            form.querySelector('#editGoogleMapsLink').value = data.googleMapsLink || '';
 
                             // Populate photo gallery
                             const photoGallery = document.getElementById('photoGallery');

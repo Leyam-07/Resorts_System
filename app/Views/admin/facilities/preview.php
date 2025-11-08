@@ -78,6 +78,9 @@ require_once __DIR__ . '/../../partials/header.php';
                        <button class="nav-link" id="resort-facilities-tab" data-bs-toggle="tab" data-bs-target="#resort-facilities-content" type="button" role="tab" aria-controls="resort-facilities-content" aria-selected="false">Facilities</button>
                    </li>
                    <li class="nav-item" role="presentation">
+                       <button class="nav-link" id="resort-map-tab" data-bs-toggle="tab" data-bs-target="#resort-map-content" type="button" role="tab" aria-controls="resort-map-content" aria-selected="false">Map</button>
+                   </li>
+                   <li class="nav-item" role="presentation">
                        <button class="nav-link" id="resort-feedback-tab" data-bs-toggle="tab" data-bs-target="#resort-feedback-content" type="button" role="tab" aria-controls="resort-feedback-content" aria-selected="false">Feedback</button>
                    </li>
                </ul>
@@ -87,6 +90,9 @@ require_once __DIR__ . '/../../partials/header.php';
                    </div>
                    <div class="tab-pane fade" id="resort-facilities-content" role="tabpanel" aria-labelledby="resort-facilities-tab">
                        <!-- Resort Facilities content will be loaded here by JavaScript -->
+                   </div>
+                   <div class="tab-pane fade" id="resort-map-content" role="tabpanel" aria-labelledby="resort-map-tab">
+                       <!-- Resort Map content will be loaded here by JavaScript -->
                    </div>
                    <div class="tab-pane fade" id="resort-feedback-content" role="tabpanel" aria-labelledby="resort-feedback-tab">
                        <!-- Resort Feedback content will be loaded here by JavaScript -->

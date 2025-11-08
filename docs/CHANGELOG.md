@@ -5,7 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.50.6] - 2025-11-08
+## [1.50.8] - 2025-11-08
+
+### Added
+
+- **Google Maps Integration:** Implemented a new "Map" tab in the Resort View Details Modal (used in Customer Dashboard and Admin Preview) to display the resort's location via an embedded Google Map.
+  - **Admin Input:** Added a `GoogleMapsLink` field to the "Add Resort" and "Edit Resort" admin modals for administrators to provide the map URL.
+  - **Database Support:** Added the `GoogleMapsLink` column to the `Resorts` table.
+
+### Changed
+
+- **UI/UX:** Reordered the tabs in the Resort View Details Modal to prioritize operational information: Resort, Facilities, Map, Feedback.
+
+### Fixed
+
+- **Data Integrity:** Corrected SQL queries in `app/Models/Resort.php` (`findAllWithFacilities`) to correctly select the new `GoogleMapsLink` column, resolving PHP warnings.
+
+### Files Updated
+
+- `scripts/migrations/add_google_maps_link_to_resorts.php` (New File)
+- `app/Models/Resort.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/resorts/resort_modals.php`
+- `app/Views/admin/facilities/preview.php`
+- `app/Views/dashboard.php`
+- `app/Views/partials/footer.php`
+
+## [1.50.7] - 2025-11-08
 
 ### Added
 
@@ -29,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/booking/my_bookings.php`
 - `app/Views/partials/guest_header.php`
 
-## [1.50.5] - 2025-11-08
+## [1.50.6] - 2025-11-08
 
 ### Enhanced
 

@@ -684,6 +684,7 @@ class AdminController {
             $resort->contactPerson = $validatedData['contactPerson'];
             $resort->shortDescription = $validatedData['shortDescription'];
             $resort->fullDescription = $validatedData['fullDescription'];
+            $resort->googleMapsLink = filter_input(INPUT_POST, 'googleMapsLink', FILTER_SANITIZE_URL) ?? null;
             
             $resortId = Resort::create($resort);
 
@@ -728,6 +729,7 @@ class AdminController {
             $resort->contactPerson = $validatedData['contactPerson'];
             $resort->shortDescription = $validatedData['shortDescription'];
             $resort->fullDescription = $validatedData['fullDescription'];
+            $resort->googleMapsLink = filter_input(INPUT_POST, 'googleMapsLink', FILTER_SANITIZE_URL) ?? $resort->googleMapsLink;
             
             // Handle new photo uploads
             $newPhotoURLs = $this->handlePhotoUpload('photos', 'resorts');

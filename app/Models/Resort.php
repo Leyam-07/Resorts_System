@@ -8,6 +8,7 @@ class Resort {
     public $shortDescription;
     public $fullDescription;
     public $mainPhotoURL;
+    public $googleMapsLink;
     public $photos = [];
 
     private static $db;
@@ -28,8 +29,8 @@ class Resort {
     public static function create(Resort $resort) {
         $db = self::getDB();
         $stmt = $db->prepare(
-            "INSERT INTO Resorts (Name, Address, ContactPerson, ShortDescription, FullDescription, MainPhotoURL)
-             VALUES (:name, :address, :contactPerson, :shortDescription, :fullDescription, :mainPhotoURL)"
+            "INSERT INTO Resorts (Name, Address, ContactPerson, ShortDescription, FullDescription, MainPhotoURL, GoogleMapsLink)
+             VALUES (:name, :address, :contactPerson, :shortDescription, :fullDescription, :mainPhotoURL, :googleMapsLink)"
         );
         $stmt->bindValue(':name', $resort->name, PDO::PARAM_STR);
         $stmt->bindValue(':address', $resort->address, PDO::PARAM_STR);
@@ -37,6 +38,7 @@ class Resort {
         $stmt->bindValue(':shortDescription', $resort->shortDescription, PDO::PARAM_STR);
         $stmt->bindValue(':fullDescription', $resort->fullDescription, PDO::PARAM_STR);
         $stmt->bindValue(':mainPhotoURL', $resort->mainPhotoURL, PDO::PARAM_STR);
+        $stmt->bindValue(':googleMapsLink', $resort->googleMapsLink, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return $db->lastInsertId();
@@ -60,6 +62,7 @@ class Resort {
             $resort->shortDescription = $data['ShortDescription'];
             $resort->fullDescription = $data['FullDescription'];
             $resort->mainPhotoURL = $data['MainPhotoURL'];
+            $resort->googleMapsLink = $data['GoogleMapsLink'];
             $resort->photos = self::getPhotos($id);
             return $resort;
         }
@@ -79,6 +82,7 @@ class Resort {
             $resort->shortDescription = $data['ShortDescription'];
             $resort->fullDescription = $data['FullDescription'];
             $resort->mainPhotoURL = $data['MainPhotoURL'];
+            $resort->googleMapsLink = $data['GoogleMapsLink'];
             $resorts[] = $resort;
         }
         return $resorts;
@@ -88,7 +92,7 @@ class Resort {
         $db = self::getDB();
         $sql = "
             SELECT
-                r.ResortID, r.Name as ResortName, r.Address, r.ContactPerson, r.ShortDescription, r.FullDescription, r.MainPhotoURL,
+                r.ResortID, r.Name as ResortName, r.Address, r.ContactPerson, r.ShortDescription, r.FullDescription, r.MainPhotoURL, r.GoogleMapsLink,
                 f.FacilityID, f.Name as FacilityName, f.Rate
             FROM Resorts r
             LEFT JOIN Facilities f ON r.ResortID = f.ResortID
@@ -108,6 +112,7 @@ class Resort {
                 $resort->shortDescription = $row['ShortDescription'];
                 $resort->fullDescription = $row['FullDescription'];
                 $resort->mainPhotoURL = $row['MainPhotoURL'];
+                $resort->googleMapsLink = $row['GoogleMapsLink'];
                 $resort->photos = self::getPhotos($resortId); // Still need this for the photo gallery
                 $resortsWithFacilities[$resortId] = [
                     'resort' => $resort,
@@ -132,7 +137,8 @@ class Resort {
         $stmt = $db->prepare(
             "UPDATE Resorts
              SET Name = :name, Address = :address, ContactPerson = :contactPerson,
-                 ShortDescription = :shortDescription, FullDescription = :fullDescription, MainPhotoURL = :mainPhotoURL
+                 ShortDescription = :shortDescription, FullDescription = :fullDescription, MainPhotoURL = :mainPhotoURL,
+                 GoogleMapsLink = :googleMapsLink
              WHERE ResortID = :id"
         );
         $stmt->bindValue(':name', $resort->name, PDO::PARAM_STR);
@@ -141,6 +147,7 @@ class Resort {
         $stmt->bindValue(':shortDescription', $resort->shortDescription, PDO::PARAM_STR);
         $stmt->bindValue(':fullDescription', $resort->fullDescription, PDO::PARAM_STR);
         $stmt->bindValue(':mainPhotoURL', $resort->mainPhotoURL, PDO::PARAM_STR);
+        $stmt->bindValue(':googleMapsLink', $resort->googleMapsLink, PDO::PARAM_STR);
         $stmt->bindValue(':id', $resort->resortId, PDO::PARAM_INT);
 
         return $stmt->execute();

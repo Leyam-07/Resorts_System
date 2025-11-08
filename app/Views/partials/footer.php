@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const modalTitle = resortModalEl.querySelector('.modal-title');
             const detailsTab = resortModalEl.querySelector('#resort-details-content');
             const facilitiesTab = resortModalEl.querySelector('#resort-facilities-content');
+            const mapTab = resortModalEl.querySelector('#resort-map-content');
             const feedbackTab = resortModalEl.querySelector('#resort-feedback-content');
             const modalFooter = resortModalEl.querySelector('.modal-footer');
 
@@ -71,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modalTitle.textContent = 'Loading...';
             detailsTab.innerHTML = '<p class="text-center">Loading resort details...</p>';
             facilitiesTab.innerHTML = '<p class="text-center">Loading facilities...</p>';
+            if (mapTab) mapTab.innerHTML = '<p class="text-center">Loading map...</p>';
             feedbackTab.innerHTML = '<p class="text-center">Loading feedback...</p>';
             modalFooter.innerHTML = '';
 
@@ -111,6 +113,57 @@ document.addEventListener('DOMContentLoaded', function () {
                             this.classList.add('active');
                         });
                     });
+
+                    // --- Populate Map Tab ---
+                    const mapTab = resortModalEl.querySelector('#resort-map-content');
+                    const mapLink = data.googleMapsLink;
+                    if (mapTab) {
+                        if (mapLink) {
+                            // A more robust regex to find the correct part of the URL to embed
+                            const embedPattern = /@([-0-9.]+),([-0-9.]+),([0-9.]+)z/;
+                            const match = mapLink.match(embedPattern);
+                            
+                            let embedLink = '';
+                            if (mapLink.includes('/maps/embed')) {
+                                embedLink = mapLink;
+                            } else if (match) {
+                                const lat = match[1];
+                                const long = match[2];
+                                embedLink = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${lat},${long}`;
+                                // Note: This requires a Google Maps Embed API key. A simpler iframe approach might be better without an API key.
+                                // Let's use a simpler approach that works for most share links.
+                                const url = new URL(mapLink);
+                                const params = new URLSearchParams(url.search);
+                                const place = url.pathname.split('/place/')[1];
+                                if (place) {
+                                    embedLink = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${decodeURIComponent(place)}`;
+                                }
+                            }
+                            
+                            // Simplest approach: assume the link is a standard share link and try to embed it.
+                            // This is less reliable but doesn't require an API key.
+                            // Let's assume the admin provides a direct embed link or we construct it.
+                            // A common share link looks like https://maps.app.goo.gl/someId
+                            // An embed link looks like https://www.google.com/maps/embed?pb=...
+                            // We will assume the admin provides a usable link.
+                            
+                            // Let's create a simplified embeddable link if it's a standard google maps URL
+                            let finalEmbedLink = mapLink;
+                            if (!mapLink.includes('embed')) {
+                                // This is a fallback and may not always work perfectly
+                                finalEmbedLink = `https://maps.google.com/maps?q=${encodeURIComponent(data.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+                            }
+
+                            mapTab.innerHTML = `
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="${finalEmbedLink}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                            `;
+                        } else {
+                            mapTab.innerHTML = '<div class="alert alert-warning text-center">Map link is not available for this resort.</div>';
+                        }
+                    }
+
                 }).catch(error => {
                     modalTitle.textContent = 'Error';
                     detailsTab.innerHTML = '<p class="text-danger">Failed to load resort details.</p>';
