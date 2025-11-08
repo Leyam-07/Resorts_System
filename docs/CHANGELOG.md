@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.3] - 2025-11-08
+
+### Changed
+
+- **UI/UX:** Uncollapsed the navigation dropdowns for all sub-admin roles (`Reservations Manager`, `Resort Manager`, `Finance Manager`). Each navigation link is now a standalone item, simplifying the interface.
+- **Permissions:** Removed "Income Analytics" access from the `Resort Manager` role to better align with their responsibilities.
+
+### Fixed
+
+- **UI/UX:** Corrected the display order of the "View Feedbacks" navigation link for certain sub-admin roles, ensuring it appears correctly before the "My Profile" link.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+- `app/Models/User.php`
+
 ## [1.50.2] - 2025-11-08
 
 ### Changed

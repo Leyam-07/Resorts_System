@@ -262,7 +262,7 @@ class User {
         // Permission mappings for sub-admins
         $permissions = [
             'BookingAdmin' => ['booking_management', 'payment_verification', 'onsite_booking', 'view_customers', 'feedback_view'],
-            'OperationsAdmin' => ['pricing_management', 'advanced_blocking', 'resort_management', 'income_analytics', 'preview_customer', 'feedback_view', 'income_analytics_view'],
+            'OperationsAdmin' => ['pricing_management', 'advanced_blocking', 'resort_management', 'preview_customer', 'feedback_view'],
             'ReportsAdmin' => ['dashboard_view', 'income_analytics_view', 'operational_reports', 'feedback_view']
         ];
 
