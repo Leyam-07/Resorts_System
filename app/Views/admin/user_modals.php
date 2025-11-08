@@ -43,9 +43,9 @@
                         <div class="mb-3" id="add-adminType-container" style="display: none;">
                             <label for="adminType" class="form-label">Admin Type</label>
                             <select class="form-select" id="add-adminType" name="adminType">
-                                <option value="BookingAdmin">Booking Admin</option>
-                                <option value="OperationsAdmin">Operations Admin</option>
-                                <option value="ReportsAdmin">Reports Admin</option>
+                                <option value="BookingAdmin">Reservations Manager</option>
+                                <option value="OperationsAdmin">Resort Manager</option>
+                                <option value="ReportsAdmin">Finance Manager</option>
                             </select>
                             <small class="form-text text-muted">Select the type of admin permissions for this user.</small>
                         </div>

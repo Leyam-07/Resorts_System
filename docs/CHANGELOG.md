@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.2] - 2025-11-08
+
+### Changed
+
+- **Admin Roles:** Renamed the sub-admin roles for better clarity and professionalism:
+  - `Booking Admin` → `Reservations Manager`
+  - `Operations Admin` → `Resort Manager`
+  - `Reports Admin` → `Finance Manager`
+- **UI/UX:** Updated admin error messages on the "Manage Users" page for brevity, replacing "Main Admin (System Admin)" with "Main Admin."
+
+### Files Updated
+
+- `app/Models/User.php`
+- `app/Views/admin/user_modals.php`
+- `app/Views/admin/users.php`
+
 ## [1.50.1] - 2025-11-05
 
 ### Changed

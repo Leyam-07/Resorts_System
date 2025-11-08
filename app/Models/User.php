@@ -236,9 +236,9 @@ class User {
     public static function getAdminTypeDisplay($adminType) {
         $displayNames = [
             'Admin' => 'Main Admin',
-            'BookingAdmin' => 'Booking Admin',
-            'OperationsAdmin' => 'Operations Admin',
-            'ReportsAdmin' => 'Reports Admin'
+            'BookingAdmin' => 'Reservations Manager',
+            'OperationsAdmin' => 'Resort Manager',
+            'ReportsAdmin' => 'Finance Manager'
         ];
         return $displayNames[$adminType] ?? $adminType;
     }

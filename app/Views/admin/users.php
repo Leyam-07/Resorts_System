@@ -18,13 +18,13 @@ require_once __DIR__ . '/../partials/header.php';
         if ($_GET['error'] === 'cannot_delete_self') {
             echo "You cannot delete your own account.";
         } elseif ($_GET['error'] === 'only_main_admin_can_delete_admins') {
-            echo "Only the Main Admin (System Admin) can delete other admin accounts.";
+            echo "Only the Main Admin can delete other admin accounts.";
         } elseif ($_GET['error'] === 'only_main_admin_can_create_admins') {
-            echo "Only the Main Admin (System Admin) can create other admin accounts.";
+            echo "Only the Main Admin can create other admin accounts.";
         } elseif ($_GET['error'] === 'admin_type_exists') {
             echo "An admin with this sub-admin role already exists. Please choose a different role.";
         } elseif ($_GET['error'] === 'only_main_admin_can_edit_admins') {
-            echo "Only the Main Admin (System Admin) can edit other admin accounts.";
+            echo "Only the Main Admin can edit other admin accounts.";
         } else {
             echo "An unknown error occurred.";
         }
