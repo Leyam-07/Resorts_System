@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.9] - 2025-11-08
+
+### Changed
+
+- **Admin Navigation:** Consolidated the 'Preview Customer View' link to appear only once.
+  - Removed the duplicate link from the 'Operations' section for both Main Admin and Sub-Admin roles.
+  - **Access Fix:** Ensured Sub-Admins with `preview_customer` permission retain access via a standalone navigation item (when not the Main Admin).
+  - Main Admin access is now exclusively under the 'System' dropdown.
+
+### Files Updated
+
+- `app/Views/partials/header.php`
+
 ## [1.50.8] - 2025-11-08
 
 ### Added

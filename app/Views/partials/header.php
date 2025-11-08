@@ -106,7 +106,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                             <?php if ($isMainAdmin): ?>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="operationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-cogs"></i> Operations
+                                        <i class="fas fa-cogs"></i> Resort Operations
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="operationsDropdown">
                                         <?php if (User::hasAdminPermission($_SESSION['user_id'], 'resort_management')): ?>
@@ -117,9 +117,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                                         <?php endif; ?>
                                         <?php if (User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking')): ?>
                                         <li><a class="dropdown-item" href="?controller=admin&action=advancedBlocking"><i class="fas fa-ban"></i> Advanced Blocking</a></li>
-                                        <?php endif; ?>
-                                        <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')): ?>
-                                        <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer</a></li>
                                         <?php endif; ?>
                                     </ul>
                                 </li>
@@ -133,9 +130,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'advanced_blocking')): ?>
                                 <li class="nav-item"><a class="nav-link" href="?controller=admin&action=advancedBlocking"><i class="fas fa-ban"></i> Advanced Blocking</a></li>
                                 <?php endif; ?>
-                                <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')): ?>
-                                <li class="nav-item"><a class="nav-link" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer</a></li>
-                                <?php endif; ?>
                             <?php endif; ?>
                         <?php endif; ?>
                         
@@ -143,7 +137,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                             <?php if ($isMainAdmin): ?>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-chart-bar"></i> Reports
+                                        <i class="fas fa-chart-bar"></i> Statistics
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                                         <?php if (User::hasAdminPermission($_SESSION['user_id'], 'income_analytics') || User::hasAdminPermission($_SESSION['user_id'], 'income_analytics_view')): ?>
@@ -179,9 +173,18 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                                 <li><a class="dropdown-item" href="?controller=admin&action=users"><i class="fas fa-users"></i> Manage Users</a></li>
                                 <li><a class="dropdown-item" href="?controller=admin&action=emailTemplates"><i class="fas fa-envelope"></i> Email Templates</a></li>
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer')): ?>
-                                <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer View</a></li>
+                                <li><a class="dropdown-item" href="?controller=admin&action=previewFacilities"><i class="fas fa-eye"></i> Preview Customer</a></li>
                                 <?php endif; ?>
                             </ul>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <?php // Sub-Admin Standalone Links ?>
+                        <?php if (User::hasAdminPermission($_SESSION['user_id'], 'preview_customer') && !$isMainAdmin): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=admin&action=previewFacilities">
+                                <i class="fas fa-eye"></i> Preview Customer
+                            </a>
                         </li>
                         <?php endif; ?>
                         
