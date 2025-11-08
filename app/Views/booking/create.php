@@ -1108,7 +1108,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 0.75rem;
-    white-space: nowrap;
+    white-space: pre-wrap;
     z-index: 1000;
     margin-bottom: 5px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -2055,8 +2055,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     '24_hours': '24 Hours (7AM-5AM)',
                     'overnight': 'Overnight (7PM-5AM)'
                 };
-                const availableLabels = dayData.availableTimeframes.map(tf => timeframeLabels[tf] || tf);
-                tooltipText = 'Available: ' + availableLabels.join(', ');
+                // Replace all spaces with non-breaking spaces and replace hyphen with a non-breaking hyphen (\u2011) to prevent wrapping within the time slot label
+                const availableLabels = dayData.availableTimeframes.map(tf => (timeframeLabels[tf] || tf)
+                    .replace(/ /g, '\u00A0')
+                    .replace(/-/g, '\u2011')
+                );
+                tooltipText = 'Available:\n' + availableLabels.join('\n');
             }
             
             html += `
