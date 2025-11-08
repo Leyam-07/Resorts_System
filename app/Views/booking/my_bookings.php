@@ -378,7 +378,7 @@ require_once __DIR__ . '/../partials/header.php';
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-7">
+                            <div class="col-md-12">
                                 <dl class="row">
                                     <dt class="col-sm-5">Amount Paid:</dt>
                                     <dd class="col-sm-7"><strong class="text-success" id="summaryAmount"></strong></dd>
@@ -390,11 +390,18 @@ require_once __DIR__ . '/../partials/header.php';
                                     <dd class="col-sm-7" id="summaryReference"></dd>
                                 </dl>
                             </div>
-                            <div class="col-md-5 text-center">
-                                <h6 class="text-muted">Payment Proof Preview</h6>
-                                <img id="summaryProofImage" src="" alt="Payment Proof Preview" class="img-fluid rounded border" style="max-height: 150px;">
-                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Payment Proof Section (Full Width) -->
+                <div class="card mb-3 border-info">
+                    <div class="card-header bg-info-subtle">
+                        <h6 class="mb-0 text-info"><i class="fas fa-camera"></i> Payment Proof Image</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <img id="summaryProofImageFull" src="" alt="Payment Proof Preview" class="img-fluid rounded border" style="max-height: 400px; width: auto;">
+                        <p class="mt-2 text-muted small">Preview of the uploaded payment proof.</p>
                     </div>
                 </div>
 
@@ -853,7 +860,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('summaryAmount').textContent = '₱' + amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         document.getElementById('summaryPaymentMethod').textContent = document.getElementById('selectedPaymentMethod').value;
         document.getElementById('summaryReference').textContent = document.getElementById('modalPaymentReference').value;
-        document.getElementById('summaryProofImage').src = document.getElementById('modalPreviewImg').src;
+        document.getElementById('summaryProofImageFull').src = document.getElementById('modalPreviewImg').src;
 
         // --- Booking Summary ---
         document.getElementById('summaryResortName').textContent = document.getElementById('paymentResortName').textContent;

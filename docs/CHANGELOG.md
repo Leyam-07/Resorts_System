@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.5] - 2025-11-08
+
+### Enhanced
+
+- **Payment Confirmation UI:** Separated the Payment Proof Image preview into its own full-width card within the `paymentConfirmationModal` on both "My Reservations" and "My Bookings" pages, providing a larger, clearer view of the uploaded proof before final submission.
+
+### Files Updated
+
+- `app/Views/booking/my_reservations.php`
+- `app/Views/booking/my_bookings.php`
+
 ## [1.50.4] - 2025-11-08
 
 ### Security
