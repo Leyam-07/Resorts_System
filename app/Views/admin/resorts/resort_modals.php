@@ -39,7 +39,7 @@ if (!defined('APP_LOADED')) {
                     </div>
                     <div class="mb-3">
                         <label for="googleMapsLink" class="form-label">Google Maps Link</label>
-                        <input type="url" class="form-control" id="googleMapsLink" name="googleMapsLink" placeholder="https://maps.app.goo.gl/...">
+                        <input type="url" class="form-control" id="googleMapsLink" name="googleMapsLink" placeholder="https://www.google.com/maps/embed?...">
                     </div>
                     <div class="mb-3">
                         <label for="photos" class="form-label">Upload Photos</label>
@@ -89,7 +89,7 @@ if (!defined('APP_LOADED')) {
                     </div>
                     <div class="mb-3">
                         <label for="editGoogleMapsLink" class="form-label">Google Maps Link</label>
-                        <input type="url" class="form-control" id="editGoogleMapsLink" name="googleMapsLink" placeholder="https://maps.app.goo.gl/...">
+                        <input type="url" class="form-control" id="editGoogleMapsLink" name="googleMapsLink" placeholder="https://www.google.com/maps/embed?...">
                     </div>
                     <hr>
                     <h5>Manage Photos</h5>
