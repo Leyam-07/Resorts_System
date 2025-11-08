@@ -206,6 +206,56 @@ class Feedback {
     }
 
     /**
+     * Get all feedback entries for a specific customer, including facility feedback details.
+     */
+    public static function findCustomerFeedbackHistory($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT
+                f.FeedbackID,
+                f.BookingID,
+                f.Rating AS ResortRating,
+                f.Comment AS ResortComment,
+                f.CreatedAt,
+                r.Name AS ResortName,
+                b.BookingDate,
+                GROUP_CONCAT(
+                    CONCAT(
+                        '{\"FacilityName\": \"', fac.Name, '\", ',
+                        '\"Rating\": ', ff.Rating, ', ',
+                        '\"Comment\": \"', REPLACE(ff.Comment, '\"', '\\\"'), '\"}'
+                    ) SEPARATOR '|||'
+                ) AS FacilityFeedbackJson
+             FROM Feedback f
+             JOIN Bookings b ON f.BookingID = b.BookingID
+             JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN FacilityFeedback ff ON f.FeedbackID = ff.FeedbackID
+             LEFT JOIN Facilities fac ON ff.FacilityID = fac.FacilityID
+             WHERE b.CustomerID = :customerId
+             GROUP BY f.FeedbackID
+             ORDER BY f.CreatedAt DESC"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+        
+        // Post-process the FacilityFeedbackJson column
+        foreach ($results as $result) {
+            $result->FacilityFeedbacks = [];
+            if (!empty($result->FacilityFeedbackJson)) {
+                $rawFeedbacks = explode('|||', $result->FacilityFeedbackJson);
+                foreach ($rawFeedbacks as $rawFeedback) {
+                    $result->FacilityFeedbacks[] = json_decode($rawFeedback);
+                }
+            }
+            unset($result->FacilityFeedbackJson);
+        }
+
+        return $results;
+    }
+
+    /**
      * Get all feedback entries for a specific facility with customer details.
      */
     public static function findFacilityFeedbackDetails($facilityId) {

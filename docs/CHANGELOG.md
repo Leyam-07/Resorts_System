@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.6] - 2025-11-08
+
+### Added
+
+- **Customer Feedback Management:** Implemented a dedicated "My Feedback" page for customers to manage their reviews.
+  - **Pending Reviews:** Displays a list of 'Completed' bookings that are awaiting feedback, with direct access to the feedback modal.
+  - **Feedback History:** Shows a history of all past feedback submissions, including resort and facility-specific ratings/comments.
+- **Nav Header Counter:** Added a real-time counter badge to the "My Feedback" navigation link, showing the number of pending bookings awaiting review.
+- **Direct Modal Access:** Enabled the feedback modal to be triggered directly from the "My Feedback" page without requiring a redirect to the "My Bookings" page.
+
+### Enhanced
+
+- **Booking Data:** Enhanced `Booking::findConfirmedByCustomerId()` to include a `hasFeedback` status, ensuring the "My Bookings" page correctly displays the feedback button state.
+
+### Files Updated
+
+- `app/Views/feedback/my_feedback.php` (New File)
+- `app/Controllers/FeedbackController.php`
+- `app/Models/Booking.php`
+- `app/Models/Feedback.php`
+- `app/Views/partials/header.php`
+- `app/Views/booking/my_bookings.php`
+- `app/Views/partials/guest_header.php`
+
 ## [1.50.5] - 2025-11-08
 
 ### Enhanced

@@ -61,6 +61,28 @@ class FeedbackController {
         }
         exit;
     }
+
+    public function showMyFeedback() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?action=login');
+            exit;
+        }
+
+        $customerId = $_SESSION['user_id'];
+        
+        // Load required models
+        require_once __DIR__ . '/../Models/Booking.php';
+        require_once __DIR__ . '/../Models/Feedback.php';
+        
+        // 1. Get bookings awaiting feedback (Completed but no Feedback entry)
+        $pendingFeedbacks = Booking::findCompletedBookingsAwaitingFeedback($customerId);
+
+        // 2. Get customer's past feedback history
+        $feedbackHistory = Feedback::findCustomerFeedbackHistory($customerId);
+
+        $pageTitle = "My Feedback";
+        require_once __DIR__ . '/../Views/feedback/my_feedback.php';
+    }
     
     public function listAllFeedback() {
         if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['Admin', 'Staff'])) {

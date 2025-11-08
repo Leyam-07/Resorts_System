@@ -183,7 +183,8 @@ class Booking {
         $db = self::getDB();
         $stmt = $db->prepare(
             "SELECT b.*, r.Name as ResortName,
-                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames,
+                    (SELECT COUNT(*) FROM Feedback WHERE BookingID = b.BookingID) AS hasFeedback
              FROM Bookings b
              LEFT JOIN Resorts r ON b.ResortID = r.ResortID
              LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
@@ -1070,6 +1071,45 @@ class Booking {
         $db = self::getDB();
         $stmt = $db->prepare(
             "SELECT COUNT(*) FROM Bookings WHERE CustomerID = :customerId AND Status = 'Completed'"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Get completed bookings that are ready for feedback (not yet submitted).
+     */
+    public static function findCompletedBookingsAwaitingFeedback($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT b.*, r.Name as ResortName,
+                    GROUP_CONCAT(f.Name SEPARATOR ', ') as FacilityNames
+             FROM Bookings b
+             LEFT JOIN Resorts r ON b.ResortID = r.ResortID
+             LEFT JOIN BookingFacilities bf ON b.BookingID = bf.BookingID
+             LEFT JOIN Facilities f ON bf.FacilityID = f.FacilityID
+             WHERE b.CustomerID = :customerId
+               AND b.Status = 'Completed'
+               AND NOT EXISTS (SELECT 1 FROM Feedback WHERE BookingID = b.BookingID)
+             GROUP BY b.BookingID
+             ORDER BY b.BookingDate DESC"
+        );
+        $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    
+    /**
+     * Get count of completed bookings that are ready for feedback (not yet submitted).
+     */
+    public static function countBookingsAwaitingFeedback($customerId) {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) FROM Bookings b
+             WHERE b.CustomerID = :customerId
+               AND b.Status = 'Completed'
+               AND NOT EXISTS (SELECT 1 FROM Feedback WHERE BookingID = b.BookingID)"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();

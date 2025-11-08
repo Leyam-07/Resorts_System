@@ -6,6 +6,12 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../../app/Models/Booking.php';
 require_once __DIR__ . '/../../../app/Models/Payment.php';
 require_once __DIR__ . '/../../../app/Models/User.php';
+
+$pendingFeedbackCount = 0;
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
+    require_once __DIR__ . '/../../../app/Models/Feedback.php'; // Required for consistency, although Booking model handles count
+    $pendingFeedbackCount = Booking::countBookingsAwaitingFeedback($_SESSION['user_id']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -220,6 +226,11 @@ require_once __DIR__ . '/../../../app/Models/User.php';
                         <li class="nav-item">
                             <a class="nav-link" href="?controller=booking&action=showMyBookings">
                                 <i class="fas fa-calendar-check"></i> My Bookings<?php if ($confirmedBookingCount > 0): ?><span class="badge booking-count-badge bg-success text-white fw-semibold ms-1"><?php echo $confirmedBookingCount; ?></span><?php endif; ?>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="?controller=feedback&action=showMyFeedback">
+                                <i class="fas fa-comment-dots"></i> My Feedback<?php if ($pendingFeedbackCount > 0): ?><span class="badge booking-count-badge bg-danger text-white fw-semibold ms-1"><?php echo $pendingFeedbackCount; ?></span><?php endif; ?>
                             </a>
                         </li>
                     <?php endif; ?>
