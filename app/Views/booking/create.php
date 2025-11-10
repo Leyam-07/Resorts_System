@@ -32,7 +32,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
 <!-- Pricing Incomplete Notice -->
 <div class="alert alert-warning alert-dismissible fade show mb-4" id="pricingIncompleteNotice" style="display: none;">
     <h6 class="alert-heading mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Pricing Setup Incomplete</h6>
-    <p class="mb-2">This resort has not completed setting up prices yet. Please contact them directly to arrange your booking outside of this system.</p>
+    <p class="mb-2">This resort has not completed setting up prices yet. Please contact them directly to arrange your reservation outside of this system.</p>
     <p class="mb-1"><i class="fas fa-phone text-muted me-2"></i><strong>Phone:</strong> <span id="noticePhone"></span></p>
     <p class="mb-0"><i class="fas fa-envelope text-muted me-2"></i><strong>Email:</strong> <span id="noticeEmail"></span></p>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -228,7 +228,7 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             <div class="wizard-step" data-step="3">
                 <div class="step-header">
                     <h2><i class="fas fa-calendar-alt text-primary me-2"></i>Pick Your Date</h2>
-                    <p class="text-muted">Select your preferred booking date</p>
+                    <p class="text-muted">Select your preferred reservation date</p>
                 </div>
                 <div class="step-body">
                     <div class="calendar-section">
@@ -307,13 +307,13 @@ $selectedFacilityId = filter_input(INPUT_GET, 'facility_id', FILTER_VALIDATE_INT
             <!-- Step 5: Summary -->
             <div class="wizard-step" data-step="5">
                 <div class="step-header">
-                    <h2><i class="fas fa-receipt text-primary me-2"></i>Booking Summary</h2>
+                    <h2><i class="fas fa-receipt text-primary me-2"></i>Reservation Summary</h2>
                     <p class="text-muted">Review your reservation details</p>
                 </div>
                 <div class="step-body">
                     <div class="summary-container">
                         <div class="summary-section">
-                            <h5><i class="fas fa-info-circle text-primary me-2"></i>Booking Details</h5>
+                            <h5><i class="fas fa-info-circle text-primary me-2"></i>Reservation Details</h5>
                             <div class="summary-grid">
                                 <div class="summary-item">
                                     <span class="summary-label"><i class="fas fa-map-marker-alt me-2"></i>Resort:</span>
@@ -2432,7 +2432,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleGuestSubmit() {
-        const confirmation = confirm("You need to be logged in to complete the booking. Would you like to log in or register now?");
+        const confirmation = confirm("You need to be logged in to complete the reservation. Would you like to log in or register now?");
         if (confirmation) {
             const bookingDetails = {
                 resort_id: state.selectedResortId,
