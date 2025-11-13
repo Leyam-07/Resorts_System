@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.1] - 2025-11-13
+
+### Changed
+
+- **Admin Filters Enhancement:** Replaced the static 'Customer' dropdown menu with a real-time, client-side search bar on both administrative booking overview pages.
+- **Filter Reordering:** Reordered the filter elements to ensure consistency and logical flow: Resort, Booking Status, Payment Status, Customer Search, Month, Year.
+
+### Files Updated
+
+- `app/Views/admin/unified_booking_management.php`
+- `app/Views/admin/operational_reports.php`
+
 ## [1.51.0] - 2025-11-13
 
 ### Fixed

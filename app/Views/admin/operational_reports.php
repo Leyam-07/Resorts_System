@@ -30,18 +30,6 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
                         
                         <div class="col-lg-2 col-md-4">
-                            <label class="form-label">Customer</label>
-                            <select name="customer_id" class="form-select">
-                                <option value="">All Customers</option>
-                                <?php foreach ($customers as $customer): ?>
-                                    <option value="<?= $customer['UserID'] ?>" <?= (isset($_GET['customer_id']) && $_GET['customer_id'] == $customer['UserID']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($customer['Username']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
                             <label class="form-label">Booking Status</label>
                             <select name="status" class="form-select">
                                 <option value="">All</option>
@@ -60,6 +48,11 @@ require_once __DIR__ . '/../partials/header.php';
                                 <option value="Partial" <?= (isset($_GET['payment_status']) && $_GET['payment_status'] == 'Partial') ? 'selected' : '' ?>>Partial</option>
                                 <option value="Unpaid" <?= (isset($_GET['payment_status']) && $_GET['payment_status'] == 'Unpaid') ? 'selected' : '' ?>>Unpaid</option>
                             </select>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-4">
+                            <label class="form-label">Customer Search</label>
+                            <input type="text" name="customer_name_search" id="customerSearchInput" class="form-control" placeholder="Search customer name..." value="<?= htmlspecialchars($_GET['customer_name_search'] ?? '') ?>">
                         </div>
                         
                         <div class="col-lg-1 col-md-4">
@@ -241,6 +234,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetRow.classList.remove('table-info');
             }, 3000);
         }
+    }
+
+    // Real-time Customer Search Filter
+    const customerSearchInput = document.getElementById('customerSearchInput');
+    const bookingTableBody = document.querySelector('.table-hover tbody');
+
+    if (customerSearchInput && bookingTableBody) {
+        customerSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim().toLowerCase();
+            const rows = bookingTableBody.querySelectorAll('tr'); // Select all trs in the tbody
+
+            rows.forEach(row => {
+                // Customer name/email is in the 3rd td (index 2)
+                const customerCell = row.cells[2];
+                if (customerCell) {
+                    const customerText = customerCell.textContent.trim().toLowerCase();
+                    
+                    if (customerText.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        });
     }
 });
 </script>
