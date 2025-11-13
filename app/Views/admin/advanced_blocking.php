@@ -85,7 +85,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <p class="text-muted mb-0">Quick block multiple dates using preset rules</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="?controller=admin&action=applyPresetBlocking">
+                                            <form method="POST" action="?controller=admin&action=applyPresetBlocking" onsubmit="return confirm('Are you sure you want to apply this preset blocking?');">
                                                 <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
                                                 
                                                 <div class="row">
@@ -156,7 +156,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <p class="text-muted mb-0">Block individual dates manually</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="?controller=admin&action=blockResortAvailability">
+                                            <form method="POST" action="?controller=admin&action=blockResortAvailability" onsubmit="return confirm('Are you sure you want to block this date?');">
                                                 <input type="hidden" name="resortId" value="<?= $selectedResortId ?>">
                                                 <div class="row">
                                                     <div class="col-md-6">
@@ -190,7 +190,7 @@ require_once __DIR__ . '/../partials/header.php';
                                            <div class="mb-4">
                                                <h6 class="card-title mb-3 text-success"><i class="fas fa-calendar-days"></i> Deblock by Date Range</h6>
                                                <p class="text-muted small mb-3">Remove blocks for a specific range of dates</p>
-                                               <form method="POST" action="?controller=admin&action=deblockByDateRange">
+                                               <form method="POST" action="?controller=admin&action=deblockByDateRange" onsubmit="return confirm('Are you sure you want to deblock the selected date range?');">
                                                    <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
                                                    <div class="row">
                                                        <div class="col-md-6">
@@ -265,7 +265,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <p class="text-muted mb-0">Apply preset rules to one or more facilities</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="?controller=admin&action=applyFacilityPresetBlocking">
+                                            <form method="POST" action="?controller=admin&action=applyFacilityPresetBlocking" onsubmit="return confirm('Are you sure you want to apply this preset to the selected facilities? Please ensure you have selected at least one facility.');">
                                                 <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
                                                 <input type="hidden" name="tab" value="facility-blocking">
                                                 <div class="mb-3">
@@ -346,7 +346,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <p class="text-muted mb-0">Block an individual date for a specific facility</p>
                                         </div>
                                         <div class="card-body">
-                                            <form id="blockFacilityForm" action="?controller=admin&action=blockFacilityAvailability" method="POST">
+                                            <form id="blockFacilityForm" action="?controller=admin&action=blockFacilityAvailability" method="POST" onsubmit="return confirm('Are you sure you want to block this date for the selected facility?');">
                                                 <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
                                                 <input type="hidden" name="tab" value="facility-blocking">
                                                 <div class="row">
@@ -397,7 +397,7 @@ require_once __DIR__ . '/../partials/header.php';
                                             <div class="mb-4" id="deblockFacilityDateRangeContainer" style="display: none;">
                                                 <h6 class="card-title mb-3 text-success"><i class="fas fa-calendar-days"></i> Deblock by Date Range</h6>
                                                 <p class="text-muted small mb-3">Remove blocks for a specific range of dates from the selected facility</p>
-                                                <form method="POST" action="?controller=admin&action=deblockFacilityByDateRange" id="deblockFacilityDateRangeForm">
+                                                <form method="POST" action="?controller=admin&action=deblockFacilityByDateRange" id="deblockFacilityDateRangeForm" onsubmit="return confirm('Are you sure you want to deblock this date range for the selected facility?');">
                                                     <input type="hidden" name="resort_id" value="<?= $selectedResortId ?>">
                                                     <input type="hidden" name="tab" value="facility-blocking">
                                                     <input type="hidden" name="facility_id" id="deblockFacilityIdDateRange">

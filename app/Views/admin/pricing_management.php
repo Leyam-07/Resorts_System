@@ -102,11 +102,11 @@ require_once __DIR__ . '/../partials/header.php';
                             </div>
                         </div>
 
-                        <!-- Pricing Summary -->
+                        <!-- Pricing Status -->
                         <div class="col-lg-4">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5><i class="fas fa-calculator"></i> Pricing Summary</h5>
+                                    <h5><i class="fas fa-calculator"></i> Pricing Status</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -317,12 +317,12 @@ require_once __DIR__ . '/../partials/header.php';
                         </div>
                     </div>
 
-                    <!-- Pricing Examples -->
+                    <!-- Overview and Comparison -->
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5><i class="fas fa-receipt"></i> Pricing Examples</h5>
+                                    <h5><i class="fas fa-receipt"></i> Overview and Comparison</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
