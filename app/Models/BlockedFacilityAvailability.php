@@ -94,4 +94,14 @@ class BlockedFacilityAvailability {
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
     }
+
+    public static function clearOldBlocks() {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "DELETE FROM BlockedFacilityAvailability
+             WHERE BlockDate < CURDATE()"
+        );
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }

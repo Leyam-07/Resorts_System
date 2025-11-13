@@ -1380,6 +1380,10 @@ class AdminController {
         require_once __DIR__ . '/../Helpers/HolidayHelper.php';
         $holidays = HolidayHelper::getHolidays();
         
+        // Phase 6: Automatically clear old block dates for easier management
+        BlockedResortAvailability::clearOldBlocks();
+        BlockedFacilityAvailability::clearOldBlocks();
+
         require_once __DIR__ . '/../Views/admin/advanced_blocking.php';
     }
 

@@ -83,4 +83,14 @@ class BlockedResortAvailability {
         $stmt->execute();
         return $stmt->rowCount();
     }
+
+    public static function clearOldBlocks() {
+        $db = self::getDB();
+        $stmt = $db->prepare(
+            "DELETE FROM BlockedResortAvailability
+             WHERE BlockDate < CURDATE()"
+        );
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }
