@@ -49,12 +49,12 @@ class Feedback {
     public static function findAll($resortId = null) {
         $db = self::getDB();
         $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.UserID as CustomerID, u.Username as CustomerName,
-                         COALESCE(fac.Name, 'Overall Resort Experience') as FacilityName, r.Name as ResortName, b.ResortID,
+                         r.Name as ResortName, b.ResortID,
+                         (SELECT GROUP_CONCAT(fac.Name SEPARATOR ', ') FROM Facilities fac JOIN BookingFacilities bf ON fac.FacilityID = bf.FacilityID WHERE bf.BookingID = b.BookingID) as IncludedFacilities,
                          GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
                   FROM Feedback f
                   JOIN Bookings b ON f.BookingID = b.BookingID
                   JOIN Users u ON b.CustomerID = u.UserID
-                  LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
                   JOIN Resorts r ON b.ResortID = r.ResortID
                   LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID";
 
@@ -164,12 +164,11 @@ class Feedback {
        $db = self::getDB();
        $stmt = $db->prepare(
            "SELECT f.Rating, f.Comment, f.CreatedAt, u.UserID as CustomerID, u.Username as CustomerName,
-                   COALESCE(fac.Name, 'General Resort Experience') as FacilityName,
+                   (SELECT GROUP_CONCAT(fac.Name SEPARATOR ', ') FROM Facilities fac JOIN BookingFacilities bf ON fac.FacilityID = bf.FacilityID WHERE bf.BookingID = b.BookingID) as IncludedFacilities,
                    GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
             FROM Feedback f
             JOIN Bookings b ON f.BookingID = b.BookingID
             JOIN Users u ON b.CustomerID = u.UserID
-            LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
             LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID
             WHERE b.ResortID = :resortId
             GROUP BY f.FeedbackID

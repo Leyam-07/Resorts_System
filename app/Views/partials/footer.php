@@ -238,7 +238,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         let feedbackHtml = `<h5>Customer Reviews (${data.length})</h5>`;
                         data.forEach(review => {
                             const completedBookingsBadge = review.completedBookings > 0
-                                ? `<span class="badge bg-light text-dark ms-2"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
+                                ? `<span class="badge bg-light text-dark"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
+                                : '';
+                            const facilitiesBadge = review.IncludedFacilities
+                                ? `<span class="badge bg-info text-dark">${review.IncludedFacilities}</span>`
                                 : '';
                             let mediaHtml = '';
                             if (review.Media && review.Media.length > 0) {
@@ -255,7 +258,14 @@ document.addEventListener('DOMContentLoaded', function () {
                             feedbackHtml += `
                                 <div class="card mb-2">
                                     <div class="card-body">
-                                        <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="card-title mb-0">${review.CustomerName}</h6>
+                                            <span class="text-warning">${'⭐'.repeat(review.Rating)}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            ${facilitiesBadge}
+                                            ${completedBookingsBadge}
+                                        </div>
                                         <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                         ${mediaHtml}
                                         <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</small>

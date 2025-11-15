@@ -50,7 +50,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <th>Booking Date</th>
                                     <th>Customer</th>
                                     <th>Resort</th>
-                                    <th>Experience</th>
+                                    <th>Included Facilities</th>
                                     <th>Rating</th>
                                     <th>Comment</th>
                                     <th>Media</th>
@@ -67,7 +67,7 @@ require_once __DIR__ . '/../../partials/header.php';
                                             <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback['CustomerID']) ?> Completed Bookings)</small>
                                         </td>
                                         <td><strong><?= htmlspecialchars($feedback['ResortName']) ?></strong></td>
-                                        <td><?= htmlspecialchars($feedback['FacilityName']) ?></td>
+                                        <td><?= htmlspecialchars($feedback['IncludedFacilities'] ?? 'N/A') ?></td>
                                         <td>
                                             <div class="text-warning">
                                                 <?php for ($i = 1; $i <= 5; $i++): ?>

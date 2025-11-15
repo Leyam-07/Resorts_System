@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.6] - 2025-11-15
+
+### Enhanced
+
+- **Feedback Context:** Enhanced resort-level feedback display in the "View Details" modal and "View All Feedback" admin page to show a list of **Included Facilities** for that booking. This provides better context for the guest's rating and comment.
+- **UI/UX:** Improved the layout of feedback cards in the modal to stack facility and completed booking badges cleanly below the customer name.
+
+### Files Updated
+
+- `app/Models/Feedback.php`
+- `app/Views/partials/footer.php`
+- `app/Views/admin/feedback/index.php`
+
 ## [1.51.5] - 2025-11-15
 
 ### Enhanced
