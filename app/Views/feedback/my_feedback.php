@@ -77,7 +77,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <div class="card-header bg-light">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0 text-primary">Booking at <?= htmlspecialchars($feedback['ResortName']) ?> (<?= htmlspecialchars(date('F j, Y', strtotime($feedback['BookingDate']))) ?>)</h6>
-                                    <span class="badge bg-secondary">Submitted: <?= htmlspecialchars(date('M j, Y', strtotime($feedback['CreatedAt']))) ?></span>
+                                    <span class="badge bg-secondary">Submitted: <?= htmlspecialchars(date('F j, Y, g:i a', strtotime($feedback['CreatedAt']))) ?></span>
                                 </div>
                             </div>
                             <div class="card-body">

@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.54.0] - 2025-11-15
+## [1.51.5] - 2025-11-15
+
+### Enhanced
+
+- **Timestamp Precision:** Updated all feedback timestamps to include the exact time (e.g., "Nov 15, 2025, 10:30 AM") instead of just the date. This provides a more precise and consistent user experience across all feedback views, including the "My Feedbacks" page and the "View Details" modals on customer and admin dashboards.
+
+### Files Updated
+
+- `app/Views/partials/footer.php`
+- `app/Views/feedback/my_feedback.php`
+
+## [1.51.4] - 2025-11-15
 
 ### Fixed
 
@@ -16,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Controllers/AdminController.php`
 - `app/Models/Booking.php`
 
-## [1.53.0] - 2025-11-15
+## [1.51.3] - 2025-11-15
 
 ### Fixed
 
@@ -35,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/Views/feedback/my_feedback.php`
 - `.htaccess` (New File)
 
-## [1.52.0] - 2025-11-15
+## [1.51.2] - 2025-11-15
 
 ### Added
 

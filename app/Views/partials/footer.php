@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                         <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                         ${mediaHtml}
-                                        <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
+                                        <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</small>
                                     </div>
                                 </div>`;
                         });
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge}<span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                     <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
                                     ${mediaHtml}
-                                    <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
+                                    <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</small>
                                 </div>
                             </div>`;
                     });
