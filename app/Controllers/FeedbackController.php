@@ -13,25 +13,23 @@ class FeedbackController {
             exit;
         }
 
-        \ErrorHandler::log("SubmitFeedback received: " . json_encode($_POST), 'DEBUG');
-
         $bookingId = filter_input(INPUT_POST, 'bookingId', FILTER_VALIDATE_INT);
         $resortRating = filter_input(INPUT_POST, 'resort_rating', FILTER_VALIDATE_INT);
         $resortComment = filter_input(INPUT_POST, 'resort_comment', FILTER_SANITIZE_SPECIAL_CHARS);
         $facilitiesData = $_POST['facilities'] ?? [];
-
-        \ErrorHandler::log("Filtered data - bookingId: $bookingId, resortRating: $resortRating, facilitiesData: " . json_encode($facilitiesData), 'DEBUG');
+        $mediaFiles = $_FILES['media'] ?? [];
+        $redirectUrl = filter_input(INPUT_POST, 'redirect_url', FILTER_SANITIZE_URL) ?: '?controller=booking&action=showMyBookings';
 
         if (!$bookingId || !$resortRating) {
             $_SESSION['error_message'] = "A rating for the resort is required.";
-            header('Location: ?controller=booking&action=showMyBookings');
+            header('Location: ' . $redirectUrl);
             exit;
         }
 
         $booking = Booking::findById($bookingId);
         if (!$booking || $booking->customerId != $_SESSION['user_id']) {
             $_SESSION['error_message'] = "Invalid booking.";
-            header('Location: ?controller=booking&action=showMyBookings');
+            header('Location: ' . $redirectUrl);
             exit;
         }
 
@@ -40,7 +38,6 @@ class FeedbackController {
         $feedback->rating = $resortRating;
         $feedback->comment = $resortComment;
 
-        // Sanitize and prepare facility feedback data
         $facilityFeedbacks = [];
         if (!empty($facilitiesData)) {
             foreach ($facilitiesData as $facilityId => $data) {
@@ -52,13 +49,12 @@ class FeedbackController {
             }
         }
 
-        if (Feedback::createWithFacilities($feedback, $facilityFeedbacks)) {
+        if (Feedback::createWithFacilities($feedback, $facilityFeedbacks, $mediaFiles)) {
             $_SESSION['success_message'] = "Thank you for your feedback!";
-            header('Location: ?controller=booking&action=showMyBookings');
         } else {
             $_SESSION['error_message'] = "Failed to submit feedback. Please try again.";
-            header('Location: ?controller=booking&action=showMyBookings');
         }
+        header('Location: ' . $redirectUrl);
         exit;
     }
 

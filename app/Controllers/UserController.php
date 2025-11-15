@@ -119,13 +119,11 @@ class UserController {
        $feedbackRecords = Feedback::findByResortId($resortId);
 
        if ($feedbackRecords) {
-           $feedbackWithCounts = [];
-           foreach ($feedbackRecords as $record) {
-               $record->completedBookings = Booking::countCompletedBookingsByCustomer($record->CustomerID);
-               $feedbackWithCounts[] = $record;
+           foreach ($feedbackRecords as &$record) {
+               $record['completedBookings'] = Booking::countCompletedBookingsByCustomer($record['CustomerID']);
            }
            header('Content-Type: application/json');
-           echo json_encode($feedbackWithCounts);
+           echo json_encode($feedbackRecords);
        } else {
            // To ensure consistency, we'll return a 200 OK with an empty array
            // even if no feedback is found. This prevents the client-side

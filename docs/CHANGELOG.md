@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.0] - 2025-11-15
+
+### Fixed
+
+- **Database Lock Timeout:** Resolved critical `Lock wait timeout exceeded` error during feedback submission with media. File upload (slow I/O) is now performed _before_ the database transaction begins, ensuring fast transaction commits and preventing timeouts.
+- **Incorrect Redirection on Error:** Fixed a bug where feedback submission errors always redirected users to the "My Bookings" page. The controller now uses a dynamically passed `redirect_url` to return users to the correct originating page (My Bookings or My Feedback).
+
+### Enhanced
+
+- **Increased Media Upload Limit:** Increased the maximum allowed size for feedback media uploads from 10MB to **100MB** in application logic. Server-side limits were also updated via `.htaccess` to 128M.
+
+### Files Updated
+
+- `app/Models/Feedback.php`
+- `app/Controllers/FeedbackController.php`
+- `app/Views/booking/my_bookings.php`
+- `app/Views/feedback/my_feedback.php`
+- `.htaccess` (New File)
+
+## [1.52.0] - 2025-11-15
+
+### Added
+
+- **Feedback Media Uploads:** Customers can now upload images and videos with their feedback. The system validates files and associates them with the corresponding feedback entry.
+- **Media Display & Viewer:** Uploaded media is displayed as thumbnails in all feedback views (Customer, Admin, Modals). A modal has been added to allow users to view images and videos in a larger format.
+
+### Changed
+
+- **Database:** Added a `FeedbackMedia` table to store media information.
+- **Backend:** Updated `Feedback` model to handle media creation and retrieval. The `FeedbackController` was updated to process file uploads, and the `UserController` was updated to serve media data correctly.
+- **Frontend:** The customer feedback form now includes a multi-file input. All feedback display sections have been updated to render the associated images and videos.
+
+### Files Updated
+
+- `docs/Database-Schema.md`
+- `scripts/migrations/create_feedback_media_table.php`
+- `app/Models/FeedbackMedia.php`
+- `app/Models/Feedback.php`
+- `app/Controllers/FeedbackController.php`
+- `app/Controllers/UserController.php`
+- `app/Views/feedback/my_feedback.php`
+- `app/Views/admin/feedback/index.php`
+- `app/Views/partials/footer.php`
+
 ## [1.51.1] - 2025-11-13
 
 ### Changed

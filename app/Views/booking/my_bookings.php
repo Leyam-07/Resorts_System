@@ -161,8 +161,9 @@ require_once __DIR__ . '/../partials/header.php';
             </div>
             <div class="modal-body">
                 <p>Your feedback is important to us. Please rate your experience for your booking at <strong id="modalResortName"></strong> on <strong id="modalBookingDate"></strong>.</p>
-                <form id="feedbackForm" action="?controller=feedback&action=submitFeedback" method="POST">
+                <form id="feedbackForm" action="?controller=feedback&action=submitFeedback" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="bookingId" id="modalBookingId">
+                    <input type="hidden" name="redirect_url" value="?controller=booking&action=showMyBookings">
                     
                     <!-- Resort Feedback -->
                     <div class="feedback-section mb-4 p-3 border rounded bg-light">
@@ -180,6 +181,12 @@ require_once __DIR__ . '/../partials/header.php';
                             <label for="resort_comment" class="form-label"><strong>Comments (Optional)</strong></label>
                             <textarea class="form-control" id="resort_comment" name="resort_comment" rows="3" placeholder="Tell us more about your experience at the resort..."></textarea>
                         </div>
+                    </div>
+
+                    <!-- Media Upload -->
+                    <div class="mb-4">
+                        <label for="media" class="form-label"><strong>Upload Images or Videos (Optional)</strong></label>
+                        <input type="file" class="form-control" id="media" name="media[]" multiple accept="image/*,video/*">
                     </div>
 
                     <!-- Facility Feedback Section (Dynamically Populated) -->

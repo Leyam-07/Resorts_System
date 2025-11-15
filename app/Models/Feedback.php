@@ -49,12 +49,14 @@ class Feedback {
     public static function findAll($resortId = null) {
         $db = self::getDB();
         $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.UserID as CustomerID, u.Username as CustomerName,
-                         COALESCE(fac.Name, 'Overall Resort Experience') as FacilityName, r.Name as ResortName, b.ResortID
+                         COALESCE(fac.Name, 'Overall Resort Experience') as FacilityName, r.Name as ResortName, b.ResortID,
+                         GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
                   FROM Feedback f
                   JOIN Bookings b ON f.BookingID = b.BookingID
                   JOIN Users u ON b.CustomerID = u.UserID
                   LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
-                  JOIN Resorts r ON b.ResortID = r.ResortID";
+                  JOIN Resorts r ON b.ResortID = r.ResortID
+                  LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID";
 
         $conditions = [];
         $params = [];
@@ -68,26 +70,42 @@ class Feedback {
             $query .= " WHERE " . implode(" AND ", $conditions);
         }
 
-        $query .= " ORDER BY f.CreatedAt DESC";
+        $query .= " GROUP BY f.FeedbackID ORDER BY f.CreatedAt DESC";
 
         $stmt = $db->prepare($query);
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($results as &$result) {
+            $media = [];
+            if (!empty($result['Media'])) {
+                $items = explode('|||', $result['Media']);
+                foreach ($items as $item) {
+                    list($type, $url) = explode(':::', $item);
+                    $media[] = ['MediaType' => $type, 'MediaURL' => $url];
+                }
+            }
+            $result['Media'] = $media;
+        }
+
+        return $results;
     }
 
     public static function findAllFacilityFeedbacks($resortId = null) {
         $db = self::getDB();
         $query = "SELECT ff.FacilityFeedbackID, ff.FeedbackID, ff.FacilityID, ff.Rating, ff.Comment, ff.CreatedAt,
-                         u.UserID as CustomerID, u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID
+                         u.UserID as CustomerID, u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID,
+                         GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
                   FROM FacilityFeedback ff
                   JOIN Feedback f ON ff.FeedbackID = f.FeedbackID
                   JOIN Bookings b ON f.BookingID = b.BookingID
                   JOIN Users u ON b.CustomerID = u.UserID
                   JOIN Facilities fac ON ff.FacilityID = fac.FacilityID
-                  JOIN Resorts r ON b.ResortID = r.ResortID";
+                  JOIN Resorts r ON b.ResortID = r.ResortID
+                  LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID";
 
         $conditions = [];
         $params = [];
@@ -101,14 +119,28 @@ class Feedback {
             $query .= " WHERE " . implode(" AND ", $conditions);
         }
 
-        $query .= " ORDER BY ff.CreatedAt DESC";
+        $query .= " GROUP BY ff.FacilityFeedbackID ORDER BY ff.CreatedAt DESC";
 
         $stmt = $db->prepare($query);
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($results as &$result) {
+            $media = [];
+            if (!empty($result['Media'])) {
+                $items = explode('|||', $result['Media']);
+                foreach ($items as $item) {
+                    list($type, $url) = explode(':::', $item);
+                    $media[] = ['MediaType' => $type, 'MediaURL' => $url];
+                }
+            }
+            $result['Media'] = $media;
+        }
+
+        return $results;
     }
 
    public static function findByFacilityId($facilityId) {
@@ -131,76 +163,135 @@ class Feedback {
    public static function findByResortId($resortId) {
        $db = self::getDB();
        $stmt = $db->prepare(
-           "SELECT f.Rating, f.Comment, f.CreatedAt, u.UserID as CustomerID, u.Username as CustomerName, COALESCE(fac.Name, 'General Resort Experience') as FacilityName
+           "SELECT f.Rating, f.Comment, f.CreatedAt, u.UserID as CustomerID, u.Username as CustomerName,
+                   COALESCE(fac.Name, 'General Resort Experience') as FacilityName,
+                   GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
             FROM Feedback f
             JOIN Bookings b ON f.BookingID = b.BookingID
             JOIN Users u ON b.CustomerID = u.UserID
             LEFT JOIN Facilities fac ON b.FacilityID = fac.FacilityID
+            LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID
             WHERE b.ResortID = :resortId
+            GROUP BY f.FeedbackID
             ORDER BY f.CreatedAt DESC"
        );
        $stmt->bindValue(':resortId', $resortId, PDO::PARAM_INT);
        $stmt->execute();
-       return $stmt->fetchAll(PDO::FETCH_OBJ);
+       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+       foreach ($results as &$result) {
+           $media = [];
+           if (!empty($result['Media'])) {
+               $items = explode('|||', $result['Media']);
+               foreach ($items as $item) {
+                   list($type, $url) = explode(':::', $item);
+                   $media[] = ['MediaType' => $type, 'MediaURL' => $url];
+               }
+           }
+           $result['Media'] = $media;
+       }
+
+       return $results;
    }
-    public static function createWithFacilities(Feedback $feedback, $facilityFeedbacks = []) {
-        \ErrorHandler::log("Starting createWithFacilities with feedback: " . json_encode($feedback) . ", facilities: " . json_encode($facilityFeedbacks), 'DEBUG');
-
-        if (empty($facilityFeedbacks)) {
-            // No facilities, simple create
-            return self::create($feedback);
-        }
-
+    public static function createWithFacilities(Feedback $feedback, $facilityFeedbacks = [], $mediaFiles = []) {
         $db = self::getDB();
 
+        // Step 1: Process and save media files BEFORE the transaction
+        $processedMedia = [];
+        if (!empty($mediaFiles['tmp_name']) && is_array($mediaFiles['tmp_name'])) {
+            foreach ($mediaFiles['tmp_name'] as $key => $tmpName) {
+                if (empty($tmpName) || $mediaFiles['error'][$key] !== UPLOAD_ERR_OK) {
+                    continue;
+                }
+
+                $mediaFile = [
+                    'name' => $mediaFiles['name'][$key],
+                    'type' => $mediaFiles['type'][$key],
+                    'tmp_name' => $tmpName,
+                    'size' => $mediaFiles['size'][$key]
+                ];
+
+                // Validate file type and size
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm'];
+                if (!in_array($mediaFile['type'], $allowedTypes) || $mediaFile['size'] > 100000000) { // 100MB limit
+                    ErrorHandler::log("Feedback media validation failed for file: " . $mediaFile['name'], 'WARNING');
+                    continue; // Skip invalid file
+                }
+
+                $uploadDir = __DIR__ . '/../../public/uploads/feedback/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $fileName = uniqid() . '-' . basename($mediaFile['name']);
+                $targetFile = $uploadDir . $fileName;
+
+                if (move_uploaded_file($mediaFile['tmp_name'], $targetFile)) {
+                    $processedMedia[] = [
+                        'mediaURL' => 'public/uploads/feedback/' . $fileName,
+                        'mediaType' => strpos($mediaFile['type'], 'video') === 0 ? 'Video' : 'Image',
+                        'fullPath' => $targetFile
+                    ];
+                } else {
+                    ErrorHandler::log("Failed to move uploaded feedback media file: " . $mediaFile['name'], 'ERROR');
+                }
+            }
+        }
+
         try {
-            // Create main feedback first in its own transaction
             $db->beginTransaction();
-            $stmt = $db->prepare(
-                "INSERT INTO Feedback (BookingID, Rating, Comment)
-                 VALUES (:bookingId, :rating, :comment)"
-            );
+
+            // Step 2: Create main feedback entry
+            $stmt = $db->prepare("INSERT INTO Feedback (BookingID, Rating, Comment) VALUES (:bookingId, :rating, :comment)");
             $stmt->bindValue(':bookingId', $feedback->bookingId, PDO::PARAM_INT);
             $stmt->bindValue(':rating', $feedback->rating, PDO::PARAM_INT);
             $stmt->bindValue(':comment', $feedback->comment, PDO::PARAM_STR);
-
-            if (!$stmt->execute()) {
-                $db->rollBack();
-                throw new Exception("Failed to create main feedback entry.");
-            }
+            $stmt->execute();
             $feedbackId = $db->lastInsertId();
-            \ErrorHandler::log("Created main feedback with ID: $feedbackId", 'DEBUG');
-            $db->commit();
 
-            // Now create facility feedbacks individually (no transaction, as they are less critical)
-            require_once __DIR__ . '/FacilityFeedback.php';
-            $facilityErrors = [];
-            foreach ($facilityFeedbacks as $facilityData) {
-                \ErrorHandler::log("Processing facility feedback: " . json_encode($facilityData), 'DEBUG');
-                $facilityFeedback = new FacilityFeedback();
-                $facilityFeedback->feedbackId = $feedbackId;
-                $facilityFeedback->facilityId = $facilityData['id'];
-                $facilityFeedback->rating = $facilityData['rating'];
-                $facilityFeedback->comment = $facilityData['comment'];
-
-                if (!FacilityFeedback::create($facilityFeedback)) {
-                    $facilityErrors[] = "Failed to save feedback for facility ID " . $facilityData['id'];
-                    \ErrorHandler::log("Failed to create facility feedback for ID: " . $facilityData['id'], 'ERROR');
-                } else {
-                    \ErrorHandler::log("Created facility feedback for ID: " . $facilityData['id'], 'DEBUG');
+            // Step 3: Create facility feedback entries
+            if (!empty($facilityFeedbacks)) {
+                require_once __DIR__ . '/FacilityFeedback.php';
+                foreach ($facilityFeedbacks as $facilityData) {
+                    if (isset($facilityData['rating']) && !empty($facilityData['rating'])) {
+                        $facilityFeedback = new FacilityFeedback();
+                        $facilityFeedback->feedbackId = $feedbackId;
+                        $facilityFeedback->facilityId = $facilityData['id'];
+                        $facilityFeedback->rating = $facilityData['rating'];
+                        $facilityFeedback->comment = $facilityData['comment'];
+                        FacilityFeedback::create($facilityFeedback);
+                    }
                 }
             }
 
-            if (!empty($facilityErrors)) {
-                // Some facility feedbacks failed, but main feedback succeeded
-                \ErrorHandler::log("Main feedback created but some facility feedbacks failed: " . implode('; ', $facilityErrors), 'WARNING');
+            // Step 4: Insert media records into the database
+            if (!empty($processedMedia)) {
+                require_once __DIR__ . '/FeedbackMedia.php';
+                $stmt = $db->prepare(
+                    "INSERT INTO FeedbackMedia (FeedbackID, MediaType, MediaURL)
+                     VALUES (:feedbackId, :mediaType, :mediaURL)"
+                );
+                foreach ($processedMedia as $media) {
+                    $stmt->bindValue(':feedbackId', $feedbackId, PDO::PARAM_INT);
+                    $stmt->bindValue(':mediaType', $media['mediaType'], PDO::PARAM_STR);
+                    $stmt->bindValue(':mediaURL', $media['mediaURL'], PDO::PARAM_STR);
+                    $stmt->execute();
+                }
             }
 
-            \ErrorHandler::log("Feed back submission completed", 'INFO');
+            $db->commit();
             return $feedbackId;
         } catch (Exception $e) {
-            // If rollback happened, main feedback failed
-            \ErrorHandler::log("Feedback submission failed: " . $e->getMessage(), 'ERROR');
+            $db->rollBack();
+            
+            // Step 5: Cleanup - delete uploaded files if DB operations fail
+            foreach ($processedMedia as $media) {
+                if (file_exists($media['fullPath'])) {
+                    unlink($media['fullPath']);
+                }
+            }
+
+            ErrorHandler::log("Feedback submission failed: " . $e->getMessage(), 'ERROR');
             return false;
         }
     }
@@ -212,44 +303,47 @@ class Feedback {
         $db = self::getDB();
         $stmt = $db->prepare(
             "SELECT
-                f.FeedbackID,
-                f.BookingID,
-                f.Rating AS ResortRating,
-                f.Comment AS ResortComment,
-                f.CreatedAt,
-                r.Name AS ResortName,
-                b.BookingDate,
-                GROUP_CONCAT(
-                    CONCAT(
-                        '{\"FacilityName\": \"', fac.Name, '\", ',
-                        '\"Rating\": ', ff.Rating, ', ',
-                        '\"Comment\": \"', REPLACE(ff.Comment, '\"', '\\\"'), '\"}'
-                    ) SEPARATOR '|||'
-                ) AS FacilityFeedbackJson
+                f.FeedbackID, f.BookingID, f.Rating AS ResortRating, f.Comment AS ResortComment, f.CreatedAt,
+                r.Name AS ResortName, b.BookingDate,
+                GROUP_CONCAT(DISTINCT CONCAT(fac.Name, ':::', ff.Rating, ':::', ff.Comment) SEPARATOR '|||') AS FacilityFeedbacks,
+                GROUP_CONCAT(DISTINCT CONCAT(fm.MediaType, ':::', fm.MediaURL) SEPARATOR '|||') AS Media
              FROM Feedback f
              JOIN Bookings b ON f.BookingID = b.BookingID
              JOIN Resorts r ON b.ResortID = r.ResortID
              LEFT JOIN FacilityFeedback ff ON f.FeedbackID = ff.FeedbackID
              LEFT JOIN Facilities fac ON ff.FacilityID = fac.FacilityID
+             LEFT JOIN FeedbackMedia fm ON f.FeedbackID = fm.FeedbackID
              WHERE b.CustomerID = :customerId
              GROUP BY f.FeedbackID
              ORDER BY f.CreatedAt DESC"
         );
         $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();
-        
-        $results = $stmt->fetchAll(PDO::FETCH_OBJ);
-        
-        // Post-process the FacilityFeedbackJson column
-        foreach ($results as $result) {
-            $result->FacilityFeedbacks = [];
-            if (!empty($result->FacilityFeedbackJson)) {
-                $rawFeedbacks = explode('|||', $result->FacilityFeedbackJson);
-                foreach ($rawFeedbacks as $rawFeedback) {
-                    $result->FacilityFeedbacks[] = json_decode($rawFeedback);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Process results to structure the data
+        foreach ($results as &$result) {
+            // Process facility feedback
+            $facilityFeedbacks = [];
+            if (!empty($result['FacilityFeedbacks'])) {
+                $items = explode('|||', $result['FacilityFeedbacks']);
+                foreach ($items as $item) {
+                    list($name, $rating, $comment) = explode(':::', $item);
+                    $facilityFeedbacks[] = ['FacilityName' => $name, 'Rating' => $rating, 'Comment' => $comment];
                 }
             }
-            unset($result->FacilityFeedbackJson);
+            $result['FacilityFeedbacks'] = $facilityFeedbacks;
+
+            // Process media
+            $media = [];
+            if (!empty($result['Media'])) {
+                $items = explode('|||', $result['Media']);
+                foreach ($items as $item) {
+                    list($type, $url) = explode(':::', $item);
+                    $media[] = ['MediaType' => $type, 'MediaURL' => $url];
+                }
+            }
+            $result['Media'] = $media;
         }
 
         return $results;

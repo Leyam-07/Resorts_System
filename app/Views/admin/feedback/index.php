@@ -53,24 +53,25 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <th>Experience</th>
                                     <th>Rating</th>
                                     <th>Comment</th>
+                                    <th>Media</th>
                                     <th>Submitted At</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($resortFeedbacks as $feedback): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback->BookingDate))) ?></td>
+                                        <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback['BookingDate']))) ?></td>
                                         <td>
-                                            <?= htmlspecialchars($feedback->CustomerName) ?>
+                                            <?= htmlspecialchars($feedback['CustomerName']) ?>
                                             <br>
-                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback->CustomerID) ?> Completed Bookings)</small>
+                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback['CustomerID']) ?> Completed Bookings)</small>
                                         </td>
-                                        <td><strong><?= htmlspecialchars($feedback->ResortName) ?></strong></td>
-                                        <td><?= htmlspecialchars($feedback->FacilityName) ?></td>
+                                        <td><strong><?= htmlspecialchars($feedback['ResortName']) ?></strong></td>
+                                        <td><?= htmlspecialchars($feedback['FacilityName']) ?></td>
                                         <td>
                                             <div class="text-warning">
                                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <?php if ($i <= $feedback->Rating): ?>
+                                                    <?php if ($i <= $feedback['Rating']): ?>
                                                         &#9733;
                                                     <?php else: ?>
                                                         &#9734;
@@ -78,8 +79,21 @@ require_once __DIR__ . '/../../partials/header.php';
                                                 <?php endfor; ?>
                                             </div>
                                         </td>
-                                        <td><?= nl2br(htmlspecialchars($feedback->Comment)) ?></td>
-                                        <td><?= htmlspecialchars(date('F j, Y, g:i a', strtotime($feedback->CreatedAt))) ?></td>
+                                        <td><?= nl2br(htmlspecialchars($feedback['Comment'])) ?></td>
+                                        <td>
+                                            <?php if (!empty($feedback['Media'])): ?>
+                                                <?php foreach ($feedback['Media'] as $media): ?>
+                                                    <?php if ($media['MediaType'] === 'Image'): ?>
+                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" data-media-type="Image">
+                                                    <?php elseif ($media['MediaType'] === 'Video'): ?>
+                                                        <video controls class="img-thumbnail" style="max-width: 100px;">
+                                                            <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" type="video/mp4">
+                                                        </video>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= htmlspecialchars(date('F j, Y, g:i a', strtotime($feedback['CreatedAt']))) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -104,24 +118,25 @@ require_once __DIR__ . '/../../partials/header.php';
                                     <th>Facility</th>
                                     <th>Rating</th>
                                     <th>Comment</th>
+                                    <th>Media</th>
                                     <th>Submitted At</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($facilityFeedbacks as $feedback): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback->BookingDate))) ?></td>
+                                        <td><?= htmlspecialchars(date('F j, Y', strtotime($feedback['BookingDate']))) ?></td>
                                         <td>
-                                            <?= htmlspecialchars($feedback->CustomerName) ?>
+                                            <?= htmlspecialchars($feedback['CustomerName']) ?>
                                             <br>
-                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback->CustomerID) ?> Completed Bookings)</small>
+                                            <small class="text-muted">(<?= Booking::countCompletedBookingsByCustomer($feedback['CustomerID']) ?> Completed Bookings)</small>
                                         </td>
-                                        <td><strong><?= htmlspecialchars($feedback->ResortName) ?></strong></td>
-                                        <td><?= htmlspecialchars($feedback->FacilityName) ?></td>
+                                        <td><strong><?= htmlspecialchars($feedback['ResortName']) ?></strong></td>
+                                        <td><?= htmlspecialchars($feedback['FacilityName']) ?></td>
                                         <td>
                                             <div class="text-warning">
                                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <?php if ($i <= $feedback->Rating): ?>
+                                                    <?php if ($i <= $feedback['Rating']): ?>
                                                         &#9733;
                                                     <?php else: ?>
                                                         &#9734;
@@ -129,8 +144,21 @@ require_once __DIR__ . '/../../partials/header.php';
                                                 <?php endfor; ?>
                                             </div>
                                         </td>
-                                        <td><?= nl2br(htmlspecialchars($feedback->Comment)) ?></td>
-                                        <td><?= htmlspecialchars(date('F j, Y, g:i a', strtotime($feedback->CreatedAt))) ?></td>
+                                        <td><?= nl2br(htmlspecialchars($feedback['Comment'])) ?></td>
+                                        <td>
+                                            <?php if (!empty($feedback['Media'])): ?>
+                                                <?php foreach ($feedback['Media'] as $media): ?>
+                                                    <?php if ($media['MediaType'] === 'Image'): ?>
+                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" data-media-type="Image">
+                                                    <?php elseif ($media['MediaType'] === 'Video'): ?>
+                                                        <video controls class="img-thumbnail" style="max-width: 100px;">
+                                                            <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" type="video/mp4">
+                                                        </video>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= htmlspecialchars(date('F j, Y, g:i a', strtotime($feedback['CreatedAt']))) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -141,5 +169,40 @@ require_once __DIR__ . '/../../partials/header.php';
         </div>
     </div>
 </div>
+
+<!-- Media Modal -->
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">View Media</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="mediaModalBody">
+                <!-- Media will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var mediaModal = document.getElementById('mediaModal');
+    if (mediaModal) {
+        mediaModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var mediaUrl = button.getAttribute('data-media-url');
+            var mediaType = button.getAttribute('data-media-type');
+            var modalBody = mediaModal.querySelector('#mediaModalBody');
+
+            if (mediaType === 'Image') {
+                modalBody.innerHTML = `<img src="${mediaUrl}" class="img-fluid" alt="Feedback Media">`;
+            } else if (mediaType === 'Video') {
+                modalBody.innerHTML = `<video src="${mediaUrl}" class="img-fluid" controls autoplay></video>`;
+            }
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/../../partials/footer.php'; ?>

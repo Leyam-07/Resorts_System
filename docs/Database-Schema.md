@@ -363,3 +363,20 @@ CREATE TABLE IF NOT EXISTS `FacilityFeedback` (
 ```
 
 ---
+
+### Table: `FeedbackMedia`
+
+Stores uploaded images and videos associated with a feedback entry.
+
+```sql
+CREATE TABLE IF NOT EXISTS `FeedbackMedia` (
+  `MediaID` INT PRIMARY KEY AUTO_INCREMENT,
+  `FeedbackID` INT,
+  `MediaType` ENUM('Image', 'Video') NOT NULL,
+  `MediaURL` VARCHAR(255) NOT NULL,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`FeedbackID`) REFERENCES `Feedback`(`FeedbackID`) ON DELETE CASCADE
+);
+```
+
+---

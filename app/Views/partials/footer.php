@@ -240,11 +240,24 @@ document.addEventListener('DOMContentLoaded', function () {
                             const completedBookingsBadge = review.completedBookings > 0
                                 ? `<span class="badge bg-light text-dark ms-2"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
                                 : '';
+                            let mediaHtml = '';
+                            if (review.Media && review.Media.length > 0) {
+                                mediaHtml += '<div class="feedback-media mt-2">';
+                                review.Media.forEach(media => {
+                                    if (media.MediaType === 'Image') {
+                                        mediaHtml += `<img src="${BASE_URL}/${media.MediaURL}" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="${BASE_URL}/${media.MediaURL}" data-media-type="Image">`;
+                                    } else if (media.MediaType === 'Video') {
+                                        mediaHtml += `<video controls class="img-thumbnail" style="max-width: 100px;"><source src="${BASE_URL}/${media.MediaURL}" type="video/mp4"></video>`;
+                                    }
+                                });
+                                mediaHtml += '</div>';
+                            }
                             feedbackHtml += `
                                 <div class="card mb-2">
                                     <div class="card-body">
                                         <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge} <span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                         <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
+                                        ${mediaHtml}
                                         <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                     </div>
                                 </div>`;
@@ -371,11 +384,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         const completedBookingsBadge = review.completedBookings > 0
                             ? `<span class="badge bg-light text-dark ms-2"><i class="fas fa-check-circle"></i> ${review.completedBookings} Completed Bookings</span>`
                             : '';
+                        let mediaHtml = '';
+                        if (review.Media && review.Media.length > 0) {
+                            mediaHtml += '<div class="feedback-media mt-2">';
+                            review.Media.forEach(media => {
+                                if (media.MediaType === 'Image') {
+                                    mediaHtml += `<img src="${BASE_URL}/${media.MediaURL}" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="${BASE_URL}/${media.MediaURL}" data-media-type="Image">`;
+                                } else if (media.MediaType === 'Video') {
+                                    mediaHtml += `<video controls class="img-thumbnail" style="max-width: 100px;"><source src="${BASE_URL}/${media.MediaURL}" type="video/mp4"></video>`;
+                                }
+                            });
+                            mediaHtml += '</div>';
+                        }
                         feedbackHtml += `
                             <div class="card mb-2">
                                 <div class="card-body">
                                     <h6 class="card-title">${review.CustomerName} ${completedBookingsBadge}<span class="text-warning float-end">${'⭐'.repeat(review.Rating)}</span></h6>
                                     <p class="card-text">${review.Comment || '<em>No comment provided.</em>'}</p>
+                                    ${mediaHtml}
                                     <small class="text-muted">Posted on ${new Date(review.CreatedAt).toLocaleDateString()}</small>
                                 </div>
                             </div>`;
