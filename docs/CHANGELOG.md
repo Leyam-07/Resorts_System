@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.54.0] - 2025-11-15
+
+### Fixed
+
+- **Facility Data Loss on Status Update:** Resolved a critical bug where updating a booking's status via the "Update Booking" modal resulted in the loss of all associated facility data. The system now checks if facility data is explicitly submitted in the request and preserves existing facilities if only the status is changed.
+
+### Files Updated
+
+- `app/Controllers/AdminController.php`
+- `app/Models/Booking.php`
+
 ## [1.53.0] - 2025-11-15
 
 ### Fixed

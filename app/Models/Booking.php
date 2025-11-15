@@ -820,16 +820,17 @@ class Booking {
                 BookingAuditTrail::logStatusChange($bookingId, $adminUserId, $oldStatus, $updateData['status'], 'Admin booking modification');
             }
 
-            // 2. Update Facilities
-            $originalFacilityIds = BookingFacilities::getFacilityIds($bookingId);
-            $newFacilityIds = $updateData['facility_ids'];
-            // Sort to ensure consistent comparison
-            sort($originalFacilityIds);
-            sort($newFacilityIds);
+            // 2. Update Facilities (only if facility_ids is provided)
+            if (isset($updateData['facility_ids']) && $updateData['facility_ids'] !== null) {
+                $originalFacilityIds = BookingFacilities::getFacilityIds($bookingId);
+                $newFacilityIds = $updateData['facility_ids'];
+                // Sort to ensure consistent comparison
+                sort($originalFacilityIds);
+                sort($newFacilityIds);
 
-            if ($originalFacilityIds !== $newFacilityIds) {
-                // Get facility names for audit trail
-                require_once __DIR__ . '/Facility.php';
+                if ($originalFacilityIds !== $newFacilityIds) {
+                    // Get facility names for audit trail
+                    require_once __DIR__ . '/Facility.php';
                 $originalNames = [];
                 foreach ($originalFacilityIds as $facilityId) {
                     $facility = Facility::findById($facilityId);
@@ -848,18 +849,17 @@ class Booking {
                 }
                 $newFacilitiesStr = implode(', ', $newNames);
 
-                BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds, $db);
-                BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'Admin facility modification');
-            }
-
-            // 3. Recalculate Totals (if facilities changed)
-            if ($originalFacilityIds !== $newFacilityIds) {
-                $oldTotalAmount = $originalBooking->totalAmount;
-                $oldRemainingBalance = $originalBooking->remainingBalance;
-                $totalsResult = self::recalculateBookingTotals($bookingId);
-                BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'TotalAmount', $oldTotalAmount, $totalsResult['totalAmount'], 'Recalculated due to facility changes');
-                if ($oldRemainingBalance !== $totalsResult['remainingBalance']) {
-                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $totalsResult['remainingBalance'], 'Recalculated due to facility changes');
+                    BookingFacilities::updateBookingFacilities($bookingId, $newFacilityIds, $db);
+                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'Facilities', $originalFacilitiesStr, $newFacilitiesStr, 'Admin facility modification');
+                
+                    // 3. Recalculate Totals (only if facilities changed)
+                    $oldTotalAmount = $originalBooking->totalAmount;
+                    $oldRemainingBalance = $originalBooking->remainingBalance;
+                    $totalsResult = self::recalculateBookingTotals($bookingId);
+                    BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'TotalAmount', $oldTotalAmount, $totalsResult['totalAmount'], 'Recalculated due to facility changes');
+                    if ($oldRemainingBalance !== $totalsResult['remainingBalance']) {
+                        BookingAuditTrail::logChange($bookingId, $adminUserId, 'UPDATE', 'RemainingBalance', $oldRemainingBalance, $totalsResult['remainingBalance'], 'Recalculated due to facility changes');
+                    }
                 }
             }
 

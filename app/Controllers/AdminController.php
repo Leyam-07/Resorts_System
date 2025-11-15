@@ -2051,9 +2051,10 @@ class AdminController {
         $resortId = filter_input(INPUT_POST, 'resort_id', FILTER_VALIDATE_INT);
         $bookingStatus = filter_input(INPUT_POST, 'booking_status', FILTER_UNSAFE_RAW);
         
-        // Facility IDs will be an array
-        $facilityIds = $_POST['facilities'] ?? [];
-        
+        // Facility IDs will be an array. Check if it's submitted.
+        // If 'facilities' is not in the POST data, we should not update them.
+        $facilityIds = isset($_POST['facilities']) ? $_POST['facilities'] : null;
+
         $paymentAmount = filter_input(INPUT_POST, 'payment_amount', FILTER_VALIDATE_FLOAT);
         $paymentMethod = filter_input(INPUT_POST, 'payment_method', FILTER_UNSAFE_RAW);
         
@@ -2068,6 +2069,7 @@ class AdminController {
         $updateData = [
             'booking_id' => $bookingId,
             'status' => $bookingStatus,
+            // Pass facility IDs only if they were submitted
             'facility_ids' => $facilityIds
         ];
 
