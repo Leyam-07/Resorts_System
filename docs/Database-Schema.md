@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS `Resorts` (
   `ContactPerson` VARCHAR(255),
   `ShortDescription` TEXT,
   `FullDescription` TEXT,
-  `MainPhotoURL` VARCHAR(255)
+  `MainPhotoURL` VARCHAR(255),
+  `GoogleMapsLink` TEXT NULL
 );
 ```
 
@@ -179,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `Payments` (
   `PaymentID` INT PRIMARY KEY AUTO_INCREMENT,
   `BookingID` INT,
   `Amount` DECIMAL(10, 2) NOT NULL,
-  `PaymentMethod` ENUM('GCash', 'Maya', 'Cash', 'On-Site Payment') NOT NULL,
+  `PaymentMethod` ENUM('GCash', 'Maya', 'Cash') NOT NULL,
   `PaymentDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `Status` ENUM('Paid', 'Unpaid', 'Partial') NOT NULL,
   `ProofOfPaymentURL` VARCHAR(255),
