@@ -82,13 +82,31 @@ require_once __DIR__ . '/../../partials/header.php';
                                         <td><?= nl2br(htmlspecialchars($feedback['Comment'])) ?></td>
                                         <td>
                                             <?php if (!empty($feedback['Media'])): ?>
-                                                <?php foreach ($feedback['Media'] as $media): ?>
+                                                <?php
+                                                $mediaJson = htmlspecialchars(json_encode($feedback['Media']), ENT_QUOTES, 'UTF-8');
+                                                ?>
+                                                <?php foreach ($feedback['Media'] as $index => $media): ?>
                                                     <?php if ($media['MediaType'] === 'Image'): ?>
-                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" data-media-type="Image">
+                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>"
+                                                             alt="Feedback Image"
+                                                             class="img-thumbnail gallery-item"
+                                                             style="max-width: 100px; cursor: pointer;"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#mediaModal"
+                                                             data-media='<?= $mediaJson ?>'
+                                                             data-start-index="<?= $index ?>">
                                                     <?php elseif ($media['MediaType'] === 'Video'): ?>
-                                                        <video controls class="img-thumbnail" style="max-width: 100px;">
-                                                            <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" type="video/mp4">
-                                                        </video>
+                                                        <div class="video-thumbnail-wrapper"
+                                                             style="display: inline-block; max-width: 100px; cursor: pointer; position: relative;"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#mediaModal"
+                                                             data-media='<?= $mediaJson ?>'
+                                                             data-start-index="<?= $index ?>">
+                                                            <video class="img-thumbnail">
+                                                                <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>#t=0.5" type="video/mp4">
+                                                            </video>
+                                                            <i class="fas fa-play-circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; color: rgba(255,255,255,0.8);"></i>
+                                                        </div>
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -147,13 +165,31 @@ require_once __DIR__ . '/../../partials/header.php';
                                         <td><?= nl2br(htmlspecialchars($feedback['Comment'])) ?></td>
                                         <td>
                                             <?php if (!empty($feedback['Media'])): ?>
-                                                <?php foreach ($feedback['Media'] as $media): ?>
+                                                <?php
+                                                $mediaJson = htmlspecialchars(json_encode($feedback['Media']), ENT_QUOTES, 'UTF-8');
+                                                ?>
+                                                <?php foreach ($feedback['Media'] as $index => $media): ?>
                                                     <?php if ($media['MediaType'] === 'Image'): ?>
-                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" alt="Feedback Image" class="img-thumbnail" style="max-width: 100px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" data-media-type="Image">
+                                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>"
+                                                             alt="Feedback Image"
+                                                             class="img-thumbnail gallery-item"
+                                                             style="max-width: 100px; cursor: pointer;"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#mediaModal"
+                                                             data-media='<?= $mediaJson ?>'
+                                                             data-start-index="<?= $index ?>">
                                                     <?php elseif ($media['MediaType'] === 'Video'): ?>
-                                                        <video controls class="img-thumbnail" style="max-width: 100px;">
-                                                            <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>" type="video/mp4">
-                                                        </video>
+                                                        <div class="video-thumbnail-wrapper"
+                                                             style="display: inline-block; max-width: 100px; cursor: pointer; position: relative;"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#mediaModal"
+                                                             data-media='<?= $mediaJson ?>'
+                                                             data-start-index="<?= $index ?>">
+                                                            <video class="img-thumbnail">
+                                                                <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>#t=0.5" type="video/mp4">
+                                                            </video>
+                                                            <i class="fas fa-play-circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; color: rgba(255,255,255,0.8);"></i>
+                                                        </div>
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -170,39 +206,138 @@ require_once __DIR__ . '/../../partials/header.php';
     </div>
 </div>
 
-<!-- Media Modal -->
+<!-- Media Gallery Modal -->
 <div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="mediaModalLabel">View Media</h5>
+                <h5 class="modal-title" id="mediaModalLabel">Feedback Gallery</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center" id="mediaModalBody">
-                <!-- Media will be loaded here -->
+            <div class="modal-body text-center">
+                <div id="galleryCarousel" class="carousel slide" data-bs-interval="false">
+                    <div class="carousel-inner" id="galleryCarouselInner">
+                        <!-- Carousel items will be injected here -->
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div id="galleryThumbnails" class="mt-3 d-flex justify-content-center flex-wrap">
+                    <!-- Thumbnails will be injected here -->
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var mediaModal = document.getElementById('mediaModal');
-    if (mediaModal) {
-        mediaModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var mediaUrl = button.getAttribute('data-media-url');
-            var mediaType = button.getAttribute('data-media-type');
-            var modalBody = mediaModal.querySelector('#mediaModalBody');
-
-            if (mediaType === 'Image') {
-                modalBody.innerHTML = `<img src="${mediaUrl}" class="img-fluid" alt="Feedback Media">`;
-            } else if (mediaType === 'Video') {
-                modalBody.innerHTML = `<video src="${mediaUrl}" class="img-fluid" controls autoplay></video>`;
-            }
-        });
+<style>
+    .gallery-thumbnail.active {
+        border: 3px solid #0d6efd; /* Primary Bootstrap Blue */
+        transform: scale(1.1);
+        opacity: 1;
     }
-});
+    .gallery-thumbnail {
+        transition: all 0.2s ease-in-out;
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    const BASE_URL = '<?= BASE_URL ?>'; // Ensure BASE_URL is available in JS
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        // Media Gallery Modal Handler
+        const mediaModal = document.getElementById('mediaModal');
+        if (mediaModal) {
+            const carouselInner = mediaModal.querySelector('#galleryCarouselInner');
+            const thumbnailsContainer = mediaModal.querySelector('#galleryThumbnails');
+            
+            // Use a function to initialize the carousel manually
+            const getCarouselInstance = () => {
+                 return bootstrap.Carousel.getInstance(document.getElementById('galleryCarousel')) || new bootstrap.Carousel(document.getElementById('galleryCarousel'), { interval: false, ride: false });
+            };
+
+            mediaModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const mediaJson = button.getAttribute('data-media');
+                const startIndex = parseInt(button.getAttribute('data-start-index'), 10);
+                const mediaItems = JSON.parse(mediaJson);
+
+                // Clear previous content
+                carouselInner.innerHTML = '';
+                thumbnailsContainer.innerHTML = '';
+
+                mediaItems.forEach((item, index) => {
+                    // Create carousel item
+                    const carouselItem = document.createElement('div');
+                    carouselItem.className = `carousel-item ${index === startIndex ? 'active' : ''}`;
+                    
+                    if (item.MediaType === 'Image') {
+                        carouselItem.innerHTML = `<img src="${BASE_URL}/${item.MediaURL}" class="d-block w-100" style="max-height: 70vh; object-fit: contain;" alt="Feedback Image">`;
+                    } else if (item.MediaType === 'Video') {
+                        carouselItem.innerHTML = `<video class="d-block w-100" style="max-height: 70vh;" controls ${index === startIndex ? 'autoplay' : ''}><source src="${BASE_URL}/${item.MediaURL}" type="video/mp4">Your browser does not support the video tag.</video>`;
+                    }
+                    carouselInner.appendChild(carouselItem);
+
+                    // Create thumbnail
+                    const thumbnail = document.createElement('img');
+                    thumbnail.src = item.MediaType === 'Image' ? `${BASE_URL}/${item.MediaURL}` : 'assets/img/video_placeholder.png'; // Placeholder for video
+                    thumbnail.className = `img-thumbnail gallery-thumbnail m-1 ${index === startIndex ? 'active' : ''}`;
+                    thumbnail.style.width = '80px';
+                    thumbnail.style.height = '60px';
+                    thumbnail.style.objectFit = 'cover';
+                    thumbnail.style.cursor = 'pointer';
+                    thumbnail.setAttribute('data-bs-target', '#galleryCarousel');
+                    thumbnail.setAttribute('data-bs-slide-to', index);
+                    thumbnailsContainer.appendChild(thumbnail);
+                });
+                
+                // Initialize or update carousel
+                const carouselInstance = getCarouselInstance();
+                carouselInstance.to(startIndex);
+
+                // Handle thumbnail clicks
+                thumbnailsContainer.querySelectorAll('.gallery-thumbnail').forEach(thumb => {
+                    thumb.addEventListener('click', function() {
+                        const slideTo = parseInt(this.getAttribute('data-bs-slide-to'), 10);
+                        getCarouselInstance().to(slideTo);
+                    });
+                });
+            });
+
+            // Pause videos when modal is closed or slide changes
+            mediaModal.addEventListener('hidden.bs.modal', function () {
+                mediaModal.querySelectorAll('video').forEach(video => video.pause());
+            });
+
+            const galleryCarousel = document.getElementById('galleryCarousel');
+            galleryCarousel.addEventListener('slide.bs.carousel', function (e) {
+                // Pause any playing video in the current slide
+                const currentSlide = carouselInner.children[e.from];
+                if (currentSlide) {
+                    const video = currentSlide.querySelector('video');
+                    if (video) video.pause();
+                }
+                // Autoplay video in the new slide
+                const nextSlide = carouselInner.children[e.to];
+                if (nextSlide) {
+                    const video = nextSlide.querySelector('video');
+                    if (video) video.play();
+                }
+
+                // Update active thumbnail
+                const currentActive = thumbnailsContainer.querySelector('.active');
+                if(currentActive) currentActive.classList.remove('active');
+                thumbnailsContainer.children[e.to].classList.add('active');
+            });
+        }
+    });
 </script>
 
 <?php require_once __DIR__ . '/../../partials/footer.php'; ?>

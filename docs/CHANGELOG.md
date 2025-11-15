@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.7] - 2025-11-15
+
+### Enhanced
+
+- **Media Gallery Implementation:** Overhauled the feedback media viewer on both the customer's **My Feedback** page and the admin's **View All Feedback** page. Media items now open a single, interactive gallery modal (Bootstrap Carousel) instead of separate modals for each image/video.
+- **UI/UX:** Implemented user-friendly gallery controls (next/previous) and a dynamic thumbnail strip at the bottom that updates to show the current media item.
+- **Gallery Fixes:** Removed carousel auto-cycling, switched the modal to a compact, white theme, and added a prominent blue border/scale effect to clearly distinguish the active thumbnail.
+
+### Files Updated
+
+- `app/Views/feedback/my_feedback.php`
+- `app/Views/admin/feedback/index.php`
+
 ## [1.51.6] - 2025-11-15
 
 ### Enhanced
