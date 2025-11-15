@@ -105,18 +105,22 @@ require_once __DIR__ . '/../partials/header.php';
                                                <img src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>"
                                                     alt="Feedback Image"
                                                     class="img-thumbnail gallery-item"
-                                                    style="max-width: 150px; cursor: pointer;"
+                                                    style="max-width: 150px; height: 110px; object-fit: cover; cursor: pointer;"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#mediaModal"
                                                     data-media='<?= $mediaJson ?>'
-                                                    data-start-index="<?= $index ?>">
+                                                    data-start-index="<?= $index ?>"
+                                                    data-gallery-title="Feedback at <?= htmlspecialchars($feedback['ResortName']) ?>"
+                                                    data-gallery-subtitle="<?= str_repeat('⭐', $feedback['ResortRating']) ?> - <?= htmlspecialchars(date('F j, Y', strtotime($feedback['BookingDate']))) ?>">
                                            <?php elseif ($media['MediaType'] === 'Video'): ?>
                                                <div class="video-thumbnail-wrapper"
-                                                    style="display: inline-block; max-width: 150px; cursor: pointer; position: relative;"
+                                                    style="display: inline-block; max-width: 150px; height: 110px; object-fit: cover; cursor: pointer; position: relative;"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#mediaModal"
                                                     data-media='<?= $mediaJson ?>'
-                                                    data-start-index="<?= $index ?>">
+                                                    data-start-index="<?= $index ?>"
+                                                    data-gallery-title="Feedback at <?= htmlspecialchars($feedback['ResortName']) ?>"
+                                                    data-gallery-subtitle="<?= str_repeat('⭐', $feedback['ResortRating']) ?> - <?= htmlspecialchars(date('F j, Y', strtotime($feedback['BookingDate']))) ?>">
                                                    <video class="img-thumbnail">
                                                        <source src="<?= BASE_URL . '/' . htmlspecialchars($media['MediaURL']) ?>#t=0.5" type="video/mp4">
                                                        Your browser does not support the video tag.
@@ -216,7 +220,7 @@ require_once __DIR__ . '/../partials/header.php';
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="mediaModalLabel">Feedback Gallery</h5>
+                <h5 class="modal-title" id="mediaModalLabel">Media Gallery</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
@@ -285,11 +289,22 @@ document.addEventListener('DOMContentLoaded', function () {
              return bootstrap.Carousel.getInstance(document.getElementById('galleryCarousel')) || new bootstrap.Carousel(document.getElementById('galleryCarousel'), { interval: false, ride: false });
         };
 
+        const modalTitleEl = mediaModal.querySelector('#mediaModalLabel');
+
         mediaModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const mediaJson = button.getAttribute('data-media');
             const startIndex = parseInt(button.getAttribute('data-start-index'), 10);
             const mediaItems = JSON.parse(mediaJson);
+            
+            const galleryTitle = button.getAttribute('data-gallery-title');
+            const gallerySubtitle = button.getAttribute('data-gallery-subtitle');
+
+            if (galleryTitle) {
+                modalTitleEl.innerHTML = `${galleryTitle} ${gallerySubtitle ? `<br><small class='text-muted fw-normal'>${gallerySubtitle}</small>` : ''}`;
+            } else {
+                modalTitleEl.textContent = 'Feedback Gallery';
+            }
 
             // Clear previous content
             carouselInner.innerHTML = '';

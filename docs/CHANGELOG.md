@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.8] - 2025-11-15
+
+### Enhanced
+
+- **Gallery Modals Context:** Implemented dynamic, informative titles for all media gallery modals (Resort Photos, Customer Feedback, Admin Feedback). The title now shows context such as the **Resort Name**, **Customer Name**, **Rating** (using ⭐ emoji), and **Booking Date**.
+- **Nested Modal Flow:** Implemented nested modal logic for the main resort view, ensuring the parent "View Details" modal is hidden when the gallery is opened and correctly restored when the gallery is closed.
+- **UI/UX Consistency:** Increased the size of media thumbnails in all feedback views (`my_feedback.php`, `admin/feedback/index.php`, and within the main resort modal) for better visibility and a consistent appearance across the application.
+
+### Files Updated
+
+- `app/Views/partials/footer.php`
+- `app/Views/feedback/my_feedback.php`
+- `app/Views/admin/feedback/index.php`
+
 ## [1.51.7] - 2025-11-15
 
 ### Enhanced
