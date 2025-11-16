@@ -193,7 +193,9 @@ class Feedback {
        return $results;
    }
     public static function createWithFacilities(Feedback $feedback, $facilityFeedbacks = [], $mediaFiles = []) {
+        ErrorHandler::log("Starting feedback submission for booking ID: {$feedback->bookingId}", 'INFO');
         $db = self::getDB();
+        $fileProcessingStart = microtime(true);
 
         // Step 1: Process and save media files BEFORE the transaction
         $processedMedia = [];
@@ -236,8 +238,12 @@ class Feedback {
                 }
             }
         }
+        $fileProcessingTime = microtime(true) - $fileProcessingStart;
+        ErrorHandler::log("File processing completed in {$fileProcessingTime} seconds.", 'INFO');
 
         try {
+            ErrorHandler::log("Starting database transaction.", 'INFO');
+            $transactionStart = microtime(true);
             $db->beginTransaction();
 
             // Step 2: Create main feedback entry
@@ -251,14 +257,17 @@ class Feedback {
             // Step 3: Create facility feedback entries
             if (!empty($facilityFeedbacks)) {
                 require_once __DIR__ . '/FacilityFeedback.php';
+                $facilityStmt = $db->prepare(
+                    "INSERT INTO FacilityFeedback (FeedbackID, FacilityID, Rating, Comment)
+                     VALUES (:feedbackId, :facilityId, :rating, :comment)"
+                );
                 foreach ($facilityFeedbacks as $facilityData) {
                     if (isset($facilityData['rating']) && !empty($facilityData['rating'])) {
-                        $facilityFeedback = new FacilityFeedback();
-                        $facilityFeedback->feedbackId = $feedbackId;
-                        $facilityFeedback->facilityId = $facilityData['id'];
-                        $facilityFeedback->rating = $facilityData['rating'];
-                        $facilityFeedback->comment = $facilityData['comment'];
-                        FacilityFeedback::create($facilityFeedback);
+                        $facilityStmt->bindValue(':feedbackId', $feedbackId, PDO::PARAM_INT);
+                        $facilityStmt->bindValue(':facilityId', $facilityData['id'], PDO::PARAM_INT);
+                        $facilityStmt->bindValue(':rating', $facilityData['rating'], PDO::PARAM_INT);
+                        $facilityStmt->bindValue(':comment', $facilityData['comment'], PDO::PARAM_STR);
+                        $facilityStmt->execute();
                     }
                 }
             }
@@ -266,22 +275,26 @@ class Feedback {
             // Step 4: Insert media records into the database
             if (!empty($processedMedia)) {
                 require_once __DIR__ . '/FeedbackMedia.php';
-                $stmt = $db->prepare(
+                $mediaStmt = $db->prepare(
                     "INSERT INTO FeedbackMedia (FeedbackID, MediaType, MediaURL)
                      VALUES (:feedbackId, :mediaType, :mediaURL)"
                 );
                 foreach ($processedMedia as $media) {
-                    $stmt->bindValue(':feedbackId', $feedbackId, PDO::PARAM_INT);
-                    $stmt->bindValue(':mediaType', $media['mediaType'], PDO::PARAM_STR);
-                    $stmt->bindValue(':mediaURL', $media['mediaURL'], PDO::PARAM_STR);
-                    $stmt->execute();
+                    $mediaStmt->bindValue(':feedbackId', $feedbackId, PDO::PARAM_INT);
+                    $mediaStmt->bindValue(':mediaType', $media['mediaType'], PDO::PARAM_STR);
+                    $mediaStmt->bindValue(':mediaURL', $media['mediaURL'], PDO::PARAM_STR);
+                    $mediaStmt->execute();
                 }
             }
 
             $db->commit();
+            $transactionTime = microtime(true) - $transactionStart;
+            ErrorHandler::log("Database transaction committed successfully in {$transactionTime} seconds for feedback ID: {$feedbackId}", 'INFO');
             return $feedbackId;
         } catch (Exception $e) {
             $db->rollBack();
+            $transactionTime = microtime(true) - $transactionStart;
+            ErrorHandler::log("Database transaction rolled back after {$transactionTime} seconds. Error: " . $e->getMessage(), 'ERROR');
             
             // Step 5: Cleanup - delete uploaded files if DB operations fail
             foreach ($processedMedia as $media) {

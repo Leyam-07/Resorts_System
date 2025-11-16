@@ -178,7 +178,7 @@ require_once __DIR__ . '/../partials/header.php';
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="resort_comment" class="form-label"><strong>Comments (Optional)</strong></label>
+                            <label for="resort_comment" class="form-label"><strong>Comments</strong></label>
                             <textarea class="form-control" id="resort_comment" name="resort_comment" rows="3" placeholder="Tell us more about your experience at the resort..."></textarea>
                         </div>
                     </div>
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="facility_comment_${facility.FacilityID}" class="form-label"><strong>Comments (Optional)</strong></label>
+                                    <label for="facility_comment_${facility.FacilityID}" class="form-label"><strong>Comments</strong></label>
                                     <textarea class="form-control" id="facility_comment_${facility.FacilityID}" name="facilities[${facility.FacilityID}][comment]" rows="2" placeholder="Feedback for ${facility.Name}..."></textarea>
                                 </div>
                             </div>
