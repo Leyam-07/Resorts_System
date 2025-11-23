@@ -18,6 +18,8 @@
         <div class="auth-panel">
             <!-- Image Carousel Section -->
             <div class="auth-image-section">
+                <!-- Carousel track for sliding images -->
+                <div class="auth-carousel-track"></div>
                 <div class="auth-image-overlay"></div>
                 <div class="tagline text-center">Resort Haven — Your Exclusive Gateway to Paradise</div>
             </div>
@@ -47,28 +49,45 @@
         document.addEventListener('DOMContentLoaded', function () {
 
             // --- Image Carousel ---
-            const imageSection = document.querySelector('.auth-image-section');
-            if (imageSection) {
+            const carouselTrack = document.querySelector('.auth-carousel-track');
+            if (carouselTrack) {
                 const images = [
                     '<?= BASE_URL ?>/assets/images/carousel-1.jpg',
                     '<?= BASE_URL ?>/assets/images/carousel-2.jpg',
                     '<?= BASE_URL ?>/assets/images/carousel-3.jpg'
                 ];
                 let currentImageIndex = 0;
+                const totalSlides = images.length;
+                const slideWidthPercentage = 100 / (totalSlides + 1); // Percentage for each slide (4 slides total)
 
-                // Preload images
+                // Create and append real slides
                 images.forEach(src => {
-                    const img = new Image();
-                    img.src = src;
+                    const slide = document.createElement('div');
+                    slide.className = 'auth-carousel-slide';
+                    slide.style.backgroundImage = `url('${src}')`;
+                    carouselTrack.appendChild(slide);
                 });
 
-                setInterval(() => {
-                    currentImageIndex = (currentImageIndex + 1) % images.length;
-                    imageSection.style.backgroundImage = `url('${images[currentImageIndex]}')`;
-                }, 3000); // Change image every 3 seconds
+                // Clone the first slide to create a seamless loop
+                const firstSlideClone = carouselTrack.firstElementChild.cloneNode(true);
+                carouselTrack.appendChild(firstSlideClone);
 
-                // Set initial image
-                imageSection.style.backgroundImage = `url('${images[0]}')`;
+                setInterval(() => {
+                    currentImageIndex++;
+                    
+                    // Apply translation with transition
+                    carouselTrack.style.transition = 'transform 1s ease-in-out';
+                    carouselTrack.style.transform = `translateX(-${currentImageIndex * slideWidthPercentage}%)`;
+
+                    // If we reached the clone slide (index == totalSlides), jump back to the real first slide instantly
+                    if (currentImageIndex === totalSlides) {
+                        setTimeout(() => {
+                            carouselTrack.style.transition = 'none'; // Disable transition for instant jump
+                            currentImageIndex = 0;
+                            carouselTrack.style.transform = `translateX(0)`;
+                        }, 1000); // 1000ms matches the CSS transition duration
+                    }
+                }, 3000); // Change image every 3 seconds
             }
 
             // --- Theme Switcher ---

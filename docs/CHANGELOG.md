@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.3] - 2025-11-23
+
+### Fixed
+
+- **Carousel Animation Loop:** Resolved the issue where the authentication page image carousel would "jump" or reverse direction when looping back to the first image.
+  - **Seamless Looping:** Implemented a continuous, right-sliding loop using a cloned first slide and an instant, non-animated reset to ensure a smooth, professional transition.
+  - **Sliding Fix:** Corrected the track width and slide width calculations in the CSS and JavaScript to prevent oversliding and exposed white areas.
+
+### Files Updated
+
+- `app/Views/partials/auth_layout.php`
+- `assets/css/auth.css`
+
 ## [1.52.2] - 2025-11-23
 
 ### Enhanced

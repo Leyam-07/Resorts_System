@@ -62,15 +62,31 @@ body.auth-body {
 .auth-image-section {
   position: relative;
   width: 45%;
-  background-size: cover;
-  background-position: center;
-  transition: background-image 1s ease-in-out;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: flex-end; /* Align content to the bottom */
   align-items: flex-start; /* Align content to the left */
   padding: 2rem;
+  overflow: hidden; /* Hide the slides that are outside the container */
+}
+
+/* New Carousel Styles */
+.auth-carousel-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  transition: transform 1s ease-in-out; /* Animation for the slide */
+  width: 400%; /* 100% for each of the 4 slides (3 real + 1 clone) */
+}
+
+.auth-carousel-slide {
+  width: 25%; /* Each slide is 1/4 of the track's width */
+  height: 100%;
+  background-size: cover;
+  background-position: center;
 }
 
 .auth-image-overlay {
