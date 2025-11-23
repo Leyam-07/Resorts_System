@@ -6,18 +6,33 @@ body.auth-body {
 }
 
 /* Background Wave Effect */
-body.auth-body::before {
+@keyframes animate-waves {
+  0% {
+    transform: translateX(0) scale(1.05);
+  }
+  50% {
+    transform: translateX(-20px) scale(1.05);
+  }
+  100% {
+    transform: translateX(0) scale(1.05);
+  }
+}
+
+.auth-background-overlay {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("data:image/svg+xml,..."); /* Placeholder for light wave SVG */
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><defs><linearGradient id="light-gradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%2387CEEB;stop-opacity:1" /><stop offset="100%" style="stop-color:%2300BFFF;stop-opacity:1" /></linearGradient></defs><path fill="url(%23light-gradient)" d="M0,160L48,170.7C96,181,192,203,288,208C384,213,480,203,576,176C672,149,768,107,864,112C960,117,1056,171,1152,181.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path><path fill="%23FAD7A0" fill-opacity="0.5" d="M0,224L48,213.3C96,203,192,181,288,192C384,203,480,245,576,250.7C672,256,768,224,864,197.3C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
   background-size: cover;
-  z-index: -1;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
+  background-position: bottom;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  animation: animate-waves 15s ease-in-out infinite;
+  transform-origin: bottom;
 }
 
 /* Main Authentication Panel */
@@ -35,10 +50,12 @@ body.auth-body::before {
   max-width: 1100px; /* Increased width for more space */
   background-color: #faf6f0; /* Light theme panel */
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.05); /* Added inner shadow for depth */
   overflow: hidden;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   max-height: 95vh; /* Set a max height to prevent overflow on smaller screens */
+  z-index: 1; /* Ensure panel is above the background overlay */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle border */
 }
 
 /* Image Carousel Section */
@@ -187,13 +204,18 @@ body.dark-theme {
   background-color: #3a2d27;
 }
 
-body.dark-theme::before {
-  opacity: 0.4; /* Darker wave opacity */
-  background: url("data:image/svg+xml,..."); /* Placeholder for dark wave SVG */
+body.dark-theme .auth-background-overlay {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><defs><linearGradient id="dark-gradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%232C3E50;stop-opacity:1" /><stop offset="100%" style="stop-color:%234CA1AF;stop-opacity:1" /></linearGradient></defs><path fill="url(%23dark-gradient)" d="M0,160L48,170.7C96,181,192,203,288,208C384,213,480,203,576,176C672,149,768,107,864,112C960,117,1056,171,1152,181.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path><path fill="%231A2930" fill-opacity="0.5" d="M0,224L48,213.3C96,203,192,181,288,192C384,203,480,245,576,250.7C672,256,768,224,864,197.3C960,171,1056,149,1152,154.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+}
+
+body.auth-body .auth-background-overlay {
+  opacity: 1; /* Fade in the light theme overlay by default */
 }
 
 body.dark-theme .auth-panel {
   background-color: #4a3c35;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 body.dark-theme .auth-form-section {

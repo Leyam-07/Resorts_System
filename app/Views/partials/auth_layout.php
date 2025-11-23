@@ -14,6 +14,7 @@
 <body class="auth-body <?= $bodyClass ?? '' ?>">
 
     <div class="auth-container">
+        <div class="auth-background-overlay"></div> <!-- Add this for the overlay -->
         <div class="auth-panel">
             <!-- Image Carousel Section -->
             <div class="auth-image-section">

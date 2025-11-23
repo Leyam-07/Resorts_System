@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.2] - 2025-11-23
+
+### Enhanced
+
+- **Animated Summer Backgrounds:** Added dynamic, multi-layered wave backgrounds to all authentication pages for a lively, summer-themed aesthetic.
+  - **Animation:** Implemented subtle horizontal wave animation to prevent the plain background from being exposed.
+  - **Design:** Enhanced the authentication panel with a soft inner shadow and border for a polished, layered appearance.
+
+### Changed
+
+- **Light Theme Color Correction:** Adjusted the light mode wave gradient to a clearer blue palette (Sky Blue to Deep Sky Blue) to replace the previous greenish tint.
+
+### Removed
+
+- **Floating Panel Animation:** Removed the up-and-down animation from the main authentication panel (`.auth-panel`) to maintain a static, design-focused user experience.
+
+### Files Updated
+
+- `app/Views/partials/auth_layout.php`
+- `assets/css/auth.css`
+
 ## [1.52.1] - 2025-11-23
 
 ### Changed
