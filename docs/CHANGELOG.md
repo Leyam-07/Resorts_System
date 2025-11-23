@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.0] - 2025-11-23
+
+### Added
+
+- **UI Overhaul (Authentication Pages):** Implemented a modern, two-column layout for all login and registration pages (`login.php`, `register.php`, etc.).
+  - **Dynamic Image Carousel:** Added a slideshow to the left panel (requires images in `assets/images/`).
+  - **Light/Dark Theming:** Implemented a theme switcher with persistent user preference.
+- **Form Compaction:** Applied aggressive CSS rules to minimize vertical spacing on registration forms, ensuring the lengthy Admin Register page remains compact and usable.
+
+### Changed
+
+- **Layout & Architecture:** Refactored all authentication views to use a single, reusable layout partial (`app/Views/partials/auth_layout.php`).
+- **Branding:** Removed the "AMU" logo and updated the image panel tagline to "Your Exclusive Gateway to Paradise."
+- **Usability:** Fixed the Admin Registration link on the Admin Login page.
+
+### Files Updated
+
+- `app/Views/partials/auth_layout.php` (New)
+- `assets/css/auth.css` (New)
+- `assets/js/auth.js` (Removed, logic moved to PHP view)
+- `app/Views/login.php`
+- `app/Views/login-admin.php`
+- `app/Views/register.php`
+- `app/Views/register-admin.php`
+
 ## [1.51.9] - 2025-11-16
 
 ### Fixed
