@@ -3,6 +3,13 @@ $pageTitle = "Unified Booking & Payment Management";
 require_once __DIR__ . '/../partials/header.php';
 ?>
 
+<style>
+/* Adjust scroll target position to account for the sticky navigation bar */
+tr[id^="booking-row-"] {
+    scroll-margin-top: 80px; /* Provides top offset for scrolled-to elements */
+}
+</style>
+
 <div class="container-fluid mt-4">
     <!-- Session Message Alerts -->
     <?php if (isset($_SESSION['success_message'])): ?>
@@ -432,8 +439,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add a temporary highlight class
             targetRow.classList.add('table-info');
             
-            // Scroll to the element
-            targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Scroll to the element. The `scroll-margin-top` CSS property will handle the offset.
+            targetRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
             // Remove the highlight after a few seconds
             setTimeout(() => {
