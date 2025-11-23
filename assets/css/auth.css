@@ -269,3 +269,44 @@ body.dark-theme .sub-link a {
 .admin-register-page .auth-form-section .form-control {
   padding: 0.35rem 0.6rem; /* Tighter padding */
 }
+
+/* Responsive adjustments for mobile */
+@media (max-width: 991.98px) {
+  .auth-container {
+    padding: 1rem; /* Adjust padding for smaller viewports */
+  }
+
+  .auth-panel {
+    flex-direction: column;
+    max-height: none; /* Remove fixed height to allow content to flow */
+    width: 100%;
+    max-width: 500px; /* A sensible max-width for forms on mobile */
+  }
+
+  .auth-image-section {
+    width: 100%;
+    height: 200px; /* A fixed height for the top image banner */
+    flex-shrink: 0; /* Prevent the image section from shrinking */
+  }
+
+  .auth-form-section {
+    width: 100%;
+    overflow-y: visible; /* The form content should be visible */
+    max-height: none; /* Allow form to take its natural height */
+  }
+
+  .auth-image-section .tagline {
+    font-size: 1.25rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .auth-form-section {
+    padding: 2rem 1.5rem; /* Adjust padding for very small screens */
+  }
+
+  .auth-form-section h2 {
+    font-size: 1.6rem;
+  }
+}
