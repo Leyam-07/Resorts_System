@@ -43,7 +43,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
 <body>
 
 <?php if (isset($_SESSION['user_id'])): ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="?">
             <i class="fas fa-swimming-pool"></i> Resort Management

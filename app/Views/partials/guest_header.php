@@ -18,7 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="?">
             <i class="fas fa-swimming-pool"></i> Resort Management
