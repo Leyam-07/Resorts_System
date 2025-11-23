@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.1] - 2025-11-23
+
+### Changed
+
+- **Theme Toggle Redesign:** Relocated the theme switcher from the page body to the top-right corner of the authentication card.
+  - **Animation:** Replaced the non-professional rotation animation with a modern, smooth sliding animation.
+  - **UI/UX:** Corrected the alignment and scaling issues of the sliding highlight to ensure perfect centering over the active icon (sun/moon), providing a polished appearance.
+
+### Files Updated
+
+- `app/Views/partials/auth_layout.php`
+- `assets/css/auth.css`
+
 ## [1.52.0] - 2025-11-23
 
 ### Added

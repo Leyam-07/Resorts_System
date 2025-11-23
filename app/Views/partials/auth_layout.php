@@ -13,11 +13,6 @@
 </head>
 <body class="auth-body <?= $bodyClass ?? '' ?>">
 
-    <div class="theme-switcher" id="theme-switcher">
-        <!-- Use a Font Awesome icon for switching themes -->
-        <i class="fas fa-moon"></i> 
-    </div>
-
     <div class="auth-container">
         <div class="auth-panel">
             <!-- Image Carousel Section -->
@@ -28,6 +23,11 @@
 
             <!-- Form Section -->
             <div class="auth-form-section">
+                <div class="theme-switcher" id="theme-switcher">
+                    <div class="theme-switcher-slider"></div>
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                </div>
                 <?php
                     // This is where the content from login.php, register.php, etc. will be injected.
                     // The calling view must define a $formContent callable.
@@ -73,13 +73,27 @@
             // --- Theme Switcher ---
             const themeSwitcher = document.getElementById('theme-switcher');
             const body = document.body;
+            const sunIcon = themeSwitcher.querySelector('.fa-sun');
+            const moonIcon = themeSwitcher.querySelector('.fa-moon');
 
             if (themeSwitcher) {
+                // Function to update icon state
+                const updateIcons = () => {
+                    if (body.classList.contains('dark-theme')) {
+                        sunIcon.classList.remove('active');
+                        moonIcon.classList.add('active');
+                    } else {
+                        moonIcon.classList.remove('active');
+                        sunIcon.classList.add('active');
+                    }
+                };
+
                 // Check for saved theme in localStorage
                 const currentTheme = localStorage.getItem('theme');
                 if (currentTheme === 'dark') {
                     body.classList.add('dark-theme');
                 }
+                updateIcons(); // Set initial icon state
 
                 themeSwitcher.addEventListener('click', () => {
                     body.classList.toggle('dark-theme');
@@ -90,6 +104,7 @@
                     } else {
                         localStorage.removeItem('theme');
                     }
+                    updateIcons(); // Update icons on click
                 });
             }
 
