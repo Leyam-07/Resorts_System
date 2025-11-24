@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `Password` VARCHAR(255) NOT NULL,
   `Role` ENUM('Admin', 'Staff', 'Customer') NOT NULL,
   `AdminType` ENUM('Admin', 'BookingAdmin', 'OperationsAdmin', 'ReportsAdmin') NULL DEFAULT NULL,
+  `IsActive` BOOLEAN NOT NULL DEFAULT 1,
   `FirstName` VARCHAR(255),
   `LastName` VARCHAR(255),
   `Email` VARCHAR(255) NOT NULL UNIQUE,

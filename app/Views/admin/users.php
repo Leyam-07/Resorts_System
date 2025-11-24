@@ -25,6 +25,8 @@ require_once __DIR__ . '/../partials/header.php';
             echo "An admin with this sub-admin role already exists. Please choose a different role.";
         } elseif ($_GET['error'] === 'only_main_admin_can_edit_admins') {
             echo "Only the Main Admin can edit other admin accounts.";
+        } elseif ($_GET['error'] === 'only_customers_can_be_deactivated') {
+            echo "Only customer accounts can be activated or deactivated.";
         } else {
             echo "An unknown error occurred.";
         }
@@ -40,6 +42,7 @@ require_once __DIR__ . '/../partials/header.php';
                 <th>Email</th>
                 <th>Role</th>
                 <th>Admin Type</th>
+                <th>Status</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Phone</th>
@@ -67,6 +70,13 @@ require_once __DIR__ . '/../partials/header.php';
                         </span>
                     <?php else: ?>
                         
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($user['Role'] === 'Customer'): ?>
+                        <span class="badge bg-<?= $user['IsActive'] ? 'success' : 'danger' ?>">
+                            <?= $user['IsActive'] ? 'Active' : 'Deactivated' ?>
+                        </span>
                     <?php endif; ?>
                 </td>
                 <td><?= htmlspecialchars($user['FirstName']) ?></td>
@@ -109,18 +119,26 @@ require_once __DIR__ . '/../partials/header.php';
                         <?php endif; ?>
                         <?php
                         $isMainAdmin = User::isMainAdmin($_SESSION['user_id']);
-                        $canEditThisUser = ($user['UserID'] == $_SESSION['user_id']) || ($isMainAdmin && $user['Role'] !== 'Admin') || ($isMainAdmin && $user['Role'] === 'Admin');
-                        $canDeleteThisUser = ($user['UserID'] != $_SESSION['user_id']) && ($isMainAdmin || $user['Role'] !== 'Admin');
+                        // Allow editing if: 1) it's the current user, OR 2) the current user is Main Admin AND the target user is NOT a Customer.
+                        $canEditThisUser = ($user['UserID'] == $_SESSION['user_id']) || ($isMainAdmin && $user['Role'] !== 'Customer');
                         ?>
                         <?php if ($canEditThisUser): ?>
-                           <button type="button" class="btn btn-sm btn-primary edit-user-btn" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>">Edit</button>
+                            <button type="button" class="btn btn-sm btn-primary edit-user-btn d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="<?php echo $user['UserID']; ?>" style="min-width: 60px;">Edit</button>
                         <?php else: ?>
-                           <button type="button" class="btn btn-sm btn-primary" disabled>Edit</button>
+                            <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center" disabled style="min-width: 60px;">Edit</button>
                         <?php endif; ?>
-                        <?php if ($canDeleteThisUser): ?>
-                            <button type="button" class="btn btn-sm btn-danger delete-user-btn" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>">Delete</button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">Delete</button>
+
+                        <?php if ($user['Role'] === 'Customer'): ?>
+                            <a href="?controller=admin&action=toggleUserActivation&id=<?= $user['UserID'] ?>" class="btn btn-sm btn-<?= $user['IsActive'] ? 'warning' : 'success' ?> d-flex align-items-center justify-content-center" style="min-width: 85px;">
+                                <?= $user['IsActive'] ? 'Deactivate' : 'Activate' ?>
+                            </a>
+                        <?php else:
+                            $canDeleteThisUser = ($user['UserID'] != $_SESSION['user_id']) && ($isMainAdmin || $user['Role'] !== 'Admin');
+                            if ($canDeleteThisUser): ?>
+                                <button type="button" class="btn btn-sm btn-danger delete-user-btn d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?php echo $user['UserID']; ?>" style="min-width: 85px;">Delete</button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-sm btn-danger disabled d-flex align-items-center justify-content-center" aria-disabled="true" style="min-width: 85px;">Delete</button>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </td>

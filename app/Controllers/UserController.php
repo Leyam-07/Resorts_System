@@ -249,6 +249,10 @@ class UserController {
             $user = User::findByUsername($username);
 
             if ($user && password_verify($password, $user['Password']) && $user['Role'] === 'Customer') {
+                if (!$user['IsActive']) {
+                    header('Location: index.php?action=login&error=account_deactivated');
+                    exit();
+                }
                 // Password is correct and user is Customer, destroy old session and start new one
                 session_destroy();
                 session_start();

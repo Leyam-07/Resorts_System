@@ -11,6 +11,9 @@ $formContent = function() {
         if (isset($_GET['error']) && $_GET['error'] == 'invalid_credentials') {
             echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">Invalid username or password.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
         }
+        if (isset($_GET['error']) && $_GET['error'] == 'account_deactivated') {
+            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">Your account has been deactivated. Please contact an administrator for assistance.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        }
         if (isset($_GET['registration']) && $_GET['registration'] == 'success') {
             echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Registration successful! You can now log in.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
         }

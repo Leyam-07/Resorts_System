@@ -118,7 +118,7 @@ class User {
     }
 
     public static function findAll() {
-        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, AdminType, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
+        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, AdminType, IsActive, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -183,6 +183,14 @@ class User {
 
     public static function delete($id) {
         $query = "DELETE FROM " . self::$table . " WHERE UserID = :id";
+        $stmt = self::getDB()->prepare($query);
+        $stmt->bindParam(':id', $id);
+        
+        return $stmt->execute();
+    }
+
+    public static function toggleActivationStatus($id) {
+        $query = "UPDATE " . self::$table . " SET IsActive = !IsActive WHERE UserID = :id";
         $stmt = self::getDB()->prepare($query);
         $stmt->bindParam(':id', $id);
         

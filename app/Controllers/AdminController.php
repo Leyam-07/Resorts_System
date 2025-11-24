@@ -389,6 +389,32 @@ class AdminController {
             die('Failed to delete user.');
         }
     }
+
+    public function toggleUserActivation() {
+        if (!isset($_GET['id'])) {
+            die('User ID not specified.');
+        }
+        $userId = $_GET['id'];
+
+        if ($userId == $_SESSION['user_id']) {
+            header('Location: ?controller=admin&action=users&error=cannot_deactivate_self');
+            exit();
+        }
+
+        $userToToggle = $this->userModel->findById($userId);
+        if ($userToToggle && $userToToggle['Role'] !== 'Customer') {
+            header('Location: ?controller=admin&action=users&error=only_customers_can_be_deactivated');
+            exit();
+        }
+
+        if ($this->userModel->toggleActivationStatus($userId)) {
+            header('Location: ?controller=admin&action=users&status=user_status_updated');
+        } else {
+            header('Location: ?controller=admin&action=users&error=update_failed');
+        }
+        exit();
+    }
+    
     public function viewUserBookings() {
         if (!isset($_GET['id'])) {
             die('User ID not specified.');

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.4] - 2025-11-24
+
+### Added
+
+- **Customer Account Deactivation:** Implemented the ability for administrators to deactivate customer accounts instead of permanently deleting them.
+  - **Database:** Added an `IsActive` column to the `Users` table.
+  - **Admin UI:** Replaced the "Delete" button for customer roles with an "Activate"/"Deactivate" toggle button.
+  - **Backend Logic:** Implemented controller and model logic (`User::toggleActivationStatus`) to manage the account status.
+
+### Fixed
+
+- **Admin Edit Button:** Corrected logic to ensure the "Edit" button is disabled for all customer roles, preventing modification of their role type.
+- **Login Feedback:** Implemented a specific warning message on the customer login page when a user attempts to log in with a deactivated account.
+
+### Enhanced
+
+- **UI Alignment:** Applied minimum width and flexbox styling to action buttons ("Edit", "Delete", "Activate/Deactivate") in the user list to ensure consistent horizontal and vertical alignment.
+
+### Files Updated
+
+- `scripts/migrations/add_is_active_to_users.php`
+- `app/Models/User.php`
+- `app/Controllers/AdminController.php`
+- `app/Controllers/UserController.php`
+- `app/Views/admin/users.php`
+- `app/Views/login.php`
+
 ## [1.52.3] - 2025-11-23
 
 ### Fixed
