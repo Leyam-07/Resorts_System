@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?? 'Resort Management' ?></title>
+    <title><?= $pageTitle ?? 'Resort Haven' ?></title>
     <!-- Bootstrap CSS -->
     <link href="<?= BASE_URL ?>/assets/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -46,7 +46,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="?">
-            <i class="fas fa-swimming-pool"></i> Resort Management
+            <i class="fas fa-swimming-pool"></i> Resort Haven
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -110,7 +110,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="operationsDropdown">
                                         <?php if (User::hasAdminPermission($_SESSION['user_id'], 'resort_management')): ?>
-                                        <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
+                                        <li><a class="dropdown-item" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Haven</a></li>
                                         <?php endif; ?>
                                         <?php if (User::hasAdminPermission($_SESSION['user_id'], 'pricing_management')): ?>
                                         <li><a class="dropdown-item" href="?controller=admin&action=pricingManagement"><i class="fas fa-tags"></i> Pricing Management</a></li>
@@ -122,7 +122,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                                 </li>
                             <?php else: // Is a Sub-Admin ?>
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'resort_management')): ?>
-                                <li class="nav-item"><a class="nav-link" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Management</a></li>
+                                <li class="nav-item"><a class="nav-link" href="?controller=admin&action=management"><i class="fas fa-building"></i> Resort Haven</a></li>
                                 <?php endif; ?>
                                 <?php if (User::hasAdminPermission($_SESSION['user_id'], 'pricing_management')): ?>
                                 <li class="nav-item"><a class="nav-link" href="?controller=admin&action=pricingManagement"><i class="fas fa-tags"></i> Pricing Management</a></li>
