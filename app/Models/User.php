@@ -118,7 +118,19 @@ class User {
     }
 
     public static function findAll() {
-        $stmt = self::getDB()->prepare("SELECT UserID, Username, Email, Role, AdminType, IsActive, FirstName, LastName, PhoneNumber, ProfileImageURL, Notes, Socials, CreatedAt FROM " . self::$table . " ORDER BY CreatedAt DESC");
+        $db = self::getDB();
+        $sql = "
+            SELECT
+                u.UserID, u.Username, u.Email, u.Role, u.AdminType, u.IsActive,
+                u.FirstName, u.LastName, u.PhoneNumber, u.ProfileImageURL, u.Notes, u.Socials, u.CreatedAt,
+                GROUP_CONCAT(r.Name SEPARATOR ', ') as AssignedResorts
+            FROM " . self::$table . " u
+            LEFT JOIN StaffResortAssignments sra ON u.UserID = sra.UserID AND u.Role = 'Staff'
+            LEFT JOIN Resorts r ON sra.ResortID = r.ResortID
+            GROUP BY u.UserID
+            ORDER BY u.CreatedAt DESC
+        ";
+        $stmt = $db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -287,5 +299,45 @@ class User {
         ];
 
         return isset($permissions[$adminType]) && in_array($permission, $permissions[$adminType]);
+    }
+    public static function getAssignedResorts($userId) {
+        $db = self::getDB();
+        $stmt = $db->prepare("
+            SELECT r.ResortID, r.Name
+            FROM Resorts r
+            JOIN StaffResortAssignments sra ON r.ResortID = sra.ResortID
+            WHERE sra.UserID = :userId
+            ORDER BY r.Name ASC
+        ");
+        $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function assignResorts($userId, $resortIds) {
+        $db = self::getDB();
+        $db->beginTransaction();
+        try {
+            // 1. Delete existing assignments for the user
+            $stmt = $db->prepare("DELETE FROM StaffResortAssignments WHERE UserID = :userId");
+            $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // 2. Insert new assignments
+            if (!empty($resortIds)) {
+                $stmt = $db->prepare("INSERT INTO StaffResortAssignments (UserID, ResortID) VALUES (:userId, :resortId)");
+                foreach ($resortIds as $resortId) {
+                    $stmt->execute([
+                        ':userId' => $userId,
+                        ':resortId' => $resortId
+                    ]);
+                }
+            }
+            $db->commit();
+            return true;
+        } catch (Exception $e) {
+            $db->rollBack();
+            return false;
+        }
     }
 }

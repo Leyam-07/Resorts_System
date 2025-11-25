@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.5] - 2025-11-25
+
+### Added
+
+- **Staff Resort Assignments:** Implemented a new feature allowing administrators to assign specific resorts to staff members, restricting their operational scope.
+  - **Database:** Created a `StaffResortAssignments` table to manage the many-to-many relationship.
+  - **Admin UI:** Replaced the "View Bookings" button with an **"Assigned Resorts"** management button/modal for staff roles.
+  - **Admin List Visibility:** Added an **"Assigned Resorts"** column to the Manage Users page, displaying resort names or an **"All Resorts"** badge for full access.
+
+### Fixed
+
+- **Staff Dashboard Filtering:** Corrected the logic in `AdminController::staffDashboard()` to ensure the resort filter dropdown exclusively displays only the resorts assigned to the logged-in staff member, fixing an issue where non-assigned resorts were visible.
+
+### Enhanced
+
+- **Staff Dashboard UI:** Added a **"Resort"** column to the "Today's Bookings" and "Upcoming Bookings" tables, with the resort name displayed in bold for clarity.
+- **Manage Users UI Compaction:** Optimized the "Manage Users" table layout to be more compact while restoring all necessary columns (ID, Socials, Notes).
+  - **Socials:** Converted long URLs to compact, clickable icons.
+  - **Notes/Resorts:** Applied text truncation with tooltips for long text fields to maintain horizontal space.
+
+### Files Updated
+
+- `scripts/migrations/create_staff_resort_assignments_table.php`
+- `app/Models/User.php`
+- `app/Controllers/AdminController.php`
+- `app/Views/admin/users.php`
+- `app/Views/admin/user_modals.php`
+- `app/Views/admin/staff_dashboard.php`
+
 ## [1.52.4] - 2025-11-24
 
 ### Added

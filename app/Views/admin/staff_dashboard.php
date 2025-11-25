@@ -26,10 +26,12 @@ require_once __DIR__ . '/../partials/header.php';
             <input type="hidden" name="controller" value="admin">
             <input type="hidden" name="action" value="staffDashboard">
             <select name="resort_id" class="form-select" onchange="this.form.submit()">
-                <option value="">All Resorts</option>
+                <?php if ($allResortsAssigned): ?>
+                    <option value="">All Resorts</option>
+                <?php endif; ?>
                 <?php foreach ($resorts as $resort): ?>
-                    <option value="<?= $resort->resortId ?>" <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == $resort->resortId) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($resort->name) ?>
+                    <option value="<?= $resort->ResortID ?? $resort->resortId ?>" <?= (isset($_GET['resort_id']) && $_GET['resort_id'] == ($resort->ResortID ?? $resort->resortId)) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($resort->Name ?? $resort->name) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -53,6 +55,7 @@ require_once __DIR__ . '/../partials/header.php';
                             <tr>
                                 <th>Time</th>
                                 <th>Customer</th>
+                                <th>Resort</th>
                                 <th>Facilities</th>
                                 <th class="text-center">Status</th>
                             </tr>
@@ -78,6 +81,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <tr>
                                     <td><?= htmlspecialchars($timeDisplay) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
+                                    <td class="fw-bold"><?= htmlspecialchars($booking->ResortName) ?></td>
                                     <td>
                                         <?php if (!empty($booking->FacilityNames)): ?>
                                             <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>
@@ -109,6 +113,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Customer</th>
+                                <th>Resort</th>
                                 <th>Facilities</th>
                                 <th class="text-center">Status</th>
                             </tr>
@@ -135,6 +140,7 @@ require_once __DIR__ . '/../partials/header.php';
                                     <td><?= htmlspecialchars(date('M j, Y', strtotime($booking->BookingDate))) ?></td>
                                     <td><?= htmlspecialchars($timeDisplay) ?></td>
                                     <td><?= htmlspecialchars($booking->CustomerName) ?></td>
+                                    <td class="fw-bold"><?= htmlspecialchars($booking->ResortName) ?></td>
                                     <td>
                                         <?php if (!empty($booking->FacilityNames)): ?>
                                             <span class="badge bg-info text-dark"><?= htmlspecialchars($booking->FacilityNames) ?></span>

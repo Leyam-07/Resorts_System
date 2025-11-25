@@ -34,86 +34,125 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 <?php endif; ?>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Admin Type</th>
-                <th>Status</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Phone</th>
-                <th>Socials</th>
-                <th>Notes</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($users as $user): ?>
-            <tr>
-                <td><?= htmlspecialchars($user['UserID']) ?></td>
-                <td><?= htmlspecialchars($user['Username']) ?></td>
-                <td><?= htmlspecialchars($user['Email']) ?></td>
-                <td>
-                    <?= htmlspecialchars($user['Role']) ?>
-                    <?php if ($user['Role'] === 'Admin' && $user['UserID'] == $_SESSION['user_id']): ?>
-                        <span class="badge bg-warning text-dark">You</span>
-                    <?php endif; ?>
-                </td>
-                <td>
-                    <?php if ($user['AdminType']): ?>
-                        <span class="badge bg-info">
-                            <?= htmlspecialchars(User::getAdminTypeDisplay($user['AdminType'])) ?>
-                        </span>
-                    <?php else: ?>
-                        
-                    <?php endif; ?>
-                </td>
-                <td>
-                    <?php if ($user['Role'] === 'Customer'): ?>
-                        <span class="badge bg-<?= $user['IsActive'] ? 'success' : 'danger' ?>">
-                            <?= $user['IsActive'] ? 'Active' : 'Deactivated' ?>
-                        </span>
-                    <?php endif; ?>
-                </td>
-                <td><?= htmlspecialchars($user['FirstName']) ?></td>
-                <td><?= htmlspecialchars($user['LastName']) ?></td>
-                <td><?= htmlspecialchars($user['PhoneNumber']) ?></td>
-                <td>
-                    <?php if (!empty($user['Socials'])): ?>
-                        <small>
-                            <?php
-                            $socialsUrls = preg_split("/\r\n|\n|\r/", $user['Socials']);
-                            foreach ($socialsUrls as $socialsUrl) {
-                                if (empty(trim($socialsUrl))) continue;
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 50px;">ID</th>
+                    <th>User</th>
+                    <th>Contact Info</th>
+                    <th>Role & Status</th>
+                    <th>Socials</th>
+                    <th>Notes</th>
+                    <th>Assigned Resorts</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user): ?>
+                <tr>
+                    <td><small class="text-muted">#<?= htmlspecialchars($user['UserID']) ?></small></td>
+                    <td>
+                        <strong><?= htmlspecialchars($user['Username']) ?></strong>
+                        <div class="small text-muted"><?= htmlspecialchars($user['FirstName'] . ' ' . $user['LastName']) ?></div>
+                    </td>
+                    <td>
+                        <div><i class="fas fa-envelope text-muted me-1" style="width: 16px;"></i> <?= htmlspecialchars($user['Email']) ?></div>
+                        <?php if (!empty($user['PhoneNumber'])): ?>
+                            <div class="small text-muted"><i class="fas fa-phone text-muted me-1" style="width: 16px;"></i> <?= htmlspecialchars($user['PhoneNumber']) ?></div>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            <span>
+                                <span class="badge bg-secondary"><?= htmlspecialchars($user['Role']) ?></span>
+                                <?php if ($user['Role'] === 'Admin' && $user['UserID'] == $_SESSION['user_id']): ?>
+                                    <span class="badge bg-warning text-dark">You</span>
+                                <?php endif; ?>
+                            </span>
+                            
+                            <?php if ($user['AdminType']): ?>
+                                <span>
+                                    <span class="badge bg-info text-dark">
+                                        <?= htmlspecialchars(User::getAdminTypeDisplay($user['AdminType'])) ?>
+                                    </span>
+                                </span>
+                            <?php endif; ?>
 
-                                $socialsUrlForHref = trim($socialsUrl);
-                                if (strpos($socialsUrlForHref, 'http') !== 0) {
-                                    $socialsUrlForHref = 'https://' . $socialsUrlForHref;
+                            <?php if ($user['Role'] === 'Customer'): ?>
+                                <span>
+                                    <span class="badge bg-<?= $user['IsActive'] ? 'success' : 'danger' ?>">
+                                        <?= $user['IsActive'] ? 'Active' : 'Deactivated' ?>
+                                    </span>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                    <td>
+                        <?php if (!empty($user['Socials'])): ?>
+                            <div class="d-flex gap-2 flex-wrap" style="max-width: 100px;">
+                                <?php
+                                $socialsUrls = preg_split("/\r\n|\n|\r/", $user['Socials']);
+                                foreach ($socialsUrls as $socialsUrl) {
+                                    if (empty(trim($socialsUrl))) continue;
+                                    $socialsUrlForHref = trim($socialsUrl);
+                                    if (strpos($socialsUrlForHref, 'http') !== 0) {
+                                        $socialsUrlForHref = 'https://' . $socialsUrlForHref;
+                                    }
+                                    
+                                    // Detect Icon
+                                    $iconClass = 'fas fa-link'; // Default
+                                    if (strpos($socialsUrlForHref, 'facebook.com') !== false || strpos($socialsUrlForHref, 'fb.com') !== false) $iconClass = 'fab fa-facebook text-primary';
+                                    elseif (strpos($socialsUrlForHref, 'twitter.com') !== false || strpos($socialsUrlForHref, 'x.com') !== false) $iconClass = 'fab fa-twitter text-info';
+                                    elseif (strpos($socialsUrlForHref, 'instagram.com') !== false) $iconClass = 'fab fa-instagram text-danger';
+                                    elseif (strpos($socialsUrlForHref, 'linkedin.com') !== false) $iconClass = 'fab fa-linkedin text-primary';
+                                    elseif (strpos($socialsUrlForHref, 'youtube.com') !== false) $iconClass = 'fab fa-youtube text-danger';
+                                    elseif (strpos($socialsUrlForHref, 'tiktok.com') !== false) $iconClass = 'fab fa-tiktok text-dark';
+                                    ?>
+                                    <a href="<?= htmlspecialchars($socialsUrlForHref) ?>" target="_blank" class="text-decoration-none" title="<?= htmlspecialchars($socialsUrlForHref) ?>">
+                                        <i class="<?= $iconClass ?> fa-lg"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted small">-</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($user['Notes'])): ?>
+                            <div class="text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($user['Notes']) ?>">
+                                <?= htmlspecialchars($user['Notes']) ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted small">-</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php
+                        if ($user['Role'] === 'Staff' && !empty($user['AssignedResorts'])) {
+                            $assignedCount = count(explode(', ', $user['AssignedResorts']));
+                            $totalResorts = count($resorts);
+                            if ($assignedCount === $totalResorts) {
+                                echo '<span class="badge bg-primary">All Resorts</span>';
+                            } else {
+                                echo '<div class="text-truncate" style="max-width: 150px;" title="' . htmlspecialchars($user['AssignedResorts']) . '">';
+                                $resortList = explode(', ', $user['AssignedResorts']);
+                                foreach($resortList as $resortName) {
+                                    echo '<span class="badge bg-secondary me-1">' . htmlspecialchars($resortName) . '</span>';
                                 }
-                                
-                                $cleanedUrl = str_replace(['https://www.', 'http://www.', 'https://', 'http://'], '', trim($socialsUrl));
-                                
-                                $displayUrl = $cleanedUrl;
-                                if (strlen($displayUrl) > 25) {
-                                    $displayUrl = substr($displayUrl, 0, 25) . '...';
-                                }
-                                ?>
-                                <a href="<?= htmlspecialchars($socialsUrlForHref) ?>" target="_blank" title="<?= htmlspecialchars($cleanedUrl) ?>">
-                                    <?= htmlspecialchars($displayUrl) ?>
-                                </a><br>
-                            <?php } ?>
-                        </small>
-                    <?php endif; ?>
-                </td>
-                <td><?= htmlspecialchars($user['Notes']) ?></td>
-                <td>
+                                echo '</div>';
+                            }
+                        } else {
+                            echo '<span class="text-muted small">-</span>';
+                        }
+                        ?>
+                    </td>
+                    <td>
                     <div class="btn-group" role="group">
                         <?php if ($user['Role'] === 'Customer'): ?>
-                            <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?php echo $user['UserID']; ?>">View Bookings</button>
+                            <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?= $user['UserID'] ?>">View Bookings</button>
+                        <?php elseif ($user['Role'] === 'Staff'): ?>
+                            <button type="button" class="btn btn-sm btn-success assign-resorts-btn" data-bs-toggle="modal" data-bs-target="#assignedResortsModal" data-user-id="<?= $user['UserID'] ?>" data-username="<?= htmlspecialchars($user['Username']) ?>">Assigned Resorts</button>
                         <?php else: ?>
                             <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
                         <?php endif; ?>
@@ -236,6 +275,50 @@ require_once __DIR__ . '/../partials/header.php';
                 .then(response => response.text())
                 .then(html => {
                     modalBody.innerHTML = html;
+                });
+        });
+
+        // Assigned Resorts Modal
+        var assignedResortsModal = document.getElementById('assignedResortsModal');
+        assignedResortsModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var userId = button.getAttribute('data-user-id');
+            var username = button.getAttribute('data-username');
+            
+            var modalTitle = assignedResortsModal.querySelector('.modal-title');
+            var form = assignedResortsModal.querySelector('#assignResortsForm');
+            var resortsContainer = assignedResortsModal.querySelector('#resorts-checkbox-container');
+            
+            modalTitle.textContent = 'Assign Resorts for ' + username;
+            form.action = '?controller=admin&action=updateStaffResortAssignments';
+            form.querySelector('input[name="userId"]').value = userId;
+            resortsContainer.innerHTML = 'Loading...';
+
+            // Fetch assigned resorts for the user
+            fetch('?controller=admin&action=getStaffResortAssignmentsJson&id=' + userId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        resortsContainer.innerHTML = '<div class="alert alert-danger">' + data.error + '</div>';
+                        return;
+                    }
+                    
+                    const assignedIds = data.assigned || [];
+                    const allResorts = <?php echo json_encode($resorts); ?>;
+                    
+                    let checkboxesHtml = '';
+                    allResorts.forEach(resort => {
+                        const isChecked = assignedIds.includes(parseInt(resort.resortId));
+                        checkboxesHtml += `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="resort_ids[]" value="${resort.resortId}" id="resort-${resort.resortId}" ${isChecked ? 'checked' : ''}>
+                                <label class="form-check-label" for="resort-${resort.resortId}">
+                                    ${resort.name}
+                                </label>
+                            </div>
+                        `;
+                    });
+                    resortsContainer.innerHTML = checkboxesHtml;
                 });
         });
     });

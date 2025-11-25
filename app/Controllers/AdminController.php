@@ -115,9 +115,20 @@ class AdminController {
         if ($resortId === null) {
             $resortId = filter_input(INPUT_GET, 'resort_id', FILTER_VALIDATE_INT);
         }
-        if ($resorts === null) {
+
+        // Staff's resort list is now based on their assignments
+        if ($_SESSION['role'] === 'Staff') {
+            $staffUserId = $_SESSION['user_id'];
+            $assignedResorts = User::getAssignedResorts($staffUserId);
+            $resorts = $assignedResorts; // Always use assigned resorts for staff
+        } elseif ($resorts === null) {
+            // For sub-admins, if resorts aren't passed, get all
             $resorts = Resort::findAll();
         }
+
+        // Determine if "All Resorts" should be an option
+        $totalResorts = count(Resort::findAll());
+        $allResortsAssigned = (count($resorts) === $totalResorts);
 
         $todaysBookings = Booking::findTodaysBookings($resortId);
         $upcomingBookings = Booking::findUpcomingBookings($resortId);
@@ -232,6 +243,7 @@ class AdminController {
         }
         
         $users = $this->userModel->findAll();
+        $resorts = Resort::findAll();
         include __DIR__ . '/../Views/admin/users.php';
     }
 
@@ -359,6 +371,52 @@ class AdminController {
         } else {
             http_response_code(404);
             echo json_encode(['error' => 'User not found.']);
+        }
+        exit();
+    }
+
+    public function getStaffResortAssignmentsJson() {
+        header('Content-Type: application/json');
+        if (!User::isMainAdmin($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+
+        $userId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$userId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'User ID not specified.']);
+            exit();
+        }
+
+        $assignedResorts = User::getAssignedResorts($userId);
+        $assignedResortIds = array_map(function($resort) {
+            return $resort->ResortID;
+        }, $assignedResorts);
+
+        echo json_encode(['assigned' => $assignedResortIds]);
+        exit();
+    }
+
+    public function updateStaffResortAssignments() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !User::isMainAdmin($_SESSION['user_id'])) {
+            header('Location: ?controller=admin&action=users&error=unauthorized');
+            exit();
+        }
+
+        $userId = filter_input(INPUT_POST, 'userId', FILTER_VALIDATE_INT);
+        $resortIds = $_POST['resort_ids'] ?? [];
+
+        if (!$userId) {
+            header('Location: ?controller=admin&action=users&error=invalid_user');
+            exit();
+        }
+
+        if (User::assignResorts($userId, $resortIds)) {
+            header('Location: ?controller=admin&action=users&status=assignments_updated');
+        } else {
+            header('Location: ?controller=admin&action=users&error=assignment_failed');
         }
         exit();
     }
