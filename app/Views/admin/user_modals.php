@@ -12,23 +12,27 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="?controller=admin&action=addUser" method="POST">
+                <form id="addUserForm" action="?controller=admin&action=addUser" method="POST" class="needs-validation" novalidate>
                     <div style="max-height: 78vh; overflow-y: auto; padding-right: 15px;">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
+                            <label for="add-username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="add-username" name="username" required>
+                            <div class="invalid-feedback">Please choose a username.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="add-email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="add-email" name="email" required>
+                            <div class="invalid-feedback">Please provide a valid email.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="add-password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="add-password" name="password" required>
+                            <div class="invalid-feedback">Password must be at least 8 characters long.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <label for="add-confirm_password" class="form-label">Confirm Password</label>
                             <input type="password" class="form-control" id="add-confirm_password" name="confirm_password" required>
+                            <div class="invalid-feedback">Passwords do not match.</div>
                         </div>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
@@ -85,7 +89,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editUserForm" action="" method="POST" enctype="multipart/form-data">
+                <form id="editUserForm" action="" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div id="edit-profile-image-container" class="text-center mb-3" style="display: none;">
                         <img id="edit-profile-image-preview" src="" alt="Profile Image" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                     </div>
@@ -94,12 +98,14 @@
                         <input class="form-control" type="file" id="edit-profileImage" name="profileImage" accept="image/*">
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <label for="edit-username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="edit-username" name="username" required>
+                        <div class="invalid-feedback">Please choose a username.</div>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="edit-email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="edit-email" name="email" required>
+                        <div class="invalid-feedback">Please provide a valid email.</div>
                     </div>
                     <div class="mb-3">
                         <label for="firstName" class="form-label">First Name</label>

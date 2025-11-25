@@ -150,11 +150,11 @@ require_once __DIR__ . '/../partials/header.php';
                     <td>
                     <div class="btn-group" role="group">
                         <?php if ($user['Role'] === 'Customer'): ?>
-                            <button type="button" class="btn btn-sm btn-info view-bookings-btn" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?= $user['UserID'] ?>">View Bookings</button>
+                            <button type="button" class="btn btn-sm btn-info view-bookings-btn d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#viewUserBookingsModal" data-user-id="<?= $user['UserID'] ?>" style="min-width: 120px;">View Bookings</button>
                         <?php elseif ($user['Role'] === 'Staff'): ?>
-                            <button type="button" class="btn btn-sm btn-success assign-resorts-btn" data-bs-toggle="modal" data-bs-target="#assignedResortsModal" data-user-id="<?= $user['UserID'] ?>" data-username="<?= htmlspecialchars($user['Username']) ?>">Assigned Resorts</button>
+                            <button type="button" class="btn btn-sm btn-success assign-resorts-btn d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#assignedResortsModal" data-user-id="<?= $user['UserID'] ?>" data-username="<?= htmlspecialchars($user['Username']) ?>" style="min-width: 120px;">Assigned Resorts</button>
                         <?php else: ?>
-                            <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true">View Bookings</button>
+                            <button type="button" class="btn btn-sm btn-info disabled d-flex align-items-center justify-content-center" aria-disabled="true" style="min-width: 120px;">View Bookings</button>
                         <?php endif; ?>
                         <?php
                         $isMainAdmin = User::isMainAdmin($_SESSION['user_id']);
@@ -335,4 +335,125 @@ require_once __DIR__ . '/../partials/header.php';
             }
         }
     }
+
+    // --- Form Validation ---
+    (function () {
+        'use strict'
+
+        // Generic function to check if a username/email exists on the server
+        async function checkIfExists(field, value, excludeUserId = null) {
+            const payload = { [field]: value };
+            if (excludeUserId) {
+                payload.excludeUserId = excludeUserId;
+            }
+            const response = await fetch('?controller=validation&action=checkUserExists', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            return data.exists;
+        }
+
+        // Generic function to validate a field
+        function validateField(field, validationRule, serverRule = null, serverExcludeId = null) {
+            const feedbackElement = field.nextElementSibling;
+            if (!validationRule(field.value)) {
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+                return false; // Indicate validation failure
+            }
+
+            let isValid = true;
+            if (serverRule) {
+                serverRule(field.id.split('-')[1], field.value, serverExcludeId).then(exists => {
+                    if (exists) {
+                        field.classList.add('is-invalid');
+                        field.classList.remove('is-valid');
+                        if (feedbackElement) {
+                            feedbackElement.textContent = `${field.name.charAt(0).toUpperCase() + field.name.slice(1)} is already taken.`;
+                        }
+                        isValid = false;
+                    } else {
+                        field.classList.add('is-valid');
+                        field.classList.remove('is-invalid');
+                    }
+                });
+            } else {
+                field.classList.add('is-valid');
+                field.classList.remove('is-invalid');
+            }
+            return isValid;
+        }
+
+        // --- Add User Modal Validation ---
+        const addUserForm = document.getElementById('addUserForm');
+        if (addUserForm) {
+            const addUsername = document.getElementById('add-username');
+            const addEmail = document.getElementById('add-email');
+            const addPassword = document.getElementById('add-password');
+            const addConfirmPassword = document.getElementById('add-confirm_password');
+
+            function validateAddPasswords() {
+                validateField(addPassword, value => value.length >= 8);
+                validateField(addConfirmPassword, value => value === addPassword.value && value.length > 0);
+                if (addConfirmPassword.value !== addPassword.value) {
+                    addConfirmPassword.nextElementSibling.textContent = 'Passwords do not match.';
+                }
+            }
+
+            addUsername.addEventListener('input', () => validateField(addUsername, value => value.trim().length > 0, checkIfExists));
+            addEmail.addEventListener('input', () => validateField(addEmail, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), checkIfExists));
+            addPassword.addEventListener('input', validateAddPasswords);
+            addConfirmPassword.addEventListener('input', validateAddPasswords);
+
+            addUserForm.addEventListener('submit', function (event) {
+                let isFormValid = true;
+                if (!validateField(addUsername, value => value.trim().length > 0)) isFormValid = false;
+                if (!validateField(addEmail, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) isFormValid = false;
+                if (!validateField(addPassword, value => value.length >= 8)) isFormValid = false;
+                if (!validateField(addConfirmPassword, value => value === addPassword.value && value.length > 0)) isFormValid = false;
+                
+                if (!isFormValid || !addUserForm.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                addUserForm.classList.add('was-validated');
+            }, false);
+        }
+
+        // --- Edit User Modal Validation ---
+        const editUserForm = document.getElementById('editUserForm');
+        if (editUserForm) {
+            const editUsername = document.getElementById('edit-username');
+            const editEmail = document.getElementById('edit-email');
+            let currentEditUserId = null;
+
+            // Get the user ID when the modal is shown
+            document.getElementById('editUserModal').addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                currentEditUserId = button.getAttribute('data-user-id');
+                // Reset validation state
+                editUserForm.classList.remove('was-validated');
+                [editUsername, editEmail].forEach(field => {
+                    field.classList.remove('is-valid', 'is-invalid');
+                });
+            });
+
+            editUsername.addEventListener('input', () => validateField(editUsername, value => value.trim().length > 0, checkIfExists, currentEditUserId));
+            editEmail.addEventListener('input', () => validateField(editEmail, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), checkIfExists, currentEditUserId));
+
+            editUserForm.addEventListener('submit', function (event) {
+                let isFormValid = true;
+                if (!validateField(editUsername, value => value.trim().length > 0, null, currentEditUserId)) isFormValid = false; // Re-validate without server check on submit
+                if (!validateField(editEmail, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), null, currentEditUserId)) isFormValid = false;
+
+                if (!isFormValid || !editUserForm.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                editUserForm.classList.add('was-validated');
+            }, false);
+        }
+    })();
     </script>

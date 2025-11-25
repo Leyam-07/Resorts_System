@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.6] - 2025-11-25
+
+### Added
+
+- **Admin User Validation:** Implemented client-side validation for the **Add New User** and **Edit User** modals on the Manage Users page, mirroring the logic of the registration forms.
+  - **Real-time Checks:** Added asynchronous checks for existing usernames and emails.
+  - **Edit Exclusion:** The server-side validation was updated to exclude the current user's ID during unique username/email checks.
+
+### Fixed
+
+- **Button Alignment:** Corrected the alignment of action buttons in the user table by applying a fixed minimum width to the "View Bookings" and "Assigned Resorts" buttons, ensuring visual consistency across all user roles.
+
+### Files Updated
+
+- `app/Models/User.php`
+- `app/Controllers/ValidationController.php`
+- `app/Views/admin/users.php`
+- `app/Views/admin/user_modals.php`
+
 ## [1.52.5] - 2025-11-25
 
 ### Added

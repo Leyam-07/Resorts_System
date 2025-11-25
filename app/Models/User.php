@@ -87,21 +87,35 @@ class User {
      * @param string $username
      * @return mixed Returns the user data as an associative array or false if not found.
      */
-    public static function findByUsername($username) {
-        $query = "SELECT * FROM " . self::$table . " WHERE Username = :username LIMIT 1";
+    public static function findByUsername($username, $excludeId = null) {
+        $sql = "SELECT * FROM " . self::$table . " WHERE Username = :username";
+        if ($excludeId) {
+            $sql .= " AND UserID != :excludeId";
+        }
+        $sql .= " LIMIT 1";
         
-        $stmt = self::getDB()->prepare($query);
+        $stmt = self::getDB()->prepare($sql);
         $stmt->bindParam(':username', $username);
+        if ($excludeId) {
+            $stmt->bindParam(':excludeId', $excludeId);
+        }
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function findByEmail($email) {
-        $query = "SELECT * FROM " . self::$table . " WHERE Email = :email LIMIT 1";
+    public static function findByEmail($email, $excludeId = null) {
+        $sql = "SELECT * FROM " . self::$table . " WHERE Email = :email";
+        if ($excludeId) {
+            $sql .= " AND UserID != :excludeId";
+        }
+        $sql .= " LIMIT 1";
         
-        $stmt = self::getDB()->prepare($query);
+        $stmt = self::getDB()->prepare($sql);
         $stmt->bindParam(':email', $email);
+        if ($excludeId) {
+            $stmt->bindParam(':excludeId', $excludeId);
+        }
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
