@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.8] - 2025-11-26
+
+### Added
+
+- **Site-wide Theme Overhaul:** Extended the dark/light theme and lively background (sand/waves) from the authentication pages to the entire main application.
+  - **New Stylesheet:** Introduced `assets/css/main.css` for all general application styling, keeping theme logic separate from authentication styles.
+  - **Animated Background:** Implemented a persistent, low-opacity, wavy background effect across all pages.
+  - **Theme Switcher:** Integrated the theme toggle into the primary navigation bar for all user roles (Admin, Staff, Customer, Guest).
+  - **Theme Persistence:** Theme preference (light/dark) is saved in local storage and persists across page loads.
+
+### Fixed
+
+- **Modal Stacking Context:** Resolved critical issue where modals appeared behind the navbar and backdrop, making them unusable.
+  - Removed z-index restriction from the main content container (`.container`).
+  - Set the background overlay (`.main-background-overlay`) to `z-index: -1`.
+  - Applied explicit, high `z-index` values to modals and backdrops to ensure they layer correctly over all content.
+- **Navbar Stickiness:** Corrected CSS override that prevented the navbar from remaining sticky (`sticky-top`) during scrolling.
+- **Text Contrast:** Corrected poor readability on elements using Bootstrap's `.bg-primary` class (e.g., card headers, modal headers) by enforcing white text color in both light and dark themes.
+
+### Changed
+
+- **Navigation Bar Styling:** Removed Bootstrap's default dark/primary background classes from the navbar; styling is now handled entirely by theme-aware CSS in `main.css`.
+
+### Files Updated
+
+- `assets/css/main.css`
+- `app/Views/partials/header.php`
+- `app/Views/partials/guest_header.php`
+- `app/Views/partials/footer.php`
+
 ## [1.52.7] - 2025-11-26
 
 ### Added

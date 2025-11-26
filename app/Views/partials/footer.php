@@ -608,6 +608,45 @@ document.addEventListener('DOMContentLoaded', function () {
         // Initial setup
         updatePriceLabel();
     }
+
+    // --- Theme Switcher Logic ---
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const body = document.body;
+    
+    if (themeSwitcher) {
+        const sunIcon = themeSwitcher.querySelector('.fa-sun');
+        const moonIcon = themeSwitcher.querySelector('.fa-moon');
+        
+        // Function to update icon state
+        const updateIcons = () => {
+            if (body.classList.contains('dark-theme')) {
+                if (sunIcon) sunIcon.classList.remove('active');
+                if (moonIcon) moonIcon.classList.add('active');
+            } else {
+                if (moonIcon) moonIcon.classList.remove('active');
+                if (sunIcon) sunIcon.classList.add('active');
+            }
+        };
+
+        // Check for saved theme in localStorage
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-theme');
+        }
+        updateIcons(); // Set initial icon state
+
+        themeSwitcher.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            
+            // Save theme preference
+            if (body.classList.contains('dark-theme')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.removeItem('theme');
+            }
+            updateIcons(); // Update icons on click
+        });
+    }
 </script>
 <!-- Bootstrap JS Bundle with Popper -->
 </body>

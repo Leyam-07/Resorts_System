@@ -86,7 +86,7 @@ require_once __DIR__ . '/../partials/header.php';
         <div class="col-md-3">
             <div class="card text-white bg-primary mb-3 h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Monthly Income</span>
+                    <span class="text-white">Monthly Income</span>
                     <a href="?controller=admin&action=incomeAnalytics<?php echo isset($_GET['resort_id']) ? '&resort_id=' . urlencode($_GET['resort_id']) : ''; ?>" class="btn btn-sm btn-light">
                         <i class="fas fa-chart-line"></i> Analytics
                     </a>

@@ -23,6 +23,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
     <link href="<?= BASE_URL ?>/assets/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link href="<?= BASE_URL ?>/assets/css/fontawesome.min.css" rel="stylesheet">
+    <!-- Main Application CSS -->
+    <link href="<?= BASE_URL ?>/assets/css/main.css" rel="stylesheet">
     <!-- Bootstrap JS Bundle - Load in head for navbar dropdowns -->
     <script src="<?= BASE_URL ?>/assets/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js - Added for dashboard graphs -->
@@ -41,9 +43,11 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
     </script>
 </head>
 <body>
+<!-- Background Wave Effect -->
+<div class="main-background-overlay"></div>
 
 <?php if (isset($_SESSION['user_id'])): ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+<nav class="navbar navbar-expand-lg sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="?">
             <i class="fas fa-swimming-pool"></i> Resort Haven
@@ -246,6 +250,14 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'Customer') {
                         <a class="nav-link" href="?controller=user&action=logout">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
+                    </li>
+                    <!-- Theme Switcher -->
+                    <li class="nav-item d-flex align-items-center">
+                        <div class="theme-switcher" id="theme-switcher">
+                            <div class="theme-switcher-slider"></div>
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </div>
                     </li>
                 <?php endif; ?>
             </ul>
