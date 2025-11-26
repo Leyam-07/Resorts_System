@@ -1363,12 +1363,18 @@ body.dark-theme .border-top {
   color: var(--color-primary);
   font-weight: 600;
   margin-bottom: 0.125rem;
+  text-align: center;
+  position: relative;
+  right: 1rem;
 }
 
 .sidebar-user-info .user-name {
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--color-text-light);
+  text-align: center;
+  position: relative;
+  right: 1rem;
 }
 
 .sidebar-brand {
