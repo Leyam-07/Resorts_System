@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.4] - 2025-11-26
+
+### Fixed
+
+- **Staff Feedback Filter:** Corrected an issue where the "All Resorts" option was missing from the filter dropdown for Staff users assigned to multiple resorts. The option is now displayed for Staff if they are assigned to more than one resort, allowing them to view aggregated feedback.
+
+### Files Updated
+
+- `app/Views/admin/feedback/index.php`
+
 ## [1.53.3] - 2025-11-26
 
 ### Fixed

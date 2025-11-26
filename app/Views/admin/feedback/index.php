@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../partials/header.php';
                 <input type="hidden" name="controller" value="feedback">
                 <input type="hidden" name="action" value="listAllFeedback">
                 <select name="resort_id" class="form-select" onchange="this.form.submit()">
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+                    <?php if (isset($_SESSION['role']) && ($_SESSION['role'] === 'Admin' || count($resorts) > 1)): ?>
                         <option value="">All Resorts</option>
                     <?php endif; ?>
                     <?php foreach ($resorts as $resort): ?>
