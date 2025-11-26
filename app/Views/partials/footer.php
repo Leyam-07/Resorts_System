@@ -516,6 +516,98 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+    // --- Resort Filter and Sort Logic ---
+    const resortsList = document.getElementById('resorts-list');
+    if (resortsList) {
+        const filterPrice = document.getElementById('filterPrice');
+        const priceValue = document.getElementById('priceValue');
+        const filterRating = document.getElementById('filterRating');
+        const filterBookings = document.getElementById('filterBookings');
+        const sortResorts = document.getElementById('sortResorts');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+
+        const applyFiltersAndSort = () => {
+            const maxPrice = parseInt(filterPrice.value, 10);
+            const minRating = parseFloat(filterRating.value);
+            const minBookings = filterBookings.value ? parseInt(filterBookings.value, 10) : 0;
+            const sortValue = sortResorts.value;
+
+            const resortCards = Array.from(resortsList.querySelectorAll('.resort-card'));
+
+            // 1. Filter
+            resortCards.forEach(card => {
+                const price = parseInt(card.dataset.price, 10);
+                const rating = parseFloat(card.dataset.rating);
+                const bookings = parseInt(card.dataset.bookings, 10);
+
+                const priceMatch = maxPrice === 50000 ? true : price <= maxPrice;
+                const ratingMatch = rating >= minRating;
+                const bookingsMatch = bookings >= minBookings;
+
+                if (priceMatch && ratingMatch && bookingsMatch) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 2. Sort
+            const visibleCards = resortCards.filter(card => card.style.display !== 'none');
+            
+            visibleCards.sort((a, b) => {
+                const nameA = a.dataset.name.toLowerCase();
+                const nameB = b.dataset.name.toLowerCase();
+                const priceA = parseInt(a.dataset.price, 10);
+                const priceB = parseInt(b.dataset.price, 10);
+                const ratingA = parseFloat(a.dataset.rating);
+                const ratingB = parseFloat(b.dataset.rating);
+                const bookingsA = parseInt(a.dataset.bookings, 10);
+                const bookingsB = parseInt(b.dataset.bookings, 10);
+
+                switch (sortValue) {
+                    case 'name-asc': return nameA.localeCompare(nameB);
+                    case 'name-desc': return nameB.localeCompare(nameA);
+                    case 'price-asc': return priceA - priceB;
+                    case 'price-desc': return priceB - priceA;
+                    case 'rating-desc': return ratingB - ratingA;
+                    case 'bookings-desc': return bookingsB - bookingsA;
+                    default: return 0;
+                }
+            });
+
+            // 3. Re-append to DOM
+            visibleCards.forEach(card => resortsList.appendChild(card));
+        };
+
+        const updatePriceLabel = () => {
+            const value = parseInt(filterPrice.value, 10);
+            if (value === 50000) {
+                priceValue.textContent = '₱50,000+';
+            } else {
+                priceValue.textContent = `₱${value.toLocaleString()}`;
+            }
+        };
+
+        const resetFilters = () => {
+            filterPrice.value = 50000;
+            filterRating.value = 0;
+            filterBookings.value = '';
+            sortResorts.value = 'default';
+            updatePriceLabel();
+            applyFiltersAndSort();
+        };
+
+        filterPrice.addEventListener('input', updatePriceLabel);
+        filterPrice.addEventListener('change', applyFiltersAndSort);
+        filterRating.addEventListener('change', applyFiltersAndSort);
+        filterBookings.addEventListener('input', applyFiltersAndSort);
+        sortResorts.addEventListener('change', applyFiltersAndSort);
+        resetFiltersBtn.addEventListener('click', resetFilters);
+        
+        // Initial setup
+        updatePriceLabel();
+    }
 </script>
 <!-- Bootstrap JS Bundle with Popper -->
 </body>

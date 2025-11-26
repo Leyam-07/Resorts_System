@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.7] - 2025-11-26
+
+### Added
+
+- **Resort Filtering and Sorting:** Implemented client-side filtering and sorting for resort listings on customer and admin preview pages.
+  - **Filter Accordion:** Added a collapsible filter UI with controls for **Max Starting Price**, **Minimum Rating**, and **Minimum Completed Bookings**.
+  - **Sort Selection:** Added a dropdown for sorting resorts by Name, Price, Rating, and Popularity (Completed Bookings).
+  - **Client-Side Logic:** Implemented dynamic JavaScript logic in the footer to filter and reorder resort cards in real-time.
+
+### Fixed
+
+- **UI Alignment:** Ensured the **Sort** dropdown button matches the height of the **Filter Resorts** accordion button by applying Bootstrap utility classes (`d-flex align-items-stretch` and `w-100`).
+
+### Changed
+
+- **Filter Label Clarity:** Renamed the "Max Price" filter label to **"Max Starting Price (₱)"** to accurately reflect that the filter applies to the resort's starting price.
+
+### Files Updated
+
+- `app/Views/dashboard.php`
+- `app/Views/admin/facilities/preview.php`
+- `app/Views/partials/footer.php`
+
 ## [1.52.6] - 2025-11-25
 
 ### Added
