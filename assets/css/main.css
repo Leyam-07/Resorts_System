@@ -94,6 +94,13 @@ body {
   transition: color 0.2s ease;
 }
 
+/* Add spacing between icon and text in navbar brand */
+.navbar-brand i,
+.mobile-brand i,
+.sidebar-brand i {
+  margin-right: 0.5rem;
+}
+
 .navbar .nav-link:hover {
   color: var(--color-primary) !important;
 }
