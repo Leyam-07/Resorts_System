@@ -1,4 +1,10 @@
-</div> <!--- Close container -->
+<?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['Admin', 'Staff'])): ?>
+                </div> <!-- Close container-fluid py-4 -->
+            </main> <!-- Close admin-main-content -->
+        </div> <!-- Close admin-layout-wrapper -->
+<?php else: ?>
+</div> <!-- Close container -->
+<?php endif; ?>
 
 
 <style>
@@ -609,16 +615,45 @@ document.addEventListener('DOMContentLoaded', function () {
         updatePriceLabel();
     }
 
-    // --- Theme Switcher Logic ---
-    const themeSwitcher = document.getElementById('theme-switcher');
+    // --- Admin Sidebar Toggle Logic ---
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const adminSidebar = document.getElementById('admin-sidebar');
+
+    if (sidebarToggle && adminSidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            adminSidebar.classList.add('show');
+            if (sidebarOverlay) sidebarOverlay.classList.add('show');
+            document.body.classList.add('sidebar-open');
+        });
+    }
+
+    if (sidebarClose && adminSidebar) {
+        sidebarClose.addEventListener('click', () => {
+            adminSidebar.classList.remove('show');
+            if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+        });
+    }
+
+    if (sidebarOverlay && adminSidebar) {
+        sidebarOverlay.addEventListener('click', () => {
+            adminSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+        });
+    }
+
+    // --- Theme Switcher Logic (supports multiple switchers) ---
+    const themeSwitchers = document.querySelectorAll('.theme-switcher');
     const body = document.body;
-    
-    if (themeSwitcher) {
-        const sunIcon = themeSwitcher.querySelector('.fa-sun');
-        const moonIcon = themeSwitcher.querySelector('.fa-moon');
-        
-        // Function to update icon state
-        const updateIcons = () => {
+
+    // Function to update all theme switcher icons
+    const updateAllThemeIcons = () => {
+        themeSwitchers.forEach(switcher => {
+            const sunIcon = switcher.querySelector('.fa-sun');
+            const moonIcon = switcher.querySelector('.fa-moon');
             if (body.classList.contains('dark-theme')) {
                 if (sunIcon) sunIcon.classList.remove('active');
                 if (moonIcon) moonIcon.classList.add('active');
@@ -626,16 +661,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (moonIcon) moonIcon.classList.remove('active');
                 if (sunIcon) sunIcon.classList.add('active');
             }
-        };
+        });
+    };
 
-        // Check for saved theme in localStorage
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark') {
-            body.classList.add('dark-theme');
-        }
-        updateIcons(); // Set initial icon state
+    // Check for saved theme in localStorage
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        body.classList.add('dark-theme');
+    }
+    updateAllThemeIcons(); // Set initial icon state
 
-        themeSwitcher.addEventListener('click', () => {
+    // Add click listeners to all theme switchers
+    themeSwitchers.forEach(switcher => {
+        switcher.addEventListener('click', () => {
             body.classList.toggle('dark-theme');
             
             // Save theme preference
@@ -644,9 +682,9 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 localStorage.removeItem('theme');
             }
-            updateIcons(); // Update icons on click
+            updateAllThemeIcons(); // Update icons on all switchers
         });
-    }
+    });
 </script>
 <!-- Bootstrap JS Bundle with Popper -->
 </body>

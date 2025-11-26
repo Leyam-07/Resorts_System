@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.2] - 2025-11-26
+
+### Added
+
+- **Admin/Staff Sidebar UI:** Implemented a fixed, responsive, two-column layout for all Admin and Staff pages, replacing the top navigation bar for these roles.
+  - **New Component:** Created `app/Views/partials/admin_sidebar.php` containing role-based navigation logic, collapsible submenus, and user information display.
+  - **User Info:** Sidebar header now displays the user's role (`Admin`, `Staff`, or `Manager Type`) and first name.
+  - **Staff Integration:** Sidebar layout is now correctly applied to Staff roles, providing limited access to the Dashboard and View Feedback pages.
+
+### Fixed
+
+- **Theme Toggle Slider Alignment:** Corrected the CSS for the theme switcher slider (`.theme-switcher-slider`) to ensure proper alignment over the active icon (Sun/Moon) in both light and dark themes across all instances (navbar, mobile, and sidebar).
+- **Sidebar Spacing:** Adjusted padding for the theme switcher in the sidebar for better visual alignment with navigation links.
+- **Booking & Payments Badge:** Removed the redundant total count badge from the main "Booking & Payments" menu item, keeping only the individual counts on sub-links (Unified Management and Payment Verification).
+- **Staff Feedback Link:** Ensured the "View Feedback" link is correctly displayed for Staff users in the new sidebar structure.
+
+### Changed
+
+- **Layout Architecture:** The main page structure in `app/Views/partials/header.php` and `app/Views/partials/footer.php` is now conditionally rendered: Admin/Staff receive the new sidebar layout, while Customer retains the top navbar.
+
+### Files Updated
+
+- `app/Views/partials/admin_sidebar.php` (New)
+- `app/Views/partials/header.php`
+- `app/Views/partials/footer.php`
+- `assets/css/main.css`
+
 ## [1.53.1] - 2025-11-26
 
 ### Enhanced
