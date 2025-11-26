@@ -30,7 +30,7 @@ require_once __DIR__ . '/../partials/header.php';
             </form>
         </div>
     </div>
-    <div class="container mt-4">
+
     <!-- Phase 5: Quick Admin Actions -->
     <div class="row mb-4">
         <div class="col-12">
@@ -343,7 +343,6 @@ require_once __DIR__ . '/../partials/header.php';
             </div>
         </div>
     </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

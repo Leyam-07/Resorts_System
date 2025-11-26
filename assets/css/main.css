@@ -1763,9 +1763,11 @@ body.dark-theme .mobile-brand:hover {
    44. Admin Sidebar Responsive Styles
    ========================================================================== */
 
+/* Tablet and below - sidebar hidden by default */
 @media (max-width: 991.98px) {
   .admin-sidebar {
     transform: translateX(-100%);
+    width: 280px; /* Slightly larger on tablets for better touch targets */
   }
 
   .admin-sidebar.show {
@@ -1777,12 +1779,191 @@ body.dark-theme .mobile-brand:hover {
     padding-top: 60px;
   }
 
+  /* Ensure main content container adjusts properly */
+  #admin-main-content .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .admin-mobile-header {
     display: flex;
   }
 
   body.sidebar-open {
     overflow: hidden;
+  }
+
+  /* Make sidebar links easier to tap on touch devices */
+  .sidebar-link {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .sidebar-sublink {
+    padding: 0.75rem 1.25rem 0.75rem 2.75rem;
+  }
+}
+
+/* Small screens - phones (576px - 767px) */
+@media (max-width: 767.98px) {
+  .admin-sidebar {
+    width: 260px;
+  }
+
+  #admin-main-content .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Adjust mobile header for smaller screens */
+  .admin-mobile-header {
+    padding: 0 0.75rem;
+  }
+
+  .mobile-brand {
+    font-size: 1rem;
+  }
+
+  /* Make tables horizontally scrollable */
+  .table-responsive {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Extra small screens - small phones (below 576px) */
+@media (max-width: 575.98px) {
+  .admin-sidebar {
+    width: 85vw; /* Take up 85% of viewport width on very small screens */
+    max-width: 280px; /* But never more than 280px */
+  }
+
+  #admin-main-content .container-fluid {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .admin-mobile-header {
+    padding: 0 0.5rem;
+    height: 56px;
+  }
+
+  #admin-main-content {
+    padding-top: 56px;
+  }
+
+  .mobile-brand {
+    font-size: 0.9375rem;
+  }
+
+  .mobile-brand span {
+    display: none; /* Hide text, show only icon on very small screens */
+  }
+
+  .mobile-brand i {
+    font-size: 1.25rem;
+  }
+
+  /* Sidebar adjustments for very small screens */
+  .sidebar-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .sidebar-brand {
+    font-size: 1.125rem;
+  }
+
+  .sidebar-brand i {
+    font-size: 1.25rem;
+  }
+
+  .sidebar-user-info {
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .sidebar-sublink {
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    font-size: 0.875rem;
+  }
+
+  .sidebar-divider {
+    margin: 0.75rem 1rem;
+  }
+
+  .sidebar-theme-switcher {
+    padding: 0.875rem 1rem;
+  }
+
+  /* Cards adjustments */
+  .card {
+    border-radius: 8px;
+  }
+
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  /* Table cell padding reduction for very small screens */
+  .table > :not(caption) > * > * {
+    padding: 0.5rem 0.4rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Safe area insets for notched devices (iPhone X and newer) */
+@supports (padding: env(safe-area-inset-left)) {
+  @media (max-width: 991.98px) {
+    .admin-mobile-header {
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+      padding-top: env(safe-area-inset-top);
+    }
+
+    #admin-main-content {
+      padding-top: calc(60px + env(safe-area-inset-top));
+    }
+
+    .admin-sidebar {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .sidebar-header {
+      padding-top: calc(1rem + env(safe-area-inset-top));
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .admin-mobile-header {
+      padding-left: max(0.5rem, env(safe-area-inset-left));
+      padding-right: max(0.5rem, env(safe-area-inset-right));
+    }
+
+    #admin-main-content {
+      padding-top: calc(56px + env(safe-area-inset-top));
+    }
+
+    #admin-main-content .container-fluid {
+      padding-left: max(0.5rem, env(safe-area-inset-left));
+      padding-right: max(0.5rem, env(safe-area-inset-right));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
   }
 }
 
@@ -1797,6 +1978,11 @@ body.dark-theme .mobile-brand:hover {
   }
 
   .admin-mobile-header {
+    display: none !important;
+  }
+
+  /* Sidebar close button should be hidden on desktop */
+  .sidebar-close {
     display: none !important;
   }
 }
@@ -1825,5 +2011,44 @@ body.dark-theme .mobile-brand:hover {
   #admin-main-content {
     margin-left: 0 !important;
     padding-top: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   45. Admin Dashboard Mobile Fixes
+   ========================================================================== */
+
+/* Fix for nested container issue in admin dashboards */
+#admin-main-content .container {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Dashboard cards responsive adjustments */
+@media (max-width: 767.98px) {
+  /* Stack the monthly income and dashboard columns */
+  #admin-main-content .row.d-flex.align-items-stretch > [class*="col-md-3"],
+  #admin-main-content .row.d-flex.align-items-stretch > [class*="col-md-9"] {
+    margin-bottom: 1rem;
+  }
+
+  /* Quick action buttons - 2 columns on mobile */
+  #admin-main-content .card-body .row > [class*="col-md-3"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Quick action buttons - stack on very small screens */
+  #admin-main-content .card-body .row > [class*="col-md-3"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Monthly income chart height reduction */
+  #monthlyIncomeChart {
+    max-height: 150px !important;
   }
 }

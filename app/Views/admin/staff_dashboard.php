@@ -38,7 +38,7 @@ require_once __DIR__ . '/../partials/header.php';
         </form>
     </div>
 </div>
-<div class="container mt-4">
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title"><?= htmlspecialchars($cardTitle) ?></h3>
@@ -166,7 +166,7 @@ require_once __DIR__ . '/../partials/header.php';
             <?php endif; ?>
         </div>
     </div>
-</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const viewMoreBtn = document.getElementById('view-more-btn');

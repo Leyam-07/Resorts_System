@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.3] - 2025-11-26
+
+### Fixed
+
+- **Admin/Staff Sidebar Mobile Responsiveness:** Implemented comprehensive CSS fixes and structural adjustments to ensure the new Admin/Staff sidebar layout is fully responsive and compatible with mobile devices, including notched phones.
+  - **Nested Container Removal:** Removed redundant `<div class="container mt-4">` wrappers from `app/Views/admin/dashboard.php` and `app/Views/admin/staff_dashboard.php` to resolve layout conflicts with the new sidebar's main content wrapper (`#admin-main-content`).
+  - **Small Screen Optimization:** Added specific CSS rules for extra-small screens (`< 576px`), including reducing the sidebar width to `85vw` and optimizing padding/font sizes for better mobile UX.
+  - **Safe Area Support:** Implemented `env(safe-area-inset-*)` CSS support to correctly handle padding for notched mobile devices, ensuring the mobile header and sidebar do not overlap system UI elements.
+  - **Dashboard Layout Fixes:** Adjusted dashboard card layouts to stack correctly on mobile, including making quick action buttons responsive and reducing the height of the monthly income chart.
+
+### Files Updated
+
+- `assets/css/main.css`
+- `app/Views/admin/dashboard.php`
+- `app/Views/admin/staff_dashboard.php`
+
 ## [1.53.2] - 2025-11-26
 
 ### Added
