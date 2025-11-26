@@ -95,14 +95,34 @@ class FeedbackController {
         }
 
         require_once __DIR__ . '/../Models/Resort.php';
-        $resortId = isset($_GET['resort_id']) && trim($_GET['resort_id']) !== '' ? filter_var($_GET['resort_id'], FILTER_VALIDATE_INT) : null;
-        $resorts = Resort::findAll();
 
-        $resortFeedbacks = Feedback::findAll($resortId);
-        // This line will be replaced by the more efficient function below
-        // $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortId);
-        
-        $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortId);
+        $resortIdParam = isset($_GET['resort_id']) && trim($_GET['resort_id']) !== '' ? filter_var($_GET['resort_id'], FILTER_VALIDATE_INT) : null;
+        $resortsToQuery = null;
+        $allResorts = Resort::findAll(); // For the dropdown
+
+        if ($_SESSION['role'] === 'Staff') {
+            $assignedResorts = User::getAssignedResorts($_SESSION['user_id']);
+            $assignedResortIds = array_map(fn($resort) => $resort->ResortID, $assignedResorts);
+            
+            // Staff can only see their assigned resorts in the dropdown
+            $resorts = array_filter($allResorts, fn($resort) => in_array($resort->resortId, $assignedResortIds));
+
+            // Determine which resorts to query for feedback
+            if ($resortIdParam && in_array($resortIdParam, $assignedResortIds)) {
+                // If a specific, assigned resort is selected, query only that one
+                $resortsToQuery = $resortIdParam;
+            } else {
+                // Otherwise, query all assigned resorts
+                $resortsToQuery = $assignedResortIds;
+            }
+        } else {
+            // Admins see all resorts
+            $resorts = $allResorts;
+            $resortsToQuery = $resortIdParam;
+        }
+
+        $resortFeedbacks = Feedback::findAll($resortsToQuery);
+        $facilityFeedbacks = Feedback::findAllFacilityFeedbacks($resortsToQuery);
 
         require_once __DIR__ . '/../Views/admin/feedback/index.php';
     }

@@ -46,7 +46,7 @@ class Feedback {
         return $stmt->fetchObject('Feedback');
     }
 
-    public static function findAll($resortId = null) {
+    public static function findAll($resortIds = null) {
         $db = self::getDB();
         $query = "SELECT f.FeedbackID, f.BookingID, f.Rating, f.Comment, f.CreatedAt, b.BookingDate, u.UserID as CustomerID, u.Username as CustomerName,
                          r.Name as ResortName, b.ResortID,
@@ -61,9 +61,18 @@ class Feedback {
         $conditions = [];
         $params = [];
 
-        if ($resortId !== null) {
-            $conditions[] = "b.ResortID = :resortId";
-            $params['resortId'] = $resortId;
+        if ($resortIds !== null) {
+            if (is_array($resortIds)) {
+                if (empty($resortIds)) {
+                    return []; // No resorts assigned, return empty result
+                }
+                $placeholders = implode(',', array_fill(0, count($resortIds), '?'));
+                $conditions[] = "b.ResortID IN ($placeholders)";
+                $params = $resortIds;
+            } else {
+                $conditions[] = "b.ResortID = ?";
+                $params[] = $resortIds;
+            }
         }
 
         if (!empty($conditions)) {
@@ -73,10 +82,7 @@ class Feedback {
         $query .= " GROUP BY f.FeedbackID ORDER BY f.CreatedAt DESC";
 
         $stmt = $db->prepare($query);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
-        }
-        $stmt->execute();
+        $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($results as &$result) {
@@ -94,7 +100,7 @@ class Feedback {
         return $results;
     }
 
-    public static function findAllFacilityFeedbacks($resortId = null) {
+    public static function findAllFacilityFeedbacks($resortIds = null) {
         $db = self::getDB();
         $query = "SELECT ff.FacilityFeedbackID, ff.FeedbackID, ff.FacilityID, ff.Rating, ff.Comment, ff.CreatedAt,
                          u.UserID as CustomerID, u.Username as CustomerName, fac.Name as FacilityName, r.Name as ResortName, b.BookingDate, r.ResortID,
@@ -110,9 +116,18 @@ class Feedback {
         $conditions = [];
         $params = [];
 
-        if ($resortId !== null) {
-            $conditions[] = "b.ResortID = :resortId";
-            $params['resortId'] = $resortId;
+        if ($resortIds !== null) {
+            if (is_array($resortIds)) {
+                if (empty($resortIds)) {
+                    return []; // No resorts assigned, return empty result
+                }
+                $placeholders = implode(',', array_fill(0, count($resortIds), '?'));
+                $conditions[] = "b.ResortID IN ($placeholders)";
+                $params = $resortIds;
+            } else {
+                $conditions[] = "b.ResortID = ?";
+                $params[] = $resortIds;
+            }
         }
 
         if (!empty($conditions)) {
@@ -122,10 +137,7 @@ class Feedback {
         $query .= " GROUP BY ff.FacilityFeedbackID ORDER BY ff.CreatedAt DESC";
 
         $stmt = $db->prepare($query);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
-        }
-        $stmt->execute();
+        $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($results as &$result) {

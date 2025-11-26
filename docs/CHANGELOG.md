@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.52.9] - 2025-11-26
+
+### Added
+
+- **Staff Feedback Filtering:** Implemented resort assignment filtering for the "View All Feedback" page, ensuring staff users only see feedback for resorts they are assigned to.
+  - **Data Filtering:** Updated `Feedback` model (`findAll`, `findAllFacilityFeedbacks`) to filter data by an array of assigned `ResortID`s.
+  - **Access Control:** `FeedbackController::listAllFeedback` now restricts query data and the resort filter dropdown based on `User::getAssignedResorts()`.
+
+### Fixed
+
+- **Casing Issue:** Corrected a PHP warning in `FeedbackController` by changing property access from `$resort->resortId` to `$resort->ResortID`.
+- **UI Consistency:** Resolved an issue where the "All Resorts" option was visible to staff users in the filter dropdown. This option is now conditionally rendered only for Admin users.
+
+### Files Updated
+
+- `app/Models/Feedback.php`
+- `app/Controllers/FeedbackController.php`
+- `app/Views/admin/feedback/index.php`
+
 ## [1.52.8] - 2025-11-26
 
 ### Added
