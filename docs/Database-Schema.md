@@ -48,6 +48,22 @@ CREATE TABLE IF NOT EXISTS `Resorts` (
 
 ---
 
+### Table: `StaffResortAssignments`
+
+Junction table linking staff users to the resorts they are assigned to manage.
+
+```sql
+CREATE TABLE IF NOT EXISTS `StaffResortAssignments` (
+  `UserID` INT NOT NULL,
+  `ResortID` INT NOT NULL,
+  PRIMARY KEY (`UserID`, `ResortID`),
+  FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE,
+  FOREIGN KEY (`ResortID`) REFERENCES `Resorts`(`ResortID`) ON DELETE CASCADE
+) ENGINE=InnoDB;
+```
+
+---
+
 ### Table: `ResortPhotos`
 
 Stores multiple photos for each resort.
