@@ -15,7 +15,7 @@ require_once __DIR__ . '/partials/header.php';
             <img src="<?php echo !empty($user['ProfileImageURL']) ? BASE_URL . '/' . htmlspecialchars($user['ProfileImageURL']) : 'https://via.placeholder.com/150'; ?>" alt="Profile Image" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
         </div>
         <?php endif; ?>
-        <form action="?controller=user&action=profile" method="POST" enctype="multipart/form-data">
+        <form id="profileForm" action="?controller=user&action=profile" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
             <div style="max-height: 78vh; overflow-y: auto; padding-right: 15px;">
                 <fieldset id="profile-fieldset" disabled>
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
@@ -26,13 +26,15 @@ require_once __DIR__ . '/partials/header.php';
                     <?php endif; ?>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['Username']); ?>" required>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['Email']); ?>" required>
-                </div>
-                <div class="mb-3">
+                        <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['Username']); ?>" required>
+                        <div class="invalid-feedback">Please enter a username.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['Email']); ?>" required>
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
+                    </div>
+                    <div class="mb-3">
                     <label for="firstName" class="form-label">First Name</label>
                     <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($user['FirstName']); ?>">
                 </div>
@@ -56,10 +58,12 @@ require_once __DIR__ . '/partials/header.php';
                 <div class="mb-3">
                     <label for="password" class="form-label">New Password</label>
                     <input type="password" class="form-control" id="password" name="password">
+                    <div class="invalid-feedback">Password must be at least 8 characters long.</div>
                 </div>
                 <div class="mb-3">
                     <label for="confirm_password" class="form-label">Confirm New Password</label>
                     <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    <div class="invalid-feedback">Passwords do not match.</div>
                 </div>
                 </fieldset>
             </div>
@@ -89,6 +93,112 @@ document.addEventListener('DOMContentLoaded', function () {
         // A simple way to reset is to reload the page.
         window.location.reload();
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const currentUserId = <?php echo json_encode($_SESSION['user_id'] ?? null); ?>;
+
+        const checkIfExists = async (field, value) => {
+            try {
+                const response = await fetch('?controller=validation&action=checkUserExists', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ [field.name]: value, excludeUserId: currentUserId })
+                });
+                const data = await response.json();
+                return data.exists;
+            } catch (error) {
+                console.error('Validation check failed:', error);
+                return false; // Fail safe
+            }
+        };
+
+        const validateField = async (field, validationFn, asyncValidationFn = null) => {
+            const value = field.value;
+            const feedback = field.nextElementSibling;
+            let isValid = validationFn(value);
+
+            if (isValid && asyncValidationFn) {
+                const exists = await asyncValidationFn(field, value);
+                if (exists) {
+                    isValid = false;
+                    feedback.textContent = `${field.name.charAt(0).toUpperCase() + field.name.slice(1)} already exists.`;
+                }
+            }
+
+            if (isValid) {
+                field.classList.add('is-valid');
+                field.classList.remove('is-invalid');
+            } else {
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+                if (feedback.textContent === '') {
+                    // Restore default message if it was cleared
+                    feedback.textContent = field.id === 'email' ? 'Please enter a valid email address.' : 'Please enter a username.';
+                }
+            }
+            return isValid;
+        };
+        
+        const validatePasswords = () => {
+            const passValue = password.value;
+            const confirmValue = confirmPassword.value;
+            const feedback = confirmPassword.nextElementSibling;
+
+            // Only validate if a new password is being entered
+            if (passValue.length === 0 && confirmValue.length === 0) {
+                password.classList.remove('is-invalid', 'is-valid');
+                confirmPassword.classList.remove('is-invalid', 'is-valid');
+                return true;
+            }
+            
+            let isPassValid = passValue.length >= 8;
+            if (isPassValid) {
+                password.classList.add('is-valid');
+                password.classList.remove('is-invalid');
+            } else {
+                password.classList.add('is-invalid');
+                password.classList.remove('is-valid');
+            }
+
+            let isConfirmValid = passValue === confirmValue;
+            if (isConfirmValid) {
+                confirmPassword.classList.add('is-valid');
+                confirmPassword.classList.remove('is-invalid');
+            } else {
+                confirmPassword.classList.add('is-invalid');
+                confirmPassword.classList.remove('is-valid');
+            }
+
+            return isPassValid && isConfirmValid;
+        };
+
+        username.addEventListener('input', () => validateField(username, value => value.trim().length > 0, checkIfExists));
+        email.addEventListener('input', () => validateField(email, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), checkIfExists));
+        password.addEventListener('input', validatePasswords);
+        confirmPassword.addEventListener('input', validatePasswords);
+
+        profileForm.addEventListener('submit', function (event) {
+            let isFormValid = true;
+            if (!validateField(username, value => value.trim().length > 0)) isFormValid = false;
+            if (!validateField(email, value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) isFormValid = false;
+            if (!validatePasswords()) isFormValid = false;
+            
+            if (!isFormValid || !profileForm.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            profileForm.classList.add('was-validated');
+        }, false);
+    }
 });
 </script>
 

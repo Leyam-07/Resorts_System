@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.0] - 2025-11-26
+
+### Added
+
+- **Profile Page Validation:** Implemented client-side input validation for the "My Profile" page, ensuring real-time feedback for username and email uniqueness, and password matching.
+  - **Edit Exclusion:** The validation logic excludes the current user's ID during asynchronous checks for existing usernames/emails.
+
+### Files Updated
+
+- `app/Views/profile.php`
+
 ## [1.52.9] - 2025-11-26
 
 ### Added
