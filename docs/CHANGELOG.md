@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1/0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.1] - 2025-11-26
+
+### Enhanced
+
+- **Profile Page Overhaul:** Completely redesigned the "My Profile" page for all user roles (Admin, Staff, Customer, Guest) to improve aesthetics and usability.
+  - **Layout:** Implemented a responsive two-column grid layout with fields grouped into stylized cards (Account Info, Personal Info, Security) for visual clarity and better screen space utilization.
+  - **Field Compaction:** Form fields are now constrained to half-width (`col-md-6`) where possible, reducing field width and improving readability.
+  - **Visuals:** Added custom CSS styling for profile images, form labels, and card headers, ensuring a polished and modern appearance consistent with the rest of the application.
+  - **Scale Normalization:** Adjusted the main container structure in both `profile.php` and `profile_guest.php` to use `col-12` and `<h1>` for the title, aligning the page scale with other main application views (e.g., `my_feedback.php`).
+
+### Files Updated
+
+- `app/Views/profile.php`
+- `app/Views/profile_guest.php`
+- `assets/css/main.css`
+
 ## [1.53.0] - 2025-11-26
 
 ### Added

@@ -3,75 +3,134 @@ $pageTitle = "My Profile";
 require_once __DIR__ . '/partials/header.php';
 ?>
 
-<h2><?= htmlspecialchars($pageTitle) ?></h2>
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1><?= htmlspecialchars($pageTitle) ?></h1>
+    </div>
+    
+    <div class="col-12">
+        
         <?php if (isset($_GET['status']) && $_GET['status'] === 'updated'): ?>
             <div class="alert alert-success alert-dismissible fade show">Profile updated successfully!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         <?php endif; ?>
         <?php if (isset($_GET['error']) && $_GET['error'] === 'password_mismatch'): ?>
             <div class="alert alert-danger alert-dismissible fade show">Passwords do not match.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
         <?php endif; ?>
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
-        <div class="text-center mb-4">
-            <img src="<?php echo !empty($user['ProfileImageURL']) ? BASE_URL . '/' . htmlspecialchars($user['ProfileImageURL']) : 'https://via.placeholder.com/150'; ?>" alt="Profile Image" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-        </div>
-        <?php endif; ?>
+        
         <form id="profileForm" action="?controller=user&action=profile" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-            <div style="max-height: 78vh; overflow-y: auto; padding-right: 15px;">
-                <fieldset id="profile-fieldset" disabled>
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
-                    <div class="mb-3">
-                        <label for="profileImage" class="form-label">Update Profile Image</label>
-                        <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*">
+            <fieldset id="profile-fieldset" disabled>
+                <div class="row g-4">
+                    <!-- Left Column: Profile Image & Account Info -->
+                    <div class="col-12 col-lg-4">
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+                        <!-- Profile Image Card -->
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <img src="<?php echo !empty($user['ProfileImageURL']) ? BASE_URL . '/' . htmlspecialchars($user['ProfileImageURL']) : 'https://via.placeholder.com/150'; ?>" alt="Profile Image" class="img-thumbnail rounded-circle mb-3" style="width: 140px; height: 140px; object-fit: cover;">
+                                <h5 class="mb-1"><?php echo htmlspecialchars($user['FirstName'] . ' ' . $user['LastName']); ?></h5>
+                                <p class="text-muted mb-3"><small>@<?php echo htmlspecialchars($user['Username']); ?></small></p>
+                                <div class="mb-0">
+                                    <label for="profileImage" class="form-label small text-muted">Update Profile Image</label>
+                                    <input class="form-control form-control-sm" type="file" id="profileImage" name="profileImage" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <!-- Account Info Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-user-circle me-2"></i>Account Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label small">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['Username']); ?>" required>
+                                    <div class="invalid-feedback">Please enter a username.</div>
+                                </div>
+                                <div class="mb-0">
+                                    <label for="email" class="form-label small">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['Email']); ?>" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <?php endif; ?>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['Username']); ?>" required>
-                        <div class="invalid-feedback">Please enter a username.</div>
+                    
+                    <!-- Right Column: Personal Info & Security -->
+                    <div class="col-12 col-lg-8">
+                        <!-- Personal Information Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="firstName" class="form-label small">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($user['FirstName']); ?>">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="lastName" class="form-label small">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($user['LastName']); ?>">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="phoneNumber" class="form-label small">Phone Number</label>
+                                        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($user['PhoneNumber']); ?>">
+                                    </div>
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
+                                    <div class="col-12">
+                                        <label for="socials" class="form-label small">Social Media Links</label>
+                                        <textarea class="form-control" id="socials" name="socials" rows="2" placeholder="Enter social media links, one per line"><?php echo htmlspecialchars($user['Socials'] ?? ''); ?></textarea>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Security Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-lock me-2"></i>Security</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">Leave blank to keep your current password</p>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="password" class="form-label small">New Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter new password">
+                                        <div class="invalid-feedback">Password must be at least 8 characters long.</div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="confirm_password" class="form-label small">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+                                        <div class="invalid-feedback">Passwords do not match.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['Email']); ?>" required>
-                        <div class="invalid-feedback">Please enter a valid email address.</div>
-                    </div>
-                    <div class="mb-3">
-                    <label for="firstName" class="form-label">First Name</label>
-                    <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($user['FirstName']); ?>">
                 </div>
-                <div class="mb-3">
-                    <label for="lastName" class="form-label">Last Name</label>
-                    <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($user['LastName']); ?>">
-                </div>
-                <div class="mb-3">
-                    <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<?php echo htmlspecialchars($user['PhoneNumber']); ?>">
-                </div>
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin'): ?>
-                <div class="mb-3">
-                    <label for="socials" class="form-label">Socials</label>
-                    <textarea class="form-control" id="socials" name="socials" rows="3"><?php echo htmlspecialchars($user['Socials'] ?? ''); ?></textarea>
-                    <div class="form-text">Enter social media links, one per line.</div>
-                </div>
-                <?php endif; ?>
-                <hr>
-                <h5>Change Password</h5>
-                <div class="mb-3">
-                    <label for="password" class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="password" name="password">
-                    <div class="invalid-feedback">Password must be at least 8 characters long.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirm_password" class="form-label">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                    <div class="invalid-feedback">Passwords do not match.</div>
-                </div>
-                </fieldset>
+            </fieldset>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
+                <button type="button" id="edit-button" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </button>
+                <button type="submit" id="save-button" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+                <button type="button" id="cancel-button" class="btn btn-outline-secondary" style="display: none;">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <a href="index.php" id="back-button" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
             </div>
-            <button type="button" id="edit-button" class="btn btn-primary">Edit Profile</button>
-            <button type="submit" id="save-button" class="btn btn-primary" style="display: none;">Save Changes</button>
-            <button type="button" id="cancel-button" class="btn btn-secondary" style="display: none;">Cancel</button>
-            <a href="index.php" id="back-button" class="btn btn-secondary">Back to Dashboard</a>
         </form>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
